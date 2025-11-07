@@ -22,7 +22,7 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         if (rb == null)
         {
-            Debug.Log("Rigid Body ÄÄÆ÷³ÍÆ® ¾øÀ½");
+            Debug.Log("Rigid Body ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½");
         }
 
         if (cameraTransform == null)
@@ -31,7 +31,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            Debug.Log("Ä«¸Þ¶ó ¾øÀ½");
+            Debug.Log("Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ï¿½");
         }
     }
 
@@ -41,13 +41,13 @@ public class PlayerController : MonoBehaviour
         RotatePlayer(); 
     }
 
-    //ÀÎÇ²½Ã½ºÅÛ ÄÝ¹ÙÀÌÇÔ¼ö ¹«ºê
+    //ï¿½ï¿½Ç²ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½Ý¹ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½ï¿½
     public void OnMove(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
     }
 
-    //ÀÎÇ²½Ã½ºÅÛ ÄÝ¹ÙÀÌÇÔ¼ö ½ºÇÁ¸°Æ®
+    //ï¿½ï¿½Ç²ï¿½Ã½ï¿½ï¿½ï¿½ ï¿½Ý¹ï¿½ï¿½ï¿½ï¿½Ô¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
     public void OnSprint(InputAction.CallbackContext context)
     {
         if (context.performed)
@@ -60,7 +60,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    //Ä«¸Þ¶ó ±âÁØ ÇÃ·¹ÀÌ¾î ¿òÁ÷ÀÓ Á¦¾î ÇÔ¼ö
+    //Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
     private void MovePlayer()
     {
         Vector3 cameraForward = cameraTransform.forward;
@@ -78,7 +78,7 @@ public class PlayerController : MonoBehaviour
         rb.linearVelocity = new Vector3(movement.x, rb.linearVelocity.y, movement.z);
     }
 
-    //Ä«¸Þ¶ó ±âÁØ ÇÃ·¹ÀÌ¾î È¸Àü ÇÔ¼ö
+    //Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ È¸ï¿½ï¿½ ï¿½Ô¼ï¿½
     private void RotatePlayer()
     {
         bool isOnlyMovingBackward = moveInput.y < -0.1f && Mathf.Abs(moveInput.x) < 0.1f;
