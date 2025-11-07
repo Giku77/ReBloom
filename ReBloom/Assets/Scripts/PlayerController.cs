@@ -35,12 +35,10 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
-
         MovePlayer();
-        RotatePlayer();
-        
+        RotatePlayer(); 
     }
 
     //인풋시스템 콜바이함수 무브
