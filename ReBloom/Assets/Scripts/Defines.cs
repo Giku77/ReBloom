@@ -18,6 +18,14 @@ enum QuestIds
 // ==================== 아이템 관련 ====================
 // =====================================================
 
+public enum ItemTableType 
+{ 
+    Consumable,
+    Protective,
+    Tool,
+    Misc
+}
+
 /// <summary>
 /// 인벤토리 슬롯 위치 (장비/소비/기타/중요)
 /// </summary>
@@ -34,9 +42,9 @@ public enum InventorySlotType
 /// </summary>
 public enum ItemTier
 {
-    Common = 0,         // 일반 (1단계)
-    Rare = 1,           // 희귀 (2단계)
-    Epic = 2            // 영웅 (3단계)
+    Common = 1,         // 일반 (1단계)
+    Rare = 2,           // 희귀 (2단계)
+    Epic = 3            // 영웅 (3단계)
 }
 
 // ==================== 소비 아이템 관련 ====================
@@ -48,7 +56,7 @@ public enum ConsumableCategory
 {
     Food = 1,           // 1. 식량
     Medical = 2,        // 2. 구급물품
-    Jammer = 3          // 3. 재밍 아이템 (주파수)
+    Jamming = 3          // 3. 재밍 아이템 (주파수)
 }
 
 /// <summary>
@@ -98,7 +106,8 @@ public enum ToolUsageType
 public enum ProtectiveGearType
 {
     Clothing = 1,       // 1. 옷
-    Shoes = 2           // 2. 신발
+    Shoes = 2,           // 2. 신발
+    None = 3             // 3. 없음
 }
 
 // ==================== 기타 아이템 관련 ====================
