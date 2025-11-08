@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerStats : MonoBehaviour
 {
@@ -26,10 +27,23 @@ public class PlayerStats : MonoBehaviour
         Hunger.Tick();
         Thirst.Tick();
         Pollution.Tick();
+
+        if (Keyboard.current.kKey.wasPressedThisFrame)
+        {
+            PrintStats();
+        }
     }
 
     public void InvokeStatChanged(StatBase stat, float oldValue, float newValue)
     {
         OnStatChanged?.Invoke(stat, oldValue, newValue);
+    }
+
+
+void PrintStats()
+    {
+        Debug.Log($"Hunger: {Hunger.Value:F2} / {Hunger.MaxValue}");
+        Debug.Log($"Thirst: {Thirst.Value:F2} / {Thirst.MaxValue}");
+        Debug.Log($"Pollution: {Pollution.Value:F2} / {Pollution.MaxValue}");
     }
 }

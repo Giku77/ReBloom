@@ -9,8 +9,6 @@ public abstract class StatBase
     public float Value => value;
     public float MaxValue => maxValue;
 
-    private float lastLogTime = 0f;
-
     public StatBase(PlayerStats owner, float maxValue)
     { 
         this.owner = owner;
@@ -23,12 +21,6 @@ public abstract class StatBase
         float old = value;
         value = Mathf.Clamp(value + amount, 0, maxValue);
         owner.InvokeStatChanged(this, old, value);
-
-        if (Time.time - lastLogTime >= 1f)
-        {
-            Debug.Log($"{GetType().Name} : {value}");
-            lastLogTime = Time.time;
-        }
     }
 
     public virtual void Set(float newValue)
