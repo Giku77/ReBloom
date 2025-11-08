@@ -17,9 +17,9 @@ public class PlayerStats : MonoBehaviour
 
     void Update()
     {
-        Hunger.Tick();
-        Thirst.Tick();
-        Temperature.Tick();
+        //Hunger.Tick();
+        //Thirst.Tick();
+        //Temperature.Tick();
     }
 
     public void InvokeStatChanged(StatBase stat, float oldValue, float newValue)
