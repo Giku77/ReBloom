@@ -1,3 +1,4 @@
+using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 
 public abstract class StatBase
@@ -21,7 +22,7 @@ public abstract class StatBase
         value = Mathf.Clamp(value + amount, 0, maxValue);
         owner.InvokeStatChanged(this, old, value);
 
-        Debug.Log($"[Stat] changed: {old} -> {value}");
+        Debug.Log($"[Stat] {GetType().Name} changed: {old} -> {value}");
     }
 
     public virtual void Set(float newValue)

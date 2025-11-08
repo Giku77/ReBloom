@@ -14,13 +14,14 @@ public class PlayerStats : MonoBehaviour
     void Awake()
     {
         Hunger = new HungerStat(this, data.hungerMax, data.hungerDecreaseRate);
+        Thirst = new ThirstStat(this, data.thurstMax, data.thirstIncreaseRate);
 
     }
 
     void Update()
     {
         Hunger.Tick();
-        //Thirst.Tick();
+        Thirst.Tick();
         //Temperature.Tick();
     }
 

@@ -11,11 +11,10 @@ public class StatsData : ScriptableObject
 
     [Header("Latency Reduction Rate")]
     public float hungerDecreaseRate = 0.02f;
-    public float thirstDecreaseRate = 0.5f;
+    public float thirstIncreaseRate = 0.25f;
 
     [Header("Body Temperature Related")]
     public float normalTemperature = 36.5f;
-    public float environmentInfluenceRate = 0.1f;
 
     [Header("Pollution Related")]
     public float pollutionIncreaseRate = 0.5f;
