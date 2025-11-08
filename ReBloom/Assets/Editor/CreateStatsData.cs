@@ -14,9 +14,8 @@ public class CreateStatsData
         asset.thurstMax = 100f;
         asset.pollutionMax = 100f;
         asset.hungerDecreaseRate = 0.5f;
-        asset.thirstDecreaseRate = 0.5f;
+        asset.thirstIncreaseRate = 0.5f;
         asset.normalTemperature = 36.5f;
-        asset.environmentInfluenceRate = 0.1f;
         asset.pollutionIncreaseRate = 0.5f;
 
         AssetDatabase.CreateAsset(asset, "Assets/Data/PlayerStatsData.asset");

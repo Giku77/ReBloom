@@ -41,13 +41,11 @@ public class PlayerController : MonoBehaviour
         RotatePlayer(); 
     }
 
-    //��ǲ�ý��� �ݹ����Լ� ����
     public void OnMove(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
     }
 
-    //��ǲ�ý��� �ݹ����Լ� ������Ʈ
     public void OnSprint(InputAction.CallbackContext context)
     {
         if (context.performed)
@@ -60,7 +58,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    //ī�޶� ���� �÷��̾� ������ ���� �Լ�
     private void MovePlayer()
     {
         Vector3 cameraForward = cameraTransform.forward;
@@ -78,7 +75,6 @@ public class PlayerController : MonoBehaviour
         rb.linearVelocity = new Vector3(movement.x, rb.linearVelocity.y, movement.z);
     }
 
-    //ī�޶� ���� �÷��̾� ȸ�� �Լ�
     private void RotatePlayer()
     {
         bool isOnlyMovingBackward = moveInput.y < -0.1f && Mathf.Abs(moveInput.x) < 0.1f;
