@@ -48,7 +48,7 @@ public enum ConsumableCategory
 {
     Food = 1,           // 1. 식량
     Medical = 2,        // 2. 구급물품
-    Jammer = 3          // 3. 재밍 아이템 (주파수)
+    Jamming = 3          // 3. 재밍 아이템 (주파수)
 }
 
 /// <summary>
@@ -98,7 +98,8 @@ public enum ToolUsageType
 public enum ProtectiveGearType
 {
     Clothing = 1,       // 1. 옷
-    Shoes = 2           // 2. 신발
+    Shoes = 2,           // 2. 신발
+    None = 3             // 3. 없음
 }
 
 // ==================== 기타 아이템 관련 ====================
