@@ -30,12 +30,6 @@ public class ItemDatabase : MonoBehaviour
 
     private BGRepo repository;
 
-    [Header("BG Database")]
-    [SerializeField] private string consumableTableName = "ConsumeItemTable";
-    [SerializeField] private string protectiveTableName = "ProtectiveItemTable";
-    [SerializeField] private string toolTableName = "ToolItemTable";
-
-    // 아이템 캐시 (ID로 빠른 접근)
     private Dictionary<int, ItemBase> itemCache = new Dictionary<int, ItemBase>();
 
     // 초기화 완료 플래그
@@ -43,7 +37,6 @@ public class ItemDatabase : MonoBehaviour
 
     private void Awake()
     {
-        // Singleton 처리
         if (instance != null && instance != this)
         {
             Destroy(gameObject);
@@ -53,13 +46,17 @@ public class ItemDatabase : MonoBehaviour
         instance = this;
         DontDestroyOnLoad(gameObject);
 
-        // 초기화
         Initialize();
     }
 
-    /// <summary>
-    /// 데이터베이스 초기화
-    /// </summary>
+    //BG Database 테이블 이름: ItemTableType 열거형과 순서 일치 필요
+    private string[] itemTableNames = new string[]
+       {
+        "Item_Consumable",
+        "Item_Equip",
+        //TODO: 도구 및 기타 아이템 테이블 추가 예정
+       };
+
     private void Initialize()
     {
         repository = BGRepo.I;
@@ -72,79 +69,51 @@ public class ItemDatabase : MonoBehaviour
 
         Debug.Log("[ItemDatabase] 아이템 데이터 로드 시작...");
 
-        // 각 테이블 로드
-        LoadConsumableItems();
-        LoadProtectiveItems();
-        LoadToolItems();
+        foreach (string tableName in itemTableNames)
+        {
+            ItemTableType tableType = (ItemTableType)System.Array.IndexOf(itemTableNames, tableName);
+            LoadItemsFromTable(tableName, tableType);
+        }
 
         IsInitialized = true;
         Debug.Log($"[ItemDatabase] 초기화 완료 - 총 {itemCache.Count}개 아이템 로드됨");
     }
 
     /// <summary>
-    /// 소비 아이템 테이블 로드
+    /// 특정 테이블에서 아이템 로드 - Factory에게 생성 위임
     /// </summary>
-    private void LoadConsumableItems()
+    private void LoadItemsFromTable(string tableName, ItemTableType type)
     {
-        var meta = repository.GetMeta(consumableTableName);
+        var meta = repository.GetMeta(tableName);
+
         if (meta == null)
         {
-            Debug.LogError($"[ItemDatabase] 테이블을 찾을 수 없음: {consumableTableName}");
+            Debug.LogWarning($"[ItemDatabase] 테이블을 찾을 수 없음: {tableName}");
             return;
         }
 
-        int index = 0;
-        Debug.Log($"{meta.CountEntities}");
-        while (index < meta.CountEntities)
-        {
-            var entity = meta.GetEntity(index);
-            var item = ScriptableObject.CreateInstance<ConsumableItemData>();
-            item.Initialize(entity);
+        int loadedCount = 0;
 
+        for (int i = 0; i < meta.CountEntities; i++)
+        {
+            var entity = meta.GetEntity(i);
+
+            ItemBase item = ItemFactory.CreateItem(entity, type);
+
+            if (item == null) continue;
+
+            // 중복 ID 체크
             if (itemCache.ContainsKey(item.itemID))
             {
-                Debug.LogWarning($"[ItemDatabase] 중복된 아이템 ID: {item.itemID}");
+                Debug.LogWarning($"[ItemDatabase] 중복된 아이템 ID: {item.itemID} ({item.itemName})");
                 continue;
             }
 
             itemCache[item.itemID] = item;
-            index++;
+            loadedCount++;
         }
 
-        Debug.Log($"[ItemDatabase] 소비 아이템 {index + 1}개 로드 완료");
-    }
-
-    /// <summary>
-    /// 보호구 아이템 테이블 로드
-    /// </summary>
-    private void LoadProtectiveItems()
-    {
-        var meta = repository.GetMeta(protectiveTableName);
-        if (meta == null)
-        {
-            Debug.LogWarning($"[ItemDatabase] 테이블을 찾을 수 없음: {protectiveTableName}");
-            return;
-        }
-
-        int index = 0;
-        while (index < meta.CountEntities)
-        {
-            var entity = meta.GetEntity(index);
-            var item = ScriptableObject.CreateInstance<ProtectiveItemData>();
-            item.Initialize(entity);
-            itemCache[item.itemID] = item;
-            index++;
-        }
-
-        Debug.Log($"[ItemDatabase] 보호구 {index + 1}개 로드 완료");
-    }
-
-    /// <summary>
-    /// 도구 아이템 테이블 로드 (TODO)
-    /// </summary>
-    private void LoadToolItems()
-    {
-        // TODO: 도구 아이템 구현 시 추가
+        Debug.Log($"[ItemDatabase] {tableName}에서 {loadedCount}개 아이템 로드 완료");
     }
 
     /// <summary>

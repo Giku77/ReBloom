@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 /// <summary>
 /// 모든 아이템의 기본 추상 클래스
@@ -42,6 +43,14 @@ public abstract class ItemBase : ScriptableObject
     public virtual void OnRemove() { }
 
     /// <summary>
-    /// 유니티 이벤트
+    /// 리소스 해제 (Addressable)
     /// </summary>
+    public virtual void ReleaseResources()
+    {
+        if (icon != null)
+        {
+            Addressables.Release(icon);
+            icon = null;
+        }
+    }
 }

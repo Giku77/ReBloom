@@ -1,6 +1,7 @@
 using BansheeGz.BGDatabase;
 using System;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 /// <summary>
 /// 소비 아이템 (BG Database 래퍼)
@@ -96,7 +97,7 @@ public class ConsumableItemData : ItemBase
 
         // 특수 효과 (재밍 아이템)
         int mainCat = M_Cat[entity];
-        if (mainCat == 3) // 재밍 아이템
+        if (mainCat == (int)ConsumableCategory.Jamming)
         {
             float range = Range[entity];
             float duration = Duration[entity];
@@ -139,20 +140,5 @@ public class ConsumableItemData : ItemBase
         // TODO: TA 작업 - VFX/SFX 시스템과 연동
         // VFXManager.Instance.Play("ItemUse_" + itemName, position);
         // SFXManager.Instance.Play("ItemUse_Sound");
-    }
-
-    /// <summary>
-    /// 유니티 이벤트
-    /// </summary>
-    
-
-    private void OnDestroy()
-    {
-        // Addressable 해제
-        if (icon != null)
-        {
-            UnityEngine.AddressableAssets.Addressables.Release(icon);
-            icon = null;
-        }
     }
 }

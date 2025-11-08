@@ -18,6 +18,14 @@ enum QuestIds
 // ==================== 아이템 관련 ====================
 // =====================================================
 
+public enum ItemTableType 
+{ 
+    Consumable,
+    Protective,
+    Tool,
+    Misc
+}
+
 /// <summary>
 /// 인벤토리 슬롯 위치 (장비/소비/기타/중요)
 /// </summary>
@@ -34,9 +42,9 @@ public enum InventorySlotType
 /// </summary>
 public enum ItemTier
 {
-    Common = 0,         // 일반 (1단계)
-    Rare = 1,           // 희귀 (2단계)
-    Epic = 2            // 영웅 (3단계)
+    Common = 1,         // 일반 (1단계)
+    Rare = 2,           // 희귀 (2단계)
+    Epic = 3            // 영웅 (3단계)
 }
 
 // ==================== 소비 아이템 관련 ====================
