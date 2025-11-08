@@ -28,10 +28,9 @@ public class ItemDatabase : MonoBehaviour
     }
     #endregion
 
-    [Header("BG Database 설정")]
-    [SerializeField] private BGRepo repository = BGRepo.I;
+    private BGRepo repository;
 
-    [Header("테이블 이름 (BG Database에서 확인)")]
+    [Header("BG Database")]
     [SerializeField] private string consumableTableName = "ConsumeItemTable";
     [SerializeField] private string protectiveTableName = "ProtectiveItemTable";
     [SerializeField] private string toolTableName = "ToolItemTable";
@@ -63,6 +62,8 @@ public class ItemDatabase : MonoBehaviour
     /// </summary>
     private void Initialize()
     {
+        repository = BGRepo.I;
+
         if (repository == null)
         {
             Debug.LogError("[ItemDatabase] BGRepo가 할당되지 않았습니다!");
@@ -92,11 +93,11 @@ public class ItemDatabase : MonoBehaviour
             return;
         }
 
-        int count = 0;
-        
-        while (meta.GetEntity(count) != null)
+        int index = 0;
+        Debug.Log($"{meta.CountEntities}");
+        while (index < meta.CountEntities)
         {
-            var entity = meta.GetEntity(count);
+            var entity = meta.GetEntity(index);
             var item = ScriptableObject.CreateInstance<ConsumableItemData>();
             item.Initialize(entity);
 
@@ -107,10 +108,10 @@ public class ItemDatabase : MonoBehaviour
             }
 
             itemCache[item.itemID] = item;
-            count++;
+            index++;
         }
 
-        Debug.Log($"[ItemDatabase] 소비 아이템 {count}개 로드 완료");
+        Debug.Log($"[ItemDatabase] 소비 아이템 {index + 1}개 로드 완료");
     }
 
     /// <summary>
@@ -125,17 +126,17 @@ public class ItemDatabase : MonoBehaviour
             return;
         }
 
-        int count = 0;
-        while (meta.GetEntity(count) != null)
+        int index = 0;
+        while (index < meta.CountEntities)
         {
-            var entity = meta.GetEntity(count);
+            var entity = meta.GetEntity(index);
             var item = ScriptableObject.CreateInstance<ProtectiveItemData>();
             item.Initialize(entity);
             itemCache[item.itemID] = item;
-            count++;
+            index++;
         }
 
-        Debug.Log($"[ItemDatabase] 보호구 {count}개 로드 완료");
+        Debug.Log($"[ItemDatabase] 보호구 {index + 1}개 로드 완료");
     }
 
     /// <summary>
@@ -241,4 +242,13 @@ public class ItemDatabase : MonoBehaviour
     }
 
     #endregion
+
+    /// <summary>
+    /// unity 이벤트
+    /// </summary>
+
+    private void Start()
+    {
+        DebugPrintItemDetails();
+    }
 }

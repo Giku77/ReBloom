@@ -4,7 +4,7 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
 
-public class ItemAssetLoader : MonoBehaviour
+public class ItemAddressableTest : MonoBehaviour
 {
     public Button addButton;
     public Button deleteButton;

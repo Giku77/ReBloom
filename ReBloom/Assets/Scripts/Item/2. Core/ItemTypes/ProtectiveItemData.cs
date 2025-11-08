@@ -22,7 +22,7 @@ public class ProtectiveItemData : ItemBase
     private BGField<int> Storageable;
     private BGField<float> Pollution_Resist;
     private BGField<float> Height_Resist;
-    private BGField<float> Extra_HP;
+    private BGField<int> Extra_HP;
     private BGField<int> Defense;
     private BGField<float> Insulation;
     private BGField<String> Description;
@@ -48,9 +48,10 @@ public class ProtectiveItemData : ItemBase
         Storageable = meta.GetField<int>("Storageable");
         Pollution_Resist = meta.GetField<float>("Pollution_Resist");
         Height_Resist = meta.GetField<float>("Height_Resist");
-        Extra_HP = meta.GetField<float>("Extra_HP");
+        Extra_HP = meta.GetField<int>("Extra_HP");
         Defense = meta.GetField<int>("Defense");
         Insulation = meta.GetField<float>("Insulation");
+        Description = meta.GetField<string>("Description");
 
         itemID = Equip_ID[entity];
         itemName = Equip_Name[entity];

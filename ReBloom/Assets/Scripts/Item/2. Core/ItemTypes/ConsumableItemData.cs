@@ -28,7 +28,7 @@ public class ConsumableItemData : ItemBase
     private BGField<float> HP;
     private BGField<float> fieldHP;
     private BGField<float> Temp;
-    private BGField<float> Range;
+    private BGField<int> Range;
     private BGField<float> Duration;
     private BGField<string> ImgPath;
     private BGField<string> Description;
@@ -57,7 +57,7 @@ public class ConsumableItemData : ItemBase
         HP = meta.GetField<float>("Hunger");
         fieldHP = meta.GetField<float>("HP");
         Temp = meta.GetField<float>("Temp");
-        Range = meta.GetField<float>("Range");
+        Range = meta.GetField<int>("Range");
         Duration = meta.GetField<float>("Duration");
         ImgPath = meta.GetField<string>("ImgPath");
         Description = meta.GetField<string>("Description");
