@@ -13,11 +13,13 @@ public class PlayerStats : MonoBehaviour
     public event Action<StatBase, float, float> OnStatChanged;
     void Awake()
     {
+        Hunger = new HungerStat(this, data.hungerMax, data.hungerDecreaseRate);
+
     }
 
     void Update()
     {
-        //Hunger.Tick();
+        Hunger.Tick();
         //Thirst.Tick();
         //Temperature.Tick();
     }
