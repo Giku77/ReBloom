@@ -14,15 +14,14 @@ public class DebuffData
     
     public DebuffData() { }
     
-    public DebuffData(int id, string name, int category, bool isStackable, 
-                     float triggerThreshold, float hpLoss, float speedReduction)
+    public DebuffData(int id, string name, int debuffCat, bool isMultiAble, float standardValue, float hpLoss, float speedReduce)
     {
         this.id = id;
         this.name = name;
-        this.debuffCat = category;
-        this.isMultiAble = isStackable;
-        this.standardValue = triggerThreshold;
+        this.debuffCat = debuffCat;
+        this.isMultiAble = isMultiAble;
+        this.standardValue = standardValue;
         this.hpLoss = hpLoss;
-        this.speedReduce = speedReduction;
+        this.speedReduce = speedReduce;
     }
 }

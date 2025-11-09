@@ -50,7 +50,6 @@ void PrintStats()
         Debug.Log($"Thirst: {Thirst.Value:F2} / {Thirst.MaxValue}");
         Debug.Log($"Pollution: {Pollution.Value:F2} / {Pollution.MaxValue}");
         
-        // 디버프 정보 출력
         var debuffManager = GetComponent<DebuffManager>();
         if (debuffManager != null)
         {
