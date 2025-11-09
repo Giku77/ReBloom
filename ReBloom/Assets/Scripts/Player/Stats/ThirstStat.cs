@@ -7,7 +7,6 @@ public class ThirstStat : StatBase
     public ThirstStat(PlayerStats owner, float max, float increaseRate) : base(owner, max)
     { 
         this.increaseRate = increaseRate;
-        this.value = 0;
     }
 
     public override void Tick()
