@@ -1,4 +1,3 @@
-using Unity.Android.Gradle.Manifest;
 using UnityEngine;
 
 public abstract class StatBase
@@ -13,7 +12,7 @@ public abstract class StatBase
     { 
         this.owner = owner;
         this.maxValue = maxValue;
-        this.value = maxValue;
+        this.value = 0;
     }
 
     public virtual void Modify(float amount)
