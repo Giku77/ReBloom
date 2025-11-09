@@ -10,7 +10,7 @@ public class StatsData : ScriptableObject
     public float pollutionMax = 100f;
 
     [Header("Latency Reduction Rate")]
-    public float hungerDecreaseRate = 0.02f;
+    public float hungerIncreaseRate = 0.02f;
     public float thirstIncreaseRate = 0.25f;
 
     [Header("Body Temperature Related")]
@@ -18,4 +18,9 @@ public class StatsData : ScriptableObject
 
     [Header("Pollution Related")]
     public float pollutionIncreaseRate = 0.5f;
+
+    [Header("Status Effect Damage Rates")]
+    public float pollutionDamageRate = 5f;  // 오염도 100일 때 초당 5 데미지
+    public float hungerDamageRate = 3f;     // 허기 0일 때 초당 3 데미지
+    public float thirstDamageRate = 3f;     // 갈증 100일 때 초당 3 데미지f;
 }

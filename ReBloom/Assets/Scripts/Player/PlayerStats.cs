@@ -16,7 +16,9 @@ public class PlayerStats : MonoBehaviour
 
     void Awake()
     {
-        Hunger = new HungerStat(this, data.hungerMax, data.hungerDecreaseRate);
+        Health = new HealthStat(this, data.maxHealth);
+        
+        Hunger = new HungerStat(this, data.hungerMax, data.hungerIncreaseRate);
         Thirst = new ThirstStat(this, data.thurstMax, data.thirstIncreaseRate);
         Pollution = new PollutionStat(this, data.pollutionMax, data.pollutionIncreaseRate);
 
@@ -25,7 +27,7 @@ public class PlayerStats : MonoBehaviour
     void Update()
     {
         Hunger.Tick();
-        Thirst.Tick();
+        Thirst.Tick();              
         Pollution.Tick();
 
         if (Keyboard.current.kKey.wasPressedThisFrame)
@@ -42,8 +44,32 @@ public class PlayerStats : MonoBehaviour
 
 void PrintStats()
     {
+        Debug.Log("========== 플레이어 상태 ==========");
+        Debug.Log($"Health: {Health.Value:F2} / {Health.MaxValue}");
         Debug.Log($"Hunger: {Hunger.Value:F2} / {Hunger.MaxValue}");
         Debug.Log($"Thirst: {Thirst.Value:F2} / {Thirst.MaxValue}");
         Debug.Log($"Pollution: {Pollution.Value:F2} / {Pollution.MaxValue}");
+        
+        var debuffManager = GetComponent<DebuffManager>();
+        if (debuffManager != null)
+        {
+            var activeDebuffs = debuffManager.GetActiveDebuffs();
+            if (activeDebuffs.Count > 0)
+            {
+                Debug.Log($"\n[활성 디버프] {activeDebuffs.Count}개");
+                foreach (var debuff in activeDebuffs)
+                {
+                    Debug.Log($"  - [{debuff.ID}] {debuff.Name}");
+                }
+            }
+            else
+            {
+                Debug.Log("\n[활성 디버프] 없음");
+            }
+        }
+        Debug.Log("================================\n");
     }
+
+
+
 }

@@ -11,6 +11,6 @@ public class HungerStat : StatBase
 
     public override void Tick()
     {
-        Modify(-decreaseRate * Time.deltaTime);
+        Modify(decreaseRate * Time.deltaTime);
     }
 }

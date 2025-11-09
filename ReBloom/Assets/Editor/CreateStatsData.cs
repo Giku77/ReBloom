@@ -13,7 +13,7 @@ public class CreateStatsData
         asset.hungerMax = 100f;
         asset.thurstMax = 100f;
         asset.pollutionMax = 100f;
-        asset.hungerDecreaseRate = 0.5f;
+        asset.hungerIncreaseRate = 0.5f;
         asset.thirstIncreaseRate = 0.5f;
         asset.normalTemperature = 36.5f;
         asset.pollutionIncreaseRate = 0.5f;

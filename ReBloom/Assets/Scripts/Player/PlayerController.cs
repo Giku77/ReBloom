@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement Settings")]
-    [SerializeField] private float moveSpeed = 10f;
+    public float moveSpeed = 10f;
     [SerializeField] private float sprintSpeed = 15f;
     [SerializeField] private float rotationSpeed = 1f;
 
