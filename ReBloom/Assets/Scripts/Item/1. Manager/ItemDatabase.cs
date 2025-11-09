@@ -10,7 +10,7 @@ public class ItemDatabase : MonoBehaviour
 {
     #region Singleton
     private static ItemDatabase instance;
-    public static ItemDatabase Instance
+    public static ItemDatabase I
     {
         get
         {
