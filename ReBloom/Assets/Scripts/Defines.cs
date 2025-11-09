@@ -93,9 +93,20 @@ public enum ContaminationLevel
 /// </summary>
 public enum ToolUsageType
 {
-    Plant = 1,              // 1. 식물 (낫)
+    Plant = 1,              // 1. 식물 (삽)
     BuildingMineral = 2,    // 2. 건물, 광물 (곡괭이)
-    All = 3                 // 3. 건물, 광물, 자동차 (도끼)
+    All = 3                 // 3. 건물, 광물, 자동차 (망치)
+}
+
+/// <summary>
+/// 도구 카테고리
+/// </summary>
+public enum ToolCategory
+{
+    Shovel = 1,     // 삽
+    Pickaxe = 2,    // 곡괭이
+    Bag = 3         // 가방
+    //망치??
 }
 
 // ==================== 보호구 관련 ====================
@@ -134,4 +145,19 @@ public enum MutationLevel
     Low = 1,            // 낮음
     Medium = 2,         // 보통
     High = 3,           // 높음
+}
+
+// =====================================================
+// ==================== 인벤토리 관련 ====================
+// =====================================================
+
+/// <summary>
+/// 정렬 옵션
+/// </summary>
+public enum SortOption
+{
+    ByID,           // ID 순
+    ByName,         // 이름 순
+    ByTier,         // 티어 순
+    BySubCategory   // 소분류 순
 }

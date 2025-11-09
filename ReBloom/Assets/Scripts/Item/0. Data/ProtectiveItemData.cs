@@ -65,6 +65,8 @@ public class ProtectiveItemData : ItemBase
         description = Description[entity];
 
         gearType = (ProtectiveGearType)Category[entity];
+
+        LoadIconAsync();
     }
 
     /// <summary>
@@ -106,6 +108,61 @@ public class ProtectiveItemData : ItemBase
             currentPopullation = 0;
             Debug.Log($"[장비 오염] {itemName}의 오염도가 최대가 되었습니다!");
             // TODO: 장비 파괴 처리
+        }
+    }
+
+    /// <summary>
+    /// Addressable로 아이콘 비동기 로드
+    /// </summary>
+    private async void LoadIconAsync()
+    {
+        //string path = ImgPath[entity];
+        string path = "Icon/EquipIcon"; // 임시 경로
+
+        // 경로가 비어있으면 기본 아이콘 사용
+        if (string.IsNullOrEmpty(path))
+        {
+            path = "Icon/ItemIcon"; // 기본 경로
+        }
+
+        try
+        {
+            // GameObject(Prefab)로 로드
+            var handle = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<UnityEngine.GameObject>(path);
+            await handle.Task;
+
+            if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+            {
+                UnityEngine.GameObject prefab = handle.Result;
+
+                // Image 컴포넌트에서 Sprite 추출 (루트)
+                var image = prefab.GetComponent<UnityEngine.UI.Image>();
+                if (image != null && image.sprite != null)
+                {
+                    icon = image.sprite;
+                    Debug.Log($"[ProtectiveItemData] 아이콘 로드 성공: {itemName}");
+                    return;
+                }
+
+                // Image가 자식에 있는 경우
+                image = prefab.GetComponentInChildren<UnityEngine.UI.Image>();
+                if (image != null && image.sprite != null)
+                {
+                    icon = image.sprite;
+                    Debug.Log($"[ProtectiveItemData] 아이콘 로드 성공 (자식): {itemName}");
+                    return;
+                }
+
+                Debug.LogWarning($"[ProtectiveItemData] Prefab에 Image 컴포넌트가 없거나 Sprite가 없음: {path}");
+            }
+            else
+            {
+                Debug.LogWarning($"[ProtectiveItemData] 아이콘 로드 실패: {path}");
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"[ProtectiveItemData] 아이콘 로드 예외: {path}\n{e.Message}");
         }
     }
 }
