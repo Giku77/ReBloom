@@ -9,10 +9,8 @@ using UnityEngine.AddressableAssets;
 /// </summary>
 public class ConsumableItemData : ItemBase
 {
-    // BG Database 원본 Entity
     private BGEntity entity;
 
-    // 필드 참조 캐싱
     private BGField<int> ConsumeItem_ID;
     private BGField<string> ConsumeItem_Name;
     private BGField<int> Inventory_N;
@@ -75,7 +73,7 @@ public class ConsumableItemData : ItemBase
         description = Description[entity];
 
         // 아이콘은 Addressable로 비동기 로드
-        // LoadIconAsync();
+        LoadIconAsync();
     }
 
     /// <summary>
@@ -116,19 +114,53 @@ public class ConsumableItemData : ItemBase
     /// </summary>
     private async void LoadIconAsync()
     {
-        string path = ImgPath[entity];
-        if (string.IsNullOrEmpty(path)) return;
+        //string path = ImgPath[entity];
+        string path = "Icon/ConsumableIcon"; // 임시 경로
 
-        var handle = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<Sprite>(path);
-        await handle.Task;
-
-        if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+        // 경로가 비어있으면 기본 아이콘 사용
+        if (string.IsNullOrEmpty(path))
         {
-            icon = handle.Result;
+            path = "Icon/ItemIcon"; // 기본 경로
         }
-        else
+
+        try
         {
-            Debug.LogWarning($"[ItemData] 아이콘 로드 실패: {path}");
+            // GameObject(Prefab)로 로드
+            var handle = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<UnityEngine.GameObject>(path);
+            await handle.Task;
+
+            if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+            {
+                UnityEngine.GameObject prefab = handle.Result;
+
+                // Image 컴포넌트에서 Sprite 추출 (루트)
+                var image = prefab.GetComponent<UnityEngine.UI.Image>();
+                if (image != null && image.sprite != null)
+                {
+                    icon = image.sprite;
+                    Debug.Log($"[ConsumableItemData] 아이콘 로드 성공: {itemName}");
+                    return;
+                }
+
+                // Image가 자식에 있는 경우
+                image = prefab.GetComponentInChildren<UnityEngine.UI.Image>();
+                if (image != null && image.sprite != null)
+                {
+                    icon = image.sprite;
+                    Debug.Log($"[ConsumableItemData] 아이콘 로드 성공 (자식): {itemName}");
+                    return;
+                }
+
+                Debug.LogWarning($"[ConsumableItemData] Prefab에 Image 컴포넌트가 없거나 Sprite가 없음: {path}");
+            }
+            else
+            {
+                Debug.LogWarning($"[ConsumableItemData] 아이콘 로드 실패: {path}");
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"[ConsumableItemData] 아이콘 로드 예외: {path}\n{e.Message}");
         }
     }
 
