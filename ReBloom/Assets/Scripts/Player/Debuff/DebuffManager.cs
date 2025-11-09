@@ -9,7 +9,9 @@ public class DebuffManager : MonoBehaviour
     private DebuffDB debuffDB;
     
     private List<IDebuff> activeDebuffs = new List<IDebuff>();
-    
+
+    public event Action<IDebuff> OnDebuffApplied;
+    public event Action<IDebuff> OnDebuffRemoved;
     private Dictionary<int, Func<DebuffData, IDebuff>> debuffFactory;
     
     void Awake()
@@ -141,7 +143,7 @@ public class DebuffManager : MonoBehaviour
             RemoveDebuffByID(232);
         }
     }
-    public void ApplyDebuff(int debuffID)
+public void ApplyDebuff(int debuffID)
     {
         if (!debuffDB.TryGet(debuffID, out DebuffData data))
         {
@@ -159,6 +161,8 @@ public class DebuffManager : MonoBehaviour
             var debuff = debuffFactory[debuffID](data);
             debuff.Apply(playerStats);
             activeDebuffs.Add(debuff);
+            
+            OnDebuffApplied?.Invoke(debuff);
         }
         else
         {
@@ -166,10 +170,12 @@ public class DebuffManager : MonoBehaviour
         }
     }
 
-    public void RemoveDebuff(IDebuff debuff)
+public void RemoveDebuff(IDebuff debuff)
     {
         debuff.Remove(playerStats);
         activeDebuffs.Remove(debuff);
+        
+        OnDebuffRemoved?.Invoke(debuff);
     }
     
     public void RemoveDebuffByID(int debuffID)
