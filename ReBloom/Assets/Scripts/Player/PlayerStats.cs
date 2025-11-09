@@ -27,9 +27,7 @@ public class PlayerStats : MonoBehaviour
     void Update()
     {
         Hunger.Tick();
-        Thirst.Tick();
-        
-        CheckStatusEffects();
+        Thirst.Tick();              
         Pollution.Tick();
 
         if (Keyboard.current.kKey.wasPressedThisFrame)
@@ -46,31 +44,33 @@ public class PlayerStats : MonoBehaviour
 
 void PrintStats()
     {
-        Debug.Log($"Health: {Health.Value:F2} / {Health.MaxValue}"); 
+        Debug.Log("========== 플레이어 상태 ==========");
+        Debug.Log($"Health: {Health.Value:F2} / {Health.MaxValue}");
         Debug.Log($"Hunger: {Hunger.Value:F2} / {Hunger.MaxValue}");
         Debug.Log($"Thirst: {Thirst.Value:F2} / {Thirst.MaxValue}");
         Debug.Log($"Pollution: {Pollution.Value:F2} / {Pollution.MaxValue}");
+        
+        // 디버프 정보 출력
+        var debuffManager = GetComponent<DebuffManager>();
+        if (debuffManager != null)
+        {
+            var activeDebuffs = debuffManager.GetActiveDebuffs();
+            if (activeDebuffs.Count > 0)
+            {
+                Debug.Log($"\n[활성 디버프] {activeDebuffs.Count}개");
+                foreach (var debuff in activeDebuffs)
+                {
+                    Debug.Log($"  - [{debuff.ID}] {debuff.Name}");
+                }
+            }
+            else
+            {
+                Debug.Log("\n[활성 디버프] 없음");
+            }
+        }
+        Debug.Log("================================\n");
     }
 
 
-void CheckStatusEffects()
-    {
-        // 오염도가 최대치일 때 체력 감소
-        if (Pollution.Value >= Pollution.MaxValue)
-        {
-            Health.Modify(-data.pollutionDamageRate * Time.deltaTime);
-        }
-        
-        // 허기가 0일 때 체력 감소
-        if (Hunger.Value <= 0)
-        {
-            Health.Modify(-data.hungerDamageRate * Time.deltaTime);
-        }
-        
-        // 갈증이 최대치일 때 체력 감소
-        if (Thirst.Value >= Thirst.MaxValue)
-        {
-            Health.Modify(-data.thirstDamageRate * Time.deltaTime);
-        }
-    }
+
 }
