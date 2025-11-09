@@ -30,7 +30,19 @@ public class ThirdPersonCamera : MonoBehaviour
     //시야 이동 함수
     private void Look()
     {
-        if (target == null) return;
+        //if (target == null) return;
+        if (target == null)
+        {
+            var palyer = GameObject.FindWithTag("Player");
+            if (palyer != null)
+            {
+                target = palyer.transform;
+            }
+            else
+            {
+                return;
+            }
+        }
 
         yaw += lookInput.x * mouseSensitivity * Time.deltaTime;
         pitch -= lookInput.y * mouseSensitivity * Time.deltaTime;
