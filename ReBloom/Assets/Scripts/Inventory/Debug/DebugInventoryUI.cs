@@ -1,9 +1,10 @@
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.InputSystem;
-using TMPro;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
+using TMPro;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 /// <summary>
 /// 런타임 디버그 인벤토리 UI
@@ -17,6 +18,10 @@ public class DebugInventoryUI : MonoBehaviour
     [SerializeField] private Transform contentContainer;
     [SerializeField] private GameObject itemSlotPrefab;
     [SerializeField] private DebugItemTooltip tooltip;
+    [SerializeField] private GridLayoutGroup gridLayout;
+
+    [Header("Icon Size Settings")]
+    [SerializeField] private float defaultCellSize = 80f;
 
     [Header("Tab Buttons")]
     public Button btnConsumable;
@@ -58,6 +63,11 @@ public class DebugInventoryUI : MonoBehaviour
     #region Unity 생명주기
     private void Awake()
     {
+        if (gridLayout != null)
+        {
+            defaultCellSize = gridLayout.cellSize.x;
+        }
+
         InitializeTabButtons();
         InitializeFilterUI();
 
@@ -146,6 +156,10 @@ public class DebugInventoryUI : MonoBehaviour
         // 표시 옵션
         toggleShowDescription.onValueChanged.AddListener(_ => RefreshItemList());
         toggleShowStats.onValueChanged.AddListener(_ => RefreshItemList());
+
+        sliderIconSize.minValue = 50f;
+        sliderIconSize.maxValue = 95f;
+        sliderIconSize.value = defaultCellSize;
         sliderIconSize.onValueChanged.AddListener(OnIconSizeChanged);
     }
     #endregion
@@ -210,11 +224,12 @@ public class DebugInventoryUI : MonoBehaviour
         RefreshItemList();
     }
 
-    private void OnIconSizeChanged(float size)
+    private void OnIconSizeChanged(float sliderValue)
     {
-        foreach (var slot in activeSlots)
+        if (gridLayout != null)
         {
-            slot.SetIconSize(size);
+            // Cell Size만 조정 - Slot은 자동으로 따라감
+            gridLayout.cellSize = new Vector2(sliderValue, sliderValue);
         }
     }
     #endregion
@@ -264,7 +279,6 @@ public class DebugInventoryUI : MonoBehaviour
         if (slot != null)
         {
             slot.Initialize(item, tooltip);
-            slot.SetIconSize(sliderIconSize.value);
             slot.SetShowDescription(toggleShowDescription.isOn);
             slot.SetShowStats(toggleShowStats.isOn);
 
@@ -351,14 +365,14 @@ public class DebugInventoryUI : MonoBehaviour
             ItemTableType type = pair.Value;
 
             ColorBlock colors = btn.colors;
-            colors.normalColor = (type == currentTable) ? new Color(0.3f, 0.6f, 1f) : Color.white;
+            colors.normalColor = (type == currentTable) ? new UnityEngine.Color(0.3f, 0.6f, 1f) : UnityEngine.Color.white;
             btn.colors = colors;
 
             // 버튼 텍스트 업데이트
             TextMeshProUGUI btnText = btn.GetComponentInChildren<TextMeshProUGUI>();
             if (btnText != null)
             {
-                btnText.fontStyle = (type == currentTable) ? FontStyles.Bold : FontStyles.Normal;
+                //btnText.fontStyle = (type == currentTable) ? FontStyles.Bold : FontStyles.Normal;
             }
         }
     }
