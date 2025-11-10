@@ -1,10 +1,9 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Rendering;
 
 /// <summary>
 /// 디버그 인벤토리 입력 처리
-/// InputManager의 공유 InputActions 사용
+/// 자체 InputActions 인스턴스 생성 및 관리
 /// </summary>
 public class DebugInventoryInput : MonoBehaviour
 {
@@ -14,7 +13,7 @@ public class DebugInventoryInput : MonoBehaviour
     [Header("Ref")]
     [SerializeField] private DebugInventoryUI debugUI;
 
-    private InputSystem_Actions inputActions; // 참조만 저장
+    private InputSystem_Actions inputActions;
     private bool isUIOpen = false;
 
     private void Awake()
@@ -28,35 +27,53 @@ public class DebugInventoryInput : MonoBehaviour
         }
 #endif
 
-        //// DebugInventoryUI 자동 찾기
-        //debugUI = GetComponent<DebugInventoryUI>();
-        //if (debugUI == null)
-        //{
-        //    debugUI = FindFirstObjectByType<DebugInventoryUI>();
-        //}
+        // DebugInventoryUI 유효성 검사
+        if (debugUI == null)
+        {
+            Debug.LogError("[DebugInventoryInput] DebugInventoryUI가 할당되지 않았습니다!");
+            enabled = false;
+            return;
+        }
 
-        //if (debugUI == null)
-        //{
-        //    Debug.LogError("[DebugInventoryInput] DebugInventoryUI를 찾을 수 없습니다!");
-        //    enabled = false;
-        //    return;
-        //}
+        // InputActions 인스턴스 생성 (중요!)
+        inputActions = new InputSystem_Actions();
 
-        // 이벤트 연결
+        Debug.Log("[DebugInventoryInput] 초기화 완료");
+    }
+
+    private void OnEnable()
+    {
+        if (inputActions == null) return;
+
+        // Action Map 활성화
+        inputActions.DebugInventory.Enable();
+
+        // 이벤트 구독
         SubscribeInputActions();
+    }
 
-        Debug.Log("[DebugInventoryInput] 초기화 완료 (공유 InputActions 사용)");
+    private void OnDisable()
+    {
+        if (inputActions == null) return;
+
+        // 이벤트 구독 해제
+        UnsubscribeInputActions();
+
+        // Action Map 비활성화
+        inputActions.DebugInventory.Disable();
     }
 
     private void OnDestroy()
     {
-        UnsubscribeInputActions();
+        // InputActions 정리
+        if (inputActions != null)
+        {
+            inputActions.Dispose();
+            inputActions = null;
+        }
     }
 
     #region Input Actions 이벤트 구독
-    /// <summary>
-    /// Input Actions 이벤트 연결
-    /// </summary>
     private void SubscribeInputActions()
     {
         if (inputActions == null) return;
@@ -72,11 +89,10 @@ public class DebugInventoryInput : MonoBehaviour
         debugMap.SwitchTable2.performed += OnSwitchTable2;
         debugMap.SwitchTable3.performed += OnSwitchTable3;
         debugMap.SwitchTable4.performed += OnSwitchTable4;
+
+        Debug.Log("[DebugInventoryInput] 입력 이벤트 구독 완료");
     }
 
-    /// <summary>
-    /// Input Actions 이벤트 구독 해제
-    /// </summary>
     private void UnsubscribeInputActions()
     {
         if (inputActions == null) return;
@@ -176,9 +192,17 @@ public class DebugInventoryInput : MonoBehaviour
         }
 
         isUIOpen = !isUIOpen;
-        debugUI.ToggleUI();
-        HandleCursorState(isUIOpen);
 
+        if (isUIOpen)
+        {
+            debugUI.OpenDebugInventory();
+        }
+        else
+        {
+            debugUI.CloseDebugInventory();
+        }
+
+        HandleCursorState(isUIOpen);
         Debug.Log($"[디버그 인벤토리] {(isUIOpen ? "열림" : "닫힘")}");
     }
 
@@ -223,29 +247,28 @@ public class DebugInventoryInput : MonoBehaviour
 
     private void FocusSearchField()
     {
-        // TODO: TMP_InputField.ActivateInputField() 호출
-        Debug.Log("[디버그 인벤토리] 검색창 포커스");
+        // TODO: DebugInventoryUI에 FocusSearch() 메서드 추가 필요
+        Debug.Log("[디버그 인벤토리] 검색창 포커스 (미구현)");
     }
 
     private void SwitchToTable(ItemTableType tableType)
     {
-        // TODO: DebugInventoryUI에 SwitchTable 메서드 추가 필요
+        if (debugUI == null) return;
 
+        // 버튼 클릭으로 테이블 전환 시뮬레이션
         switch (tableType)
         {
             case ItemTableType.Consumable:
-                debugUI.btnConsumable.interactable = true;
-                break;
-            case ItemTableType.Tool:
-                debugUI.btnTool.interactable = true;
+                debugUI.btnConsumable.onClick.Invoke();
                 break;
             case ItemTableType.Protective:
-                debugUI.btnProtective.interactable = true;
+                debugUI.btnProtective.onClick.Invoke();
+                break;
+            case ItemTableType.Tool:
+                debugUI.btnTool.onClick.Invoke();
                 break;
             case ItemTableType.Misc:
-                debugUI.btnMisc.interactable = true;
-                break;
-            default:
+                debugUI.btnMisc.onClick.Invoke();
                 break;
         }
 
@@ -256,6 +279,7 @@ public class DebugInventoryInput : MonoBehaviour
     {
         if (debugUI != null)
         {
+            // TODO: 필터 리셋 로직 구현
             debugUI.RefreshItemList();
             Debug.Log("[디버그 인벤토리] 필터 리셋됨");
         }
@@ -297,7 +321,8 @@ public class DebugInventoryInput : MonoBehaviour
     public void CMD_PrintInputStatus()
     {
         bool actionsEnabled = inputActions?.DebugInventory.enabled ?? false;
-        Debug.Log($"Input Actions 활성화: {actionsEnabled}");
+        Debug.Log($"InputActions 생성됨: {inputActions != null}");
+        Debug.Log($"DebugInventory Map 활성화: {actionsEnabled}");
         Debug.Log($"UI 열림 상태: {isUIOpen}");
         Debug.Log($"DebugUI 참조: {(debugUI != null ? "OK" : "NULL")}");
     }

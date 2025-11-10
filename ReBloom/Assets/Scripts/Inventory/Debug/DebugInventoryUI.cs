@@ -45,9 +45,6 @@ public class DebugInventoryUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI txtItemCount;
     [SerializeField] private TextMeshProUGUI txtFilterInfo;
 
-    [Header("Input Settings")]
-    [SerializeField] private InputActionReference toggleInventoryAction;
-
     #region 상태 변수
     private ItemTableType currentTable = ItemTableType.Consumable;
     private ItemTier selectedTier = ItemTier.Common;
@@ -74,26 +71,6 @@ public class DebugInventoryUI : MonoBehaviour
         uiRoot.SetActive(false);
     }
 
-    private void OnEnable()
-    {
-        // Input Action 활성화
-        if (toggleInventoryAction != null)
-        {
-            toggleInventoryAction.action.Enable();
-            toggleInventoryAction.action.performed += OnToggleInventory;
-        }
-    }
-
-    private void OnDisable()
-    {
-        // Input Action 비활성화
-        if (toggleInventoryAction != null)
-        {
-            toggleInventoryAction.action.performed -= OnToggleInventory;
-            toggleInventoryAction.action.Disable();
-        }
-    }
-
     private void Start()
     {
         // ItemDatabase 초기화 대기
@@ -105,16 +82,6 @@ public class DebugInventoryUI : MonoBehaviour
         {
             Debug.LogWarning("[DebugInventoryUI] ItemDatabase가 아직 초기화되지 않았습니다.");
         }
-    }
-    #endregion
-
-    #region Input System 콜백
-    /// <summary>
-    /// F1 키 입력 콜백 (New Input System)
-    /// </summary>
-    private void OnToggleInventory(InputAction.CallbackContext context)
-    {
-        ToggleUI();
     }
     #endregion
 
@@ -372,7 +339,7 @@ public class DebugInventoryUI : MonoBehaviour
             TextMeshProUGUI btnText = btn.GetComponentInChildren<TextMeshProUGUI>();
             if (btnText != null)
             {
-                //btnText.fontStyle = (type == currentTable) ? FontStyles.Bold : FontStyles.Normal;
+                btnText.fontStyle = (type == currentTable) ? FontStyles.Bold : FontStyles.Normal;
             }
         }
     }
