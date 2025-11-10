@@ -5,15 +5,15 @@ public class SheetTest : MonoBehaviour
 {
     void Start()
     {
-        var meta = BGRepo.I.GetMeta("Quest");
+        var meta = BGRepo.I.GetMeta("Debuff");
         if (meta == null)
         {
             Debug.LogError("테이블을 못 찾음");
             return;
         }
         var entity = meta.GetEntity((int)QuestIds.Quest_003);
-        var fieldName = entity.Get<string>("questName");
-        var fieldValue = entity.Get<int>("questID");
+        var fieldName = entity.Get<string>("Debuff_Name");
+        var fieldValue = entity.Get<int>("Debuff_ID");
         Debug.Log($"Name: {fieldName}, Value: {fieldValue}");
 
         var metaItem = BGRepo.I.GetMeta("Item_Consumable");

@@ -9,17 +9,31 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float jumpForce = 5f;
     [SerializeField] private float rotationSpeed = 1f;
     [SerializeField] private float slowSpeed = 4f;
+    [SerializeField] private float changeSpeedRadius = 4;
+
+    public float currentSpeed = 0f;
+    private float targetSpeed;
+
+    private bool isSprinting = false;
+    private Vector2 moveInput;
+    private Vector3 moveDirection;
+
+    private bool isSlow = false;
 
     [Header("Camera")]
     [SerializeField] private Transform cameraTransform;
 
+    [Header("Jump Setting")]
+    [SerializeField] private Transform groundCheck;
+    [SerializeField] private float groundCheckRadius = 0.3f;
+    [SerializeField] private LayerMask groundLayer;
+
     private Rigidbody rb;
-    
-    private bool isSprinting = false;
-    private Vector2 moveInput;
-    private Vector3 moveDirection;
+
     private bool jumpRequested = false;
-    private bool isSlow = false;
+
+
+    bool isGround = false;
 
     private void Awake()
     {
@@ -31,7 +45,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            Debug.Log("ī�޶� ����");
+            Debug.Log("No Camera");
         }
     }
 
@@ -45,6 +59,11 @@ public class PlayerController : MonoBehaviour
         MovePlayer();
         RotatePlayer();
         JumpPlayer();
+    }
+
+    private void Update()
+    {
+        isGround = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -66,7 +85,7 @@ public class PlayerController : MonoBehaviour
 
     public void OnJump(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (context.performed && isGround)
             jumpRequested = true;
 
     }
@@ -82,6 +101,8 @@ public class PlayerController : MonoBehaviour
 
     private void MovePlayer()
     {
+        if (!isGround) return;
+
         Vector3 cameraForward = cameraTransform.forward;
         cameraForward.y = 0f;
         cameraForward.Normalize();
@@ -93,15 +114,22 @@ public class PlayerController : MonoBehaviour
         moveDirection = (cameraRight * moveInput.x + cameraForward * moveInput.y).normalized;
         sprintSpeed = moveSpeed * 1.5f;
 
-        float currentSpeed;
-
+        if (moveInput.magnitude < 0.1f)
+        {
+            targetSpeed = 0f;
+        }
         if (!isSlow)
-        { currentSpeed = isSprinting ? sprintSpeed : moveSpeed; }
-
+        {
+            targetSpeed = isSprinting ? sprintSpeed : moveSpeed;
+        }
         else
-        { currentSpeed = slowSpeed; }
+        {
+            targetSpeed = slowSpeed;
+        }
 
-            Vector3 movement = moveDirection * currentSpeed;
+        currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed, changeSpeedRadius * Time.deltaTime);
+
+        Vector3 movement = moveDirection * currentSpeed;
 
         rb.linearVelocity = new Vector3(movement.x, rb.linearVelocity.y, movement.z);
     }
