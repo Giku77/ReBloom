@@ -6,7 +6,9 @@ public class PlayerController : MonoBehaviour
     [Header("Movement Settings")]
     public float moveSpeed = 10f;
     private float sprintSpeed;
+    [SerializeField] private float jumpForce = 5f;
     [SerializeField] private float rotationSpeed = 1f;
+    [SerializeField] private float slowSpeed = 4f;
 
     [Header("Camera")]
     [SerializeField] private Transform cameraTransform;
@@ -16,14 +18,12 @@ public class PlayerController : MonoBehaviour
     private bool isSprinting = false;
     private Vector2 moveInput;
     private Vector3 moveDirection;
+    private bool jumpRequested = false;
+    private bool isSlow = false;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        if (rb == null)
-        {
-            Debug.Log("Rigid Body ������Ʈ ����");
-        }
 
         if (cameraTransform == null)
         {
@@ -43,7 +43,8 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         MovePlayer();
-        RotatePlayer(); 
+        RotatePlayer();
+        JumpPlayer();
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -63,6 +64,22 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void OnJump(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+            jumpRequested = true;
+
+    }
+
+    public void OnMoveSlow(InputAction.CallbackContext context)
+    { 
+        if(context.performed)
+            isSlow = true;
+
+        if (context.canceled)
+            isSlow = false;
+    }
+
     private void MovePlayer()
     {
         Vector3 cameraForward = cameraTransform.forward;
@@ -76,9 +93,28 @@ public class PlayerController : MonoBehaviour
         moveDirection = (cameraRight * moveInput.x + cameraForward * moveInput.y).normalized;
         sprintSpeed = moveSpeed * 1.5f;
 
-        float currentSpeed = isSprinting ? sprintSpeed : moveSpeed;
-        Vector3 movement = moveDirection * currentSpeed;
+        float currentSpeed;
+
+        if (!isSlow)
+        { currentSpeed = isSprinting ? sprintSpeed : moveSpeed; }
+
+        else
+        { currentSpeed = slowSpeed; }
+
+            Vector3 movement = moveDirection * currentSpeed;
+
         rb.linearVelocity = new Vector3(movement.x, rb.linearVelocity.y, movement.z);
+    }
+
+    private void JumpPlayer()
+    {
+        if (!jumpRequested) return;
+
+        Vector3 velocity = rb.linearVelocity;
+        velocity.y = jumpForce;
+        rb.linearVelocity = velocity;
+
+        jumpRequested = false;
     }
 
     private void RotatePlayer()
