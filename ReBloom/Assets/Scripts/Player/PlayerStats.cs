@@ -42,7 +42,7 @@ public class PlayerStats : MonoBehaviour
     }
 
 
-void PrintStats()
+    void PrintStats()
     {
         Debug.Log("========== 플레이어 상태 ==========");
         Debug.Log($"Health: {Health.Value:F2} / {Health.MaxValue}");

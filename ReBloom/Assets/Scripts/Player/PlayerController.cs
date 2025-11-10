@@ -5,7 +5,7 @@ public class PlayerController : MonoBehaviour
 {
     [Header("Movement Settings")]
     public float moveSpeed = 10f;
-    [SerializeField] private float sprintSpeed = 15f;
+    private float sprintSpeed;
     [SerializeField] private float rotationSpeed = 1f;
 
     [Header("Camera")]
@@ -33,6 +33,11 @@ public class PlayerController : MonoBehaviour
         {
             Debug.Log("ī�޶� ����");
         }
+    }
+
+    private void Start()
+    {
+        sprintSpeed = moveSpeed * 1.5f;
     }
 
     private void FixedUpdate()
@@ -69,7 +74,8 @@ public class PlayerController : MonoBehaviour
         cameraRight.Normalize();
 
         moveDirection = (cameraRight * moveInput.x + cameraForward * moveInput.y).normalized;
-        
+        sprintSpeed = moveSpeed * 1.5f;
+
         float currentSpeed = isSprinting ? sprintSpeed : moveSpeed;
         Vector3 movement = moveDirection * currentSpeed;
         rb.linearVelocity = new Vector3(movement.x, rb.linearVelocity.y, movement.z);
