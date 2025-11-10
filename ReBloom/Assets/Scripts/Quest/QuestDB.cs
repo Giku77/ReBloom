@@ -32,6 +32,7 @@ public class QuestDB
         q.questId = entity.Get<int>("questID");
         q.questName = entity.Get<string>("questName");
         q.formerQuestId = entity.Get<int>("formerQuestID");
+        q.isMainQuest = entity.Get<bool>("isMainQuest");
 
         for (int i = 1; i <= 3; i++)
         {

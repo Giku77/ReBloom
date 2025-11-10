@@ -6,13 +6,16 @@ public class QuestManager : MonoBehaviour
 
     private QuestDB _db;
     private QuestData _current;
+    private IInventoryProvider _inventory;
+    public IInventoryProvider Inventory => _inventory;
     public QuestData Current => _current;
 
     private void Awake() => I = this;
 
-    public void Init(QuestDB db)
+    public void Init(QuestDB db, IInventoryProvider inventory)
     {
         _db = db;
+        _inventory = inventory;
 
         foreach (var kv in db.GetAll())   
         {
@@ -28,14 +31,50 @@ public class QuestManager : MonoBehaviour
     {
         if (!_db.TryGet(questId, out var data))
         {
-            Debug.LogError($"���� ����Ʈ {questId}");
+            Debug.LogError($"���� ����Ʈ {questId}");
             return;
         }
 
         _current = data;
-        
+
         var ui = FindFirstObjectByType<QuestUI>();
         ui?.Refresh();
+    }
+
+    public void TryCompleteCurrent()
+    {
+        if (_current == null) return;
+
+        if (!IsQuestSatisfied(_current))
+        {
+            Debug.Log("조건이 아직 안 됨");
+            return;
+        }
+
+        var nextId = FindNextByFormer(_current.questId);
+        if (nextId == 0)
+        {
+            _current = null;
+            Debug.Log("모든 퀘스트 완료");
+        }
+        else
+        {
+            SetCurrent(nextId);
+        }
+    }
+    
+    bool IsQuestSatisfied(QuestData data)
+    {
+        if (data.goals == null || data.goals.Count == 0)
+            return true;
+
+        foreach (var g in data.goals)
+        {
+            if (g == null) continue;
+            if (!g.IsSatisfied(_inventory))
+                return false;
+        }
+        return true;
     }
 
     public void CompleteCurrent()

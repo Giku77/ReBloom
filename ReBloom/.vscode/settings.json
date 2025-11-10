@@ -66,5 +66,17 @@
     "explorer.fileNesting.patterns": {
         "*.sln": "*.csproj",
     },
+    "github.copilot.mcp.enabled": true,
+    "github.copilot.mcp.servers": {
+        "unity": {
+        "command": "uv",
+        "args": [
+            "run",
+            "mcp-unity",
+            "--project-path",
+            "${workspaceFolder}"
+        ]
+        }
+    },
     "dotnet.defaultSolution": "ReBloom.sln"
 }

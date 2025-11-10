@@ -20,6 +20,7 @@ public class QuestInput : MonoBehaviour
     private void OnQuestComplete(InputAction.CallbackContext ctx)
     {
         Debug.Log("Quest Complete Input Received");
-        QuestManager.I?.CompleteCurrent();
+        //QuestManager.I?.CompleteCurrent();
+        QuestManager.I?.TryCompleteCurrent();
     }
 }

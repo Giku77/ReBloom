@@ -5,10 +5,12 @@ using UnityEngine.InputSystem;
 
 public class GameBoot : MonoBehaviour
 {
-    //[SerializeField] private string[] baseScenes;   // 항상 로드
-    //[SerializeField] private string[] optionalScenes; // 필요할 때만
+    //[SerializeField] private string[] baseScenes;   // 필수 씬
+    //[SerializeField] private string[] optionalScenes; // 선택 씬
 
     public SceneLoader SceneLoader;
+
+    private ThirdPersonCamera camCtrl;
     private void Start()
     {
         //foreach (var addr in baseScenes)
@@ -32,7 +34,7 @@ public class GameBoot : MonoBehaviour
         }
         catch (TimeoutException)
         {
-            Debug.LogError("Player가 안 생김");
+            Debug.LogError("Player를 찾지 못했습니다.");
             return;
         }
 
@@ -41,14 +43,14 @@ public class GameBoot : MonoBehaviour
         var playerInput = player.GetComponent<PlayerInput>();
         if (playerInput == null)
         {
-            Debug.LogError("Player에 PlayerInput이 없습니다.");
+            Debug.LogError("Player에 PlayerInput 컴포넌트가 없습니다.");
             return;
         }
 
-        var camCtrl = Camera.main.GetComponent<ThirdPersonCamera>();
+        camCtrl = Camera.main.GetComponent<ThirdPersonCamera>();
         if (camCtrl == null)
         {
-            Debug.LogError("부트씬 카메라에 ThirdPersonCamera 없어요");
+            Debug.LogError("메인 카메라에 ThirdPersonCamera 컴포넌트가 없습니다.");
             return;
         }
 
@@ -57,7 +59,7 @@ public class GameBoot : MonoBehaviour
         lookAction.canceled += camCtrl.OnLook;
 
         playerInput.camera = Camera.main;
-        Debug.Log("PlayerInput에 부트씬 카메라 연결 완료");
+        Debug.Log("PlayerInput과 카메라 바인딩 완료");
     }
 
     private void OnDestroy()
@@ -70,8 +72,7 @@ public class GameBoot : MonoBehaviour
 
         var player = GameObject.FindWithTag("Player");
         var playerInput = player ? player.GetComponent<PlayerInput>() : null;
-        var camCtrl = Camera.main.GetComponent<ThirdPersonCamera>();
-        if (playerInput != null)
+        if (playerInput != null && camCtrl != null)
         {
             var look = playerInput.actions["Look"];
             look.performed -= camCtrl.OnLook;

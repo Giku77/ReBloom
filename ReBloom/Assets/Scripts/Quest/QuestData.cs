@@ -14,6 +14,17 @@ public class QuestGoal
     public QuestGoalType type;
     public int objectId;
     public int amount;
+
+    public bool IsSatisfied(IInventoryProvider inv)
+    {
+        switch (type)
+        {
+            case QuestGoalType.Collect:
+                return inv.GetItemCount(objectId) >= amount;
+            default:
+                return true;
+        }
+    }
 }
 
 [Serializable]
@@ -28,7 +39,9 @@ public class QuestData
 {
     public int questId;
     public string questName;
-    public int formerQuestId;   
+    public int formerQuestId;
+
+    public bool isMainQuest;
 
     public List<QuestGoal> goals = new();
     public List<QuestReward> rewards = new();

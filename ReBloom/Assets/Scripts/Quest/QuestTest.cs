@@ -7,6 +7,7 @@ public class QuestTest : MonoBehaviour
     {
         var db = new QuestDB();
         db.LoadFromBG();
-        QuestManager.I.Init(db);
+        var inventory = new DummyInventoryProvider();
+        QuestManager.I.Init(db, inventory);
     }
 }
