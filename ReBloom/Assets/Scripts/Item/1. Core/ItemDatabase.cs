@@ -185,7 +185,7 @@ public class ItemDatabase : MonoBehaviour
             .ToList();
     }
 
-    /// <summary>
+    /// <summary>@
     /// 테이블 타입별 아이템 가져오기
     /// </summary>
     public List<ItemBase> GetItemsByTableType(ItemTableType tableType)

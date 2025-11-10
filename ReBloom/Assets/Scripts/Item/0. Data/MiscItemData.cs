@@ -143,7 +143,6 @@ public class MiscItemData : ItemBase
                 if (image != null && image.sprite != null)
                 {
                     icon = image.sprite;
-                    Debug.Log($"[MiscItemData] 아이콘 로드 성공: {itemName}");
                     return;
                 }
 

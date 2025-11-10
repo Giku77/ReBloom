@@ -13,16 +13,16 @@ using System.Linq;
 public class DebugInventoryUI : MonoBehaviour
 {
     [Header("UI References")]
-    [SerializeField] private GameObject uiRoot;
+    [SerializeField] public GameObject uiRoot;
     [SerializeField] private Transform contentContainer;
     [SerializeField] private GameObject itemSlotPrefab;
     [SerializeField] private DebugItemTooltip tooltip;
 
     [Header("Tab Buttons")]
-    [SerializeField] private Button btnConsumable;
-    [SerializeField] private Button btnProtective;
-    [SerializeField] private Button btnTool;
-    [SerializeField] private Button btnMisc;
+    public Button btnConsumable;
+    public Button btnProtective;
+    public Button btnTool;
+    public Button btnMisc;
 
     [Header("Filter UI")]
     [SerializeField] private TMP_InputField searchInput;
@@ -154,6 +154,7 @@ public class DebugInventoryUI : MonoBehaviour
     public void ToggleUI()
     {
         bool newState = !uiRoot.activeSelf;
+        Debug.Log(newState);
         uiRoot.SetActive(newState);
 
         if (newState)
@@ -384,12 +385,12 @@ public class DebugInventoryUI : MonoBehaviour
 
             if (filterByTier)
             {
-                info += $" | 티어: {selectedTier}";
+                info += $" 티어: {selectedTier}";
             }
 
             if (!string.IsNullOrEmpty(searchText))
             {
-                info += $" | 검색: \"{searchText}\"";
+                info += $" 검색: \"{searchText}\"";
             }
 
             txtFilterInfo.text = info;

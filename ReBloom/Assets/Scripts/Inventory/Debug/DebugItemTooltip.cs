@@ -68,6 +68,12 @@ public class DebugItemTooltip : MonoBehaviour
             if (showDescription)
                 txtDescription.text = item.description;
         }
+        else
+        {
+            txtDescription.gameObject.SetActive(showDescription && !string.IsNullOrEmpty(item.description));
+            if (showDescription)
+                txtDescription.text = "설명 없음";
+        }
 
         // 스탯
         if (txtStats != null)
