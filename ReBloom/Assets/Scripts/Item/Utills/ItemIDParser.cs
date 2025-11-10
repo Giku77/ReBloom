@@ -6,14 +6,14 @@ public static class ItemIDParser
     /// </summary>
     public static ItemTableType GetTableType(int itemID)
     {
-        int tableNumber = itemID / 1000000; // 첫 자리
+        int tableNumber = itemID / 100000; // 둘째 자리
 
-        return tableNumber switch
-        {
-            1 => ItemTableType.Protective,
-            4 => ItemTableType.Consumable,
-            _ => ItemTableType.Misc
-        };
+        if (tableNumber == 40) return ItemTableType.Consumable;
+        if (tableNumber == 42) return ItemTableType.Tool;
+        if (tableNumber == 43) return ItemTableType.Protective;
+        if (tableNumber == 20) return ItemTableType.Misc;
+
+        return ItemTableType.Consumable;
     }
 
     /// <summary>

@@ -140,7 +140,6 @@ public class ProtectiveItemData : ItemBase
                 if (image != null && image.sprite != null)
                 {
                     icon = image.sprite;
-                    Debug.Log($"[ProtectiveItemData] 아이콘 로드 성공: {itemName}");
                     return;
                 }
 
@@ -149,7 +148,6 @@ public class ProtectiveItemData : ItemBase
                 if (image != null && image.sprite != null)
                 {
                     icon = image.sprite;
-                    Debug.Log($"[ProtectiveItemData] 아이콘 로드 성공 (자식): {itemName}");
                     return;
                 }
 
