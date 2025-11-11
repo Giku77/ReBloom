@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1733310677849898036}
+  - component: {fileID: 8431042135876313342}
   m_Layer: 5
   m_Name: IconAreaRoot
   m_TagString: Untagged
@@ -36,6 +37,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &8431042135876313342
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 140288218687239051}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e351fe0def62c64d9805d82e25ba483, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  iconImage: {fileID: 0}
+  dragAlpha: 0.6
 --- !u!1 &1383410545402117934
 GameObject:
   m_ObjectHideFlags: 0
@@ -257,6 +272,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7524988335908719973}
   - component: {fileID: 1187179566300527225}
+  - component: {fileID: -3074354950279506772}
+  - component: {fileID: 6407756579335625068}
   m_Layer: 5
   m_Name: ItemSlot
   m_TagString: Untagged
@@ -303,6 +320,32 @@ MonoBehaviour:
   imgTierBar: {fileID: 7378112231993150158}
   txtName: {fileID: 7287755837318366265}
   txtID: {fileID: 5615346956541377902}
+--- !u!114 &-3074354950279506772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6128953929281181081}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e351fe0def62c64d9805d82e25ba483, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  iconImage: {fileID: 6302106223001559954}
+  dragAlpha: 0.6
+--- !u!225 &6407756579335625068
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6128953929281181081}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &6227321925031278894
 GameObject:
   m_ObjectHideFlags: 0

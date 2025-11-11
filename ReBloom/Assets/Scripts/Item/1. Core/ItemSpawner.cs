@@ -8,7 +8,10 @@ public class ItemSpawner : MonoBehaviour
     /// <summary>
     /// 아이템 생성
     /// </summary>
-public async Task<GameObject> SpawnItemInWorld(int itemID, Vector3 position)
+
+    [Header("Spawn Settings")]
+    [SerializeField] private Transform itemParent; // ������ �����۵��� �θ� (�� ������)
+    public async Task<GameObject> SpawnItemInWorld(int itemID, Vector3 position)
     {
         // 1. ItemDatabase에서 아이템 데이터 가져오기
         ItemBase itemData = ItemDatabase.I.GetItem(itemID);
@@ -26,16 +29,37 @@ public async Task<GameObject> SpawnItemInWorld(int itemID, Vector3 position)
             return null;
         }
 
-        // 3. 월드에 GameObject 생성
-        GameObject itemObj = Instantiate(prefab, position, Quaternion.identity);
-        
-        //레이어를 Interaction으로 설정
-        itemObj.layer = LayerMask.NameToLayer("Interaction");
-        Debug.Log($"[ItemSpawner] 아이템 레이어 설정: {itemObj.layer} (Interaction)");
+        // 3. ���忡 GameObject ����
+        GameObject itemObj = Instantiate(prefab, position, Quaternion.identity, itemParent);
 
         // 4. WorldItem 컴포넌트에 데이터 전달
         var worldItem = itemObj.GetComponent<WorldItem>();
         worldItem?.Initialize(itemData);
+
+        return itemObj;
+    }
+    public async Task<GameObject> SpawnItemInWorld(ItemBase data, Vector3 position)
+    {
+        if (data == null)
+        {
+            Debug.LogError($"[ItemSpawner] ������ ������ ����: {data.itemID}");
+            return null;
+        }
+
+        // 2. Addressable ������ �ε� (�񵿱� ���)
+        GameObject prefab = await LoadItemPrefabAsync(data);
+        if (prefab == null)
+        {
+            Debug.LogError($"[ItemSpawner] ������ �ε� ����: {data.itemName}");
+            return null;
+        }
+
+        // 3. ���忡 GameObject ����
+        GameObject itemObj = Instantiate(prefab, position, Quaternion.identity, itemParent);
+
+        // 4. WorldItem ������Ʈ�� ������ ����
+        var worldItem = itemObj.GetComponent<WorldItem>();
+        worldItem?.Initialize(data);
 
         return itemObj;
     }
@@ -74,28 +98,39 @@ public async Task<GameObject> SpawnItemInWorld(int itemID, Vector3 position)
 
         return itemObj;
     }
+    public async Task<GameObject> DropItem(ItemBase data, Vector3 position, Vector3 force)
+    {
+        GameObject itemObj = await SpawnItemInWorld(data, position);
+
+        if (itemObj != null && itemObj.TryGetComponent<Rigidbody>(out var rb))
+        {
+            rb.AddForce(force, ForceMode.Impulse);
+        }
+
+        return itemObj;
+    }
 
     // ===== �׽�Ʈ �ڵ� =====
-    public InputActionReference spawnActionRef;
+    //public InputActionReference spawnActionRef;
 
-    public async void TestSpawn(InputAction.CallbackContext ctx)
-    {
-        if (ctx.performed)
-        {
-            await DropItem(4001001, new Vector3(0, 5, 0), new Vector3(0, 20, 0));
-            Debug.Log("[ItemSpawner] 아이템 스폰 완료!");
-        }
-    }
+    //public async void TestSpawn(InputAction.CallbackContext ctx)
+    //{
+    //    if (ctx.performed)
+    //    {
+    //        await DropItem(4001001, new Vector3(0, 5, 0), new Vector3(0, 20, 0));
+    //        Debug.Log("[ItemSpawner] ������ ���� �Ϸ�!");
+    //    }
+    //}
 
-    private void OnEnable()
-    {
-        if (spawnActionRef != null)
-            spawnActionRef.action.performed += TestSpawn;
-    }
+    //private void OnEnable()
+    //{
+    //    if (spawnActionRef != null)
+    //        spawnActionRef.action.performed += TestSpawn;
+    //}
 
-    private void OnDisable()
-    {
-        if (spawnActionRef != null)
-            spawnActionRef.action.performed -= TestSpawn;
-    }
+    //private void OnDisable()
+    //{
+    //    if (spawnActionRef != null)
+    //        spawnActionRef.action.performed -= TestSpawn;
+    //}
 }

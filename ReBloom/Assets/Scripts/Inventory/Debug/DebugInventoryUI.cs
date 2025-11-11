@@ -250,6 +250,16 @@ public class DebugInventoryUI : MonoBehaviour
             slot.SetShowStats(toggleShowStats.isOn);
 
             activeSlots.Add(slot);
+            SetDragDropHandlerData(item, slot);
+        }
+    }
+
+    private void SetDragDropHandlerData(ItemBase item, DebugItemSlot slot)
+    {
+        ItemIconDragHandler dragHandler = slot.GetComponent<ItemIconDragHandler>();
+        if (dragHandler != null)
+        {
+            dragHandler.SetItemData(item);
         }
     }
     #endregion
