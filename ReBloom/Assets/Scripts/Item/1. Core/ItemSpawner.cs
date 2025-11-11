@@ -6,30 +6,34 @@ using UnityEngine.InputSystem;
 public class ItemSpawner : MonoBehaviour
 {
     /// <summary>
-    /// ¿ùµå¿¡ ¾ÆÀÌÅÛ ½ºÆù (ºñµ¿±â)
+    /// ì•„ì´í…œ ìƒì„±
     /// </summary>
-    public async Task<GameObject> SpawnItemInWorld(int itemID, Vector3 position)
+public async Task<GameObject> SpawnItemInWorld(int itemID, Vector3 position)
     {
-        // 1. ItemDatabase¿¡¼­ ¾ÆÀÌÅÛ µ¥ÀÌÅÍ °¡Á®¿À±â
+        // 1. ItemDatabaseì—ì„œ ì•„ì´í…œ ë°ì´í„° ê°€ì ¸ì˜¤ê¸°
         ItemBase itemData = ItemDatabase.I.GetItem(itemID);
         if (itemData == null)
         {
-            Debug.LogError($"[ItemSpawner] ¾ÆÀÌÅÛ µ¥ÀÌÅÍ ¾øÀ½: {itemID}");
+            Debug.LogError($"[ItemSpawner] ì•„ì´í…œ ë°ì´í„° ì—†ìŒ: {itemID}");
             return null;
         }
 
-        // 2. Addressable ÇÁ¸®ÆÕ ·Îµå (ºñµ¿±â ´ë±â)
+        // 2. Addressable í”„ë¦¬íŒ¹ ë¡œë“œ (ë¹„ë™ê¸° ëŒ€ê¸°)
         GameObject prefab = await LoadItemPrefabAsync(itemData);
         if (prefab == null)
         {
-            Debug.LogError($"[ItemSpawner] ÇÁ¸®ÆÕ ·Îµå ½ÇÆĞ: {itemData.itemName}");
+            Debug.LogError($"[ItemSpawner] í”„ë¦¬íŒ¹ ë¡œë“œ ì‹¤íŒ¨: {itemData.itemName}");
             return null;
         }
 
-        // 3. ¿ùµå¿¡ GameObject »ı¼º
+        // 3. ì›”ë“œì— GameObject ìƒì„±
         GameObject itemObj = Instantiate(prefab, position, Quaternion.identity);
+        
+        //ë ˆì´ì–´ë¥¼ Interactionìœ¼ë¡œ ì„¤ì •
+        itemObj.layer = LayerMask.NameToLayer("Interaction");
+        Debug.Log($"[ItemSpawner] ì•„ì´í…œ ë ˆì´ì–´ ì„¤ì •: {itemObj.layer} (Interaction)");
 
-        // 4. WorldItem ÄÄÆ÷³ÍÆ®¿¡ µ¥ÀÌÅÍ ¿¬°á
+        // 4. WorldItem ì»´í¬ë„ŒíŠ¸ì— ë°ì´í„° ì „ë‹¬
         var worldItem = itemObj.GetComponent<WorldItem>();
         worldItem?.Initialize(itemData);
 
@@ -37,7 +41,7 @@ public class ItemSpawner : MonoBehaviour
     }
 
     /// <summary>
-    /// Addressable ÇÁ¸®ÆÕ ºñµ¿±â ·Îµå
+    /// Addressable ì•„ì´í…œ ë¡œë“œ
     /// </summary>
     private async Task<GameObject> LoadItemPrefabAsync(ItemBase itemData)
     {
@@ -46,18 +50,18 @@ public class ItemSpawner : MonoBehaviour
             var handle = Addressables.LoadAssetAsync<GameObject>(itemData.worldPrefabAddress);
             GameObject prefab = await handle.Task;
 
-            Debug.Log($"[ItemSpawner] ÇÁ¸®ÆÕ ·Îµå ¼º°ø: {prefab.name}");
+            Debug.Log($"[ItemSpawner] ì•„ì´í…œ ë¡œë“œ ì™„ë£Œ: {prefab.name}");
             return prefab;
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"[ItemSpawner] ÇÁ¸®ÆÕ ·Îµå ½ÇÆĞ: {itemData.itemName}\n{e.Message}");
+            Debug.LogError($"[ItemSpawner] ì•„ì´í…œ ë¡œë“œ ì‹¤íŒ¨: {itemData.itemName}\n{e.Message}");
             return null;
         }
     }
 
     /// <summary>
-    /// µå·Ó ¾ÆÀÌÅÛ (¹°¸® È¿°ú Æ÷ÇÔ)
+    /// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
     /// </summary>
     public async Task<GameObject> DropItem(int itemID, Vector3 position, Vector3 force)
     {
@@ -71,7 +75,7 @@ public class ItemSpawner : MonoBehaviour
         return itemObj;
     }
 
-    // ===== Å×½ºÆ® ÄÚµå =====
+    // ===== ï¿½×½ï¿½Æ® ï¿½Úµï¿½ =====
     public InputActionReference spawnActionRef;
 
     public async void TestSpawn(InputAction.CallbackContext ctx)
@@ -79,7 +83,7 @@ public class ItemSpawner : MonoBehaviour
         if (ctx.performed)
         {
             await DropItem(4001001, new Vector3(0, 5, 0), new Vector3(0, 20, 0));
-            Debug.Log("[ItemSpawner] ¾ÆÀÌÅÛ ½ºÆù ¿Ï·á!");
+            Debug.Log("[ItemSpawner] ì•„ì´í…œ ìŠ¤í° ì™„ë£Œ!");
         }
     }
 
