@@ -20,6 +20,8 @@ public class BuildInput : MonoBehaviour
     private void OnBuild(InputAction.CallbackContext ctx)
     {
         Debug.Log("Build Input Received");
-        BuildManager.I?.TryBuild(3101001, Vector3.zero, Quaternion.identity);
+        var buildId = QuestManager.I.Current.goals[0].objectId;
+        //Debug.Log($"Trying to build ID: {buildId}");
+        BuildManager.I?.TryBuild(buildId, Vector3.zero, Quaternion.identity);
     }
 }
