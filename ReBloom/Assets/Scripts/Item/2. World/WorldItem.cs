@@ -36,6 +36,10 @@ public class WorldItem : MonoBehaviour, IInteractable
     private void PickupItem()
     {
         // TODO: 인벤토리에 추가
+        var inv = (DummyInventoryProvider)QuestManager.I.Inventory;
+        inv.AddItem(itemData.itemID, 1);
+        var ui = FindFirstObjectByType<QuestUI>();
+        ui?.Refresh();
 
 
         Debug.Log($"{itemData.itemName} 획득!");
