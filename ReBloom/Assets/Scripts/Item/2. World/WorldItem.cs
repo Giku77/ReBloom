@@ -10,7 +10,7 @@ public class WorldItem : MonoBehaviour, IInteractable
     [SerializeField] private float pickupRange = 2f; //상호작용 가능한 범위
     [SerializeField] private LayerMask playerLayer;
 
-    public void Initialize(ItemBase item)
+public void Initialize(ItemBase item)
     {
         itemData = item;
     }
@@ -42,7 +42,7 @@ public class WorldItem : MonoBehaviour, IInteractable
         Destroy(gameObject);
     }
 
-    public void OnInteract()
+    public void Interact(PlayerController player)
     {
         PickupItem();
     }

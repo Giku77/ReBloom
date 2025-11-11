@@ -5,29 +5,88 @@ public class PlayerInteractable : MonoBehaviour
 {
     [Header("Interaction")]
     [SerializeField] private float interactRange = 5f; //상호작용 가능한 범위
+    [SerializeField] private float interactRadius = 2f; //상호작용 가능한 넓이
     [SerializeField] private LayerMask interactLayer;
 
-    private bool interacting = false;
+    PlayerController player;
+
+    private bool isInteractive = false;
+    private InteractionHighlight currentHighlight = null; // 현재 하이라이트된 오브젝트
+
+
+    private void Awake()
+    {
+        player = GetComponent<PlayerController>();
+    }
 
     public void OnInteract(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            TryInteract();
+            isInteractive = true;
         }
-
-
-        Debug.Log("상호작용 키 입력");
     }
+
+    private void Update()
+    {
+        CheckForInteractable();
+
+        if (isInteractive)
+        {
+            TryInteract();
+            isInteractive = false;
+        }
+    }
+
+    //private void TryInteract()
+    //{
+    //    Ray ray = new Ray(transform.position, transform.forward);
+    //    if (Physics.Raycast(ray, out RaycastHit hit, interactRange, interactLayer))
+    //    {
+    //        if (hit.collider.TryGetComponent<IInteractable>(out var interactable))
+    //        {
+    //            interactable.Interact(player);
+    //        }
+    //    }
+    //}
 
     private void TryInteract()
     {
-        Ray ray = new Ray(transform.position, transform.forward);
-        if (Physics.Raycast(ray, out RaycastHit hit, interactRange, interactLayer))
+        if (Physics.SphereCast(transform.position, interactRadius, transform.forward, out RaycastHit hit, interactRange, interactLayer))
         {
             if (hit.collider.TryGetComponent<IInteractable>(out var interactable))
-                interactable.OnInteract();
+            {
+                interactable.Interact(player);
+            }
         }
     }
+
+    private void CheckForInteractable()
+    {
+        if (Physics.SphereCast(transform.position, interactRadius, transform.forward, out RaycastHit hit, interactRange, interactLayer))
+        {
+            if (hit.collider.TryGetComponent<InteractionHighlight>(out var highlight))
+            {
+                if (currentHighlight != highlight)
+                 {
+                    if (currentHighlight != null)
+                    {
+                        currentHighlight.Hide();
+                    }
+                    currentHighlight = highlight;
+                    currentHighlight.Show();
+                }
+            }
+        }
+        else
+        {
+            if (currentHighlight != null)
+            {
+                currentHighlight.Hide();
+                currentHighlight = null;
+            }
+        }
+    }
+
 
 }
