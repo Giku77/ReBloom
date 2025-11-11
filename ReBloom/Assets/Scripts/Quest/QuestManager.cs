@@ -31,7 +31,7 @@ public class QuestManager : MonoBehaviour
     {
         if (!_db.TryGet(questId, out var data))
         {
-            Debug.LogError($"ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® {questId}");
+            Debug.LogError($"Äù½ºÆ® DB¿¡ ID {questId}°¡ ¾ø½À´Ï´Ù.");
             return;
         }
 
@@ -41,13 +41,35 @@ public class QuestManager : MonoBehaviour
         ui?.Refresh();
     }
 
+    public void NotifyBuildingBuilt(int buildingId)
+    {
+        if (_current == null) return;
+        if (_current.goals == null) return;
+
+        bool changed = false;
+
+        foreach (var g in _current.goals)
+        {
+            if (g.type == QuestGoalType.Craft && buildingId == g.objectId)
+            {
+                g.currentCount++;
+                changed = true;
+            }
+        }
+
+        if (changed)
+        {
+            TryCompleteCurrent();
+        }
+    }
+
     public void TryCompleteCurrent()
     {
         if (_current == null) return;
 
         if (!IsQuestSatisfied(_current))
         {
-            Debug.Log("ì¡°ê±´ì´ ì•„ì§ ì•ˆ ë¨");
+            Debug.Log("Á¶°ÇÀÌ ¾ÆÁ÷ ¾È µÊ");
             return;
         }
 
@@ -55,7 +77,7 @@ public class QuestManager : MonoBehaviour
         if (nextId == 0)
         {
             _current = null;
-            Debug.Log("ëª¨ë“  í€˜ìŠ¤íŠ¸ ì™„ë£Œ");
+            Debug.Log("¸ğµç Äù½ºÆ® ¿Ï·á");
         }
         else
         {

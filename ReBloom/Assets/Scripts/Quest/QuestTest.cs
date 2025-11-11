@@ -9,5 +9,10 @@ public class QuestTest : MonoBehaviour
         db.LoadFromBG();
         var inventory = new DummyInventoryProvider();
         QuestManager.I.Init(db, inventory);
+        var ArcR = new ArcRecipeDB();
+        ArcR.LoadFromBG();
+        var ArcDB = new ArcDB();
+        ArcDB.LoadFromBG();
+        BuildManager.I.Init(ArcDB, ArcR, inventory);
     }
 }

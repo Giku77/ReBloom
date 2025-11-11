@@ -4,9 +4,9 @@ public class DummyInventoryProvider : IInventoryProvider
 {
     private Dictionary<int, int> _items = new Dictionary<int, int>()
     {
-        { 2002001, 15 }, 
-        { 2002002, 6 },
-        { 2002005, 10 },
+        { 4102001, 15 }, 
+        { 4102002, 6 },
+        { 4102005, 10 },
     };
 
     public int GetItemCount(int itemId)
@@ -18,5 +18,29 @@ public class DummyInventoryProvider : IInventoryProvider
     {
         if (_items.ContainsKey(itemId)) _items[itemId] += amount;
         else _items[itemId] = amount;
+    }
+
+    public void RemoveItem(int itemId, int amount)
+    {
+        if (_items.ContainsKey(itemId))
+        {
+            _items[itemId] -= amount;
+            if (_items[itemId] < 0) _items[itemId] = 0;
+        }
+    }
+
+    public void Clear()
+    {
+        _items.Clear();
+    }
+
+    public bool HasItem(int itemId, int amount)
+    {
+        return GetItemCount(itemId) >= amount;
+    }
+
+    public void Consume(int itemId, int amount)
+    {
+        RemoveItem(itemId, amount);
     }
 }
