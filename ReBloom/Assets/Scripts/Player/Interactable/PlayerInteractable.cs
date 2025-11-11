@@ -1,3 +1,6 @@
+using System.Threading;
+using System.Threading.Tasks;
+using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,6 +12,8 @@ public class PlayerInteractable : MonoBehaviour
     [SerializeField] private LayerMask interactLayer;
 
     PlayerController player;
+
+    private CancellationTokenSource cts;
 
     private bool isInteractive = false;
     private InteractionHighlight currentHighlight = null; // 현재 하이라이트된 오브젝트
@@ -25,6 +30,22 @@ public class PlayerInteractable : MonoBehaviour
         {
             isInteractive = true;
         }
+
+        //if (context.started)
+        //{ 
+            
+        //}
+        //else if (context.canceled)
+        //{ 
+        //    CancelInteract();
+        //}
+    }
+
+    private void CancelInteract()
+    {
+        cts?.Cancel();
+        cts?.Dispose();
+        cts = null;
     }
 
     private void Update()
@@ -49,6 +70,13 @@ public class PlayerInteractable : MonoBehaviour
     //        }
     //    }
     //}
+
+    private void StartInteract()
+    { 
+    
+    
+    
+    }
 
     private void TryInteract()
     {

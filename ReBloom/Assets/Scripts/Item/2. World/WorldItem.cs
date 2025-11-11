@@ -10,7 +10,9 @@ public class WorldItem : MonoBehaviour, IInteractable
     [SerializeField] private float pickupRange = 2f; //상호작용 가능한 범위
     [SerializeField] private LayerMask playerLayer;
 
-public void Initialize(ItemBase item)
+    public float HoldTime => 2f;
+
+    public void Initialize(ItemBase item)
     {
         itemData = item;
     }
