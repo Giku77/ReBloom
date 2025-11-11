@@ -255,7 +255,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &505702790
 Transform:
   m_ObjectHideFlags: 0
@@ -288,7 +288,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &604712594
 Transform:
   m_ObjectHideFlags: 0
@@ -394,14 +394,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0542ffd864d3daf4ca414ce818eebe9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainCamera: {fileID: 961739752}
+  playerTransform: {fileID: 0}
   itemSpawner: {fileID: 868203704}
+  dropDistance: 2
+  dropHeight: 1.5
+  dropOffset: {x: 0, y: 0, z: 0}
   dropIndicator: {fileID: 1772905829204738921, guid: 632035082a60b354db3319459dea5eb6, type: 3}
+  useGroundDetection: 1
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
-  raycastDistance: 1
-  placementHeight: 3
+  groundRaycastDistance: 10
 --- !u!1 &697948582
 GameObject:
   m_ObjectHideFlags: 0
@@ -1353,7 +1356,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1160234426
 MonoBehaviour:
   m_ObjectHideFlags: 0
