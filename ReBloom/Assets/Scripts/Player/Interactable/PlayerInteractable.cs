@@ -1,6 +1,5 @@
+using Cysharp.Threading.Tasks;
 using System.Threading;
-using System.Threading.Tasks;
-using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -26,19 +25,7 @@ public class PlayerInteractable : MonoBehaviour
 
     public void OnInteract(InputAction.CallbackContext context)
     {
-        if (context.performed)
-        {
-            isInteractive = true;
-        }
-
-        //if (context.started)
-        //{ 
-            
-        //}
-        //else if (context.canceled)
-        //{ 
-        //    CancelInteract();
-        //}
+        TryInteract();
     }
 
     private void CancelInteract()
@@ -51,47 +38,41 @@ public class PlayerInteractable : MonoBehaviour
     private void Update()
     {
         CheckForInteractable();
-
-        if (isInteractive)
-        {
-            TryInteract();
-            isInteractive = false;
-        }
     }
 
-    //private void TryInteract()
+    //private async UniTask StartInteract()
     //{
-    //    Ray ray = new Ray(transform.position, transform.forward);
-    //    if (Physics.Raycast(ray, out RaycastHit hit, interactRange, interactLayer))
+    //    try
     //    {
-    //        if (hit.collider.TryGetComponent<IInteractable>(out var interactable))
-    //        {
-    //            interactable.Interact(player);
-    //        }
+    //        if (TryInteract())
+    //            return;
+    //        await UniTask.Yield(PlayerLoopTiming.Update, cts);
+
+    //    }
+    //    catch (System.Exception e)
+    //    {
+    //        CancelInteract();
     //    }
     //}
 
-    private void StartInteract()
-    { 
-    
-    
-    
-    }
-
-    private void TryInteract()
+    private bool TryInteract()
     {
-        if (Physics.SphereCast(transform.position, interactRadius, transform.forward, out RaycastHit hit, interactRange, interactLayer))
+        if (Physics.SphereCast(transform.position, interactRadius, Camera.main.transform.forward, out RaycastHit hit, interactRange, interactLayer))
         {
             if (hit.collider.TryGetComponent<IInteractable>(out var interactable))
             {
                 interactable.Interact(player);
+
+                return true;
             }
         }
+
+        return false;
     }
 
     private void CheckForInteractable()
     {
-        if (Physics.SphereCast(transform.position, interactRadius, transform.forward, out RaycastHit hit, interactRange, interactLayer))
+        if (Physics.SphereCast(transform.position, interactRadius, Camera.main.transform.forward, out RaycastHit hit, interactRange, interactLayer))
         {
             if (hit.collider.TryGetComponent<InteractionHighlight>(out var highlight))
             {
@@ -115,6 +96,4 @@ public class PlayerInteractable : MonoBehaviour
             }
         }
     }
-
-
 }
