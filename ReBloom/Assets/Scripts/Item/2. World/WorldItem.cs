@@ -1,12 +1,13 @@
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.InputSystem;
 
-public class WorldItem : MonoBehaviour
+public class WorldItem : MonoBehaviour, IInteractable
 {
     private ItemBase itemData;
 
     [Header("Interaction")]
-    [SerializeField] private float pickupRange = 2f;
+    [SerializeField] private float pickupRange = 2f; //ìƒí˜¸ì‘ìš© ê°€ëŠ¥í•œ ë²”ìœ„
     [SerializeField] private LayerMask playerLayer;
 
     public void Initialize(ItemBase item)
@@ -16,15 +17,15 @@ public class WorldItem : MonoBehaviour
 
     private void Update()
     {
-        // ÇÃ·¹ÀÌ¾î°¡ °¡±î¿ì¸é Áİ±â °¡´É
-        CheckPickup();
+        // í”Œë ˆì´ì–´ê°€ ê°€ê¹Œìš°ë©´ ì¤ê¸° ê°€ëŠ¥
+        //CheckPickup();
     }
 
     private void CheckPickup()
     {
         Collider[] colliders = Physics.OverlapSphere(transform.position, pickupRange, playerLayer);
 
-        if (colliders.Length > 0 && Input.GetKeyDown(KeyCode.E))
+        if (colliders.Length > 0 && Keyboard.current.eKey.wasPressedThisFrame)
         {
             PickupItem();
         }
@@ -32,11 +33,17 @@ public class WorldItem : MonoBehaviour
 
     private void PickupItem()
     {
-        // TODO: ÀÎº¥Åä¸®¿¡ Ãß°¡
+        // TODO: ì¸ë²¤í† ë¦¬ì— ì¶”ê°€
 
-        Debug.Log($"{itemData.itemName} È¹µæ!");
 
-        // ¿ùµå¿¡¼­ Á¦°Å
+        Debug.Log($"{itemData.itemName} íšë“!");
+
+        // ì›”ë“œì—ì„œ ì œê±°
         Destroy(gameObject);
+    }
+
+    public void OnInteract()
+    {
+        PickupItem();
     }
 }

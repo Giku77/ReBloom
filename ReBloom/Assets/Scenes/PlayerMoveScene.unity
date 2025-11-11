@@ -2322,7 +2322,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1365375578}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: GroundCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2361,7 +2361,8 @@ GameObject:
   - component: {fileID: 1399910742}
   - component: {fileID: 1399910744}
   - component: {fileID: 1399910745}
-  m_Layer: 0
+  - component: {fileID: 1399910746}
+  m_Layer: 6
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -2574,7 +2575,19 @@ MonoBehaviour:
     m_ActionId: 6c2ab1b8-8984-453a-af3d-a3c78ae1679a
     m_ActionName: 'Player/Attack[/Mouse/leftButton,/Keyboard/enter]'
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1399910746}
+        m_TargetAssemblyTypeName: PlayerInteractable, Assembly-CSharp
+        m_MethodName: OnInteract
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 852140f2-7766-474d-8707-702459ba45f3
     m_ActionName: 'Player/Interact[/Keyboard/e]'
   - m_PersistentCalls:
@@ -2685,6 +2698,38 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: ab171360-ab9b-45cd-832a-8bd2e2f45474
     m_ActionName: 'Player/SlowMove[/Mouse/rightButton]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: bb1cb67f-d0e4-448b-ab40-fa37957859a8
+    m_ActionName: 'DebugInventory/Refresh[/Keyboard/f5]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 098f13b9-f028-400b-b25e-4a24cd98395d
+    m_ActionName: 'DebugInventory/Search[/Keyboard/leftCtrl,/Keyboard/f]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 978f0dab-09c8-44f8-b861-b6b143751408
+    m_ActionName: 'DebugInventory/SwitchTable1[/Keyboard/1]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 066e792b-d85c-4443-9f4e-4ea0282d52f4
+    m_ActionName: 'DebugInventory/SwitchTable2[/Keyboard/2]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: a75d9617-8468-4e2b-a2b7-e8f390f47ba1
+    m_ActionName: 'DebugInventory/SwitchTable3[/Keyboard/3]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: ca64bfd3-5f7f-4d06-8c89-864e9eadd27f
+    m_ActionName: 'DebugInventory/SwitchTable4[/Keyboard/4]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: a41db096-1bea-40d1-8ff1-6a52a18fe388
+    m_ActionName: 'DebugInventory/ResetFilters[/Keyboard/leftCtrl,/Keyboard/e]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 013734e0-423d-47c8-a32f-95a16f52917a
+    m_ActionName: 'DebugInventory/Close[/Keyboard/escape]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -2715,6 +2760,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97f4df3d60347b94281788cc7ab01109, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1399910746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1399910736}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 025de1cc961f096449d8ceba628a3a2f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactRange: 5
+  interactLayer:
+    serializedVersion: 2
+    m_Bits: 128
 --- !u!1001 &1407693434
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3352,7 +3413,7 @@ GameObject:
   - component: {fileID: 2075480828}
   - component: {fileID: 2075480827}
   - component: {fileID: 2075480826}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PlayerTail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
