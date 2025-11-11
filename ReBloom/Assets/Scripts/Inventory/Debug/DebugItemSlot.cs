@@ -13,7 +13,6 @@ public class DebugItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     [SerializeField] private Image imgTierBar;
     [SerializeField] private TextMeshProUGUI txtName;
     [SerializeField] private TextMeshProUGUI txtID;
-    [SerializeField] private LayoutElement layoutElement;
 
     private ItemBase itemData;
     private DebugItemTooltip tooltip;
@@ -63,15 +62,6 @@ public class DebugItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         if (txtID != null)
         {
             txtID.text = $"ID: {itemData.itemID}";
-        }
-    }
-
-    public void SetIconSize(float size)
-    {
-        if (layoutElement != null)
-        {
-            layoutElement.preferredWidth = size;
-            layoutElement.preferredHeight = size + 40;
         }
     }
 
