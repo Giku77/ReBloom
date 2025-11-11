@@ -15,12 +15,16 @@ public class QuestGoal
     public int objectId;
     public int amount;
 
+    [NonSerialized] public int currentCount;
+
     public bool IsSatisfied(IInventoryProvider inv)
     {
         switch (type)
         {
             case QuestGoalType.Collect:
                 return inv.GetItemCount(objectId) >= amount;
+            case QuestGoalType.Craft:
+                return currentCount >= amount;
             default:
                 return true;
         }

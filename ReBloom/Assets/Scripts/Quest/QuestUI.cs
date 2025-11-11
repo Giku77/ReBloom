@@ -33,10 +33,18 @@ public class QuestUI : MonoBehaviour
                         var itemName = ItemDatabase.I.GetItem(goal.objectId)?.itemName ?? "Unknown Item";
                         description.text += $"\n - {itemName} ({currentAmt}/{goal.amount})";
                     }
-                    else
+                    else if (goal.type == QuestGoalType.Craft && goal.objectId != 0)
                     {
-                        // 건축해야하는 건축물 표시
-                        //description.text += $"\n - {}";
+                        var currentAmt = goal.currentCount;
+                        BuildManager.I.ArcDB.TryGet(goal.objectId, out var bld);
+                        BuildManager.I.RecipeDB.TryGetRecipe(bld.arcId, out var recipe);
+                        foreach (var (itemId, amount) in recipe.materials)
+                        {
+                            var itemName = ItemDatabase.I.GetItem(itemId)?.itemName ?? "Unknown Item";
+                            description.text += $"\n   - {itemName} x{amount}";
+                        }
+                        var craftName = bld != null ? bld.name : "Unknown Building";
+                        description.text += $"\n - {craftName} ({currentAmt} / {goal.amount})";
                     }
                 }
             }

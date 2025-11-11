@@ -16,7 +16,8 @@ public class MiscItemData : ItemBase
     private BGField<int> Item_ID;
     private BGField<string> Item_Name;
     private BGField<int> Inventory_N;
-    private BGField<int> Inventory_Cat;
+    private BGField<int> Major_Cat;
+    private BGField<int> Minor_Cat;
     private BGField<int> Variation;
     private BGField<int> Quickable;
     private BGField<int> MaxCount;
@@ -38,7 +39,8 @@ public class MiscItemData : ItemBase
         Item_ID = meta.GetField<int>("Item_ID");
         Item_Name = meta.GetField<string>("Item_Name");
         Inventory_N = meta.GetField<int>("Inventory_N");
-        Inventory_Cat = meta.GetField<int>("Inventory_Cat");
+        Major_Cat = meta.GetField<int>("Major_Cat");
+        Minor_Cat = meta.GetField<int>("Minor_Cat");
         Variation = meta.GetField<int>("Variation");
         Quickable = meta.GetField<int>("Quickable");
         MaxCount = meta.GetField<int>("MaxCount");
@@ -50,7 +52,7 @@ public class MiscItemData : ItemBase
         itemID = Item_ID[entity];
         itemName = Item_Name[entity];
         slotType = (InventorySlotType)Inventory_N[entity];
-        miscCategory = (MiscItemCategory)Inventory_Cat[entity];
+        miscCategory = (MiscItemCategory)Major_Cat[entity];
         variation = Variation[entity];
         maxCount = MaxCount[entity];
         canQuickSlot = Convert.ToBoolean(Quickable[entity]);
