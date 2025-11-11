@@ -41,6 +41,11 @@ public class DebugInventoryInput : MonoBehaviour
         Debug.Log("[DebugInventoryInput] 초기화 완료");
     }
 
+    private void Start()
+    {
+        HandleCursorState(false);
+    }
+
     private void OnEnable()
     {
         if (inputActions == null) return;
