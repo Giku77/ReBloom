@@ -2,5 +2,7 @@ using UnityEngine;
 
 public interface IInteractable
 {
-    public void OnInteract();
+    public float HoldTime { get; }
+
+    public void Interact(PlayerController player);
 }
