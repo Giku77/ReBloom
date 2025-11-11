@@ -11,7 +11,7 @@ public static class ItemIDParser
         if (tableNumber == 40) return ItemTableType.Consumable;
         if (tableNumber == 42) return ItemTableType.Tool;
         if (tableNumber == 43) return ItemTableType.Protective;
-        if (tableNumber == 20) return ItemTableType.Misc;
+        if (tableNumber == 41) return ItemTableType.Misc;
 
         return ItemTableType.Consumable;
     }
