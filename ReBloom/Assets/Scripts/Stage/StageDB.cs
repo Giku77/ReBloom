@@ -31,13 +31,13 @@ public class StageDB
         data.id = entity.Get<int>("Stage_ID");
         data.name = entity.Get<string>("Stage_Name");
         data.stageVariation = entity.Get<int>("Stage_Variation");
-        data.stagePollutuion = entity.Get<int>("Stage_Pollution");
-        data.stageTemp = entity.Get<int>("Stage_Temp");
+        data.stagePollution = entity.Get<float>("Stage_Pollution");
+        data.stageTemp = entity.Get<float>("Stage_Temp");
         data.sunnyRate = entity.Get<float>("Sunny_Rate");
         data.sunny_d = entity.Get<int>("Sunny_D");
         data.sunny_vari = entity.Get<int>("Sunny_Vari");
-        data.sunnyPollution = entity.Get<int>("Sunny_Pollution");
-        data.sunnyThirst = entity.Get<int>("Sunny_Thirst");
+        data.sunnyPollution = entity.Get<float>("Sunny_Pollution");
+        data.sunnyThirst = entity.Get<float>("Sunny_Thirst");
         data.sunnyTemp = entity.Get<int>("Sunny_Temp");
 
         return data;

@@ -6,8 +6,8 @@ public class StageData
     public int id;
     public string name;
     public int stageVariation;
-    public float stagePollutuion;
-    public int stageTemp;
+    public float stagePollution;
+    public float stageTemp;
     public float sunnyRate;
     public int sunny_d;
     public int sunny_vari;
@@ -22,7 +22,7 @@ public class StageData
         this.id = id;
         this.name = name;
         stageVariation = sv;
-        stagePollutuion = sp;
+        stagePollution = sp;
         stageTemp = st;
         sunnyRate = sr;
         sunny_d = sd;
