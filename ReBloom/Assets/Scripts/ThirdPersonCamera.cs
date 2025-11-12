@@ -30,13 +30,16 @@ public class ThirdPersonCamera : MonoBehaviour
     //시야 이동 함수
     private void Look()
     {
+        if (Cursor.lockState != CursorLockMode.Locked)
+            return;
+
         //if (target == null) return;
         if (target == null)
         {
-            var palyer = GameObject.FindWithTag("Player");
-            if (palyer != null)
+            var player = GameObject.FindWithTag("Player");
+            if (player != null)
             {
-                target = palyer.transform;
+                target = player.transform;
             }
             else
             {
