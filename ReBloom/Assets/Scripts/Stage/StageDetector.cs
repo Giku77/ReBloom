@@ -1,11 +1,20 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class StageDetector : MonoBehaviour
 {
     private StageBase currentStage;
     
     public StageBase CurrentStage => currentStage;
-    
+
+    public StageBase startStage = new StageBase(400);
+
+    private void Start()
+    {
+        //임시로 시작 구역 거점으로 지정
+        currentStage = startStage;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.TryGetComponent<StageBase>(out StageBase stage))
@@ -22,26 +31,14 @@ public class StageDetector : MonoBehaviour
             }
         }
     }
-    
-    //private void OnTriggerExit(Collider other)
-    //{
-    //    if (other.TryGetComponent<StageBase>(out StageBase stage) && currentStage == stage)
-    //    {
-    //        if (stage.Data != null)
-    //        {
-    //            Debug.Log($"[StageDetector] 지역 퇴장: {stage.Data.name}");
-    //        }
-    //        currentStage = null;
-    //    }
-    //}
-    
+
     public float GetCurrentPollutionMultiplier()
     {
         if (currentStage != null && currentStage.Data != null)
         {
-            //return currentStage.Data.stagePollution;
-            return 10f;
+            return currentStage.Data.stagePollution; ;
         }
+
         return 0.0f;
     }
 }

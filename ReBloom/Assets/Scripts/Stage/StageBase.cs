@@ -3,12 +3,17 @@ using UnityEngine;
 public class StageBase : MonoBehaviour
 {
     [Header("Stage Data")]
-    [SerializeField] private int stageID;
+    public int stageID;
     
     private StageData stageData;
     
     public int StageID => stageID;
     public StageData Data => stageData;
+
+    public StageBase(int stageID)
+    { 
+        this.stageID = stageID;
+    }
     
     public void Initialize(StageDB db)
     {

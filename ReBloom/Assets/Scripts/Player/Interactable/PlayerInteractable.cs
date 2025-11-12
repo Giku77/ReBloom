@@ -14,7 +14,7 @@ public class PlayerInteractable : MonoBehaviour
 
     private CancellationTokenSource cts;
 
-    private bool isInteractive = false;
+    //private bool isInteractive = false;
     private InteractionHighlight currentHighlight = null; // 현재 하이라이트된 오브젝트
 
 
