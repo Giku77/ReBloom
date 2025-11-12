@@ -4,17 +4,33 @@ using UnityEngine.InputSystem;
 
 public class WorldItem : MonoBehaviour, IInteractable
 {
+    [Header("Item Data")]
     private ItemBase itemData;
+    private int quantity = 1;
 
     [Header("Interaction")]
     [SerializeField] private float pickupRange = 2f; //상호작용 가능한 범위
     [SerializeField] private LayerMask playerLayer;
 
+    private PooledItem pooledItem;
     public float HoldTime => 2f;
 
+    private void Awake()
+    {
+        pooledItem = GetComponent<PooledItem>();
+    }
     public void Initialize(ItemBase item)
     {
         itemData = item;
+        quantity = 1;
+    }
+
+    /// <summary>
+    /// 아이템 수량 설정 (스택 아이템용)
+    /// </summary>
+    public void SetQuantity(int amount)
+    {
+        quantity = Mathf.Max(1, amount);
     }
 
     private void Update()
@@ -40,12 +56,28 @@ public class WorldItem : MonoBehaviour, IInteractable
 
         Debug.Log($"{itemData.itemName} 획득!");
 
-        // 월드에서 제거
-        Destroy(gameObject);
+        // 풀로 반환
+        if (pooledItem != null)
+        {
+            pooledItem.ReturnToPool();
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     public void Interact(PlayerController player)
     {
         PickupItem();
+    }
+
+    private void OnEnable()
+    {
+        // 일정 시간 후 자동 회수
+        if (pooledItem != null)
+        {
+            pooledItem.ReturnToPoolAfterDelay(600f); // 10분
+        }
     }
 }
