@@ -49,7 +49,10 @@ public class PooledItem : MonoBehaviour
     // UniTask 기반 비동기 지연 반환
     public void ReturnToPoolAfterDelay(float delaySeconds)
     {
-        var ct = disableCts.Token; // OnDisable에서 Cancel 될 것임
+        if (disableCts == null)
+            disableCts = new CancellationTokenSource();
+
+        var ct = disableCts.Token;
         DelayedReturnAsync(delaySeconds, ct).Forget();
     }
 
@@ -70,6 +73,7 @@ public class PooledItem : MonoBehaviour
     private void OnEnable()
     {
         // 재활용 시 새 토큰 생성
+        disableCts?.Cancel();
         disableCts?.Dispose();
         disableCts = new CancellationTokenSource();
     }
