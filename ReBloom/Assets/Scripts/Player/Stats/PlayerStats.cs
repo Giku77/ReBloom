@@ -14,17 +14,22 @@ public class PlayerStats : MonoBehaviour
 
     public event Action<StatBase, float, float> OnStatChanged;
 
-    void Awake()
+    private void Awake()
     {
         Health = new HealthStat(this, data.maxHealth);
         
         Hunger = new HungerStat(this, data.hungerMax, data.hungerIncreaseRate);
         Thirst = new ThirstStat(this, data.thurstMax, data.thirstIncreaseRate);
-        Pollution = new PollutionStat(this, data.pollutionMax, data.pollutionIncreaseRate);
+        //Pollution = new PollutionStat(this, data.pollutionMax, data.pollutionIncreaseRate);
 
     }
 
-    void Update()
+    private void Start()
+    {
+        Pollution = new PollutionStat(this, data.pollutionMax, data.pollutionIncreaseRate);
+    }
+
+    private void Update()
     {
         Hunger.Tick();
         Thirst.Tick();              
@@ -42,7 +47,7 @@ public class PlayerStats : MonoBehaviour
     }
 
 
-    void PrintStats()
+    private void PrintStats()
     {
         Debug.Log("========== 플레이어 상태 ==========");
         Debug.Log($"Health: {Health.Value:F2} / {Health.MaxValue}");
