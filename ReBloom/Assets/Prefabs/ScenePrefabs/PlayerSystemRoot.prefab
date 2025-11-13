@@ -1180,8 +1180,8 @@ Transform:
   m_GameObject: {fileID: 3915509196807712028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -326.5358, y: 147.48, z: 81.16754}
-  m_LocalScale: {x: 1, y: 1, z: 0.5}
+  m_LocalPosition: {x: -326.5358, y: 147.3, z: 81.16754}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7996509823400357023}
@@ -1209,10 +1209,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 0.2
   m_Height: 1.5
   m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 0, y: 0.72, z: 0}
 --- !u!54 &4012734030651676885
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1222,7 +1222,7 @@ Rigidbody:
   m_GameObject: {fileID: 3915509196807712028}
   serializedVersion: 4
   m_Mass: 1
-  m_Drag: 0
+  m_Drag: 0.5
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -1506,11 +1506,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 838ff50d40bdaf841bc5e98f4e9ef801, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 10
-  jumpForce: 4
-  rotationSpeed: 3
-  slowSpeed: 4
-  changeSpeedRadius: 1.1
+  moveSpeed: 6
+  jumpForce: 5
+  rotationSpeed: 6
+  turnSpeed: 12
+  slowSpeed: 3
+  changeSpeedRadius: 8
   currentSpeed: 0
   cameraTransform: {fileID: 0}
   groundCheck: {fileID: 5050456059720074350}
@@ -1572,7 +1573,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e41929d7021dbc84d9450659825922dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startStage: {fileID: 0}
 --- !u!114 &8595353244509567925
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1610,7 +1610,7 @@ Transform:
   m_GameObject: {fileID: 3951941231071691645}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -1, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

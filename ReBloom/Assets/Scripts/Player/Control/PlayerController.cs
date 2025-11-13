@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
     private float sprintSpeed;
     [SerializeField] private float jumpForce = 2f;
     [SerializeField] private float rotationSpeed = 1f;
+    [SerializeField] private float turnSpeed = 15f;
     [SerializeField] private float slowSpeed = 4f;
     [SerializeField] private float changeSpeedRadius = 4;
 
@@ -34,6 +35,11 @@ public class PlayerController : MonoBehaviour
 
     private bool jumpRequested = false;
 
+    private Animator animator;
+    
+    public static readonly string jumpAni = "Jump";
+    public static readonly string speedAni = "Speed";
+
 
     bool isGround = false;
 
@@ -49,6 +55,8 @@ public class PlayerController : MonoBehaviour
         {
             Debug.Log("No Camera");
         }
+
+        animator = GetComponentInChildren<Animator>();
     }
 
     private void Start()
@@ -123,36 +131,41 @@ public class PlayerController : MonoBehaviour
         cameraRight.y = 0f;
         cameraRight.Normalize();
 
-
+        Vector3 targetDirection = Vector3.zero;
         if (!isFreeLook)
         {
-            moveDirection = (cameraRight * moveInput.x + cameraForward * moveInput.y).normalized;
-            oldMoveDirection = moveDirection;
+            targetDirection = (cameraRight * moveInput.x + cameraForward * moveInput.y).normalized;
         }
         else
         {
-            moveDirection = oldMoveDirection;
+            targetDirection = oldMoveDirection;
         }
-
-            sprintSpeed = moveSpeed * 1.5f;
 
         if (moveInput.magnitude < 0.1f)
         {
             targetSpeed = 0f;
-        }
-        if (!isSlow)
-        {
-            targetSpeed = isSprinting ? sprintSpeed : moveSpeed;
+            targetDirection = Vector3.zero;
         }
         else
         {
-            targetSpeed = slowSpeed;
+            if (!isSlow)
+            {
+                targetSpeed = isSprinting ? sprintSpeed : moveSpeed;
+            }
+            else
+            {
+                targetSpeed = slowSpeed;
+            }
         }
+
+        moveDirection = Vector3.Slerp(moveDirection, targetDirection, turnSpeed * Time.deltaTime);
+        oldMoveDirection = moveDirection;
 
         currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed, changeSpeedRadius * Time.deltaTime);
 
-        Vector3 movement = moveDirection * currentSpeed;
+        animator.SetFloat(speedAni, currentSpeed);
 
+        Vector3 movement = moveDirection * currentSpeed;
         rb.linearVelocity = new Vector3(movement.x, rb.linearVelocity.y, movement.z);
     }
 
@@ -163,6 +176,11 @@ public class PlayerController : MonoBehaviour
         Vector3 velocity = rb.linearVelocity;
         velocity.y = jumpForce;
         rb.linearVelocity = velocity;
+
+        if (animator != null)
+        {
+            animator.SetTrigger(jumpAni);
+        }
 
         jumpRequested = false;
     }
