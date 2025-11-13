@@ -36,7 +36,6 @@ public class ThirdPersonCamera : MonoBehaviour
         Vector2 scrollDelta = context.ReadValue<Vector2>();
         distance -= scrollDelta.y;
         distance = Mathf.Clamp(distance, maxZoominDistance, maxZoomOutDistance);
-
     }
 
     //시야 이동 함수
