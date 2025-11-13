@@ -129,6 +129,7 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
+  inventoryData: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
 --- !u!54 &-7968967850646757625
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -172,6 +173,18 @@ MonoBehaviour:
   lightIntensity: 2
   backlightRange: 3
   bodylightRange: 0.05
+--- !u!114 &6414478914407459084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2998209780802710607}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 994bdffcbc58aad468df8611de143a46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!136 &4638502670139812297
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -195,17 +208,3 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
-  backlightRange: 3
-  bodylightRange: 0.05
---- !u!114 &6414478914407459084
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2998209780802710607}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 994bdffcbc58aad468df8611de143a46, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

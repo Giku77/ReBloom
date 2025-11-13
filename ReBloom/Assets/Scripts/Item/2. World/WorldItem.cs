@@ -12,6 +12,9 @@ public class WorldItem : MonoBehaviour, IInteractable
     [SerializeField] private float pickupRange = 2f; //상호작용 가능한 범위
     [SerializeField] private LayerMask playerLayer;
 
+    [Header("Inventory Reference")]
+    [SerializeField] private InventoryItemData inventoryData;
+
     private PooledItem pooledItem;
     public float HoldTime => 1f;
 
