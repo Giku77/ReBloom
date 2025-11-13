@@ -67,7 +67,6 @@ public class ConsumableItemData : ItemBase
         tier = Tier[entity];
         maxCount = MaxCount[entity];
         canQuickSlot = Convert.ToBoolean(Quickable[entity]);
-        canQuickSlot = Convert.ToBoolean(Quickable[entity]);
         canDiscard = Convert.ToBoolean(Discardable[entity]);
         canStorage = Convert.ToBoolean(Storageable[entity]);
         description = Description[entity];

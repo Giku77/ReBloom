@@ -10,11 +10,11 @@ public class BuildManager : MonoBehaviour
     public ArcDB ArcDB => arcDB;
     private ArcRecipeDB recipeDB;
     public ArcRecipeDB RecipeDB => recipeDB;
-    private DummyInventoryProvider inventory;
+    private GameInventory inventory;
 
     public GameObject prefab;
 
-    public void Init(ArcDB arcDB, ArcRecipeDB recipeDB, DummyInventoryProvider inventory)
+    public void Init(ArcDB arcDB, ArcRecipeDB recipeDB, GameInventory inventory)
     {
         this.arcDB = arcDB;
         this.recipeDB = recipeDB;
