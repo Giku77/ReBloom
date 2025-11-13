@@ -7,14 +7,15 @@ public class QuestTest : MonoBehaviour
     {
         var db = new QuestDB();
         db.LoadFromBG();
-        var inventory = Object.FindFirstObjectByType<GameInventory>();
+        var inventory = FindFirstObjectByType<GameInventory>();
+        var stageDetector = GameObject.FindGameObjectWithTag("Player").GetComponent<StageDetector>();
 
         if (inventory == null)
         {
             Debug.LogError("[QuestTest] 씬에 GameInventory가 없습니다!");
             return;
         }
-        QuestManager.I.Init(db, inventory);
+        QuestManager.I.Init(db, inventory, stageDetector);
         var ArcR = new ArcRecipeDB();
         ArcR.LoadFromBG();
         var ArcDB = new ArcDB();
