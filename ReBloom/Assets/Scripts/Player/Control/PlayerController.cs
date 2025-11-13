@@ -17,8 +17,10 @@ public class PlayerController : MonoBehaviour
     private bool isSprinting = false;
     private Vector2 moveInput;
     private Vector3 moveDirection;
+    private Vector3 oldMoveDirection;
 
     private bool isSlow = false;
+    private bool isFreeLook = false;
 
     [Header("Camera")]
     [SerializeField] private Transform cameraTransform;
@@ -99,6 +101,16 @@ public class PlayerController : MonoBehaviour
             isSlow = false;
     }
 
+    public void OnFreeLook(InputAction.CallbackContext context)
+    {
+        if (context.started)
+            isFreeLook = true;
+
+        if(context.canceled)
+            isFreeLook = false;
+
+    }
+
     private void MovePlayer()
     {
         if (!isGround) return;
@@ -111,8 +123,18 @@ public class PlayerController : MonoBehaviour
         cameraRight.y = 0f;
         cameraRight.Normalize();
 
-        moveDirection = (cameraRight * moveInput.x + cameraForward * moveInput.y).normalized;
-        sprintSpeed = moveSpeed * 1.5f;
+
+        if (!isFreeLook)
+        {
+            moveDirection = (cameraRight * moveInput.x + cameraForward * moveInput.y).normalized;
+            oldMoveDirection = moveDirection;
+        }
+        else
+        {
+            moveDirection = oldMoveDirection;
+        }
+
+            sprintSpeed = moveSpeed * 1.5f;
 
         if (moveInput.magnitude < 0.1f)
         {
@@ -147,9 +169,12 @@ public class PlayerController : MonoBehaviour
 
     private void RotatePlayer()
     {
-        bool isOnlyMovingBackward = moveInput.y < -0.1f && Mathf.Abs(moveInput.x) < 0.1f;
-        
-        if (moveDirection != Vector3.zero && !isOnlyMovingBackward)
+        if (isFreeLook)
+            return;
+
+        //bool isOnlyMovingBackward = moveInput.y < -0.1f && Mathf.Abs(moveInput.x) < 0.1f;
+
+        if (moveDirection != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
