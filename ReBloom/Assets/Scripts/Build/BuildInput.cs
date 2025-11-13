@@ -22,6 +22,8 @@ public class BuildInput : MonoBehaviour
         Debug.Log("Build Input Received");
         var buildId = QuestManager.I.Current.goals[0].objectId;
         //Debug.Log($"Trying to build ID: {buildId}");
-        BuildManager.I?.TryBuild(buildId, Vector3.zero, Quaternion.identity);
+        var playerPos = GameObject.FindGameObjectWithTag("Player").transform.position;
+        playerPos += GameObject.FindGameObjectWithTag("Player").transform.forward * 2.0f;
+        BuildManager.I?.TryBuild(buildId, playerPos, Quaternion.identity);
     }
 }

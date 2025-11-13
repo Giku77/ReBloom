@@ -25,7 +25,7 @@ public class BuildManager : MonoBehaviour
     {
         if (!arcDB.TryGet(arcId, out var arc))
         {
-            Debug.LogError($"없는 건물: {arcId}");
+            Debug.LogWarning($"없는 건물: {arcId}");
             return false;
         }
 

@@ -4,8 +4,9 @@ using System;
 public enum QuestGoalType
 {
     None = 0,
-    Collect = 1,   
+    Collect = 1,
     Craft = 2,
+    Enter = 3
 }
 
 [Serializable]
@@ -17,7 +18,7 @@ public class QuestGoal
 
     [NonSerialized] public int currentCount;
 
-    public bool IsSatisfied(IInventoryProvider inv)
+    public bool IsSatisfied(IInventoryProvider inv, StageDetector stageDetector)
     {
         switch (type)
         {
@@ -25,6 +26,13 @@ public class QuestGoal
                 return inv.GetItemCount(objectId) >= amount;
             case QuestGoalType.Craft:
                 return currentCount >= amount;
+            case QuestGoalType.Enter:
+                var currentStage = stageDetector.CurrentStage;
+                if (currentStage != null)
+                {
+                    return currentStage.StageID == objectId;
+                }
+                return false;
             default:
                 return true;
         }
