@@ -34,6 +34,9 @@ public class PlayerController : MonoBehaviour
 
     private bool jumpRequested = false;
 
+    private Animator animator;
+    public static readonly string moveAni = "Move";
+
 
     bool isGround = false;
 
@@ -49,6 +52,8 @@ public class PlayerController : MonoBehaviour
         {
             Debug.Log("No Camera");
         }
+
+        animator = GetComponentInChildren<Animator>();
     }
 
     private void Start()
@@ -140,14 +145,19 @@ public class PlayerController : MonoBehaviour
         {
             targetSpeed = 0f;
         }
-        if (!isSlow)
-        {
-            targetSpeed = isSprinting ? sprintSpeed : moveSpeed;
-        }
         else
         {
-            targetSpeed = slowSpeed;
+            if (!isSlow)
+            {
+                targetSpeed = isSprinting ? sprintSpeed : moveSpeed;
+            }
+            else
+            {
+                targetSpeed = slowSpeed;
+            }
         }
+
+        animator.SetFloat(moveAni, targetSpeed);
 
         currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed, changeSpeedRadius * Time.deltaTime);
 

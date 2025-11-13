@@ -7,12 +7,10 @@ public class StageDetector : MonoBehaviour
     
     public StageBase CurrentStage => currentStage;
 
-    public StageBase startStage = new StageBase(400);
-
     private void Start()
     {
         //임시로 시작 구역 거점으로 지정
-        currentStage = startStage;
+        //currentStage = startStage;
     }
 
     private void OnTriggerEnter(Collider other)

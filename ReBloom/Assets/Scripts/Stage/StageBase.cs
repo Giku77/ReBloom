@@ -9,11 +9,6 @@ public class StageBase : MonoBehaviour
     
     public int StageID => stageID;
     public StageData Data => stageData;
-
-    public StageBase(int stageID)
-    { 
-        this.stageID = stageID;
-    }
     
     public void Initialize(StageDB db)
     {
