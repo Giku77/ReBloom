@@ -19,7 +19,7 @@ public class PollutionStat : StatBase
 
         float actualRate = multiplier;
 
-        if(stageDetector.CurrentStage.Data.id == 400)
+        if(stageDetector.CurrentStage != null && stageDetector.CurrentStage.Data.id == 400)
             actualRate = -5f;
 
         //Debug.Log(actualRate);
