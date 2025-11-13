@@ -1,4 +1,4 @@
-enum QuestIds
+public enum QuestIds
 {
     Quest_001,
     Quest_002,
@@ -13,13 +13,20 @@ enum QuestIds
     Quest_011,
 }
 
+public enum EntranceType
+{
+    AbandonedSchool = 41,   // 폐교
+    DepartmentStore = 42,   // 백화점
+    Factory = 43,           // 공장
+}
+
 
 // =====================================================
 // ==================== 아이템 관련 ====================
 // =====================================================
 
-public enum ItemTableType 
-{ 
+public enum ItemTableType
+{
     Consumable,
     Protective,
     Tool,

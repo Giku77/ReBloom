@@ -1,3 +1,4 @@
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 public class QuestManager : MonoBehaviour
@@ -8,14 +9,17 @@ public class QuestManager : MonoBehaviour
     private QuestData _current;
     private IInventoryProvider _inventory;
     public IInventoryProvider Inventory => _inventory;
+
+    private StageDetector _stageDetector;
     public QuestData Current => _current;
 
     private void Awake() => I = this;
 
-    public void Init(QuestDB db, IInventoryProvider inventory)
+    public void Init(QuestDB db, IInventoryProvider inventory, StageDetector stageDetector)
     {
         _db = db;
         _inventory = inventory;
+        _stageDetector = stageDetector;
 
         foreach (var kv in db.GetAll())   
         {
@@ -93,7 +97,7 @@ public class QuestManager : MonoBehaviour
         foreach (var g in data.goals)
         {
             if (g == null) continue;
-            if (!g.IsSatisfied(_inventory))
+            if (!g.IsSatisfied(_inventory, _stageDetector))
                 return false;
         }
         return true;

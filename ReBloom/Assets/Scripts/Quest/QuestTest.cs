@@ -8,7 +8,8 @@ public class QuestTest : MonoBehaviour
         var db = new QuestDB();
         db.LoadFromBG();
         var inventory = new DummyInventoryProvider();
-        QuestManager.I.Init(db, inventory);
+        var stageDetector = GameObject.FindGameObjectWithTag("Player").GetComponent<StageDetector>();
+        QuestManager.I.Init(db, inventory, stageDetector);
         var ArcR = new ArcRecipeDB();
         ArcR.LoadFromBG();
         var ArcDB = new ArcDB();
