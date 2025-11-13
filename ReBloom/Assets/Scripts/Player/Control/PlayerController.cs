@@ -147,9 +147,9 @@ public class PlayerController : MonoBehaviour
 
     private void RotatePlayer()
     {
-        bool isOnlyMovingBackward = moveInput.y < -0.1f && Mathf.Abs(moveInput.x) < 0.1f;
+        //bool isOnlyMovingBackward = moveInput.y < -0.1f && Mathf.Abs(moveInput.x) < 0.1f;
         
-        if (moveDirection != Vector3.zero && !isOnlyMovingBackward)
+        if (moveDirection != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
