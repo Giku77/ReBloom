@@ -4,9 +4,9 @@ public class DummyInventoryProvider : IInventoryProvider
 {
     private Dictionary<int, int> _items = new Dictionary<int, int>()
     {
-        { 4102001, 15 }, 
-        { 4102002, 6 },
-        { 4102005, 10 },
+        //{ 4102001, 15 }, 
+        //{ 4102002, 6 },
+        //{ 4102005, 10 },
     };
 
     public int GetItemCount(int itemId)

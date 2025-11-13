@@ -7,7 +7,7 @@ public class QuestTest : MonoBehaviour
     {
         var db = new QuestDB();
         db.LoadFromBG();
-        var inventory = new DummyInventoryProvider();
+        var inventory = new GameInventory();
         QuestManager.I.Init(db, inventory);
         var ArcR = new ArcRecipeDB();
         ArcR.LoadFromBG();
