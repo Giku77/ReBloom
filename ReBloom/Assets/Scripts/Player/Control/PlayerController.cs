@@ -36,6 +36,8 @@ public class PlayerController : MonoBehaviour
     private bool jumpRequested = false;
 
     private Animator animator;
+    
+    public static readonly string jumpAni = "Jump";
     public static readonly string speedAni = "Speed";
 
 
@@ -174,6 +176,11 @@ public class PlayerController : MonoBehaviour
         Vector3 velocity = rb.linearVelocity;
         velocity.y = jumpForce;
         rb.linearVelocity = velocity;
+
+        if (animator != null)
+        {
+            animator.SetTrigger(jumpAni);
+        }
 
         jumpRequested = false;
     }
