@@ -30,12 +30,12 @@ public class InventoryItemData : ScriptableObject
 
     public void Initialize()
     {
-        _items = new Dictionary<int, int>()
-        {
-            { 4003002, 15 },
-            { 4102002, 6 },
-            { 4102005, 10 },
-        };
+        _items = new Dictionary<int, int>();
+        //{
+        //    { 4003002, 15 },
+        //    { 4102002, 6 },
+        //    { 4102005, 10 },
+        //};
 
         OnInventoryChanged?.Invoke();
         Debug.Log("[InventoryData] 초기화 완료");
