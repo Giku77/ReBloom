@@ -21,7 +21,6 @@ public class PlayerStats : MonoBehaviour
         Hunger = new HungerStat(this, data.hungerMax, data.hungerIncreaseRate);
         Thirst = new ThirstStat(this, data.thurstMax, data.thirstIncreaseRate);
         Pollution = new PollutionStat(this, data.pollutionMax, data.pollutionIncreaseRate);
-
     }
 
     //private void Start()
