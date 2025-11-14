@@ -19,6 +19,7 @@ public class ThirdPersonCamera : MonoBehaviour
     private float pitch = 0f;
     private Vector2 lookInput;
 
+    private Quaternion oldRotation;
 
     private void LateUpdate()
     {
@@ -41,8 +42,8 @@ public class ThirdPersonCamera : MonoBehaviour
     //시야 이동 함수
     private void Look()
     {
-        if (Cursor.lockState != CursorLockMode.Locked)
-            return;
+        //if (Cursor.lockState != CursorLockMode.Locked)
+        //    return;
 
         //if (target == null) return;
         if (target == null)
@@ -63,10 +64,21 @@ public class ThirdPersonCamera : MonoBehaviour
         pitch = Mathf.Clamp(pitch, minVerticalAngle, maxVerticalAngle);
 
         Quaternion rotation = Quaternion.Euler(pitch, yaw, 0f);
-        //Vector3 offset = rotation * new Vector3(0f, height, -distance);
 
-        //transform.position = target.position + offset;
-        //transform.LookAt(target.position + Vector3.up * height);
+        if (Cursor.lockState == CursorLockMode.Locked)
+        {
+            rotation = Quaternion.Euler(pitch, yaw, 0f);
+            oldRotation = rotation;
+        }
+        else
+        { 
+            rotation = oldRotation;
+        
+        }
+            //Vector3 offset = rotation * new Vector3(0f, height, -distance);
+
+            //transform.position = target.position + offset;
+            //transform.LookAt(target.position + Vector3.up * height);
 
         Vector3 desiredPosition = target.position + rotation * new Vector3(0f, height, -distance);
         Vector3 playerEye = target.position + Vector3.up * height;
