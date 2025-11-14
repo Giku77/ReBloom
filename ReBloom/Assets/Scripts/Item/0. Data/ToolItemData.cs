@@ -22,7 +22,7 @@ public class ToolItemData : ItemBase
     private BGField<int> MaxCount;
     private BGField<int> Discardable;
     private BGField<int> Storageable;
-    private BGField<int> Using;
+    private BGField<int> Durability;
     private BGField<float> Perform;
     private BGField<string> Img_Path;
     private BGField<string> Description;
@@ -64,7 +64,7 @@ public class ToolItemData : ItemBase
         MaxCount = meta.GetField<int>("MaxCount");
         Discardable = meta.GetField<int>("Discardable");
         Storageable = meta.GetField<int>("Storageable");
-        Using = meta.GetField<int>("Using");
+        Durability = meta.GetField<int>("Durability");
         Perform = meta.GetField<float>("Perform");
         Img_Path = meta.GetField<string>("Img_Path");
         Description = meta.GetField<string>("Description");
@@ -83,7 +83,6 @@ public class ToolItemData : ItemBase
 
         // 도구 전용 속성
         toolCategory = (ToolCategory)Category[entity];
-        isUsing = Convert.ToBoolean(Using[entity]);
         performance = Perform[entity];
 
         // 아이콘은 Addressable로 비동기 로드
