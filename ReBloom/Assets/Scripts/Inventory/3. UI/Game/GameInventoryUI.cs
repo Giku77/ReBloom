@@ -125,9 +125,9 @@ public class GameInventoryUI : MonoBehaviour
         }
         else
         {
-            // 게임 중에는 커서 숨김 (필요시)
-            // Cursor.visible = false;
-            // Cursor.lockState = CursorLockMode.Locked;
+            // 게임 중에는 커서 숨김
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
         }
 
         Debug.Log($"[게임 인벤토리] {(isActive ? "열림" : "닫힘")}");

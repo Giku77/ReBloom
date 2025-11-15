@@ -25,7 +25,7 @@ public class GameInventoryInput : MonoBehaviour
 
     private void Start()
     {
-        //HandleCursorState(false);
+        HandleCursorState(false);
     }
 
     private void OnEnable()
@@ -112,7 +112,7 @@ public class GameInventoryInput : MonoBehaviour
             gameInventory.CloseInventory();
         }
 
-        //HandleCursorState(isInventoryOpen);
+        HandleCursorState(isInventoryOpen);
         Debug.Log($"[¿Œ∫•≈‰∏Æ] {(isInventoryOpen ? "ø≠∏≤" : "¥›»˚")}");
     }
 

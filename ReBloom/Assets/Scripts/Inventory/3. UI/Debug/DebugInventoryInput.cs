@@ -43,7 +43,7 @@ public class DebugInventoryInput : MonoBehaviour
 
     private void Start()
     {
-        //HandleCursorState(false);
+        HandleCursorState(false);
     }
 
     private void OnEnable()
@@ -207,7 +207,7 @@ public class DebugInventoryInput : MonoBehaviour
             debugUI.CloseDebugInventory();
         }
 
-        //HandleCursorState(isUIOpen);
+       HandleCursorState(isUIOpen);
         Debug.Log($"[디버그 인벤토리] {(isUIOpen ? "열림" : "닫힘")}");
     }
 
@@ -217,7 +217,7 @@ public class DebugInventoryInput : MonoBehaviour
 
         isUIOpen = true;
         debugUI.OpenDebugInventory();
-        //HandleCursorState(true);
+        HandleCursorState(true);
 
         Debug.Log("[디버그 인벤토리] 열림");
     }
@@ -228,16 +228,16 @@ public class DebugInventoryInput : MonoBehaviour
 
         isUIOpen = false;
         debugUI.CloseDebugInventory();
-        //HandleCursorState(false);
+        HandleCursorState(false);
 
         Debug.Log("[디버그 인벤토리] 닫힘");
     }
 
-    //private void HandleCursorState(bool show)
-    //{
-    //    Cursor.visible = show;
-    //    Cursor.lockState = show ? CursorLockMode.None : CursorLockMode.Locked;
-    //}
+    private void HandleCursorState(bool show)
+    {
+        Cursor.visible = show;
+        Cursor.lockState = show ? CursorLockMode.None : CursorLockMode.Locked;
+    }
     #endregion
 
     #region 디버그 커맨드 구현
