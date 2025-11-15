@@ -25,7 +25,7 @@ public class GameInventoryInput : MonoBehaviour
 
     private void Start()
     {
-        HandleCursorState(false);
+        //HandleCursorState(false);
     }
 
     private void OnEnable()
