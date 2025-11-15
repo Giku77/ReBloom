@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 public class PlayerStats : MonoBehaviour
 {
     public StatsData data;
-
+    public PlayerEquipManager EquipManager { get; private set; }
     public StatBase Health { get; private set; }
     public StatBase Hunger { get; private set; }
     public StatBase Thirst { get; private set; }
@@ -16,12 +16,13 @@ public class PlayerStats : MonoBehaviour
 
     private void Awake()
     {
+        EquipManager = GetComponent<PlayerEquipManager>();
+
         Health = new HealthStat(this, data.maxHealth);
         
         Hunger = new HungerStat(this, data.hungerMax, data.hungerIncreaseRate);
         Thirst = new ThirstStat(this, data.thurstMax, data.thirstIncreaseRate);
         Pollution = new PollutionStat(this, data.pollutionMax, data.pollutionIncreaseRate);
-
     }
 
     //private void Start()
