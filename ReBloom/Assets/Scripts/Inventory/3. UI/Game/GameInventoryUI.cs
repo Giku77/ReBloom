@@ -64,8 +64,8 @@ public class GameInventoryUI : MonoBehaviour
 
             if (item != null)
             {
-                itemSlotTexts[index].text = $"{item.itemName} / ¼ö·®: {quantity}°³";
-                itemSlotTexts[index].color = Color.white;
+                itemSlotTexts[index].text = $"{quantity}";
+
             }
             else
             {
@@ -76,11 +76,11 @@ public class GameInventoryUI : MonoBehaviour
             index++;
         }
 
-        for (int i = index; i < itemSlotTexts.Count; i++)
-        {
-            itemSlotTexts[i].text = "ºó ½½·Ô";
-            itemSlotTexts[i].color = Color.gray;
-        }
+        //for (int i = index; i < itemSlotTexts.Count; i++)
+        //{
+        //    itemSlotTexts[i].text = "ºó ½½·Ô";
+        //    itemSlotTexts[i].color = Color.gray;
+        //}
     }
 
     private void ShowMessage(string msg)
