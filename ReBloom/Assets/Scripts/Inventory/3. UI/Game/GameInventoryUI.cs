@@ -18,6 +18,7 @@ public class GameInventoryUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI messageText;
     [SerializeField] private DebugItemTooltip tooltip;
     [SerializeField] private Transform contentContainer;
+    [SerializeField] private List<Transform> emptySlotList;
     [SerializeField] private GameObject itemSlotPrefab;
 
     [Header("Tab Buttons")]
@@ -26,8 +27,12 @@ public class GameInventoryUI : MonoBehaviour
     [SerializeField] private Button btnTool;
     [SerializeField] private Button btnMisc;
 
+    [Header("Tab Visual Settings")]
+    [SerializeField] private Color activeColor = new Color(0.3f, 0.6f, 1f, 1f); // 선택된 탭 색상
+    [SerializeField] private Color inactiveColor = new Color(1f, 1f, 1f, 0.5f); // 비선택 탭 색상 (알파 0.5)
+
     #region 상태 변수
-    private ItemTableType currentTable = ItemTableType.Consumable;
+    private ItemTableType currentTable = ItemTableType.Tool;
 
     private List<DebugItemSlot> activeSlots = new List<DebugItemSlot>();
     private Dictionary<Button, ItemTableType> tabButtons = new Dictionary<Button, ItemTableType>();
@@ -157,6 +162,7 @@ public class GameInventoryUI : MonoBehaviour
         // 필터링된 아이템 가져오기
         var items = GetFilteredItems();
 
+        var slotIndex = 0;
         // 슬롯 생성
         foreach (var itemPair in items)
         {
@@ -166,13 +172,15 @@ public class GameInventoryUI : MonoBehaviour
             ItemBase item = ItemDatabase.I.GetItem(itemId);
             if (item != null)
             {
-                CreateItemSlot(item, quantity);
+                CreateItemSlot(item, quantity, slotIndex);
+                slotIndex++;
             }
         }
     }
 
     private void ClearSlots()
     {
+        // activeSlots 리스트 정리
         foreach (var slot in activeSlots)
         {
             if (slot != null)
@@ -181,28 +189,41 @@ public class GameInventoryUI : MonoBehaviour
             }
         }
         activeSlots.Clear();
+
+        // emptySlotList의 모든 자식들도 제거
+        foreach (var emptySlot in emptySlotList)
+        {
+            if (emptySlot != null)
+            {
+                // emptySlot의 자식 오브젝트들 모두 제거
+                foreach (Transform child in emptySlot)
+                {
+                    Destroy(child.gameObject);
+                }
+            }
+        }
     }
 
-    private void CreateItemSlot(ItemBase item, int quantity)
+    private void CreateItemSlot(ItemBase item, int quantity, int slotIndex)
     {
-        if (itemSlotPrefab == null || contentContainer == null)
+        if (itemSlotPrefab == null || emptySlotList == null || slotIndex >= emptySlotList.Count)
         {
-            Debug.LogError("[GameInventoryUI] itemSlotPrefab 또는 contentContainer가 없습니다!");
+            Debug.LogError("[GameInventoryUI] itemSlotPrefab 또는 emptySlotList가 없거나 슬롯 인덱스 초과!");
             return;
         }
 
-        GameObject slotObj = Instantiate(itemSlotPrefab, contentContainer);
+        GameObject slotObj = Instantiate(itemSlotPrefab, emptySlotList[slotIndex]);
         DebugItemSlot slot = slotObj.GetComponent<DebugItemSlot>();
 
         if (slot != null)
         {
             // 슬롯 초기화
             slot.Initialize(item, tooltip);
-            slot.SetShowDescription(false); // 게임 인벤토리는 간단하게
+            slot.SetShowDescription(false);
             slot.SetShowStats(false);
 
             // 수량 표시
-             slot.SetQuantity(quantity);
+            slot.SetQuantity(quantity);
 
             activeSlots.Add(slot);
 
@@ -255,15 +276,23 @@ public class GameInventoryUI : MonoBehaviour
             ItemTableType type = pair.Value;
 
             ColorBlock colors = btn.colors;
-            colors.normalColor = (type == currentTable) ?
-                new Color(0.3f, 0.6f, 1f) : Color.white;
+
+            // 선택된 탭은 activeColor, 나머지는 inactiveColor (알파값 포함)
+            colors.normalColor = (type == currentTable) ? activeColor : inactiveColor;
+
             btn.colors = colors;
 
+            // 텍스트 스타일 변경
             var btnText = btn.GetComponentInChildren<TextMeshProUGUI>();
             if (btnText != null)
             {
                 btnText.fontStyle = (type == currentTable) ?
                     FontStyles.Bold : FontStyles.Normal;
+
+                // 텍스트 알파값도 변경 (선택사항)
+                Color textColor = btnText.color;
+                textColor.a = (type == currentTable) ? 1f : 0.5f;
+                btnText.color = textColor;
             }
         }
     }
