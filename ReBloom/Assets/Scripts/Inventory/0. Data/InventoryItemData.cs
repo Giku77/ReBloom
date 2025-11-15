@@ -35,6 +35,8 @@ public class InventoryItemData : ScriptableObject
             { 4003002, 15 },
             { 4102002, 6 },
             { 4102005, 10 },
+            { 4301002, 1},
+            { 4302002, 1}
         };
 
         OnInventoryChanged?.Invoke();

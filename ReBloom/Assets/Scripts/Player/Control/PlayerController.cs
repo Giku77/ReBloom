@@ -26,6 +26,11 @@ public class PlayerController : MonoBehaviour
     [Header("Camera")]
     [SerializeField] private Transform cameraTransform;
 
+    //임시 장착 확인용 
+    [Header("Equipment")]
+    [SerializeField] private InventoryItemData inventoryItemData;
+    [SerializeField] private PlayerEquipManager playerEquipManager;
+
     [Header("Jump Setting")]
     [SerializeField] private Transform groundCheck;
     [SerializeField] private float groundCheckRadius = 0.3f;
@@ -71,10 +76,7 @@ public class PlayerController : MonoBehaviour
         JumpPlayer();
     }
 
-    private void Update()
-    {
-        isGround = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
-    }
+
 
     public void OnMove(InputAction.CallbackContext context)
     {
@@ -196,6 +198,40 @@ public class PlayerController : MonoBehaviour
         {
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
+        }
+    }
+
+    //임시 장착 확인용
+    private void EquipWeapon()
+    {
+        if (inventoryItemData == null || playerEquipManager == null)
+        {
+            Debug.LogError("[PlayerController] InventoryItemData 또는 PlayerEquipManager가 할당되지 않았습니다.");
+            return;
+        }
+        
+        int weaponItemId = 4301002;
+        
+        if (inventoryItemData.HasItem(weaponItemId, 1))
+        {
+            playerEquipManager.EquipItem(weaponItemId);
+            Debug.Log($"[PlayerController] 무기 장착: {weaponItemId}");
+        }
+        else
+        {
+            Debug.LogWarning($"[PlayerController] 인벤토리에 아이템 {weaponItemId}이(가) 없습니다.");
+        }
+    }
+
+
+    private void Update()
+    {
+        isGround = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
+        
+        // R키로 무기 장착
+        if (Keyboard.current.rKey.wasPressedThisFrame)
+        {
+            EquipWeapon();
         }
     }
 }

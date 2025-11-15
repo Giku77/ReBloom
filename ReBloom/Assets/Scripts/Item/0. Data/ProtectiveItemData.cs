@@ -163,4 +163,9 @@ public class ProtectiveItemData : ItemBase
             Debug.LogWarning($"[ProtectiveItemData] 아이콘 로드 예외: {path}\n{e.Message}");
         }
     }
+
+    public float GetPollutionResist()
+    {
+        return Pollution_Resist[entity];
+    }
 }
