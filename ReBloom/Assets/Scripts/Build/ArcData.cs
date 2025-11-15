@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public class ArcData
 {
     public int arcId;              
@@ -11,5 +13,15 @@ public class ArcData
     public int unlockValue;
     public int installLimit;
     public float buildTime;        
-    public string text;            
+    public string text;
+}
+
+public class ArcContext
+{
+    public ArcData Data;       
+    public GameObject ArcPrefab;
+    public Vector3 Position;        
+    public Quaternion Rotation;
+    public BuildingFootprint FootPrint;
+    public Transform PlayerTransform;
 }
