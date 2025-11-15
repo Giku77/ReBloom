@@ -112,7 +112,7 @@ public class GameInventoryInput : MonoBehaviour
             gameInventory.CloseInventory();
         }
 
-        HandleCursorState(isInventoryOpen);
+        //HandleCursorState(isInventoryOpen);
         Debug.Log($"[¿Œ∫•≈‰∏Æ] {(isInventoryOpen ? "ø≠∏≤" : "¥›»˚")}");
     }
 
