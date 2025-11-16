@@ -79,9 +79,4 @@ public class DogFollower : MonoBehaviour
             agent.SetDestination(player.position);
         }
     }
-    private void LateUpdate()
-    {
-        // 매 프레임 회전 고정
-        transform.rotation = Quaternion.Euler(-90f, transform.rotation.eulerAngles.y, 0f);
-    }
 }
