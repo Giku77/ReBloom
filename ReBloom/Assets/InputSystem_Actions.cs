@@ -190,6 +190,15 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""AutoRun"",
+                    ""type"": ""Button"",
+                    ""id"": ""9b059cd8-69f8-4d95-9bc0-2ddaba1431d6"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -597,6 +606,17 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""FreeLook"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2685e830-384e-4497-aea7-f94e00caaae1"",
+                    ""path"": ""<Keyboard>/equals"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""AutoRun"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1523,6 +1543,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_Sprint = m_Player.FindAction("Sprint", throwIfNotFound: true);
         m_Player_SlowMove = m_Player.FindAction("SlowMove", throwIfNotFound: true);
         m_Player_FreeLook = m_Player.FindAction("FreeLook", throwIfNotFound: true);
+        m_Player_AutoRun = m_Player.FindAction("AutoRun", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1649,6 +1670,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Sprint;
     private readonly InputAction m_Player_SlowMove;
     private readonly InputAction m_Player_FreeLook;
+    private readonly InputAction m_Player_AutoRun;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1704,6 +1726,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/FreeLook".
         /// </summary>
         public InputAction @FreeLook => m_Wrapper.m_Player_FreeLook;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/AutoRun".
+        /// </summary>
+        public InputAction @AutoRun => m_Wrapper.m_Player_AutoRun;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1763,6 +1789,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @FreeLook.started += instance.OnFreeLook;
             @FreeLook.performed += instance.OnFreeLook;
             @FreeLook.canceled += instance.OnFreeLook;
+            @AutoRun.started += instance.OnAutoRun;
+            @AutoRun.performed += instance.OnAutoRun;
+            @AutoRun.canceled += instance.OnAutoRun;
         }
 
         /// <summary>
@@ -1807,6 +1836,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @FreeLook.started -= instance.OnFreeLook;
             @FreeLook.performed -= instance.OnFreeLook;
             @FreeLook.canceled -= instance.OnFreeLook;
+            @AutoRun.started -= instance.OnAutoRun;
+            @AutoRun.performed -= instance.OnAutoRun;
+            @AutoRun.canceled -= instance.OnAutoRun;
         }
 
         /// <summary>
@@ -2582,6 +2614,13 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnFreeLook(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "AutoRun" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnAutoRun(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

@@ -45,6 +45,7 @@ public class PlayerController : MonoBehaviour
     public static readonly string jumpAni = "Jump";
     public static readonly string speedAni = "Speed";
 
+    bool isAutoRun = false;
 
     bool isGround = false;
 
@@ -81,6 +82,9 @@ public class PlayerController : MonoBehaviour
     public void OnMove(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
+
+        if (moveInput.y < 0)
+            isAutoRun = false;
     }
 
     public void OnSprint(InputAction.CallbackContext context)
@@ -121,9 +125,22 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    public void OnAutoRun(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            isAutoRun = !isAutoRun;
+        }
+    }
+
     private void MovePlayer()
     {
         if (!isGround) return;
+
+        Vector2 finalMoveInput = moveInput;
+
+        if (isAutoRun)
+            finalMoveInput.y = 1f;
 
         Vector3 cameraForward = cameraTransform.forward;
         cameraForward.y = 0f;
@@ -136,14 +153,16 @@ public class PlayerController : MonoBehaviour
         Vector3 targetDirection = Vector3.zero;
         if (!isFreeLook)
         {
-            targetDirection = (cameraRight * moveInput.x + cameraForward * moveInput.y).normalized;
+            targetDirection = (cameraRight * finalMoveInput.x + cameraForward * finalMoveInput.y).normalized;
         }
         else
         {
             targetDirection = oldMoveDirection;
         }
 
-        if (moveInput.magnitude < 0.1f)
+        sprintSpeed = moveSpeed * 1.5f;
+
+        if (finalMoveInput.magnitude < 0.1f)
         {
             targetSpeed = 0f;
             targetDirection = Vector3.zero;
@@ -152,7 +171,12 @@ public class PlayerController : MonoBehaviour
         {
             if (!isSlow)
             {
-                targetSpeed = isSprinting ? sprintSpeed : moveSpeed;
+                if (isAutoRun && isSprinting)
+                    targetSpeed = sprintSpeed;
+                else if (isSprinting)
+                    targetSpeed = sprintSpeed;
+                else
+                    targetSpeed = moveSpeed;
             }
             else
             {
@@ -227,8 +251,7 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         isGround = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
-        
-        // R키로 무기 장착
+
         if (Keyboard.current.rKey.wasPressedThisFrame)
         {
             EquipWeapon();

@@ -29,6 +29,12 @@ public class ThirdPersonCamera : MonoBehaviour
     //인풋시스템 콜바이함수 룩
     public void OnLook(InputAction.CallbackContext context)
     {
+        if (Cursor.lockState != CursorLockMode.Locked)
+        {
+            lookInput = Vector2.zero;
+            return;
+        }
+
         lookInput = context.ReadValue<Vector2>();
     }
 
@@ -65,16 +71,16 @@ public class ThirdPersonCamera : MonoBehaviour
 
         Quaternion rotation = Quaternion.Euler(pitch, yaw, 0f);
 
-        if (Cursor.lockState == CursorLockMode.Locked)
-        {
+        //if (Cursor.lockState == CursorLockMode.Locked)
+        //{
             rotation = Quaternion.Euler(pitch, yaw, 0f);
             oldRotation = rotation;
-        }
-        else
-        { 
-            rotation = oldRotation;
+        //}
+        //else
+        //{ 
+        //    rotation = oldRotation;
         
-        }
+        //}
             //Vector3 offset = rotation * new Vector3(0f, height, -distance);
 
             //transform.position = target.position + offset;
