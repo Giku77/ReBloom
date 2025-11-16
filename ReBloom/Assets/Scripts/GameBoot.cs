@@ -8,6 +8,8 @@ public class GameBoot : MonoBehaviour
     //[SerializeField] private string[] baseScenes;   // 필수 씬
     //[SerializeField] private string[] optionalScenes; // 선택 씬
 
+    public GameObject player;
+
     public SceneLoader SceneLoader;
 
     private ThirdPersonCamera camCtrl;
@@ -53,6 +55,8 @@ public class GameBoot : MonoBehaviour
             Debug.LogError("메인 카메라에 ThirdPersonCamera 컴포넌트가 없습니다.");
             return;
         }
+
+        player.transform.position = Vector3.zero;
 
         var lookAction = playerInput.actions["Look"];
         lookAction.performed += camCtrl.OnLook;

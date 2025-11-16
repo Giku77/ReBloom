@@ -13,6 +13,12 @@ public class QuestManager : MonoBehaviour
     public QuestData Current => _current;
 
     private void Awake() => I = this;
+    private QuestUI questUI;
+
+    private void Start()
+    {
+        questUI = FindFirstObjectByType<QuestUI>();
+    }
 
     public void Init(QuestDB db, IInventoryProvider inventory, StageDetector stageDetector)
     {
@@ -40,8 +46,7 @@ public class QuestManager : MonoBehaviour
 
         _current = data;
 
-        var ui = FindFirstObjectByType<QuestUI>();
-        ui?.Refresh();
+        questUI?.Refresh();
     }
 
     public void NotifyBuildingBuilt(int buildingId)
