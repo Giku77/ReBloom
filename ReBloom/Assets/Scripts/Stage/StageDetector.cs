@@ -43,18 +43,27 @@ public class StageDetector : MonoBehaviour
     {
         if (currentStage != null && currentStage.Data != null)
         {
-            return currentStage.Data.stagePollution; ;
+            return currentStage.Data.stagePollution + currentStage.CurrentPollution; ;
         }
 
         return 0.0f;
     }
 
+    public float GetCurrentThirst()
+    {
+        if (currentStage != null && currentStage.Data != null)
+        {
+            return currentStage.CurrentThirst;
+        }
+        return 0.0f;
+    }
+
     private void PrintWeathers()
     {
-        Debug.Log("========== 현재 지역 및 날씨 ==========");
-        Debug.Log($"Stage: {currentStage.StageName}");
+        Debug.Log("========== 현재 날씨 ==========");
+        Debug.Log($"Stage: {currentStage.Data.name}");
         Debug.Log($"Weather: {currentStage.CurrentWeather.ToString()}");
-        Debug.Log($"Duration: {currentStage.WeatherDuration:F2}/{currentStage.WeatherTimer:F2}");
+        Debug.Log($"Duration: {currentStage.WeatherTimer:F2} /{currentStage.WeatherDuration:F2}");
 
     }
 }

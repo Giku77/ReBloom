@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class StageBase : MonoBehaviour
 {
@@ -7,32 +6,81 @@ public class StageBase : MonoBehaviour
     public int stageID;
     
     private StageData stageData;
-    
-    [Header("Weather System")]
-    private WeatherType currentWeather;
-    private float weatherDuration;
-    private float weatherTimer;
-
-    public float CurrentPollution { get; private set; }
-    public float CurrentThirst { get; private set; }
-    public float CurrentTemp { get; private set; }
+    private StageManager stageManager;
     
     public int StageID => stageID;
     public StageData Data => stageData;
-    public WeatherType CurrentWeather => currentWeather;
-
-    //디버그용 프로퍼티
-    public string StageName => stageData?.name;
-    public float WeatherDuration => weatherDuration;
-    public float WeatherTimer => weatherTimer;
-
+    
+    public WeatherType CurrentWeather
+    {
+        get
+        {
+            WeatherInfo info = stageManager?.GetWeatherInfo(stageID);
+            return info?.currentWeather ?? WeatherType.Sunny;
+        }
+    }
+    
+    public float CurrentPollution
+    {
+        get
+        {
+            WeatherInfo info = stageManager?.GetWeatherInfo(stageID);
+            return info?.currentPollution ?? 0f;
+        }
+    }
+    
+    public float CurrentThirst
+    {
+        get
+        {
+            WeatherInfo info = stageManager?.GetWeatherInfo(stageID);
+            return info?.currentThirst ?? 0f;
+        }
+    }
+    
+    public float CurrentTemp
+    {
+        get
+        {
+            WeatherInfo info = stageManager?.GetWeatherInfo(stageID);
+            return info?.currentTemp ?? 0f;
+        }
+    }
+    
+    public float WeatherDuration
+    {
+        get
+        {
+            WeatherInfo info = stageManager?.GetWeatherInfo(stageID);
+            return info?.weatherDuration ?? 0f;
+        }
+    }
+    
+    public float WeatherTimer
+    {
+        get
+        {
+            WeatherInfo info = stageManager?.GetWeatherInfo(stageID);
+            return info?.weatherTimer ?? 0f;
+        }
+    }
+    
     public void Initialize(StageDB db)
     {
+        stageManager = FindObjectOfType<StageManager>();
+        
         if (db.TryGet(stageID, out stageData))
         {
             Debug.Log($"[Stage] 지역 초기화 성공: ID={stageID}, Name={stageData.name}, Pollution={stageData.stagePollution}");
-
-            SetRandomWeather();
+            
+            if (stageManager != null)
+            {
+                WeatherInfo info = stageManager.GetWeatherInfo(stageID);
+                if (info != null && info.weatherDuration == 0f)
+                {
+                    stageManager.SetWeather(stageID, GetRandomWeatherType());
+                }
+            }
         }
         else
         {
@@ -40,21 +88,9 @@ public class StageBase : MonoBehaviour
         }
     }
     
-    private void Update()
+    private WeatherType GetRandomWeatherType()
     {
-        if (stageData == null) return;
-
-        weatherTimer += Time.deltaTime;
-        
-        if (weatherTimer >= weatherDuration)
-        {
-            SetRandomWeather();
-        }
-    }
-    
-    private void SetRandomWeather()
-    {
-        if (stageData == null) return;
+        if (stageData == null) return WeatherType.Sunny;
         
         float totalRate = stageData.sunnyRate + stageData.rainRate + stageData.radioRate + 
                          stageData.snowRate + stageData.thunderRate + stageData.hotRate;
@@ -63,104 +99,31 @@ public class StageBase : MonoBehaviour
         float accumulated = 0f;
         
         accumulated += stageData.sunnyRate;
-        if (random < accumulated)
-        {
-            SetWeather(WeatherType.Sunny);
-            return;
-        }
+        if (random < accumulated) return WeatherType.Sunny;
         
         accumulated += stageData.rainRate;
-        if (random < accumulated)
-        {
-            SetWeather(WeatherType.Rain);
-            return;
-        }
+        if (random < accumulated) return WeatherType.Rain;
         
         accumulated += stageData.radioRate;
-        if (random < accumulated)
-        {
-            SetWeather(WeatherType.Radio);
-            return;
-        }
+        if (random < accumulated) return WeatherType.Radio;
         
         accumulated += stageData.snowRate;
-        if (random < accumulated)
-        {
-            SetWeather(WeatherType.Snow);
-            return;
-        }
+        if (random < accumulated) return WeatherType.Snow;
         
         accumulated += stageData.thunderRate;
-        if (random < accumulated)
-        {
-            SetWeather(WeatherType.Thunder);
-            return;
-        }
+        if (random < accumulated) return WeatherType.Thunder;
         
-        SetWeather(WeatherType.Hot);
-    }
-
-    public void SetWeather(WeatherType weather)
-    {
-        currentWeather = weather;
-        weatherTimer = 0f;
-        
-
-        switch (weather)
-        {
-            case WeatherType.Sunny:
-                weatherDuration = stageData.sunny_d + Random.Range(-stageData.sunny_vari, stageData.sunny_vari);
-                CurrentPollution = stageData.sunnyPollution;
-                CurrentThirst = stageData.sunnyThirst;
-                CurrentTemp = stageData.sunnyTemp;
-                break;
-                
-            case WeatherType.Rain:
-                weatherDuration = stageData.rain_d + Random.Range(-stageData.rain_vari, stageData.rain_vari);
-                CurrentPollution = stageData.rainPollution;
-                CurrentThirst = stageData.rainThirst;
-                CurrentTemp = stageData.rainTemp;
-                break;
-                
-            case WeatherType.Radio:
-                weatherDuration = stageData.radio_d + Random.Range(-stageData.radio_vari, stageData.radio_vari);
-                CurrentPollution = stageData.radioPollution;
-                CurrentThirst = stageData.radioThirst;
-                CurrentTemp = stageData.radioTemp;
-                break;
-                
-            case WeatherType.Snow:
-                weatherDuration = stageData.snow_d + Random.Range(-stageData.snow_vari, stageData.snow_vari);
-                CurrentPollution = stageData.snowPollution;
-                CurrentThirst = stageData.snowThirst;
-                CurrentTemp = stageData.snowTemp;
-                break;
-                
-            case WeatherType.Thunder:
-                weatherDuration = stageData.thunde_d + Random.Range(-stageData.thunde_vari, stageData.thunde_vari);
-                CurrentPollution = stageData.thundePollution;
-                CurrentThirst = stageData.thundeThirst;
-                CurrentTemp = stageData.thundeTemp;
-                break;
-                
-            case WeatherType.Hot:
-                weatherDuration = stageData.hot_d + Random.Range(-stageData.hot_vari, stageData.hot_vari);
-                CurrentPollution = stageData.hotPollution;
-                CurrentThirst = stageData.hotThirst;
-                CurrentTemp = stageData.hotTemp;
-                break;
-        }
+        return WeatherType.Hot;
     }
 
     public float GetWeatherTimeRemaining()
     {
-        return Mathf.Max(0f, weatherDuration - weatherTimer);
+        return Mathf.Max(0f, WeatherDuration - WeatherTimer);
     }
-    
-
+   
     public float GetWeatherProgress()
     {
-        if (weatherDuration <= 0f) return 1f;
-        return Mathf.Clamp01(weatherTimer / weatherDuration);
+        if (WeatherDuration <= 0f) return 1f;
+        return Mathf.Clamp01(WeatherTimer / WeatherDuration);
     }
 }
