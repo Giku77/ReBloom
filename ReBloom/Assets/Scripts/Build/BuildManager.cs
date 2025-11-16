@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BuildManager : MonoBehaviour
@@ -5,6 +6,8 @@ public class BuildManager : MonoBehaviour
     public static BuildManager I;
     private void Awake() => I = this;
 
+    private BuildingFootprintProvider footprintProvider;
+    private ToastMessageUI toastMessageUI;
 
     private ArcDB arcDB;
     public ArcDB ArcDB => arcDB;
@@ -14,11 +17,49 @@ public class BuildManager : MonoBehaviour
 
     public GameObject prefab;
 
+    [Header("Build Rules")]
+    [SerializeField] private LayerMask buildableLayer;
+    [SerializeField] private LayerMask obstacleLayer;
+    [SerializeField] private float maxHeightDiff = 0.1f;
+    [SerializeField] private float maxSlopeAngle = 5f;
+
+    private List<IBuildRule> buildRules = new List<IBuildRule>();
+
+    private Dictionary <int, int> buildingCounts = new Dictionary<int, int>();
+
+    public int GetCount(int arcId)
+    {
+        if (buildingCounts.TryGetValue(arcId, out var count))
+            return count;
+        return 0;
+    }
+
+    private void InitRules()
+    {
+        buildRules.Add(new FlatSurfaceRule(buildableLayer, maxHeightDiff, maxSlopeAngle));
+        buildRules.Add(new CollisionRule(obstacleLayer));
+        buildRules.Add(new LimitRule(this));
+    }
+
     public void Init(ArcDB arcDB, ArcRecipeDB recipeDB, GameInventory inventory)
     {
+        InitRules();
         this.arcDB = arcDB;
         this.recipeDB = recipeDB;
         this.inventory = inventory;
+        footprintProvider = GetComponent<BuildingFootprintProvider>();
+        toastMessageUI = GameObject.FindWithTag("ToastMsg").GetComponent<ToastMessageUI>();
+    }
+
+    public bool Validate(ArcContext ctx, out string errorCode)
+    {
+        foreach (var rule in buildRules)
+        {
+            if (!rule.Validate(ctx, out errorCode))
+                return false;
+        }
+        errorCode = null;
+        return true;
     }
 
     public bool TryBuild(int arcId, Vector3 pos, Quaternion rot)
@@ -29,6 +70,21 @@ public class BuildManager : MonoBehaviour
             return false;
         }
 
+        var ctx = new ArcContext
+        {
+            Data = arc,
+            Position = pos,
+            Rotation = rot,
+            FootPrint = footprintProvider.GetFootprint(),
+            PlayerTransform = GameObject.FindWithTag("Player").transform
+        };
+
+        if (!Validate(ctx, out var errorCode))
+        {
+            toastMessageUI.Show($"건물 설치 불가: {errorCode}");
+            return false;
+        }
+
         if (!recipeDB.TryGetRecipe(arcId, out var recipe))
         {
             Debug.LogWarning($"건물 {arcId} 는 레시피가 없음. 테스트용으로 그냥 짓기");
@@ -36,15 +92,22 @@ public class BuildManager : MonoBehaviour
         }
 
         if (!HasMaterials(recipe))
+        {
+            toastMessageUI.Show("재료가 부족합니다.");
             return false;
+        }
 
-        Consume(recipe);
+        Remove(recipe);
+        if (buildingCounts.ContainsKey(arc.arcId))
+            buildingCounts[arc.arcId]++;
+        else
+            buildingCounts[arc.arcId] = 1;
         QuestManager.I.NotifyBuildingBuilt(arc.arcId);
 
         return Spawn(arc, pos, rot);
     }
 
-    bool HasMaterials(ArcRecipe recipe)
+    private bool HasMaterials(ArcRecipe recipe)
     {
         foreach (var (itemId, amount) in recipe.materials)
         {
@@ -54,13 +117,13 @@ public class BuildManager : MonoBehaviour
         return true;
     }
 
-    void Consume(ArcRecipe recipe)
+    private void Remove(ArcRecipe recipe)
     {
         foreach (var (itemId, amount) in recipe.materials)
-            inventory.Consume(itemId, amount);
+            inventory.RemoveItem(itemId, amount);
     }
 
-    bool Spawn(ArcData arc, Vector3 pos, Quaternion rot)
+    private bool Spawn(ArcData arc, Vector3 pos, Quaternion rot)
     {
         //var prefab = Resources.Load<GameObject>($"Arc/{arc.arcId}");
         if (prefab == null)

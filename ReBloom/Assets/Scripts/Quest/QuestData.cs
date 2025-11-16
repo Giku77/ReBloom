@@ -6,7 +6,8 @@ public enum QuestGoalType
     None = 0,
     Collect = 1,
     Craft = 2,
-    Enter = 3
+    Enter = 3,
+    Interact = 4
 }
 
 [Serializable]

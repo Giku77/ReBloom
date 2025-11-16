@@ -61,6 +61,8 @@ public class GameInventoryUI : MonoBehaviour
         // 초기화
         inventoryData.Initialize();
         RefreshUI();
+        var QuestUI = FindFirstObjectByType<QuestUI>();
+        QuestUI.Refresh();
 
         // 시작 시 인벤토리 닫기
         inventoryUIRoot.SetActive(false);
