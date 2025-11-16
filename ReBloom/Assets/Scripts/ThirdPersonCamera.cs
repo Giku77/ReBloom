@@ -10,8 +10,8 @@ public class ThirdPersonCamera : MonoBehaviour
     [SerializeField] private float mouseSensitivity = 100f;
     [SerializeField] private float minVerticalAngle = -30f;
     [SerializeField] private float maxVerticalAngle = 60f;
-    [SerializeField] private float maxZoomOutDistance = 20f;
-    [SerializeField] private float maxZoominDistance = 4f;
+    private float maxZoomOutDistance = 20f;
+    private float maxZoominDistance = 1f;
 
     [SerializeField] private LayerMask collisionMask;
 
@@ -41,7 +41,7 @@ public class ThirdPersonCamera : MonoBehaviour
     public void OnScroll(InputAction.CallbackContext context)
     {
         Vector2 scrollDelta = context.ReadValue<Vector2>();
-        distance -= scrollDelta.y;
+        distance -= scrollDelta.y / 2;
         distance = Mathf.Clamp(distance, maxZoominDistance, maxZoomOutDistance);
     }
 
