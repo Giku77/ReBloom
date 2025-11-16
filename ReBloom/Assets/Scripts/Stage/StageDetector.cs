@@ -1,3 +1,4 @@
+using UnityEditor.Overlays;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,6 +12,14 @@ public class StageDetector : MonoBehaviour
     {
         //임시로 시작 구역 거점으로 지정
         //currentStage = startStage;
+    }
+
+    private void Update()
+    {
+        if (Keyboard.current.kKey.wasPressedThisFrame)
+        {
+            PrintWeathers();
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -34,9 +43,27 @@ public class StageDetector : MonoBehaviour
     {
         if (currentStage != null && currentStage.Data != null)
         {
-            return currentStage.Data.stagePollution; ;
+            return currentStage.Data.stagePollution + currentStage.CurrentPollution; ;
         }
 
         return 0.0f;
+    }
+
+    public float GetCurrentThirst()
+    {
+        if (currentStage != null && currentStage.Data != null)
+        {
+            return currentStage.CurrentThirst;
+        }
+        return 0.0f;
+    }
+
+    private void PrintWeathers()
+    {
+        Debug.Log("========== 현재 날씨 ==========");
+        Debug.Log($"Stage: {currentStage.Data.name}");
+        Debug.Log($"Weather: {currentStage.CurrentWeather.ToString()}");
+        Debug.Log($"Duration: {currentStage.WeatherTimer:F2} /{currentStage.WeatherDuration:F2}");
+
     }
 }
