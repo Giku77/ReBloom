@@ -13,6 +13,7 @@ public class DebugItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     [SerializeField] private Image imgTierBar;
     [SerializeField] private TextMeshProUGUI txtName;
     [SerializeField] private TextMeshProUGUI txtID;
+    [SerializeField] private TextMeshProUGUI quantityTxt;
 
     private ItemBase itemData;
     private DebugItemTooltip tooltip;
@@ -73,6 +74,11 @@ public class DebugItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     public void SetShowStats(bool show)
     {
         showStats = show;
+    }
+
+    public void SetQuantity(int quantity = 1)
+    {
+        quantityTxt.text =$"{quantity}";
     }
 
     #region 호버 이벤트

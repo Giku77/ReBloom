@@ -207,7 +207,7 @@ public class DebugInventoryInput : MonoBehaviour
             debugUI.CloseDebugInventory();
         }
 
-        HandleCursorState(isUIOpen);
+       HandleCursorState(isUIOpen);
         Debug.Log($"[디버그 인벤토리] {(isUIOpen ? "열림" : "닫힘")}");
     }
 
