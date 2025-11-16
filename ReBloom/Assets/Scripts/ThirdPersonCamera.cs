@@ -10,8 +10,8 @@ public class ThirdPersonCamera : MonoBehaviour
     [SerializeField] private float mouseSensitivity = 100f;
     [SerializeField] private float minVerticalAngle = -30f;
     [SerializeField] private float maxVerticalAngle = 60f;
-    [SerializeField] private float maxZoomOutDistance = 20f;
-    [SerializeField] private float maxZoominDistance = 4f;
+    private float maxZoomOutDistance = 20f;
+    private float maxZoominDistance = 1f;
 
     [SerializeField] private LayerMask collisionMask;
 
@@ -29,13 +29,19 @@ public class ThirdPersonCamera : MonoBehaviour
     //인풋시스템 콜바이함수 룩
     public void OnLook(InputAction.CallbackContext context)
     {
+        if (Cursor.lockState != CursorLockMode.Locked)
+        {
+            lookInput = Vector2.zero;
+            return;
+        }
+
         lookInput = context.ReadValue<Vector2>();
     }
 
     public void OnScroll(InputAction.CallbackContext context)
     {
         Vector2 scrollDelta = context.ReadValue<Vector2>();
-        distance -= scrollDelta.y;
+        distance -= scrollDelta.y / 2;
         distance = Mathf.Clamp(distance, maxZoominDistance, maxZoomOutDistance);
     }
 
@@ -65,16 +71,16 @@ public class ThirdPersonCamera : MonoBehaviour
 
         Quaternion rotation = Quaternion.Euler(pitch, yaw, 0f);
 
-        if (Cursor.lockState == CursorLockMode.Locked)
-        {
+        //if (Cursor.lockState == CursorLockMode.Locked)
+        //{
             rotation = Quaternion.Euler(pitch, yaw, 0f);
             oldRotation = rotation;
-        }
-        else
-        { 
-            rotation = oldRotation;
+        //}
+        //else
+        //{ 
+        //    rotation = oldRotation;
         
-        }
+        //}
             //Vector3 offset = rotation * new Vector3(0f, height, -distance);
 
             //transform.position = target.position + offset;
