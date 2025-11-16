@@ -4,15 +4,15 @@ public class StageData
 {
     public int id;
     public string name;
-    public int stageVariation;
+    public float stageVariation;
     public float stagePollution;
     public float stageTemp;
     public float sunnyRate;
-    public int sunny_d;
-    public int sunny_vari;
+    public float sunny_d;
+    public float sunny_vari;
     public float sunnyPollution;
     public float sunnyThirst;
-    public int sunnyTemp;
+    public float sunnyTemp;
 
     public StageData() { }
 
