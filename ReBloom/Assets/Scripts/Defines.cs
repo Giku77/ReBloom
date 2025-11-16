@@ -168,3 +168,14 @@ public enum SortOption
     ByTier,         // 티어 순
     BySubCategory   // 소분류 순
 }
+
+// ==================== 날씨 관련 ====================
+public enum WeatherType
+{
+    Sunny,    // 맑음
+    Rain,     // 비
+    Radio,    // 방사능
+    Snow,     // 눈
+    Thunder,  // 천둥
+    Hot       // 더위
+}
