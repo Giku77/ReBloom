@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BuildManager : MonoBehaviour
@@ -18,14 +19,28 @@ public class BuildManager : MonoBehaviour
 
     [Header("Build Rules")]
     [SerializeField] private LayerMask buildableLayer;
+    [SerializeField] private LayerMask obstacleLayer;
     [SerializeField] private float maxHeightDiff = 0.1f;
     [SerializeField] private float maxSlopeAngle = 5f;
 
+    private List<IBuildRule> buildRules = new List<IBuildRule>();
+
     private FlatSurfaceRule flatSurfaceRule;
+
+    private Dictionary <int, int> buildingCounts = new Dictionary<int, int>();
+
+    public int GetCount(int arcId)
+    {
+        if (buildingCounts.TryGetValue(arcId, out var count))
+            return count;
+        return 0;
+    }
 
     private void InitRules()
     {
-        flatSurfaceRule = new FlatSurfaceRule(buildableLayer, maxHeightDiff, maxSlopeAngle);
+        buildRules.Add(new FlatSurfaceRule(buildableLayer, maxHeightDiff, maxSlopeAngle));
+        buildRules.Add(new CollisionRule(obstacleLayer));
+        buildRules.Add(new LimitRule(this));
     }
 
     public void Init(ArcDB arcDB, ArcRecipeDB recipeDB, GameInventory inventory)
@@ -36,6 +51,17 @@ public class BuildManager : MonoBehaviour
         this.inventory = inventory;
         footprintProvider = GetComponent<BuildingFootprintProvider>();
         toastMessageUI = GameObject.FindWithTag("ToastMsg").GetComponent<ToastMessageUI>();
+    }
+
+    public bool Validate(ArcContext ctx, out string errorCode)
+    {
+        foreach (var rule in buildRules)
+        {
+            if (!rule.Validate(ctx, out errorCode))
+                return false;
+        }
+        errorCode = null;
+        return true;
     }
 
     public bool TryBuild(int arcId, Vector3 pos, Quaternion rot)
@@ -55,26 +81,9 @@ public class BuildManager : MonoBehaviour
             PlayerTransform = GameObject.FindWithTag("Player").transform
         };
 
-        if (!flatSurfaceRule.Validate(ctx, out var errorCode))
+        if (!Validate(ctx, out var errorCode))
         {
-            Debug.Log($"건축 불가: {errorCode}");
-
-            switch (errorCode)
-            {
-                case "NO_FLOOR":
-                    toastMessageUI.Show("바닥이 없는 위치입니다.");
-                    break;
-                case "SLOPE_TOO_STEEP":
-                    toastMessageUI.Show("경사가 너무 가파른 곳에는 설치할 수 없습니다.");
-                    break;
-                case "NOT_FLAT":
-                    toastMessageUI.Show("평평한 지면에서만 설치할 수 있습니다.");
-                    break;
-                default:
-                    toastMessageUI.Show("이 위치에는 건축할 수 없습니다.");
-                    break;
-            }
-
+            toastMessageUI.Show($"건물 설치 불가: {errorCode}");
             return false;
         }
 
@@ -88,6 +97,10 @@ public class BuildManager : MonoBehaviour
             return false;
 
         Consume(recipe);
+        if (buildingCounts.ContainsKey(arc.arcId))
+            buildingCounts[arc.arcId]++;
+        else
+            buildingCounts[arc.arcId] = 1;
         QuestManager.I.NotifyBuildingBuilt(arc.arcId);
 
         return Spawn(arc, pos, rot);
