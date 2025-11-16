@@ -33,6 +33,7 @@ public class InventoryItemData : ScriptableObject
         _items = new Dictionary<int, int>()
         {
             { 4003002, 15 },
+            { 4102001, 12 },
             { 4102002, 6 },
             { 4102005, 10 },
             { 4301002, 1},

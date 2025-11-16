@@ -25,8 +25,6 @@ public class BuildManager : MonoBehaviour
 
     private List<IBuildRule> buildRules = new List<IBuildRule>();
 
-    private FlatSurfaceRule flatSurfaceRule;
-
     private Dictionary <int, int> buildingCounts = new Dictionary<int, int>();
 
     public int GetCount(int arcId)
@@ -94,9 +92,12 @@ public class BuildManager : MonoBehaviour
         }
 
         if (!HasMaterials(recipe))
+        {
+            toastMessageUI.Show("재료가 부족합니다.");
             return false;
+        }
 
-        Consume(recipe);
+        Remove(recipe);
         if (buildingCounts.ContainsKey(arc.arcId))
             buildingCounts[arc.arcId]++;
         else
@@ -116,10 +117,10 @@ public class BuildManager : MonoBehaviour
         return true;
     }
 
-    private void Consume(ArcRecipe recipe)
+    private void Remove(ArcRecipe recipe)
     {
         foreach (var (itemId, amount) in recipe.materials)
-            inventory.Consume(itemId, amount);
+            inventory.RemoveItem(itemId, amount);
     }
 
     private bool Spawn(ArcData arc, Vector3 pos, Quaternion rot)
