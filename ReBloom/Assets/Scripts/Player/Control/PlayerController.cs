@@ -49,6 +49,10 @@ public class PlayerController : MonoBehaviour
 
     bool isGround = false;
 
+    [Header("Debug")]
+    [SerializeField] private float debugSpeed = 15f;
+    private bool debugMode = false;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -135,6 +139,15 @@ public class PlayerController : MonoBehaviour
 
     private void MovePlayer()
     {
+        if (debugMode)
+        {
+            Vector3 move = new Vector3(moveInput.x, 0f, moveInput.y);
+
+            Vector3 fly = cameraTransform.TransformDirection(move);
+
+            rb.linearVelocity = fly * debugSpeed;
+        }
+
         if (!isGround) return;
 
         Vector2 finalMoveInput = moveInput;
@@ -255,6 +268,12 @@ public class PlayerController : MonoBehaviour
         if (Keyboard.current.rKey.wasPressedThisFrame)
         {
             EquipWeapon();
+        }
+
+        if (Keyboard.current.f3Key.wasPressedThisFrame)
+        {
+            debugMode = !debugMode;
+            Debug.Log("디버그 모드 온오프");
         }
     }
 }
