@@ -146,6 +146,7 @@ public class PlayerController : MonoBehaviour
             Vector3 fly = cameraTransform.TransformDirection(move);
 
             rb.linearVelocity = fly * debugSpeed;
+            return;
         }
 
         if (!isGround) return;
@@ -170,7 +171,10 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            targetDirection = oldMoveDirection;
+            //targetDirection = oldMoveDirection;
+            Vector3 localForward = transform.forward;
+            Vector3 localRight = transform.right;
+            targetDirection = (localRight * finalMoveInput.x + localForward * finalMoveInput.y).normalized;
         }
 
         sprintSpeed = moveSpeed * 1.5f;
@@ -197,8 +201,9 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+
         moveDirection = Vector3.Slerp(moveDirection, targetDirection, turnSpeed * Time.deltaTime);
-        oldMoveDirection = moveDirection;
+        //oldMoveDirection = moveDirection;
 
         currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed, changeSpeedRadius * Time.deltaTime);
 
@@ -227,8 +232,21 @@ public class PlayerController : MonoBehaviour
     private void RotatePlayer()
     {
         if (isFreeLook)
-            return;
+        {
+            if (moveInput.magnitude > 0.1f)
+            {
+                Vector3 localRight = transform.right;
+                Vector3 localForward = transform.forward;
+                Vector3 inputDir = (localRight * moveInput.x + localForward * moveInput.y).normalized;
 
+                if (inputDir != Vector3.zero)
+                {
+                    Quaternion targetRotation = Quaternion.LookRotation(inputDir);
+                    transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
+                }
+            }
+            return;
+        }
         //bool isOnlyMovingBackward = moveInput.y < -0.1f && Mathf.Abs(moveInput.x) < 0.1f;
 
         if (moveDirection != Vector3.zero)
