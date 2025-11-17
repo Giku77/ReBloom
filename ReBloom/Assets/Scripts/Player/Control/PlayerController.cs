@@ -23,6 +23,8 @@ public class PlayerController : MonoBehaviour
     private bool isSlow = false;
     private bool isFreeLook = false;
 
+    public bool isDead = false;
+
     [Header("Camera")]
     [SerializeField] private Transform cameraTransform;
 
@@ -53,6 +55,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float debugSpeed = 15f;
     private bool debugMode = false;
 
+    private PlayerStats playerStats;
+
+    [SerializeField] Transform spawnPoint;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -67,11 +73,34 @@ public class PlayerController : MonoBehaviour
         }
 
         animator = GetComponentInChildren<Animator>();
+        playerStats = GetComponent<PlayerStats>();
     }
 
     private void Start()
     {
         sprintSpeed = moveSpeed * 1.5f;
+
+        if (playerStats != null)
+            playerStats.OnDeath += HandleDeath;
+    }
+
+    private void Update()
+    {
+        isGround = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
+
+        if (Keyboard.current.rKey.wasPressedThisFrame)
+        {
+            EquipWeapon();
+        }
+
+        if (Keyboard.current.f3Key.wasPressedThisFrame)
+        {
+            debugMode = !debugMode;
+
+            if (playerStats != null)
+                playerStats.DebugMode = debugMode;
+            Debug.Log("디버그 모드 온오프");
+        }
     }
 
     private void FixedUpdate()
@@ -81,7 +110,11 @@ public class PlayerController : MonoBehaviour
         JumpPlayer();
     }
 
-
+    private void OnDestroy()
+    {
+        if (playerStats != null)
+            playerStats.OnDeath -= HandleDeath;
+    }
 
     public void OnMove(InputAction.CallbackContext context)
     {
@@ -278,20 +311,16 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-
-    private void Update()
+    private void HandleDeath()
     {
-        isGround = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
+        isDead = true;
 
-        if (Keyboard.current.rKey.wasPressedThisFrame)
-        {
-            EquipWeapon();
-        }
+        rb.linearVelocity = Vector3.zero;
 
-        if (Keyboard.current.f3Key.wasPressedThisFrame)
-        {
-            debugMode = !debugMode;
-            Debug.Log("디버그 모드 온오프");
-        }
+        transform.position = spawnPoint.position;
+
+        Debug.Log("Player is Dead!");
+
+        isDead = false;
     }
 }
