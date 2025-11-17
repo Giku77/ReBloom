@@ -42,6 +42,53 @@ public class QuickSlot : MonoBehaviour
     private void Start()
     {
         ValidateReferences();
+
+        SubscribeToInventoryEvents();
+    }
+
+    private void OnDestroy()
+    {
+        UnsubscribeFromInventoryEvents();
+    }
+    #endregion
+
+    #region Event Subscription
+    /// <summary>
+    /// 인벤토리 이벤트 구독
+    /// </summary>
+    private void SubscribeToInventoryEvents()
+    {
+        if (inventoryData != null)
+        {
+            inventoryData.OnInventoryChanged += OnInventoryChanged;
+            Debug.Log("[QuickSlot] 인벤토리 변경 이벤트 구독 완료");
+        }
+        else
+        {
+            Debug.LogWarning("[QuickSlot] InventoryData가 없어 이벤트 구독 실패!");
+        }
+    }
+
+    /// <summary>
+    /// 인벤토리 이벤트 구독 해제
+    /// </summary>
+    private void UnsubscribeFromInventoryEvents()
+    {
+        if (inventoryData != null)
+        {
+            inventoryData.OnInventoryChanged -= OnInventoryChanged;
+        }
+    }
+
+    /// <summary>
+    /// 인벤토리 변경 시 호출되는 콜백
+    /// </summary>
+    private void OnInventoryChanged()
+    {
+        // 모든 퀵슬롯 수량 업데이트
+        UpdateAllSlotQuantities();
+
+        Debug.Log("[QuickSlot] 인벤토리 변경 감지 → 퀵슬롯 동기화 완료");
     }
     #endregion
 
