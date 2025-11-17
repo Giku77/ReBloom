@@ -112,6 +112,13 @@ public class PlayerStats : MonoBehaviour
         Pollution.Set(0f);
         Thirst.Set(50f);
         Temperature.Set(36.5f);
+
+        isDead = false;
+    }
+
+    public void TakeDamage(float damage)
+    { 
+        Health.Modify(-damage);
     }
 
     /// <summary>

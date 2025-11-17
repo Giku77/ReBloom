@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -38,6 +39,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float groundCheckRadius = 0.3f;
     [SerializeField] private LayerMask groundLayer;
 
+    [Header("Drop Setting")]
+    [SerializeField] private float minDropHeight = 3f;
+    [SerializeField] private float maxDropHeight = 15f;
+
     private Rigidbody rb;
 
     private bool jumpRequested = false;
@@ -56,6 +61,9 @@ public class PlayerController : MonoBehaviour
     private bool debugMode = false;
 
     private PlayerStats playerStats;
+
+    private float highestY;
+    private bool wasGround = false;
 
     [SerializeField] Transform spawnPoint;
 
@@ -88,6 +96,8 @@ public class PlayerController : MonoBehaviour
     {
         isGround = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
 
+        DropPlayer();
+
         if (Keyboard.current.rKey.wasPressedThisFrame)
         {
             EquipWeapon();
@@ -101,6 +111,8 @@ public class PlayerController : MonoBehaviour
                 playerStats.DebugMode = debugMode;
             Debug.Log("디버그 모드 온오프");
         }
+
+        wasGround = isGround;
     }
 
     private void FixedUpdate()
@@ -298,7 +310,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
         
-        int weaponItemId = 4301002;
+        int weaponItemId = 4302002;
         
         if (inventoryItemData.HasItem(weaponItemId, 1))
         {
@@ -322,5 +334,40 @@ public class PlayerController : MonoBehaviour
         Debug.Log("Player is Dead!");
 
         isDead = false;
+    }
+
+    private void DropPlayer()
+    {
+        if (!isGround && wasGround)
+        {
+            highestY = transform.position.y;
+        }
+        else if (!isGround)
+        {
+            if (transform.position.y > highestY)
+                highestY = transform.position.y;
+        }
+        else if (!wasGround && isGround)
+        {
+            float fallHeight = (highestY - transform.position.y) * transform.localScale.y;
+
+            if (fallHeight > maxDropHeight)
+                fallHeight = maxDropHeight;
+
+            if (fallHeight > minDropHeight)
+            {
+                float effectiveHeight = fallHeight - minDropHeight;
+                float shoeResist = playerEquipManager.GetHeightResist();
+
+                float damage = Mathf.Pow(effectiveHeight, 1.8f) * shoeResist;
+
+                if (playerStats != null)
+                    playerStats.TakeDamage(damage);
+
+                Debug.Log($"낙하 높이: {fallHeight:F2}m, 데미지: {damage:F2}");
+            }
+        }
+
+
     }
 }
