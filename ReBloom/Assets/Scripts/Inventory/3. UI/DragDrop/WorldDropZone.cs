@@ -31,6 +31,7 @@ public class WorldDropZone : MonoBehaviour,
     [SerializeField] private int debugSpawnCount = 1; // 디버그 모드 생성 개수
 
     private bool isPointerOver = false;
+    private QuestUI questUI;
 
     private void Awake()
     {
@@ -61,6 +62,8 @@ public class WorldDropZone : MonoBehaviour,
         {
             dropIndicator.SetActive(false);
         }
+
+        questUI = FindFirstObjectByType<QuestUI>();
     }
 
     private void Update()
@@ -196,8 +199,9 @@ public class WorldDropZone : MonoBehaviour,
 
         // 인벤토리에서 제거
         inventoryItemData.RemoveItem(draggedItem.itemID, itemCount);
+        questUI?.Refresh();
 
-         Debug.Log($"[WorldDropZone] {draggedItem.itemName} x{itemCount}을(를) 드롭했습니다.");
+        Debug.Log($"[WorldDropZone] {draggedItem.itemName} x{itemCount}을(를) 드롭했습니다.");
     }
 
     /// <summary>

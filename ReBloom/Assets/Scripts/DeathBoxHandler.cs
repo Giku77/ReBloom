@@ -19,6 +19,12 @@ public class DeathBoxHandler : MonoBehaviour
     [SerializeField] private bool clearInventoryOnDeath = true;
 
     private GameObject currentDeathBox;
+    private QuestUI questUI;
+
+    private void Awake()
+    {
+        questUI = FindFirstObjectByType<QuestUI>();
+    }
 
     /// <summary>
     /// 플레이어 사망 처리 (PlayerStats에서 자동 호출)
@@ -58,6 +64,7 @@ public class DeathBoxHandler : MonoBehaviour
             SpawnDeathBox(deathPosition);
         }
 
+        questUI?.Refresh();
         Debug.Log($"[DeathBoxHandler] 플레이어 사망 처리 완료. 위치: {deathPosition}");
     }
 
