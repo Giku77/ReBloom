@@ -5,6 +5,7 @@ public class GameInventoryInput : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private GameInventory gameInventory;
+    [SerializeField] private QuickSlot quickSlot;
 
     private InputSystem_Actions inputActions;
     private bool isInventoryOpen = false;
@@ -92,7 +93,7 @@ public class GameInventoryInput : MonoBehaviour
     /// </summary>
     private void OnFillQuickSlots(InputAction.CallbackContext context)
     {
-        FillQuickSlotsFromInventory();
+        quickSlot.AutoFillQuickSlots();
     }
     #endregion
 
@@ -123,35 +124,11 @@ public class GameInventoryInput : MonoBehaviour
     }
     #endregion
 
-    #region 퀵슬롯 제어
-    /// <summary>
-    /// O키: 인벤토리 아이템을 순차적으로 퀵슬롯에 배치
-    /// </summary>
-    public void FillQuickSlotsFromInventory()
-    {
-        if (gameInventory == null)
-        {
-            Debug.LogWarning("[GameInventoryInput] GameInventory가 없습니다!");
-            return;
-        }
-
-        int filledCount = gameInventory.AutoFillQuickSlots();
-
-        Debug.Log($"[퀵슬롯] {filledCount}개 아이템 자동 배치 완료");
-    }
-    #endregion
-
     #region 디버그 명령어
     [ContextMenu("Debug/Toggle Inventory")]
     public void CMD_ToggleInventory()
     {
         ToggleInventory();
-    }
-
-    [ContextMenu("Debug/Fill Quick Slots")]
-    public void CMD_FillQuickSlots()
-    {
-        FillQuickSlotsFromInventory();
     }
     #endregion
 }

@@ -3,33 +3,28 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnityEngine;
 
-/// <summary>
-/// 퀵슬롯 관리 시스템
-/// 아이템을 빠르게 사용할 수 있도록 슬롯에 배치
-/// </summary>
 public class QuickSlot : MonoBehaviour
 {
     [Header("Slot Settings")]
     [SerializeField] private int slotCount = 7;
 
     [Header("UI References")]
-    [SerializeField] private List<GameObject> slotsRef;  // 슬롯 위치 참조
-    [SerializeField] private QuickSlotUI quickSlotUIPrefab;  // UI 프리팹
+    [SerializeField] private List<GameObject> slotsRef;
+    [SerializeField] private QuickSlotUI quickSlotUIPrefab;
 
     [Header("Data Reference")]
-    [SerializeField] private InventoryItemData inventoryData;  // 인벤토리 데이터
+    [SerializeField] private InventoryItemData inventoryData;
 
-    // 내부 데이터
-    private ItemBase[] items;  // 슬롯에 할당된 아이템들
-    private QuickSlotUI[] slotUIs;  // 생성된 UI 인스턴스들
+    [SerializeField] private GameInventory gameInventory;
+
+    private ItemBase[] items;
+    private QuickSlotUI[] slotUIs;
     private int assignedSlotCount = 0;
 
-    // 외부 접근
     public ReadOnlyCollection<ItemBase> GetItemBaseSlot => Array.AsReadOnly(items);
     public int AssignedSlotCount => assignedSlotCount;
     public int MaxSlotCount => slotCount;
 
-    // 이벤트
     public event Action<ItemBase, int> OnSlotAssign;
     public event Action<int> OnSlotRemoved;
 
@@ -42,7 +37,6 @@ public class QuickSlot : MonoBehaviour
     private void Start()
     {
         ValidateReferences();
-
         SubscribeToInventoryEvents();
     }
 
@@ -52,62 +46,15 @@ public class QuickSlot : MonoBehaviour
     }
     #endregion
 
-    #region Event Subscription
-    /// <summary>
-    /// 인벤토리 이벤트 구독
-    /// </summary>
-    private void SubscribeToInventoryEvents()
-    {
-        if (inventoryData != null)
-        {
-            inventoryData.OnInventoryChanged += OnInventoryChanged;
-            Debug.Log("[QuickSlot] 인벤토리 변경 이벤트 구독 완료");
-        }
-        else
-        {
-            Debug.LogWarning("[QuickSlot] InventoryData가 없어 이벤트 구독 실패!");
-        }
-    }
-
-    /// <summary>
-    /// 인벤토리 이벤트 구독 해제
-    /// </summary>
-    private void UnsubscribeFromInventoryEvents()
-    {
-        if (inventoryData != null)
-        {
-            inventoryData.OnInventoryChanged -= OnInventoryChanged;
-        }
-    }
-
-    /// <summary>
-    /// 인벤토리 변경 시 호출되는 콜백
-    /// </summary>
-    private void OnInventoryChanged()
-    {
-        // 모든 퀵슬롯 수량 업데이트
-        UpdateAllSlotQuantities();
-
-        Debug.Log("[QuickSlot] 인벤토리 변경 감지 → 퀵슬롯 동기화 완료");
-    }
-    #endregion
-
     #region Initialization
-    /// <summary>
-    /// 슬롯 초기화
-    /// </summary>
     private void InitializeSlots()
     {
         items = new ItemBase[slotCount];
         slotUIs = new QuickSlotUI[slotCount];
         assignedSlotCount = 0;
-
         Debug.Log($"[QuickSlot] {slotCount}개 슬롯 초기화 완료");
     }
 
-    /// <summary>
-    /// 참조 검증
-    /// </summary>
     private void ValidateReferences()
     {
         if (slotsRef == null || slotsRef.Count == 0)
@@ -128,8 +75,43 @@ public class QuickSlot : MonoBehaviour
 
         if (inventoryData == null)
         {
-            Debug.LogWarning("[QuickSlot] InventoryData가 할당되지 않았습니다. 수량 동기화가 작동하지 않습니다.", this);
+            Debug.LogWarning("[QuickSlot] InventoryData가 할당되지 않았습니다!", this);
         }
+
+        if (gameInventory == null)
+        {
+            Debug.LogWarning("[QuickSlot] GameInventory가 할당되지 않았습니다!", this);
+        }
+    }
+    #endregion
+
+    #region Event Subscription
+    /// <summary>
+    /// 인벤토리 변경 이벤트 구독
+    /// </summary>
+    private void SubscribeToInventoryEvents()
+    {
+        if (inventoryData != null)
+        {
+            inventoryData.OnInventoryChanged += OnInventoryChanged;
+            Debug.Log("[QuickSlot] 인벤토리 변경 이벤트 구독 완료");
+        }
+    }
+
+    private void UnsubscribeFromInventoryEvents()
+    {
+        if (inventoryData != null)
+        {
+            inventoryData.OnInventoryChanged -= OnInventoryChanged;
+        }
+    }
+
+    /// <summary>
+    /// 인벤토리 변경 시 자동 동기화
+    /// </summary>
+    private void OnInventoryChanged()
+    {
+        UpdateAllSlotQuantities();
     }
     #endregion
 
@@ -139,10 +121,15 @@ public class QuickSlot : MonoBehaviour
     /// </summary>
     public bool TryAssign(ItemBase item, int quantity)
     {
-        // 유효성 검사
         if (item == null)
         {
             Debug.LogWarning("[QuickSlot] null 아이템은 배치할 수 없습니다.");
+            return false;
+        }
+
+        // 유효성 검증 추가
+        if (!CanAssignToQuickSlot(item))
+        {
             return false;
         }
 
@@ -158,14 +145,56 @@ public class QuickSlot : MonoBehaviour
             return false;
         }
 
-        // 배치
         Assign(item, quantity);
         return true;
     }
 
     /// <summary>
-    /// 아이템을 슬롯에 배치
+    /// 특정 슬롯에 직접 할당 (드래그 앤 드롭용)
     /// </summary>
+    public bool AssignToSlot(int targetIndex, ItemBase item, int quantity)
+    {
+        if (targetIndex < 0 || targetIndex >= slotCount)
+        {
+            Debug.LogError($"[QuickSlot] 잘못된 슬롯 인덱스: {targetIndex}");
+            return false;
+        }
+
+        if (item == null)
+        {
+            Debug.LogWarning("[QuickSlot] null 아이템은 배치할 수 없습니다.");
+            return false;
+        }
+
+        // 유효성 검증
+        if (!CanAssignToQuickSlot(item))
+        {
+            return false;
+        }
+
+        // 기존 아이템이 있으면 제거
+        if (items[targetIndex] != null)
+        {
+            if (slotUIs[targetIndex] != null)
+            {
+                Destroy(slotUIs[targetIndex].gameObject);
+                slotUIs[targetIndex] = null;
+            }
+        }
+        else
+        {
+            assignedSlotCount++;
+        }
+
+        // 새 아이템 할당
+        items[targetIndex] = item;
+        CreateSlotUI(targetIndex, item, quantity);
+        OnSlotAssign?.Invoke(item, quantity);
+
+        Debug.Log($"[QuickSlot] {item.itemName} x{quantity}를 슬롯 {targetIndex}에 할당");
+        return true;
+    }
+
     private void Assign(ItemBase item, int quantity)
     {
         int targetIndex = FindNextEmptySlot();
@@ -183,19 +212,13 @@ public class QuickSlot : MonoBehaviour
         }
 
         items[targetIndex] = item;
-
         assignedSlotCount++;
-
         CreateSlotUI(targetIndex, item, quantity);
-
         OnSlotAssign?.Invoke(item, quantity);
 
-        Debug.Log($"[QuickSlot] {item.itemName} x{quantity}를 슬롯 {targetIndex}에 배치 (총 {assignedSlotCount}/{slotCount})");
+        Debug.Log($"[QuickSlot] {item.itemName} x{quantity}를 슬롯 {targetIndex}에 배치");
     }
 
-    /// <summary>
-    /// 슬롯 UI 생성
-    /// </summary>
     private void CreateSlotUI(int index, ItemBase item, int quantity)
     {
         if (quickSlotUIPrefab == null)
@@ -204,32 +227,53 @@ public class QuickSlot : MonoBehaviour
             return;
         }
 
-        // 기존 UI가 있으면 제거
         if (slotUIs[index] != null)
         {
             Destroy(slotUIs[index].gameObject);
         }
 
-        // 새 UI 생성
         QuickSlotUI newSlotUI = Instantiate(
             quickSlotUIPrefab,
             slotsRef[index].transform.position,
             Quaternion.identity,
-            slotsRef[index].transform  // 부모 설정
+            slotsRef[index].transform
         );
 
-        // UI 업데이트
         newSlotUI.OnUpdateSlotInfo(item, quantity);
-
-        // 참조 저장
         slotUIs[index] = newSlotUI;
     }
     #endregion
 
-    #region Slot Removal
+    #region Validation
     /// <summary>
-    /// 특정 슬롯의 아이템 제거
+    /// 퀵슬롯에 배치 가능한지 검증
     /// </summary>
+    private bool CanAssignToQuickSlot(ItemBase item)
+    {
+        if (item == null)
+        {
+            return false;
+        }
+
+        // 1. 아이템의 canQuickSlot 플래그 확인
+        if (!item.canQuickSlot)
+        {
+            Debug.LogWarning($"[QuickSlot] {item.itemName}은(는) 퀵슬롯에 배치할 수 없습니다.");
+            return false;
+        }
+
+        // 2. 인벤토리에 아이템이 있는지 확인
+        if (gameInventory != null && !gameInventory.HasItem(item.itemID, 1))
+        {
+            Debug.LogWarning($"[QuickSlot] 인벤토리에 {item.itemName}이(가) 없습니다.");
+            return false;
+        }
+
+        return true;
+    }
+    #endregion
+
+    #region Slot Removal
     public bool RemoveSlot(int index)
     {
         if (index < 0 || index >= slotCount)
@@ -244,10 +288,8 @@ public class QuickSlot : MonoBehaviour
             return false;
         }
 
-        // 아이템 제거
         items[index] = null;
 
-        // UI 제거
         if (slotUIs[index] != null)
         {
             Destroy(slotUIs[index].gameObject);
@@ -255,17 +297,12 @@ public class QuickSlot : MonoBehaviour
         }
 
         assignedSlotCount--;
-
-        // 이벤트 발생
         OnSlotRemoved?.Invoke(index);
 
         Debug.Log($"[QuickSlot] 슬롯 {index} 제거됨");
         return true;
     }
 
-    /// <summary>
-    /// 특정 아이템을 찾아서 제거 (ItemID 기반)
-    /// </summary>
     public bool RemoveItem(ItemBase item)
     {
         if (item == null) return false;
@@ -282,9 +319,6 @@ public class QuickSlot : MonoBehaviour
         return false;
     }
 
-    /// <summary>
-    /// 모든 슬롯 초기화
-    /// </summary>
     public void ClearAllSlots()
     {
         for (int i = 0; i < slotCount; i++)
@@ -300,9 +334,6 @@ public class QuickSlot : MonoBehaviour
     #endregion
 
     #region Slot Queries
-    /// <summary>
-    /// 다음 빈 슬롯 인덱스 찾기
-    /// </summary>
     private int FindNextEmptySlot()
     {
         for (int i = 0; i < slotCount; i++)
@@ -315,9 +346,6 @@ public class QuickSlot : MonoBehaviour
         return -1;
     }
 
-    /// <summary>
-    /// 아이템이 이미 배치되어 있는지 확인
-    /// </summary>
     public bool IsItemAlreadyAssigned(ItemBase item)
     {
         if (item == null) return false;
@@ -326,16 +354,12 @@ public class QuickSlot : MonoBehaviour
         {
             if (items[i] != null && items[i].itemID == item.itemID)
             {
-                Debug.LogWarning($"[QuickSlot] {item.itemName}(ID:{item.itemID})은 이미 슬롯 {i}에 배치되어 있습니다.");
                 return true;
             }
         }
         return false;
     }
 
-    /// <summary>
-    /// 특정 슬롯의 아이템 가져오기
-    /// </summary>
     public ItemBase GetItemAtSlot(int index)
     {
         if (index < 0 || index >= slotCount)
@@ -347,9 +371,6 @@ public class QuickSlot : MonoBehaviour
         return items[index];
     }
 
-    /// <summary>
-    /// 아이템이 있는 슬롯 인덱스 찾기 (ItemID 기반)
-    /// </summary>
     public int FindItemSlot(ItemBase item)
     {
         if (item == null) return -1;
@@ -366,9 +387,6 @@ public class QuickSlot : MonoBehaviour
     #endregion
 
     #region Slot Updates
-    /// <summary>
-    /// 슬롯의 수량 업데이트 (인벤토리와 동기화)
-    /// </summary>
     public void UpdateSlotQuantity(int index)
     {
         if (index < 0 || index >= slotCount) return;
@@ -376,28 +394,66 @@ public class QuickSlot : MonoBehaviour
         if (slotUIs[index] == null) return;
         if (inventoryData == null) return;
 
-        // 인벤토리에서 현재 수량 가져오기
         int currentQuantity = inventoryData.GetItemCount(items[index].itemID);
-
-        // UI 업데이트
         slotUIs[index].OnUpdateSlotInfo(items[index], currentQuantity);
 
-        // 수량이 0이면 슬롯에서 제거
         if (currentQuantity <= 0)
         {
             RemoveSlot(index);
         }
     }
 
-    /// <summary>
-    /// 모든 슬롯의 수량 업데이트
-    /// </summary>
     public void UpdateAllSlotQuantities()
     {
         for (int i = 0; i < slotCount; i++)
         {
             UpdateSlotQuantity(i);
         }
+    }
+    #endregion
+
+    #region Auto Fill(디버그 용도)
+    /// <summary>
+    /// 퀵슬롯 자동 배치 (O키 기능)
+    /// </summary>
+    [ContextMenu("Auto Fill Quick Slots")]
+    public int AutoFillQuickSlots()
+    {
+        if (inventoryData == null || gameInventory == null)
+        {
+            Debug.LogWarning("[QuickSlot] InventoryData 또는 GameInventory가 없습니다!");
+            return 0;
+        }
+
+        int filledCount = 0;
+
+        foreach (var itemPair in inventoryData.Items)
+        {
+            int itemId = itemPair.Key;
+            int quantity = itemPair.Value;
+
+            ItemBase item = ItemDatabase.I.GetItem(itemId);
+
+            if (item != null && CanAssignToQuickSlot(item))
+            {
+                if (IsItemAlreadyAssigned(item))
+                {
+                    continue;
+                }
+
+                if (TryAssign(item, quantity))
+                {
+                    filledCount++;
+                }
+                else
+                {
+                    break; // 슬롯 가득 참
+                }
+            }
+        }
+
+        Debug.Log($"[QuickSlot] 자동 배치 완료: {filledCount}개 아이템");
+        return filledCount;
     }
     #endregion
 
@@ -420,12 +476,6 @@ public class QuickSlot : MonoBehaviour
                 Debug.Log($"슬롯 [{i}]: 비어있음");
             }
         }
-    }
-
-    [ContextMenu("Debug/Clear All Slots")]
-    public void CMD_ClearAllSlots()
-    {
-        ClearAllSlots();
     }
     #endregion
 }
