@@ -30,4 +30,6 @@ public class ArcDB
     }
 
     public bool TryGet(int arcId, out ArcData data) => _arcs.TryGetValue(arcId, out data);
+
+    public Dictionary<int, ArcData> GetAll() => _arcs;
 }
