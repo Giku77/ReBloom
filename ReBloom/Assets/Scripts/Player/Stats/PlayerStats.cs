@@ -65,6 +65,8 @@ public class PlayerStats : MonoBehaviour
         if (Health.Value <= 0 && !isDead && !isDebug)
         {
             isDead = true;
+
+            GetResurrection();
             OnDeath?.Invoke();
         }
     }
@@ -103,6 +105,14 @@ public class PlayerStats : MonoBehaviour
         Debug.Log("================================\n");
     }
 
+    private void GetResurrection()
+    {
+        Health.Set(50f);
+        Hunger.Set(50f);
+        Pollution.Set(0f);
+        Thirst.Set(50f);
+        Temperature.Set(36.5f);
+    }
 
     /// <summary>
     /// LSY: DeathBoxHandler를 찾아서 자동 이벤트 등록

@@ -67,8 +67,9 @@ public class StageBase : MonoBehaviour
     
     public void Initialize(StageDB db)
     {
-        stageManager = FindObjectOfType<StageManager>();
-        
+        stageManager = FindAnyObjectByType<StageManager>();
+        //stageManager = FindObjectsByType<StageManager>(FindObjectsSortMode.None);
+
         if (db.TryGet(stageID, out stageData))
         {
             //Debug.Log($"[Stage] 지역 초기화 성공: ID={stageID}, Name={stageData.name}, Pollution={stageData.stagePollution}");
