@@ -13,7 +13,7 @@ public class PollutionStat : StatBase
         stageDetector = owner.GetComponent<StageDetector>();
     }
 
-public override void Tick()
+    public override void Tick()
     {
         float baseMultiplier = stageDetector != null ? stageDetector.GetCurrentPollutionMultiplier() : 0f;
 

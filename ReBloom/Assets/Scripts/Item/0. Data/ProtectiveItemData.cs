@@ -168,4 +168,9 @@ public class ProtectiveItemData : ItemBase
     {
         return Pollution_Resist[entity];
     }
+
+    public float GetInsulationResist()
+    { 
+        return Insulation[entity];
+    }
 }

@@ -65,6 +65,17 @@ public class StageDetector : MonoBehaviour
         return 0.0f;
     }
 
+    public float GetCurrentTemperatureMultiplier()
+    {
+        if (currentStage != null && currentStage.Data != null)
+        {
+            return currentStage.Data.stageTemp + currentStage.CurrentTemp;
+        }
+
+        //거점 + 맑음 온도 적용
+        return 30.0f;
+    }
+
     private void PrintWeathers()
     {
         Debug.Log("========== 현재 날씨 ==========");

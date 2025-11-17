@@ -39,6 +39,13 @@ public class DebuffManager : MonoBehaviour
             { 230, (data) => new StarvationDebuff(data, playerStats) },
             { 231, (data) => new StarvationDebuff(data, playerStats) },
             { 232, (data) => new StarvationDebuff(data, playerStats) },
+
+            //체온
+            {240, (data) => new hypothermiaDebuff(data, playerStats) },
+            {250, (data) => new hypothermiaDebuff(data, playerStats) },
+            {260, (data) => new hypothermiaDebuff(data, playerStats) },
+            {270, (data) => new hypothermiaDebuff(data, playerStats) },
+
         };
     }
     

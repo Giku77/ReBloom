@@ -23,6 +23,7 @@ public class PlayerStats : MonoBehaviour
         Hunger = new HungerStat(this, data.hungerMax, data.hungerIncreaseRate);
         Thirst = new ThirstStat(this, data.thurstMax, data.thirstIncreaseRate);
         Pollution = new PollutionStat(this, data.pollutionMax, data.pollutionIncreaseRate);
+        Temperature = new TemperatureStat(this, data.normalTemperature, data.maxTemperature, data.minTemperature);
     }
 
     //private void Start()
@@ -35,6 +36,7 @@ public class PlayerStats : MonoBehaviour
         Hunger.Tick();
         Thirst.Tick();              
         Pollution.Tick();
+        Temperature.Tick();
 
         if (Keyboard.current.kKey.wasPressedThisFrame)
         {
@@ -55,6 +57,7 @@ public class PlayerStats : MonoBehaviour
         Debug.Log($"Hunger: {Hunger.Value:F2} / {Hunger.MaxValue}");
         Debug.Log($"Thirst: {Thirst.Value:F2} / {Thirst.MaxValue}");
         Debug.Log($"Pollution: {Pollution.Value:F2} / {Pollution.MaxValue}");
+        Debug.Log($"Temperature: {Temperature.Value:F2} / {Temperature.MaxValue}");
         
         var debuffManager = GetComponent<DebuffManager>();
         if (debuffManager != null)
