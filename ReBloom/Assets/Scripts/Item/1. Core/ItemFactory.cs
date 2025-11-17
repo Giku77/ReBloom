@@ -44,12 +44,12 @@ public static class ItemFactory
             var item = ScriptableObject.CreateInstance<ConsumableItemData>();
             item.Initialize(entity);
 
-            Debug.Log($"[ItemFactory] 소비 아이템 생성: {item.itemName} (ID: {item.itemID})");
+            //Debug.Log($"[ItemFactory] 소비 아이템 생성: {item.itemName} (ID: {item.itemID})");
             return item;
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"[ItemFactory] 소비 아이템 생성 실패: {e.Message}");
+            //Debug.LogError($"[ItemFactory] 소비 아이템 생성 실패: {e.Message}");
             return null;
         }
     }
@@ -64,12 +64,12 @@ public static class ItemFactory
             var item = ScriptableObject.CreateInstance<ProtectiveItemData>();
             item.Initialize(entity);
 
-            Debug.Log($"[ItemFactory] 보호구 생성: {item.itemName} (ID: {item.itemID})");
+            //Debug.Log($"[ItemFactory] 보호구 생성: {item.itemName} (ID: {item.itemID})");
             return item;
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"[ItemFactory] 보호구 생성 실패: {e.Message}");
+            //Debug.LogError($"[ItemFactory] 보호구 생성 실패: {e.Message}");
             return null;
         }
     }
@@ -84,12 +84,12 @@ public static class ItemFactory
             var item = ScriptableObject.CreateInstance<ToolItemData>();
             item.Initialize(entity);
 
-            Debug.Log($"[ItemFactory] 도구 생성: {item.itemName} (ID: {item.itemID})");
+            //Debug.Log($"[ItemFactory] 도구 생성: {item.itemName} (ID: {item.itemID})");
             return item;
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"[ItemFactory] 도구 생성 실패: {e.Message}");
+            //Debug.LogError($"[ItemFactory] 도구 생성 실패: {e.Message}");
             return null;
         }
     }
@@ -104,12 +104,12 @@ public static class ItemFactory
             var item = ScriptableObject.CreateInstance<MiscItemData>();
             item.Initialize(entity);
 
-            Debug.Log($"[ItemFactory] 기타 아이템 생성: {item.itemName} (ID: {item.itemID})");
+            //Debug.Log($"[ItemFactory] 기타 아이템 생성: {item.itemName} (ID: {item.itemID})");
             return item;
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"[ItemFactory] 기타 아이템 생성 실패: {e.Message}");
+            //Debug.LogError($"[ItemFactory] 기타 아이템 생성 실패: {e.Message}");
             return null;
         }
     }
