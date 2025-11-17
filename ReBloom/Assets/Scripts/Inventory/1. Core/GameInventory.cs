@@ -145,105 +145,13 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     }
     #endregion
 
-    #region 퀵슬롯 관련
-    private void Awake()
-    {
-        if (quickSlot != null)
-        {
-            quickSlot.OnSlotAssign += AssignQuickSlot;
-        }
-    }
-
-    private void OnDestroy()
-    {
-        if (quickSlot != null)
-        {
-            quickSlot.OnSlotAssign -= AssignQuickSlot;
-        }
-    }
-
-    public void TryAssignQuickSlot(int itemId)
-    {
-        if (!inventoryData.Items.ContainsKey(itemId))
-        {
-            inventoryData.SendMessage("인벤토리에 해당 아이템이 없습니다.");
-            return;
-        }
-
-        if (CanAssignQuickSlot(itemId))
-        {
-            ItemBase item = ItemDatabase.I.GetItem(itemId);
-            AssignQuickSlot(item, GetItemCount(itemId));
-            inventoryData.SendMessage($"{item.itemName}을(를) 퀵슬롯에 배치했습니다.");
-        }
-        else
-        {
-            ItemBase item = ItemDatabase.I.GetItem(itemId);
-            inventoryData.SendMessage($"{item.itemName}은(는) 퀵슬롯에 배치할 수 없습니다.");
-        }
-    }
-
-    public int AutoFillQuickSlots()
-    {
-        if (quickSlot == null)
-        {
-            Debug.LogWarning("[GameInventory] QuickSlot이 할당되지 않았습니다!");
-            return 0;
-        }
-
-        int filledCount = 0;
-
-        foreach (var itemPair in inventoryData.Items)
-        {
-            int itemId = itemPair.Key;
-            int quantity = itemPair.Value;
-
-            if (CanAssignQuickSlot(itemId))
-            {
-                ItemBase item = ItemDatabase.I.GetItem(itemId);
-
-                if (quickSlot.IsItemAlreadyAssigned(item))
-                {
-                    continue;
-                }
-
-                if (quickSlot.TryAssign(item, quantity))
-                {
-                    filledCount++;
-                }
-                else
-                {
-                    break;
-                }
-            }
-        }
-
-        if (filledCount > 0)
-        {
-            inventoryData.SendMessage($"퀵슬롯에 {filledCount}개 아이템 배치 완료!");
-        }
-        else
-        {
-            inventoryData.SendMessage("퀵슬롯에 배치할 수 있는 아이템이 없습니다.");
-        }
-
-        return filledCount;
-    }
-
-    public void AssignQuickSlot(ItemBase item, int quantity)
-    {
-        if (quickSlot != null)
-        {
-            quickSlot.TryAssign(item, quantity);
-        }
-    }
-
-    private bool CanAssignQuickSlot(int itemId)
-    {
-        ItemBase item = ItemDatabase.I.GetItem(itemId);
-        return item != null && item.canQuickSlot;
-    }
-    #endregion
+    //#region 퀵슬롯 관련
+    //private bool CanAssignQuickSlot(int itemId)
+    //{
+    //    ItemBase item = ItemDatabase.I.GetItem(itemId);
+    //    return item != null && item.canQuickSlot;
+    //}
+    //#endregion
 
     #region UI 제어
     public void OpenInventory()
