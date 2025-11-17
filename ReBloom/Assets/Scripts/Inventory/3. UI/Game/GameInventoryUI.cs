@@ -1,16 +1,17 @@
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.InputSystem;
 
 /// <summary>
-/// 게임 인벤토리 UI (아이콘 기반)
-/// 테이블별 탭으로 분류하여 표시
+/// 게임 인벤토리 UI (View)
+/// UI 표시만 담당 - 비즈니스 로직은 GameInventory에서 처리
 /// </summary>
 public class GameInventoryUI : MonoBehaviour
 {
+    [Header("Controller Reference")]
+    [SerializeField] private GameInventory gameInventory;
+
     [Header("Data Reference")]
     [SerializeField] private InventoryItemData inventoryData;
 
@@ -29,12 +30,11 @@ public class GameInventoryUI : MonoBehaviour
     [SerializeField] private Button btnMisc;
 
     [Header("Tab Visual Settings")]
-    [SerializeField] private Color activeColor = new Color(0.3f, 0.6f, 1f, 1f); // 선택된 탭 색상
-    [SerializeField] private Color inactiveColor = new Color(1f, 1f, 1f, 0.5f); // 비선택 탭 색상 (알파 0.5)
+    [SerializeField] private Color activeColor = new Color(0.3f, 0.6f, 1f, 1f);
+    [SerializeField] private Color inactiveColor = new Color(1f, 1f, 1f, 0.5f);
 
     #region 상태 변수
     private ItemTableType currentTable = ItemTableType.Tool;
-
     private List<DebugItemSlot> activeSlots = new List<DebugItemSlot>();
     private Dictionary<Button, ItemTableType> tabButtons = new Dictionary<Button, ItemTableType>();
     #endregion
@@ -61,8 +61,6 @@ public class GameInventoryUI : MonoBehaviour
         // 초기화
         inventoryData.Initialize();
         RefreshUI();
-        var QuestUI = FindFirstObjectByType<QuestUI>();
-        QuestUI.Refresh();
 
         // 시작 시 인벤토리 닫기
         inventoryUIRoot.SetActive(false);
@@ -81,7 +79,6 @@ public class GameInventoryUI : MonoBehaviour
     #region 초기화
     private void InitializeTabButtons()
     {
-        // 테이블별 탭 매핑
         if (btnConsumable != null)
         {
             tabButtons[btnConsumable] = ItemTableType.Consumable;
@@ -150,23 +147,24 @@ public class GameInventoryUI : MonoBehaviour
     #region UI 갱신
     /// <summary>
     /// 인벤토리 아이템 목록 새로고침
+    /// 컨트롤러에서 필터링된 데이터를 받아서 표시만 함
     /// </summary>
     public void RefreshUI()
     {
-        if (inventoryData == null || ItemDatabase.I == null)
+        if (gameInventory == null || ItemDatabase.I == null)
         {
-            Debug.LogWarning("[GameInventoryUI] InventoryData 또는 ItemDatabase가 없습니다.");
+            Debug.LogWarning("[GameInventoryUI] GameInventory 또는 ItemDatabase가 없습니다.");
             return;
         }
 
         // 기존 슬롯 제거
         ClearSlots();
 
-        // 필터링된 아이템 가져오기
-        var items = GetFilteredItems();
+        // 컨트롤러에서 필터링된 아이템 가져오기
+        var items = gameInventory.GetSortedItems(currentTable);
 
-        var slotIndex = 0;
         // 슬롯 생성
+        int slotIndex = 0;
         foreach (var itemPair in items)
         {
             int itemId = itemPair.Key;
@@ -183,7 +181,6 @@ public class GameInventoryUI : MonoBehaviour
 
     private void ClearSlots()
     {
-        // activeSlots 리스트 정리
         foreach (var slot in activeSlots)
         {
             if (slot != null)
@@ -193,12 +190,10 @@ public class GameInventoryUI : MonoBehaviour
         }
         activeSlots.Clear();
 
-        // emptySlotList의 모든 자식들도 제거
         foreach (var emptySlot in emptySlotList)
         {
             if (emptySlot != null)
             {
-                // emptySlot의 자식 오브젝트들 모두 제거
                 foreach (Transform child in emptySlot)
                 {
                     Destroy(child.gameObject);
@@ -220,17 +215,13 @@ public class GameInventoryUI : MonoBehaviour
 
         if (slot != null)
         {
-            // 슬롯 초기화
             slot.Initialize(item, tooltip);
             slot.SetShowDescription(false);
             slot.SetShowStats(false);
-
-            // 수량 표시
             slot.SetQuantity(quantity);
 
             activeSlots.Add(slot);
 
-            // 드래그 앤 드롭 핸들러 설정
             SetDragDropHandlerData(item, slot);
         }
     }
@@ -245,54 +236,24 @@ public class GameInventoryUI : MonoBehaviour
     }
     #endregion
 
-    #region 필터링
-    /// <summary>
-    /// 현재 선택된 테이블에 해당하는 아이템만 필터링
-    /// </summary>
-    private Dictionary<int, int> GetFilteredItems()
-    {
-        // 테이블별 필터링
-        var filtered = new Dictionary<int, int>();
-
-        foreach (var itemPair in inventoryData.Items)
-        {
-            int itemId = itemPair.Key;
-            ItemTableType tableType = ItemIDParser.GetTableType(itemId);
-
-            if (tableType == currentTable)
-            {
-                filtered.Add(itemId, itemPair.Value);
-            }
-        }
-
-        return filtered;
-    }
-    #endregion
-
     #region UI 업데이트
     private void UpdateTabVisuals()
     {
-        // 테이블별 탭 강조
         foreach (var pair in tabButtons)
         {
             Button btn = pair.Key;
             ItemTableType type = pair.Value;
 
             ColorBlock colors = btn.colors;
-
-            // 선택된 탭은 activeColor, 나머지는 inactiveColor (알파값 포함)
             colors.normalColor = (type == currentTable) ? activeColor : inactiveColor;
-
             btn.colors = colors;
 
-            // 텍스트 스타일 변경
             var btnText = btn.GetComponentInChildren<TextMeshProUGUI>();
             if (btnText != null)
             {
                 btnText.fontStyle = (type == currentTable) ?
                     FontStyles.Bold : FontStyles.Normal;
 
-                // 텍스트 알파값도 변경 (선택사항)
                 Color textColor = btnText.color;
                 textColor.a = (type == currentTable) ? 1f : 0.5f;
                 btnText.color = textColor;
@@ -309,7 +270,6 @@ public class GameInventoryUI : MonoBehaviour
             messageText.text = msg;
             messageText.color = Color.yellow;
 
-            // 3초 후 메시지 사라지게 (선택사항)
             CancelInvoke(nameof(ClearMessage));
             Invoke(nameof(ClearMessage), 3f);
         }
