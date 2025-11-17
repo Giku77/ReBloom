@@ -13,8 +13,8 @@ public class DebuffManager : MonoBehaviour
     public event Action<IDebuff> OnDebuffApplied;
     public event Action<IDebuff> OnDebuffRemoved;
     private Dictionary<int, Func<DebuffData, IDebuff>> debuffFactory;
-    
-    void Awake()
+
+    private void Awake()
     {
         playerStats = GetComponent<PlayerStats>();
         debuffDB = new DebuffDB();
@@ -22,8 +22,8 @@ public class DebuffManager : MonoBehaviour
         InitializeFactory();
         LoadDebuffData();
     }
-    
-    void InitializeFactory()
+
+    private void InitializeFactory()
     {
         debuffFactory = new Dictionary<int, Func<DebuffData, IDebuff>>()
         {
@@ -48,13 +48,13 @@ public class DebuffManager : MonoBehaviour
 
         };
     }
-    
-    void LoadDebuffData()
+
+    private void LoadDebuffData()
     {
         debuffDB.LoadFromBG();
     }
-    
-    void Update()
+
+    private void Update()
     {
         for (int i = activeDebuffs.Count - 1; i >= 0; i--)
         {
@@ -69,15 +69,16 @@ public class DebuffManager : MonoBehaviour
         
         CheckStatThresholds();
     }
-    
-    void CheckStatThresholds()
+
+    private void CheckStatThresholds()
     {
         CheckPollutionThreshold();
         CheckThirstThreshold();
         CheckHungerThreshold();
+        CheckTemperatureThreshold();
     }
-    
-    void CheckPollutionThreshold()
+
+    private void CheckPollutionThreshold()
     {
         float pollution = playerStats.Pollution.Value;
         
@@ -90,8 +91,8 @@ public class DebuffManager : MonoBehaviour
             RemoveDebuffByID(210);
         }
     }
-    
-    void CheckThirstThreshold()
+
+    private void CheckThirstThreshold()
     {
         float thirst = playerStats.Thirst.Value;
         
@@ -121,7 +122,7 @@ public class DebuffManager : MonoBehaviour
         }
     }
     
-    void CheckHungerThreshold()
+    private void CheckHungerThreshold()
     {
         float hunger = playerStats.Hunger.Value;
         
@@ -150,7 +151,44 @@ public class DebuffManager : MonoBehaviour
             RemoveDebuffByID(232);
         }
     }
-public void ApplyDebuff(int debuffID)
+
+    private void CheckTemperatureThreshold()
+    { 
+        float temperature = playerStats.Temperature.Value;
+
+        if (temperature >= 41 && !HasDebuff(270))
+        {
+            RemoveDebuffByID(260);
+            RemoveDebuffByID(250);
+            RemoveDebuffByID(240);
+            ApplyDebuff(270);
+        }
+        else if (temperature < 41 && temperature >= 38 && !HasDebuff(260))
+        {
+            RemoveDebuffByID(270);
+            RemoveDebuffByID(250);
+            RemoveDebuffByID(240);
+            ApplyDebuff(260);
+        }
+        else if (temperature <= 31 && !HasDebuff(250))
+        {
+            RemoveDebuffByID(270);
+            RemoveDebuffByID(260);
+            RemoveDebuffByID(240);
+            ApplyDebuff(250);
+        }
+        else if (temperature > 31 && temperature <= 34 && !HasDebuff(240))
+        {
+            RemoveDebuffByID(270);
+            RemoveDebuffByID(260);
+            RemoveDebuffByID(250);
+            ApplyDebuff(240);
+        }
+
+    }
+
+
+    public void ApplyDebuff(int debuffID)
     {
         if (!debuffDB.TryGet(debuffID, out DebuffData data))
         {
@@ -177,7 +215,7 @@ public void ApplyDebuff(int debuffID)
         }
     }
 
-public void RemoveDebuff(IDebuff debuff)
+    public void RemoveDebuff(IDebuff debuff)
     {
         debuff.Remove(playerStats);
         activeDebuffs.Remove(debuff);
