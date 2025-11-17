@@ -18,8 +18,6 @@ public class TemperatureStat : StatBase
         stageDetector = owner.GetComponent<StageDetector>();
 
         Set(normal);
-
-        Debug.Log($"현재 체온: {Value}");
     }
 
     public override void Tick()
