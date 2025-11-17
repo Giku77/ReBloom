@@ -8,7 +8,7 @@ using UnityEngine.InputSystem;
 public class DebugInventoryInput : MonoBehaviour
 {
     [Header("Build Settings")]
-    [SerializeField] private bool enableInReleaseBuild = false;
+    [SerializeField] private bool enableInReleaseBuild;
 
     [Header("Ref")]
     [SerializeField] private DebugInventoryUI debugUI;

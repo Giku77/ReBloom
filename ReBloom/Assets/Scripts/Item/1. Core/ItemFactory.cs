@@ -47,7 +47,7 @@ public static class ItemFactory
             //Debug.Log($"[ItemFactory] 소비 아이템 생성: {item.itemName} (ID: {item.itemID})");
             return item;
         }
-        catch (System.Exception e)
+        catch (System.Exception)
         {
             //Debug.LogError($"[ItemFactory] 소비 아이템 생성 실패: {e.Message}");
             return null;
@@ -67,7 +67,7 @@ public static class ItemFactory
             //Debug.Log($"[ItemFactory] 보호구 생성: {item.itemName} (ID: {item.itemID})");
             return item;
         }
-        catch (System.Exception e)
+        catch (System.Exception)
         {
             //Debug.LogError($"[ItemFactory] 보호구 생성 실패: {e.Message}");
             return null;
@@ -87,7 +87,7 @@ public static class ItemFactory
             //Debug.Log($"[ItemFactory] 도구 생성: {item.itemName} (ID: {item.itemID})");
             return item;
         }
-        catch (System.Exception e)
+        catch (System.Exception)
         {
             //Debug.LogError($"[ItemFactory] 도구 생성 실패: {e.Message}");
             return null;
@@ -107,7 +107,7 @@ public static class ItemFactory
             //Debug.Log($"[ItemFactory] 기타 아이템 생성: {item.itemName} (ID: {item.itemID})");
             return item;
         }
-        catch (System.Exception e)
+        catch (System.Exception)
         {
             //Debug.LogError($"[ItemFactory] 기타 아이템 생성 실패: {e.Message}");
             return null;
