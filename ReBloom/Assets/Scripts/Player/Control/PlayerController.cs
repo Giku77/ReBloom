@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -42,6 +43,7 @@ public class PlayerController : MonoBehaviour
     [Header("Drop Setting")]
     [SerializeField] private float minDropHeight = 3f;
     [SerializeField] private float maxDropHeight = 15f;
+    [SerializeField] private float landingSlow = 0.2f;
 
     private Rigidbody rb;
 
@@ -338,6 +340,8 @@ public class PlayerController : MonoBehaviour
 
     private void DropPlayer()
     {
+        if (debugMode) return;
+
         if (!isGround && wasGround)
         {
             highestY = transform.position.y;
@@ -364,10 +368,20 @@ public class PlayerController : MonoBehaviour
                 if (playerStats != null)
                     playerStats.TakeDamage(damage);
 
+                ApplyLandingSlow().Forget();
                 Debug.Log($"낙하 높이: {fallHeight:F2}m, 데미지: {damage:F2}");
             }
         }
+    }
 
+    private async UniTask ApplyLandingSlow()
+    {
+        float originalSpeed = moveSpeed;
 
+        moveSpeed *= 0.5f;
+
+        await UniTask.Delay((int)(landingSlow + 1000f));
+
+        moveSpeed = originalSpeed;
     }
 }
