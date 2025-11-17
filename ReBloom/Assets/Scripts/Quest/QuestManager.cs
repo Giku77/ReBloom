@@ -77,7 +77,7 @@ public class QuestManager : MonoBehaviour
 
         if (!IsQuestSatisfied(_current))
         {
-            Debug.Log("조건이 아직 안 됨");
+            Debug.Log($"조건이 아직 안 됨 : {_current.questName}");
             return;
         }
 

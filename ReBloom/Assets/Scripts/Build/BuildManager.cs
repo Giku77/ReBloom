@@ -17,6 +17,8 @@ public class BuildManager : MonoBehaviour
 
     public GameObject prefab;
 
+    private QuestUI questUI;
+
     [Header("Build Rules")]
     [SerializeField] private LayerMask buildableLayer;
     [SerializeField] private LayerMask obstacleLayer;
@@ -49,6 +51,7 @@ public class BuildManager : MonoBehaviour
         this.inventory = inventory;
         footprintProvider = GetComponent<BuildingFootprintProvider>();
         toastMessageUI = GameObject.FindWithTag("ToastMsg").GetComponent<ToastMessageUI>();
+        questUI = FindFirstObjectByType<QuestUI>();
     }
 
     public bool Validate(ArcContext ctx, out string errorCode)
@@ -98,6 +101,7 @@ public class BuildManager : MonoBehaviour
         }
 
         Remove(recipe);
+        questUI?.Refresh();
         if (buildingCounts.ContainsKey(arc.arcId))
             buildingCounts[arc.arcId]++;
         else

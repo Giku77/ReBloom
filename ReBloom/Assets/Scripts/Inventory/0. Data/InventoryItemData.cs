@@ -10,7 +10,7 @@ public class InventoryItemData : ScriptableObject
 
     private Dictionary<int, int> _items = new Dictionary<int, int>();
 
-    // ÀÌº¥Æ®
+    // ï¿½Ìºï¿½Æ®
     public event Action<int, int> OnItemAdded;
     public event Action<int, int> OnItemRemoved;
     public event Action OnInventoryChanged;
@@ -20,7 +20,7 @@ public class InventoryItemData : ScriptableObject
     public int MaxSlots => maxInventorySlots;
 
     /// <summary>
-    /// ¸Þ½ÃÁö Àü¼Û (¿ÜºÎ¿¡¼­ È£Ãâ °¡´É)
+    /// ï¿½Þ½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ÜºÎ¿ï¿½ï¿½ï¿½ È£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
     /// </summary>
     public void SendMessage(string message)
     {
@@ -36,12 +36,16 @@ public class InventoryItemData : ScriptableObject
             { 4102001, 12 },
             { 4102002, 6 },
             { 4102005, 10 },
+            { 4102003, 10},
+            { 4102004, 10},
+            { 4102006, 10},
+            { 4102008, 10},
             { 4301002, 1},
             { 4302002, 1}
         };
 
         OnInventoryChanged?.Invoke();
-        Debug.Log("[InventoryData] ÃÊ±âÈ­ ¿Ï·á");
+        Debug.Log("[InventoryData] ï¿½Ê±ï¿½È­ ï¿½Ï·ï¿½");
     }
 
     public int GetItemCount(int itemId)
@@ -55,20 +59,20 @@ public class InventoryItemData : ScriptableObject
         {
             _items[itemId] += amount;
             OnItemAdded?.Invoke(itemId, amount);
-            SendMessage($"{ItemDatabase.I.GetItem(itemId).itemName}À»(¸¦) {amount}°³ È¹µæÇß½À´Ï´Ù.");
+            SendMessage($"{ItemDatabase.I.GetItem(itemId).itemName}ï¿½ï¿½(ï¿½ï¿½) {amount}ï¿½ï¿½ È¹ï¿½ï¿½ï¿½ß½ï¿½ï¿½Ï´ï¿½.");
         }
         else
         {
             if (_items.Count >= maxInventorySlots)
             {
-                SendMessage($"ÃÖ´ë °³¼ö({maxInventorySlots}°³)¿¡ µµ´ÞÇÏ¿© È¹µæ ½ÇÆÐ!");
-                Debug.LogWarning($"[ÀÎº¥Åä¸®] ½½·ÔÀÌ °¡µæ Âü!");
+                SendMessage($"ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½({maxInventorySlots}ï¿½ï¿½)ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ È¹ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½!");
+                Debug.LogWarning($"[ï¿½Îºï¿½ï¿½ä¸®] ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½!");
                 return;
             }
 
             _items[itemId] = amount;
             OnItemAdded?.Invoke(itemId, amount);
-            SendMessage($"{ItemDatabase.I.GetItem(itemId).itemName}À»(¸¦) {amount}°³ È¹µæÇß½À´Ï´Ù.");
+            SendMessage($"{ItemDatabase.I.GetItem(itemId).itemName}ï¿½ï¿½(ï¿½ï¿½) {amount}ï¿½ï¿½ È¹ï¿½ï¿½ï¿½ß½ï¿½ï¿½Ï´ï¿½.");
         }
 
         OnInventoryChanged?.Invoke();
