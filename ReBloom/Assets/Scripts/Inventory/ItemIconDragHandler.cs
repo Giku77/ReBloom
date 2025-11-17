@@ -8,8 +8,8 @@ public class ItemIconDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
     [Header("References")]
     [SerializeField] private Image iconImage; // 아이템 아이콘 이미지
 
-    [Header("Drag Settings")]
-    [SerializeField] private float dragAlpha = 0.6f; // 드래그 중 투명도
+    //[Header("Drag Settings")]
+    //[SerializeField] private float dragAlpha = 0.6f; // 드래그 중 투명도
 
     private Canvas canvas; // UI가 속한 캔버스
     private ItemBase itemData; // 현재 아이템 데이터

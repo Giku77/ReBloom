@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "InventoryItemData", menuName = "Game/Inventory Data")]
+[CreateAssetMenu(fileName = "InventoryItemData", menuName = "ReBloom/Inventory/GameInventory Data")]
 public class InventoryItemData : ScriptableObject
 {
     [Header("Settings")]
@@ -108,5 +108,14 @@ public class InventoryItemData : ScriptableObject
         OnItemRemoved = null;
         OnInventoryChanged = null;
         OnMessage = null;
+    }
+
+    public Dictionary<int, int> GetAllItems()
+    {
+        if (_items != null)
+        {
+            return _items;
+        }
+        return null;
     }
 }

@@ -32,6 +32,9 @@ public class PlayerStats : MonoBehaviour
         Thirst = new ThirstStat(this, data.thurstMax, data.thirstIncreaseRate);
         Pollution = new PollutionStat(this, data.pollutionMax, data.pollutionIncreaseRate);
         Temperature = new TemperatureStat(this, data.normalTemperature, data.maxTemperature, data.minTemperature);
+
+        //LSY: DeathBoxEvent
+        RegisterToDeathBoxHandler();
     }
 
     //private void Start()
@@ -71,7 +74,6 @@ public class PlayerStats : MonoBehaviour
         OnStatChanged?.Invoke(stat, oldValue, newValue);
     }
 
-
     private void PrintStats()
     {
         Debug.Log("========== 플레이어 상태 ==========");
@@ -102,5 +104,25 @@ public class PlayerStats : MonoBehaviour
     }
 
 
+    /// <summary>
+    /// LSY: DeathBoxHandler를 찾아서 자동 이벤트 등록
+    /// </summary>
+    private void RegisterToDeathBoxHandler()
+    {
+        DeathBoxHandler handler = FindFirstObjectByType<DeathBoxHandler>();
 
+        if (handler != null)
+        {
+            // 기존 구독 해제 (중복 방지)
+            OnDeath -= handler.OnCreateDeathBox;
+            // 새로 구독
+            OnDeath += handler.OnCreateDeathBox;
+
+            Debug.Log("[PlayerStats] DeathBoxHandler 이벤트 등록 완료");
+        }
+        else
+        {
+            Debug.LogWarning("[PlayerStats] DeathBoxHandler를 찾을 수 없습니다!");
+        }
+    }
 }
