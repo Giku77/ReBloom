@@ -1363,8 +1363,8 @@ Rigidbody:
   m_GameObject: {fileID: 3915509196807712028}
   serializedVersion: 4
   m_Mass: 1
-  m_Drag: 0.5
-  m_AngularDrag: 0.05
+  m_Drag: 0
+  m_AngularDrag: 0
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -1687,6 +1687,8 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
+  minDropHeight: 3
+  maxDropHeight: 15
   debugSpeed: 30
   spawnPoint: {fileID: 9150461246077990646}
 --- !u!114 &7606702177261600104
@@ -1702,6 +1704,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: 983f500effa44c14a9518a1c7ce8c2e7, type: 2}
+  isDebug: 1
 --- !u!114 &8101906087064541247
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4076,6 +4079,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: PollutionBar
       objectReference: {fileID: 0}
+    - target: {fileID: 7901508594851219070, guid: 31780d1ea66a52948bf0df46fa14c326, type: 3}
+      propertyPath: m_Color.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7901508594851219070, guid: 31780d1ea66a52948bf0df46fa14c326, type: 3}
+      propertyPath: m_Color.r
+      value: 0.62408876
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4850,6 +4861,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4077822687873057166, guid: 31780d1ea66a52948bf0df46fa14c326, type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7901508594851219070, guid: 31780d1ea66a52948bf0df46fa14c326, type: 3}
+      propertyPath: m_Color.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7901508594851219070, guid: 31780d1ea66a52948bf0df46fa14c326, type: 3}
+      propertyPath: m_Color.g
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

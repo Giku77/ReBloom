@@ -29,8 +29,9 @@ public class StageManager : MonoBehaviour
     
     private void InitializeAllStages()
     {
-        StageBase[] stages = FindObjectsOfType<StageBase>();
-        
+        //StageBase[] stages = FindObjectsOfType<StageBase>();
+        StageBase[] stages = FindObjectsByType<StageBase>(FindObjectsSortMode.None);
+
         foreach (var stage in stages)
         {
             stage.Initialize(stageDB);

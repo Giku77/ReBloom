@@ -160,4 +160,20 @@ public class PlayerEquipManager : MonoBehaviour
 
         return resist;
     }
+
+    public float GetHeightResist()
+    {
+        if (player.currentShoesEquip == null)
+            return 1f;
+
+        float resist = 0f;
+        if (player.currentShoesEquip is ProtectiveItemData shoes)
+        {
+            float shoesResist = shoes.GetHeightResist();
+            resist += shoesResist;
+            resist = 1 - resist;
+        }
+
+        return resist;
+    }
 }

@@ -173,4 +173,9 @@ public class ProtectiveItemData : ItemBase
     { 
         return Insulation[entity];
     }
+
+    public float GetHeightResist()
+    { 
+        return Height_Resist[entity];
+    }
 }
