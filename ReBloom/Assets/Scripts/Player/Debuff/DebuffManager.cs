@@ -153,7 +153,7 @@ public class DebuffManager : MonoBehaviour
     }
 
     private void CheckTemperatureThreshold()
-    { 
+    {
         float temperature = playerStats.Temperature.Value;
 
         if (temperature >= 41 && !HasDebuff(270))
@@ -163,7 +163,7 @@ public class DebuffManager : MonoBehaviour
             RemoveDebuffByID(240);
             ApplyDebuff(270);
         }
-        else if (temperature < 41 && temperature >= 38 && !HasDebuff(260))
+        else if (temperature >= 38 && temperature < 41 && !HasDebuff(260))
         {
             RemoveDebuffByID(270);
             RemoveDebuffByID(250);
@@ -177,14 +177,20 @@ public class DebuffManager : MonoBehaviour
             RemoveDebuffByID(240);
             ApplyDebuff(250);
         }
-        else if (temperature > 31 && temperature <= 34 && !HasDebuff(240))
+        else if (temperature > 31 && temperature < 34 && !HasDebuff(240))
         {
             RemoveDebuffByID(270);
             RemoveDebuffByID(260);
             RemoveDebuffByID(250);
             ApplyDebuff(240);
         }
-
+        else if (temperature >= 34 && temperature < 38)
+        {
+            RemoveDebuffByID(270);
+            RemoveDebuffByID(260);
+            RemoveDebuffByID(250);
+            RemoveDebuffByID(240);
+        }
     }
 
 
