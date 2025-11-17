@@ -15,6 +15,8 @@ public class StatsData : ScriptableObject
 
     [Header("Body Temperature Related")]
     public float normalTemperature = 36.5f;
+    public float maxTemperature = 41.0f;
+    public float minTemperature = 31.0f;
 
     [Header("Pollution Related")]
     public float pollutionIncreaseRate = 0.5f;

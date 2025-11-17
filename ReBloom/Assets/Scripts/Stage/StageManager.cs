@@ -20,8 +20,6 @@ public class StageManager : MonoBehaviour
         {
             weatherByStageID[kvp.Key] = new WeatherInfo();
         }
-        
-        Debug.Log($"[StageManager] StageDB 로드 완료. 총 {stageDB.GetAll().Count}개의 Stage 데이터");
     }
     
     private void Start()
@@ -37,8 +35,6 @@ public class StageManager : MonoBehaviour
         {
             stage.Initialize(stageDB);
         }
-        
-        Debug.Log($"[StageManager] {stages.Length}개의 Stage 오브젝트 초기화 완료");
     }
 
     public bool TryGetStageData(int id, out StageData data)
@@ -167,7 +163,7 @@ public class StageManager : MonoBehaviour
                 break;
         }
         
-        Debug.Log($"[StageManager] Stage {data.name} 날씨 변경: {weather} (지속시간: {info.weatherDuration:F1}초, 오염도: {info.currentPollution}, 갈증: {info.currentThirst}, 온도: {info.currentTemp})");
+        //Debug.Log($"[StageManager] Stage {data.name} 날씨 변경: {weather} (지속시간: {info.weatherDuration:F1}초, 오염도: {info.currentPollution}, 갈증: {info.currentThirst}, 온도: {info.currentTemp})");
     }
     
     public WeatherInfo GetWeatherInfo(int stageID)

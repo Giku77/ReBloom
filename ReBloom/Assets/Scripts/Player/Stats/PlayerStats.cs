@@ -14,6 +14,14 @@ public class PlayerStats : MonoBehaviour
 
     public event Action<StatBase, float, float> OnStatChanged;
 
+    public event Action OnDeath;
+
+    private bool isDead = false;
+
+    [SerializeField] private bool isDebug = true;
+
+    public bool DebugMode { get; set; } = false;
+
     private void Awake()
     {
         EquipManager = GetComponent<PlayerEquipManager>();
@@ -23,6 +31,7 @@ public class PlayerStats : MonoBehaviour
         Hunger = new HungerStat(this, data.hungerMax, data.hungerIncreaseRate);
         Thirst = new ThirstStat(this, data.thurstMax, data.thirstIncreaseRate);
         Pollution = new PollutionStat(this, data.pollutionMax, data.pollutionIncreaseRate);
+        Temperature = new TemperatureStat(this, data.normalTemperature, data.maxTemperature, data.minTemperature);
     }
 
     //private void Start()
@@ -32,13 +41,28 @@ public class PlayerStats : MonoBehaviour
 
     private void Update()
     {
-        Hunger.Tick();
-        Thirst.Tick();              
-        Pollution.Tick();
-
         if (Keyboard.current.kKey.wasPressedThisFrame)
         {
             PrintStats();
+        }
+
+        if (Keyboard.current.f4Key.wasPressedThisFrame)
+        {
+            Health.Modify(-10f);
+        }
+
+        if (DebugMode)
+        return;
+
+        Hunger.Tick();
+        Thirst.Tick();              
+        Pollution.Tick();
+        Temperature.Tick();
+
+        if (Health.Value <= 0 && !isDead && !isDebug)
+        {
+            isDead = true;
+            OnDeath?.Invoke();
         }
     }
 
@@ -55,6 +79,7 @@ public class PlayerStats : MonoBehaviour
         Debug.Log($"Hunger: {Hunger.Value:F2} / {Hunger.MaxValue}");
         Debug.Log($"Thirst: {Thirst.Value:F2} / {Thirst.MaxValue}");
         Debug.Log($"Pollution: {Pollution.Value:F2} / {Pollution.MaxValue}");
+        Debug.Log($"Temperature: {Temperature.Value:F2} / {Temperature.MaxValue}");
         
         var debuffManager = GetComponent<DebuffManager>();
         if (debuffManager != null)

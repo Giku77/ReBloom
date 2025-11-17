@@ -67,7 +67,7 @@ public class PlayerEquipManager : MonoBehaviour
         Debug.Log($"[EquipManager] 장착 완료: {item.itemName} (오염 저항: {item.GetPollutionResist()}%)");
     }
 
-public void EquipItem(int itemId)
+    public void EquipItem(int itemId)
     {
         // ItemDatabase에서 아이템 데이터 가져오기
         ItemBase itemBase = ItemDatabase.I.GetItem(itemId);
@@ -116,7 +116,7 @@ public void EquipItem(int itemId)
         Debug.Log($"아이템 해제 완료");
     }
 
-        public float GetTotalPollutionResist()
+    public float GetTotalPollutionResist()
     {
         float resist = 0f;
         float clothResist = 0f;
@@ -140,5 +140,24 @@ public void EquipItem(int itemId)
         //    Debug.Log($"[EquipManager] 옥: {clothResist}, 신발: {shoesResist}, 합계: {resist} → 최종 저항: {finalResist:F2}");
         //}
         return finalResist;
+    }
+
+    public float GetTotalInsulationResist()
+    {
+        float resist = 0f;
+        float clothResist = 0f;
+        float shoesResist = 0f;
+        if (player.currentClothEquip is ProtectiveItemData cloth)
+        {
+            clothResist = cloth.GetInsulationResist();
+            resist += clothResist;
+        }
+        if (player.currentShoesEquip is ProtectiveItemData shoes)
+        {
+            shoesResist = shoes.GetInsulationResist();
+            resist += shoesResist;
+        }
+
+        return resist;
     }
 }

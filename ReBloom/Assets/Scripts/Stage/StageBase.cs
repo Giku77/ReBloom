@@ -71,7 +71,7 @@ public class StageBase : MonoBehaviour
         
         if (db.TryGet(stageID, out stageData))
         {
-            Debug.Log($"[Stage] 지역 초기화 성공: ID={stageID}, Name={stageData.name}, Pollution={stageData.stagePollution}");
+            //Debug.Log($"[Stage] 지역 초기화 성공: ID={stageID}, Name={stageData.name}, Pollution={stageData.stagePollution}");
             
             if (stageManager != null)
             {
