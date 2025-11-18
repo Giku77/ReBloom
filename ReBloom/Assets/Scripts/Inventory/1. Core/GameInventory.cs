@@ -3,8 +3,8 @@ using System.Linq;
 using UnityEngine;
 
 /// <summary>
-/// °ÔÀÓ ÀÎº¥Åä¸® ÄÁÆ®·Ñ·¯
-/// ºñÁî´Ï½º ·ÎÁ÷°ú µ¥ÀÌÅÍ Á¶ÀÛÀ» ´ã´ç
+/// ï¿½ï¿½ï¿½ï¿½ ï¿½Îºï¿½ï¿½ä¸® ï¿½ï¿½Æ®ï¿½Ñ·ï¿½
+/// ï¿½ï¿½ï¿½ï¿½Ï½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 /// </summary>
 public class GameInventory : MonoBehaviour, IInventoryProvider
 {
@@ -19,7 +19,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     [SerializeField] private PlayerController playerController;
 
 
-    #region IInventoryProvider ±¸Çö
+    #region IInventoryProvider ï¿½ï¿½ï¿½ï¿½
     public int GetItemCount(int itemId)
     {
         return inventoryData.GetItemCount(itemId);
@@ -56,30 +56,30 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
                 RemoveItem(itemId, amount);
                 item.Apply(playerController);
 
-                inventoryData.SendMessage($"{item.itemName}À»(¸¦) {amount}°³ »ç¿ëÇß½À´Ï´Ù.");
+                inventoryData.SendMessage($"{item.itemName}ï¿½ï¿½(ï¿½ï¿½) {amount}ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ß½ï¿½ï¿½Ï´ï¿½.");
             }
             else if (item.canEquip)
             {
                 RemoveItem(itemId, amount);
                 item.Apply(playerController);
 
-                inventoryData.SendMessage($"{item.itemName}À»(¸¦) {amount}°³ Âø¿ëÇß½À´Ï´Ù.");
+                inventoryData.SendMessage($"{item.itemName}ï¿½ï¿½(ï¿½ï¿½) {amount}ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ß½ï¿½ï¿½Ï´ï¿½.");
             }
             else
             {
-                inventoryData.SendMessage($"{item?.itemName}Àº(´Â) »ç¿ëÇÒ ¼ö ¾ø½À´Ï´Ù.");
+                inventoryData.SendMessage($"{item?.itemName}ï¿½ï¿½(ï¿½ï¿½) ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
             }
         }
         else
         {
-            Debug.LogError("[GameInventory] ¾ÆÀÌÅÛ µ¥ÀÌÅÍ°¡ ¾ø½À´Ï´Ù.");
+            Debug.LogError("[GameInventory] ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
         }
     }
     #endregion
 
-    #region ÇÊÅÍ¸µ & Á¤·Ä
+    #region ï¿½ï¿½ï¿½Í¸ï¿½ & ï¿½ï¿½ï¿½ï¿½
     /// <summary>
-    /// Å×ÀÌºí Å¸ÀÔº°·Î ¾ÆÀÌÅÛ ÇÊÅÍ¸µ
+    /// ï¿½ï¿½ï¿½Ìºï¿½ Å¸ï¿½Ôºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Í¸ï¿½
     /// </summary>
     public Dictionary<int, int> GetItemsByTable(ItemTableType tableType)
     {
@@ -87,18 +87,6 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
 
         foreach (var itemPair in inventoryData.Items)
         {
-            quickSlot.OnSlotAssign += AssignQuickSlot;
-        }
-
-        playerController = FindAnyObjectByType<PlayerController>();
-    }
-    private void OnDestroy()
-    {
-        if (quickSlot != null)
-        {
-            quickSlot.OnSlotAssign -= AssignQuickSlot;
-        }
-    }
             int itemId = itemPair.Key;
             ItemTableType itemTableType = ItemIDParser.GetTableType(itemId);
 
@@ -110,9 +98,16 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
 
         return filtered;
     }
+    private void OnDestroy()
+    {
+        if (quickSlot != null)
+        {
+            //quickSlot.OnSlotAssign -= AssignQuickSlot;
+        }
+    }
 
     /// <summary>
-    /// ¸ðµç ¾ÆÀÌÅÛ °¡Á®¿À±â
+    /// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     /// </summary>
     public Dictionary<int, int> GetAllItems()
     {
@@ -120,7 +115,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     }
 
     /// <summary>
-    /// ¾ÆÀÌÅÛ Á¤·Ä (ID ±âÁØ)
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ID ï¿½ï¿½ï¿½ï¿½)
     /// </summary>
     public List<KeyValuePair<int, int>> GetSortedItems(ItemTableType? tableType = null)
     {
@@ -132,7 +127,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     }
 
     /// <summary>
-    /// ¾ÆÀÌÅÛ Á¤·Ä (ÀÌ¸§ ±âÁØ)
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½)
     /// </summary>
     public List<KeyValuePair<int, int>> GetSortedItemsByName(ItemTableType? tableType = null)
     {
@@ -144,7 +139,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     }
 
     /// <summary>
-    /// ¾ÆÀÌÅÛ Á¤·Ä (¼ö·® ±âÁØ)
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
     /// </summary>
     public List<KeyValuePair<int, int>> GetSortedItemsByQuantity(ItemTableType? tableType = null, bool descending = true)
     {
@@ -158,7 +153,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     }
 
     /// <summary>
-    /// Äü½½·Ô ¹èÄ¡ °¡´ÉÇÑ ¾ÆÀÌÅÛ¸¸ ÇÊÅÍ¸µ
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Û¸ï¿½ ï¿½ï¿½ï¿½Í¸ï¿½
     /// </summary>
     public List<KeyValuePair<int, int>> GetQuickSlotableItems()
     {
@@ -177,7 +172,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     }
     #endregion
 
-    //#region Äü½½·Ô °ü·Ã
+    //#region ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     //private bool CanAssignQuickSlot(int itemId)
     //{
     //    ItemBase item = ItemDatabase.I.GetItem(itemId);
@@ -185,7 +180,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     //}
     //#endregion
 
-    #region UI Á¦¾î
+    #region UI ï¿½ï¿½ï¿½ï¿½
     public void OpenInventory()
     {
         if (inventoryUI != null)
