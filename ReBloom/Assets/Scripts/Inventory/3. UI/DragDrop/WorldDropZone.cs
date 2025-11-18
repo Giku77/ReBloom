@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -171,7 +172,7 @@ public class WorldDropZone : MonoBehaviour,
     /// <summary>
     /// 게임 인벤토리 드롭 처리 (수량 차감)
     /// </summary>
-    private async System.Threading.Tasks.Task HandleGameDrop(
+    private async UniTask HandleGameDrop(
         ItemBase draggedItem, Vector3 dropPosition)
     {
         if (inventoryItemData == null)
@@ -203,7 +204,7 @@ public class WorldDropZone : MonoBehaviour,
     /// <summary>
     /// 디버그 인벤토리 드롭 처리 (수량 차감 없음)
     /// </summary>
-    private async System.Threading.Tasks.Task HandleDebugDrop(
+    private async UniTask HandleDebugDrop(
         ItemBase draggedItem, Vector3 dropPosition)
     {
         // 무제한 생성

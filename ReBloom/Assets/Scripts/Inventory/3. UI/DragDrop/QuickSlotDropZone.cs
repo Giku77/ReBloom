@@ -88,7 +88,7 @@ public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandl
         // 유효성 검증
         if (!CanAssignToQuickSlot(draggedItem))
         {
-            Debug.LogWarning($"[QuickSlotDropZone] {draggedItem.itemName}은(는) 퀵슬롯에 배치할 수 없습니다.");
+            //Debug.LogWarning($"[QuickSlotDropZone] {draggedItem.itemName}은(는) 퀵슬롯에 배치할 수 없습니다.");
             ShowInvalidFeedback();
             return;
         }
@@ -101,6 +101,7 @@ public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandl
         {
             backgroundImage.color = normalColor;
         }
+        Debug.Log("퀵슬롯 배치 완료");
     }
     #endregion
 
@@ -170,7 +171,7 @@ public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandl
         // 1. 퀵슬롯 플래그 체크
         if (!item.canQuickSlot)
         {
-            Debug.LogWarning($"[QuickSlotDropZone] {item.itemName}은(는) canQuickSlot이 false입니다.");
+            //Debug.LogWarning($"[QuickSlotDropZone] {item.itemName}은(는) canQuickSlot이 false입니다.");
             return false;
         }
 
