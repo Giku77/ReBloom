@@ -31,10 +31,6 @@ public class GameInventoryUI : MonoBehaviour
 
     private QuestUI questUI;
 
-    [Header("Tab Visual Settings")]
-    [SerializeField] private Color activeColor = new Color(0.3f, 0.6f, 1f, 1f);
-    [SerializeField] private Color inactiveColor = new Color(1f, 1f, 1f, 0.5f);
-
     #region 상태 변수
     private ItemTableType currentTable = ItemTableType.Tool;
     private List<DebugItemSlot> activeSlots = new List<DebugItemSlot>();
@@ -133,7 +129,7 @@ public class GameInventoryUI : MonoBehaviour
             Cursor.lockState = CursorLockMode.Locked;
         }
 
-        Debug.Log($"[게임 인벤토리] {(isActive ? "열림" : "닫힘")}");
+        //Debug.Log($"[게임 인벤토리] {(isActive ? "열림" : "닫힘")}");
     }
 
     private void OnTabClicked(ItemTableType tableType)
@@ -247,10 +243,6 @@ public class GameInventoryUI : MonoBehaviour
         {
             Button btn = pair.Key;
             ItemTableType type = pair.Value;
-
-            ColorBlock colors = btn.colors;
-            colors.normalColor = (type == currentTable) ? activeColor : inactiveColor;
-            btn.colors = colors;
 
             var btnText = btn.GetComponentInChildren<TextMeshProUGUI>();
             if (btnText != null)
