@@ -1529,7 +1529,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""e1d46b0a-424c-4dc0-967d-4c01d37fb47e"",
-                    ""path"": ""<Keyboard>/t"",
+                    ""path"": ""<Keyboard>/1"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",

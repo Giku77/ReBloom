@@ -6,8 +6,7 @@ using UnityEngine.InputSystem;
 public class PlayerInteractable : MonoBehaviour
 {
     [Header("Interaction")]
-    [SerializeField] private float interactRange = 5f; //상호작용 가능한 범위
-    [SerializeField] private float interactRadius = 2f; //상호작용 가능한 넓이
+    [SerializeField] private float interactRange = 5f;
     [SerializeField] private LayerMask interactLayer;
 
     PlayerController player;
@@ -15,8 +14,7 @@ public class PlayerInteractable : MonoBehaviour
     private CancellationTokenSource cts;
 
     //private bool isInteractive = false;
-    private InteractionHighlight currentHighlight = null; // 현재 하이라이트된 오브젝트
-
+    private InteractionHighlight currentHighlight = null;
 
     private void Awake()
     {
@@ -57,14 +55,30 @@ public class PlayerInteractable : MonoBehaviour
 
     private bool TryInteract()
     {
-        if (Physics.SphereCast(transform.position, interactRadius, transform.forward, out RaycastHit hit, interactRange, interactLayer))
-        {
-            if (hit.collider.TryGetComponent<IInteractable>(out var interactable))
-            {
-                interactable.Interact(player);
+        Collider[] hits = Physics.OverlapSphere(transform.position, interactRange, interactLayer);
+        IInteractable closestInteractable = null;
+        float closestDistance = float.MaxValue;
 
-                return true;
+        foreach (var hit in hits)
+        {
+            if (hit.TryGetComponent<IInteractable>(out var interactable))
+            {
+                Vector3 toTarget = hit.transform.position - transform.position;
+                float distance = toTarget.magnitude;
+                float dot = Vector3.Dot(transform.forward, toTarget.normalized);
+
+                if (dot > 0.5f && distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestInteractable = interactable;
+                }
             }
+        }
+
+        if (closestInteractable != null)
+        {
+            closestInteractable.Interact(player);
+            return true;
         }
 
         return false;
@@ -72,28 +86,31 @@ public class PlayerInteractable : MonoBehaviour
 
     private void CheckForInteractable()
     {
-        if (Physics.SphereCast(transform.position, interactRadius, transform.forward, out RaycastHit hit, interactRange, interactLayer))
+        Collider[] hits = Physics.OverlapSphere(transform.position, interactRange, interactLayer);
+        InteractionHighlight closestHighlight = null;
+        float closestDistance = float.MaxValue;
+
+        foreach (var hit in hits)
         {
-            if (hit.collider.TryGetComponent<InteractionHighlight>(out var highlight))
+            if (hit.TryGetComponent<InteractionHighlight>(out var highlight))
             {
-                if (currentHighlight != highlight)
-                 {
-                    if (currentHighlight != null)
-                    {
-                        currentHighlight.Hide();
-                    }
-                    currentHighlight = highlight;
-                    currentHighlight.Show();
+                Vector3 toTarget = hit.transform.position - transform.position;
+                float distance = toTarget.magnitude;
+                float dot = Vector3.Dot(transform.forward, toTarget.normalized);
+
+                if (dot > 0.5f && distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestHighlight = highlight;
                 }
             }
         }
-        else
+
+        if (currentHighlight != closestHighlight)
         {
-            if (currentHighlight != null)
-            {
-                currentHighlight.Hide();
-                currentHighlight = null;
-            }
+            currentHighlight?.Hide();
+            currentHighlight = closestHighlight;
+            currentHighlight?.Show();
         }
     }
 }

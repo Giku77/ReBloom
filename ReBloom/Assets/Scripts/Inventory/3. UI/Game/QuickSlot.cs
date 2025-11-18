@@ -462,8 +462,6 @@ public class QuickSlot : MonoBehaviour
     public void OnQuickSlot1(InputAction.CallbackContext context)
     {
         if (context.started) UseSlot(0);
-
-        Debug.Log("[QuickSlot] 1번 퀵슬롯 호출 됨");
     }
     public void OnQuickSlot2(InputAction.CallbackContext context)
     {
@@ -496,7 +494,7 @@ public class QuickSlot : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"[QuickSlot] {item.itemName}은 없는 아이템입니다.");
+            Debug.LogError($"[QuickSlot] 퀵슬롯 {index + 1}에는 아이템이 없습니다.");
         }
     }
     #endregion
