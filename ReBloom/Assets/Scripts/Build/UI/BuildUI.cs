@@ -21,6 +21,18 @@ public class BuildUI : MonoBehaviour
         arcDB = BuildManager.I.ArcDB;
         arcRecipeDB = BuildManager.I.RecipeDB;
 
+        Debug.Log($"[BuildUI] BuildManager.I: {BuildManager.I}");
+        Debug.Log($"[BuildUI] BuildManager.I?.ArcDB: {BuildManager.I?.ArcDB}");
+
+        arcDB = BuildManager.I.ArcDB;
+        arcRecipeDB = BuildManager.I.RecipeDB;
+
+        if (arcDB == null)
+        {
+            Debug.LogError("[BuildUI] ArcDB 가 아직 초기화되지 않았습니다. BuildManager.Init 이 먼저 호출되어야 합니다.");
+            return;
+        }
+
         BuildAll();
         Toggle();
     }

@@ -16,10 +16,5 @@ public class QuestTest : MonoBehaviour
             return;
         }
         QuestManager.I.Init(db, inventory, stageDetector);
-        var ArcR = new ArcRecipeDB();
-        ArcR.LoadFromBG();
-        var ArcDB = new ArcDB();
-        ArcDB.LoadFromBG();
-        BuildManager.I.Init(ArcDB, ArcR, inventory);
     }
 }
