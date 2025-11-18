@@ -4,13 +4,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class BuildSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerMoveHandler
+public class BuildSlotUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI txtName;
     [SerializeField] private TextMeshProUGUI txtTier;
     [SerializeField] private List<TextMeshProUGUI> txtMaterials; 
-
-    [SerializeField] private Image iconImage;
 
     private BuildUI parentUI;
     private BuildToolTip toolTip;
@@ -32,39 +30,23 @@ public class BuildSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         this.toolTip = toolTip;
     }
 
-     public void OnPointerEnter(PointerEventData eventData)
+    public void OnIconPointerEnter(PointerEventData eventData)
     {
-        if (toolTip == null) return;
+        if (toolTip == null || arcData == null) return;
 
-        var go = eventData.pointerCurrentRaycast.gameObject;
-        if (go == null || !go.transform.IsChildOf(iconImage.transform))
-            return;
-
-        string info = arcData.text;            // 설명 텍스트
-
-
+        string info = arcData.text;
         toolTip.Show(info, eventData.position);
     }
 
-    public void OnPointerMove(PointerEventData eventData)
+    public void OnIconPointerMove(PointerEventData eventData)
     {
         if (toolTip == null) return;
-
-        var go = eventData.pointerCurrentRaycast.gameObject;
-        if (go == null || !go.transform.IsChildOf(iconImage.transform))
-            return;
-
         toolTip.SetPosition(eventData.position);
     }
 
-    public void OnPointerExit(PointerEventData eventData)
+    public void OnIconPointerExit(PointerEventData eventData)
     {
         if (toolTip == null) return;
-
-        var go = eventData.pointerCurrentRaycast.gameObject;
-        if (go == null || !go.transform.IsChildOf(iconImage.transform))
-            return;
-            
         toolTip.Hide();
     }
 
