@@ -6,7 +6,7 @@ using TMPro;
 /// <summary>
 /// 디버그 인벤토리의 개별 아이템 슬롯
 /// </summary>
-public class DebugItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class DebugItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     [Header("UI References")]
     [SerializeField] private Image imgIcon;
@@ -19,6 +19,16 @@ public class DebugItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     private DebugItemTooltip tooltip;
     private bool showDescription;
     private bool showStats;
+
+    private float lastClickTime = 0f;
+    private float doubleClickDelay = 0.25f;
+
+    private GameInventory inventory;
+
+    private void Awake()
+    {
+        inventory = FindAnyObjectByType<GameInventory>();
+    }
 
     public void Initialize(ItemBase item, DebugItemTooltip tooltipUI)
     {
@@ -108,5 +118,29 @@ public class DebugItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
             3 => new Color(0.8f, 0.3f, 1f),        // 영웅 - 보라
             _ => Color.white
         };
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
+
+        float now = Time.time;
+        if (now - lastClickTime <= doubleClickDelay)
+        {
+            OnDoubleClick();
+        }
+
+        lastClickTime = now;
+    }
+
+    private void OnDoubleClick()
+    {
+        if (itemData == null && inventory == null)
+            return;
+
+        Debug.Log($"[DebugItemSlot] {itemData.itemName} 아이템 사용 요청");
+
+        inventory.Consume(itemData.itemID, 1);
     }
 }

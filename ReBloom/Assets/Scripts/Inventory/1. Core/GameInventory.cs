@@ -9,6 +9,9 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     [SerializeField] private GameInventoryUI inventoryUI;
     [SerializeField] private QuickSlot quickSlot;
 
+    [Header("Player")]
+    [SerializeField] private PlayerController playerController;
+
     #region IInventoryProvider 구현
     public int GetItemCount(int itemId)
     {
@@ -42,6 +45,8 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
         if (item != null && item.canUseable)
         {
             RemoveItem(itemId, amount);
+            item.Apply(playerController);
+
             inventoryData.SendMessage($"{item.itemName}을(를) {amount}개 사용했습니다.");
         }
         else

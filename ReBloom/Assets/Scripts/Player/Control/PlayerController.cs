@@ -62,7 +62,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float debugSpeed = 15f;
     private bool debugMode = false;
 
-    private PlayerStats playerStats;
+    public PlayerStats playerStats;
 
     private float highestY;
     private bool wasGround = false;

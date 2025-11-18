@@ -24,8 +24,8 @@ public class ConsumableItemData : ItemBase
     private BGField<int> Storageable;
     private BGField<float> Pollution;
     private BGField<float> Thirst;
+    private BGField<float> Hunger;
     private BGField<float> HP;
-    private BGField<float> fieldHP;
     private BGField<float> Temp;
     private BGField<int> Range;
     private BGField<float> Duration;
@@ -48,13 +48,14 @@ public class ConsumableItemData : ItemBase
         M_Cat = meta.GetField<int>("M_Cat");
         S_Cat = meta.GetField<int>("S_Cat");
         MaxCount = meta.GetField<int>("MaxCount");
+        Useable = meta.GetField<int>("Useable");
         Quickable = meta.GetField<int>("Quickable");
         Discardable = meta.GetField<int>("Discardable");
         Storageable = meta.GetField<int>("Storageable");
         Pollution = meta.GetField<float>("Pollution");
         Thirst = meta.GetField<float>("Thirst");
-        HP = meta.GetField<float>("Hunger");
-        fieldHP = meta.GetField<float>("HP");
+        Hunger = meta.GetField<float>("Hunger");
+        HP = meta.GetField<float>("HP");
         Temp = meta.GetField<float>("Temp");
         Range = meta.GetField<int>("Range");
         Duration = meta.GetField<float>("Duration");
@@ -69,6 +70,7 @@ public class ConsumableItemData : ItemBase
         canQuickSlot = Convert.ToBoolean(Quickable[entity]);
         canDiscard = Convert.ToBoolean(Discardable[entity]);
         canStorage = Convert.ToBoolean(Storageable[entity]);
+        canUseable = Convert.ToBoolean(Useable[entity]);
         description = Description[entity];
 
         // 아이콘은 Addressable로 비동기 로드
@@ -86,11 +88,16 @@ public class ConsumableItemData : ItemBase
         // (구글시트 수정 후 BG Database 동기화하면 자동 반영됨)
         float pollution = Pollution[entity];
         float thirst = Thirst[entity];
-        float hunger = HP[entity];
-        float hp = fieldHP[entity];
+        float hunger = Hunger[entity];
+        float hp = HP[entity];
         float temp = Temp[entity];
 
-        // TODO: 플레이어 스탯 적용
+        //플레이어 스탯 적용
+        player.playerStats.Health.Modify(-hp);
+        player.playerStats.Thirst.Modify(-thirst);
+        player.playerStats.Hunger.Modify(-hunger);
+        player.playerStats.Pollution.Modify(-pollution);
+        player.playerStats.Temperature.Modify(temp);
 
         // 특수 효과 (재밍 아이템)
         int mainCat = M_Cat[entity];
@@ -104,7 +111,7 @@ public class ConsumableItemData : ItemBase
         // VFX/SFX 재생
         // PlayUseEffect(player.transform.position);
 
-        Debug.Log($"[아이템 사용] {itemName} - HP:{hp}, 오염도:{pollution}, 갈증:{thirst}");
+        Debug.Log($"[아이템 사용] {itemName} - HP:{hp}, 오염도:{pollution}, 갈증:{thirst}, 허기:{hunger}, 체온:{temp}");
         return true;
     }
 
