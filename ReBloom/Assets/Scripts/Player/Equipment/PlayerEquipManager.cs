@@ -38,7 +38,7 @@ public class PlayerEquipManager : MonoBehaviour
             return;
         }
 
-        inventoryItemData.RemoveItem(item.itemID, 1);
+        //inventoryItemData.RemoveItem(item.itemID, 1);
 
         switch (item.gearType)
         {

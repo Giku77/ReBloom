@@ -22,6 +22,7 @@ public abstract class ItemBase : ScriptableObject
     public bool canQuickSlot = false;   // 퀵슬롯 등록 가능
     public bool canDiscard = true;      // 버리기 가능
     public bool canStorage = true;      // 창고 저장 가능
+    public bool canEquip = false; //장착 가능
 
     [Header("비주얼")]
     public Sprite icon;                 // UI 아이콘

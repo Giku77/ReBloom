@@ -12,6 +12,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     [Header("Player")]
     [SerializeField] private PlayerController playerController;
 
+
     #region IInventoryProvider ±¸Çö
     public int GetItemCount(int itemId)
     {
@@ -42,7 +43,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     {
         ItemBase item = ItemDatabase.I.GetItem(itemId);
 
-        if (item != null && item.canUseable)
+        if (item != null && (item.canUseable || item.canEquip))
         {
             RemoveItem(itemId, amount);
             item.Apply(playerController);
@@ -63,6 +64,8 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
         {
             quickSlot.OnSlotAssign += AssignQuickSlot;
         }
+
+        playerController = FindAnyObjectByType<PlayerController>();
     }
     private void OnDestroy()
     {
