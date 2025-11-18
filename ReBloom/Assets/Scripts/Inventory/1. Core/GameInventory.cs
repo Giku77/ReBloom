@@ -77,20 +77,20 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     }
     #endregion
 
-    #region 아이템 & 테이블
+    #region 아이템 & 카테고리 분류
     /// <summary>
-    /// 특정 테이블에 속하는 아이템만 필터링하여 반환
+    /// 인벤토리 카테고리 별 속하는 아이템만 필터링하여 반환
     /// </summary>
-    public Dictionary<int, int> GetItemsByTable(ItemTableType tableType)
+    public Dictionary<int, int> GetItemsByInventroyType(InventorySlotType inventroyType)
     {
         var filtered = new Dictionary<int, int>();
 
         foreach (var itemPair in inventoryData.Items)
         {
             int itemId = itemPair.Key;
-            ItemTableType itemTableType = ItemIDParser.GetTableType(itemId);
+            InventorySlotType itemInventoryType = ItemIDParser.GetInventoryType(itemId);
 
-            if (itemTableType == tableType)
+            if (itemInventoryType == inventroyType)
             {
                 filtered.Add(itemId, itemPair.Value);
             }
@@ -117,10 +117,10 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     /// <summary>
     /// 아이템 정렬 (ID 기준)
     /// </summary>
-    public List<KeyValuePair<int, int>> GetSortedItems(ItemTableType? tableType = null)
+    public List<KeyValuePair<int, int>> GetSortedItems(InventorySlotType? invtType = null)
     {
-        var items = tableType.HasValue
-            ? GetItemsByTable(tableType.Value)
+        var items = invtType.HasValue
+            ? GetItemsByInventroyType(invtType.Value)
             : GetAllItems();
 
         return items.OrderBy(x => x.Key).ToList();
@@ -129,10 +129,10 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     /// <summary>
     /// 아이템 정렬 (이름 기준)
     /// </summary>
-    public List<KeyValuePair<int, int>> GetSortedItemsByName(ItemTableType? tableType = null)
+    public List<KeyValuePair<int, int>> GetSortedItemsByName(InventorySlotType? invtType = null)
     {
-        var items = tableType.HasValue
-            ? GetItemsByTable(tableType.Value)
+        var items = invtType.HasValue
+            ? GetItemsByInventroyType(invtType.Value)
             : GetAllItems();
 
         return items.OrderBy(x => ItemDatabase.I.GetItem(x.Key)?.itemName ?? "").ToList();
@@ -141,10 +141,10 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     /// <summary>
     /// 아이템 정렬 (수량 기준)
     /// </summary>
-    public List<KeyValuePair<int, int>> GetSortedItemsByQuantity(ItemTableType? tableType = null, bool descending = true)
+    public List<KeyValuePair<int, int>> GetSortedItemsByQuantity(InventorySlotType? invtType = null, bool descending = true)
     {
-        var items = tableType.HasValue
-            ? GetItemsByTable(tableType.Value)
+        var items = invtType.HasValue
+            ? GetItemsByInventroyType(invtType.Value)
             : GetAllItems();
 
         return descending
