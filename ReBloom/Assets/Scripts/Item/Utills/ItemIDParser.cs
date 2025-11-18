@@ -24,4 +24,10 @@ public static class ItemIDParser
     {
         return (itemID / 1000) % 100;
     }
+
+    public static InventorySlotType GetInventoryType(int itemID)
+    {
+        var item = ItemDatabase.I.GetItem(itemID);
+        return item.slotType;
+    }
 }

@@ -39,10 +39,10 @@ public enum ItemTableType
 /// </summary>
 public enum InventorySlotType
 {
-    Equipment = 0,      // ���? ��
-    Consumable = 1,     // �Һ� ������ ��
-    Misc = 2,           // ��Ÿ ������ ��
-    Important = 3       // �߿� ������ ��
+    Equipment = 1,      // ���? ��
+    Consumable = 2,     // �Һ� ������ ��
+    Misc = 3,           // ��Ÿ ������ ��
+    Important = 4       // �߿� ������ ��
 }
 
 /// <summary>

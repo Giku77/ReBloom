@@ -1,6 +1,9 @@
+using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
@@ -26,15 +29,15 @@ public class GameInventoryUI : MonoBehaviour
     [Header("Tab Buttons")]
     [SerializeField] private Button btnConsumable;
     [SerializeField] private Button btnProtective;
-    [SerializeField] private Button btnTool;
     [SerializeField] private Button btnMisc;
+    [SerializeField] private Button btnImportant;
 
     private QuestUI questUI;
 
     #region 상태 변수
-    private ItemTableType currentTable = ItemTableType.Tool;
-    private List<DebugItemSlot> activeSlots = new List<DebugItemSlot>();
-    private Dictionary<Button, ItemTableType> tabButtons = new Dictionary<Button, ItemTableType>();
+    private InventorySlotType currentType = InventorySlotType.Consumable;
+    private readonly List<DebugItemSlot> activeSlots = new();
+    private readonly Dictionary<Button, InventorySlotType> tabButtons = new();
     #endregion
 
     #region Unity 생명주기
@@ -65,6 +68,28 @@ public class GameInventoryUI : MonoBehaviour
         inventoryUIRoot.SetActive(false);
     }
 
+    private void OnEnable()
+    {
+        EventSystem currentEventSystem = EventSystem.current;
+        if (currentEventSystem == null)
+        {
+            Debug.LogWarning("[GameInventoryUI] EventSystem이 활성화되어 있지 않습니다.");
+        }
+        else
+        {
+            tabButtons.All(pair =>
+            {
+                if (pair.Value == currentType)
+                {
+                    currentEventSystem.SetSelectedGameObject(pair.Key.gameObject);
+                    OnTabClicked(currentType);
+                    return false; // 중단
+                }
+                return true; // 계속
+            });
+        }
+    }
+
     private void OnDestroy()
     {
         if (inventoryData != null)
@@ -80,26 +105,26 @@ public class GameInventoryUI : MonoBehaviour
     {
         if (btnConsumable != null)
         {
-            tabButtons[btnConsumable] = ItemTableType.Consumable;
-            btnConsumable.onClick.AddListener(() => OnTabClicked(ItemTableType.Consumable));
+            tabButtons[btnConsumable] = InventorySlotType.Consumable;
+            btnConsumable.onClick.AddListener(() => OnTabClicked(InventorySlotType.Consumable));
         }
 
         if (btnProtective != null)
         {
-            tabButtons[btnProtective] = ItemTableType.Protective;
-            btnProtective.onClick.AddListener(() => OnTabClicked(ItemTableType.Protective));
-        }
-
-        if (btnTool != null)
-        {
-            tabButtons[btnTool] = ItemTableType.Tool;
-            btnTool.onClick.AddListener(() => OnTabClicked(ItemTableType.Tool));
+            tabButtons[btnProtective] = InventorySlotType.Equipment;
+            btnProtective.onClick.AddListener(() => OnTabClicked(InventorySlotType.Equipment));
         }
 
         if (btnMisc != null)
         {
-            tabButtons[btnMisc] = ItemTableType.Misc;
-            btnMisc.onClick.AddListener(() => OnTabClicked(ItemTableType.Misc));
+            tabButtons[btnMisc] = InventorySlotType.Misc;
+            btnMisc.onClick.AddListener(() => OnTabClicked(InventorySlotType.Misc));
+        }
+
+        if (btnImportant != null)
+        {
+            tabButtons[btnImportant] = InventorySlotType.Important;
+            btnImportant.onClick.AddListener(() => OnTabClicked(InventorySlotType.Important));
         }
 
         UpdateTabVisuals();
@@ -132,11 +157,11 @@ public class GameInventoryUI : MonoBehaviour
         //Debug.Log($"[게임 인벤토리] {(isActive ? "열림" : "닫힘")}");
     }
 
-    private void OnTabClicked(ItemTableType tableType)
+    private void OnTabClicked(InventorySlotType inventoryType)
     {
-        if (currentTable == tableType) return;
+        if (currentType == inventoryType) return;
 
-        currentTable = tableType;
+        currentType = inventoryType;
 
         UpdateTabVisuals();
         RefreshUI();
@@ -160,7 +185,7 @@ public class GameInventoryUI : MonoBehaviour
         ClearSlots();
 
         // 컨트롤러에서 필터링된 아이템 가져오기
-        var items = gameInventory.GetSortedItems(currentTable);
+        var items = gameInventory.GetSortedItems(currentType);
 
         // 슬롯 생성
         int slotIndex = 0;
@@ -211,28 +236,31 @@ public class GameInventoryUI : MonoBehaviour
         }
 
         GameObject slotObj = Instantiate(itemSlotPrefab, emptySlotList[slotIndex]);
-        DebugItemSlot slot = slotObj.GetComponent<DebugItemSlot>();
-
-        if (slot != null)
+        if (!slotObj.TryGetComponent(out DebugItemSlot slot))
         {
-            slot.Initialize(item, tooltip);
-            slot.SetShowDescription(false);
-            slot.SetShowStats(false);
-            slot.SetQuantity(quantity);
-
-            activeSlots.Add(slot);
-
-            SetDragDropHandlerData(item, slot);
+            Debug.LogError("[GameInventoryUI] DebugItemSlot 컴포넌트를 찾을 수 없습니다!");
+            return;
         }
+
+        slot.Initialize(item, tooltip);
+        slot.SetShowDescription(false);
+        slot.SetShowStats(false);
+        slot.SetQuantity(quantity);
+
+        activeSlots.Add(slot);
+
+        SetDragDropHandlerData(item, slot);
     }
 
     private void SetDragDropHandlerData(ItemBase item, DebugItemSlot slot)
     {
-        ItemIconDragHandler dragHandler = slot.GetComponent<ItemIconDragHandler>();
-        if (dragHandler != null)
+        if (!slot.TryGetComponent(out ItemIconDragHandler dragHandler))
         {
-            dragHandler.SetItemData(item);
+            Debug.LogError("[GameInventoryUI] ItemIconDragHandler 컴포넌트를 찾을 수 없습니다!");
+            return;
         }
+
+        dragHandler.SetItemData(item);
     }
     #endregion
 
@@ -242,16 +270,16 @@ public class GameInventoryUI : MonoBehaviour
         foreach (var pair in tabButtons)
         {
             Button btn = pair.Key;
-            ItemTableType type = pair.Value;
+            InventorySlotType type = pair.Value;
 
             var btnText = btn.GetComponentInChildren<TextMeshProUGUI>();
             if (btnText != null)
             {
-                btnText.fontStyle = (type == currentTable) ?
+                btnText.fontStyle = (type == currentType) ?
                     FontStyles.Bold : FontStyles.Normal;
 
                 Color textColor = btnText.color;
-                textColor.a = (type == currentTable) ? 1f : 0.5f;
+                textColor.a = (type == currentType) ? 1f : 0.5f;
                 btnText.color = textColor;
             }
         }
