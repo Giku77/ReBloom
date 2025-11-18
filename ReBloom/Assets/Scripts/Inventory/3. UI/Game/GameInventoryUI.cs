@@ -28,6 +28,8 @@ public class GameInventoryUI : MonoBehaviour
     [SerializeField] private Button btnTool;
     [SerializeField] private Button btnMisc;
 
+    private QuestUI questUI;
+
     [Header("Tab Visual Settings")]
     [SerializeField] private Color activeColor = new Color(0.3f, 0.6f, 1f, 1f); // 선택된 탭 색상
     [SerializeField] private Color inactiveColor = new Color(1f, 1f, 1f, 0.5f); // 비선택 탭 색상 (알파 0.5)
@@ -43,6 +45,7 @@ public class GameInventoryUI : MonoBehaviour
     private void Awake()
     {
         InitializeTabButtons();
+        questUI = FindFirstObjectByType<QuestUI>();
     }
 
     private void Start()
@@ -61,8 +64,6 @@ public class GameInventoryUI : MonoBehaviour
         // 초기화
         inventoryData.Initialize();
         RefreshUI();
-        var QuestUI = FindFirstObjectByType<QuestUI>();
-        QuestUI.Refresh();
 
         // 시작 시 인벤토리 닫기
         inventoryUIRoot.SetActive(false);
@@ -179,6 +180,7 @@ public class GameInventoryUI : MonoBehaviour
                 slotIndex++;
             }
         }
+        questUI.Refresh();
     }
 
     private void ClearSlots()

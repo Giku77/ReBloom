@@ -16,13 +16,11 @@ public class WorldItem : MonoBehaviour, IInteractable
     [SerializeField] private InventoryItemData inventoryData;
 
     private PooledItem pooledItem;
-    private QuestUI questUI;
     public float HoldTime => 1f;
 
     private void Awake()
     {
         pooledItem = GetComponent<PooledItem>();
-        questUI = FindFirstObjectByType<QuestUI>();
     }
     public void Initialize(ItemBase item)
     {
@@ -59,7 +57,6 @@ public class WorldItem : MonoBehaviour, IInteractable
         // TODO: 인벤토리에 추가
         var inv = (GameInventory)QuestManager.I.Inventory;
         inv.AddItem(itemData.itemID, 1);
-        questUI?.Refresh();
 
 
         Debug.Log($"{itemData.itemName} 획득!");

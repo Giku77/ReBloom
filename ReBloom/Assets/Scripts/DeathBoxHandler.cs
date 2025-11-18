@@ -1,8 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// ÇÃ·¹ÀÌ¾î »ç¸Á Ã³¸® ¹× ½ÃÃ¼¹Ú½º »ý¼º °ü¸®
-/// PlayerStats¿¡¼­ ÀÚµ¿À¸·Î ÀÌº¥Æ® µî·ÏµÊ
+/// ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½Ú½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+/// PlayerStatsï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ìºï¿½Æ® ï¿½ï¿½Ïµï¿½
 /// </summary>
 public class DeathBoxHandler : MonoBehaviour
 {
@@ -19,15 +19,9 @@ public class DeathBoxHandler : MonoBehaviour
     [SerializeField] private bool clearInventoryOnDeath = true;
 
     private GameObject currentDeathBox;
-    private QuestUI questUI;
-
-    private void Awake()
-    {
-        questUI = FindFirstObjectByType<QuestUI>();
-    }
 
     /// <summary>
-    /// ÇÃ·¹ÀÌ¾î »ç¸Á Ã³¸® (PlayerStats¿¡¼­ ÀÚµ¿ È£Ãâ)
+    /// ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ (PlayerStatsï¿½ï¿½ï¿½ï¿½ ï¿½Úµï¿½ È£ï¿½ï¿½)
     /// </summary>
     public void OnCreateDeathBox()
     {
@@ -35,7 +29,7 @@ public class DeathBoxHandler : MonoBehaviour
 
         if (player == null)
         {
-            Debug.LogError("[DeathBoxHandler] ÇÃ·¹ÀÌ¾î¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù!");
+            Debug.LogError("[DeathBoxHandler] ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ Ã£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½!");
             return;
         }
 
@@ -43,29 +37,28 @@ public class DeathBoxHandler : MonoBehaviour
 
         if (playerInventory == null || deathBoxData == null)
         {
-            Debug.LogError("[DeathBoxHandler] ÇÊ¼ö ÂüÁ¶°¡ ¾ø½À´Ï´Ù!");
+            Debug.LogError("[DeathBoxHandler] ï¿½Ê¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½!");
             return;
         }
 
-        // 1. ÀÎº¥Åä¸® ¾ÆÀÌÅÛÀ» ½ÃÃ¼¹Ú½º·Î ÀÌµ¿
+        // 1. ï¿½Îºï¿½ï¿½ä¸® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½Ú½ï¿½ï¿½ï¿½ ï¿½Ìµï¿½
         Vector3 deathPosition = playerTransform.position + dropOffset;
         deathBoxData.StoreItemsFromInventory(playerInventory, deathPosition);
 
-        // 2. ÀÎº¥Åä¸® Å¬¸®¾î
+        // 2. ï¿½Îºï¿½ï¿½ä¸® Å¬ï¿½ï¿½ï¿½ï¿½
         if (clearInventoryOnDeath)
         {
             playerInventory.Clear();
-            Debug.Log("[DeathBoxHandler] ÀÎº¥Åä¸®¸¦ ºñ¿ü½À´Ï´Ù.");
+            Debug.Log("[DeathBoxHandler] ï¿½Îºï¿½ï¿½ä¸®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
         }
 
-        // 3. ½ÃÃ¼¹Ú½º ¿ÀºêÁ§Æ® »ý¼º
+        // 3. ï¿½ï¿½Ã¼ï¿½Ú½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½
         if (autoSpawnDeathBox && deathBoxPrefab != null)
         {
             SpawnDeathBox(deathPosition);
         }
 
-        questUI?.Refresh();
-        Debug.Log($"[DeathBoxHandler] ÇÃ·¹ÀÌ¾î »ç¸Á Ã³¸® ¿Ï·á. À§Ä¡: {deathPosition}");
+        Debug.Log($"[DeathBoxHandler] ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ ï¿½Ï·ï¿½. ï¿½ï¿½Ä¡: {deathPosition}");
     }
 
     private void SpawnDeathBox(Vector3 position)
@@ -83,6 +76,6 @@ public class DeathBoxHandler : MonoBehaviour
             deathBoxInteract.Initialize(deathBoxData, playerInventory);
         }
 
-        Debug.Log($"[DeathBoxHandler] ½ÃÃ¼¹Ú½º »ý¼º: {position}");
+        Debug.Log($"[DeathBoxHandler] ï¿½ï¿½Ã¼ï¿½Ú½ï¿½ ï¿½ï¿½ï¿½ï¿½: {position}");
     }
 }

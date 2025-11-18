@@ -3,8 +3,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// ÅëÇÕ ¿ùµå µå·ÓÁ¸
-/// µå·¡±× ¼Ò½º(°ÔÀÓ/µð¹ö±×)¿¡ µû¶ó ´Ù¸£°Ô Ã³¸®
+/// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
+/// ï¿½å·¡ï¿½ï¿½ ï¿½Ò½ï¿½(ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ï¿½)ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ù¸ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½
 /// </summary>
 public class WorldDropZone : MonoBehaviour,
     IDropHandler, IPointerEnterHandler, IPointerExitHandler
@@ -12,7 +12,7 @@ public class WorldDropZone : MonoBehaviour,
     [Header("References")]
     [SerializeField] private Transform playerTransform;
     [SerializeField] private ItemSpawner itemSpawner;
-    [SerializeField] private InventoryItemData inventoryItemData; // °ÔÀÓ ÀÎº¥Åä¸®¿ë
+    [SerializeField] private InventoryItemData inventoryItemData; // ï¿½ï¿½ï¿½ï¿½ ï¿½Îºï¿½ï¿½ä¸®ï¿½ï¿½
 
     [Header("Drop Settings")]
     [SerializeField] private float dropDistance = 2f;
@@ -28,10 +28,9 @@ public class WorldDropZone : MonoBehaviour,
     [SerializeField] private float groundRaycastDistance = 10f;
 
     [Header("Debug Settings")]
-    [SerializeField] private int debugSpawnCount = 1; // µð¹ö±× ¸ðµå »ý¼º °³¼ö
+    [SerializeField] private int debugSpawnCount = 1; // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 
     private bool isPointerOver = false;
-    private QuestUI questUI;
 
     private void Awake()
     {
@@ -44,7 +43,7 @@ public class WorldDropZone : MonoBehaviour,
             }
             else
             {
-                Debug.LogError("[WorldDropZone] ÇÃ·¹ÀÌ¾î¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù!");
+                Debug.LogError("[WorldDropZone] ï¿½Ã·ï¿½ï¿½Ì¾î¸¦ Ã£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½!");
             }
         }
 
@@ -63,7 +62,6 @@ public class WorldDropZone : MonoBehaviour,
             dropIndicator.SetActive(false);
         }
 
-        questUI = FindFirstObjectByType<QuestUI>();
     }
 
     private void Update()
@@ -101,13 +99,13 @@ public class WorldDropZone : MonoBehaviour,
 
         if (draggedItem == null)
         {
-            Debug.LogWarning("[WorldDropZone] µå·ÓµÈ ¾ÆÀÌÅÛÀÌ ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("[WorldDropZone] ï¿½ï¿½Óµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
             return;
         }
 
         if (playerTransform == null)
         {
-            Debug.LogError("[WorldDropZone] ÇÃ·¹ÀÌ¾î TransformÀÌ ¾ø½À´Ï´Ù!");
+            Debug.LogError("[WorldDropZone] ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ Transformï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½!");
             return;
         }
 
@@ -117,28 +115,28 @@ public class WorldDropZone : MonoBehaviour,
         {
             try
             {
-                // µå·¡±× ¼Ò½º È®ÀÎ
+                // ï¿½å·¡ï¿½ï¿½ ï¿½Ò½ï¿½ È®ï¿½ï¿½
                 bool isFromDebugInventory = IsFromDebugInventory(eventData);
 
                 if (isFromDebugInventory)
                 {
-                    // µð¹ö±× ¸ðµå: ¹«Á¦ÇÑ »ý¼º
+                    // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                     await HandleDebugDrop(draggedItem, dropPosition);
                 }
                 else
                 {
-                    // °ÔÀÓ ¸ðµå: ÀÎº¥Åä¸®¿¡¼­ Á¦°Å
+                    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½: ï¿½Îºï¿½ï¿½ä¸®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                     await HandleGameDrop(draggedItem, dropPosition);
                 }
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[WorldDropZone] ¾ÆÀÌÅÛ µå·Ó Áß ¿À·ù: {ex.Message}");
+                Debug.LogError($"[WorldDropZone] ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½: {ex.Message}");
             }
         }
         else
         {
-            Debug.LogError("[WorldDropZone] ItemSpawner¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù!");
+            Debug.LogError("[WorldDropZone] ItemSpawnerï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½!");
         }
 
         if (dropIndicator != null)
@@ -150,11 +148,11 @@ public class WorldDropZone : MonoBehaviour,
 
     #region Drop Handling
     /// <summary>
-    /// µð¹ö±× ÀÎº¥Åä¸®¿¡¼­ µå·¡±×Çß´ÂÁö È®ÀÎ
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Îºï¿½ï¿½ä¸®ï¿½ï¿½ï¿½ï¿½ ï¿½å·¡ï¿½ï¿½ï¿½ß´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
     /// </summary>
     private bool IsFromDebugInventory(PointerEventData eventData)
     {
-        // µå·¡±× ½ÃÀÛÇÑ ¿ÀºêÁ§Æ® ÄÄÆ÷³ÍÆ®·Î ÆÇ´Ü
+        // ï¿½å·¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ç´ï¿½
         if (eventData.pointerDrag != null)
         {
             Transform current = eventData.pointerDrag.transform;
@@ -172,14 +170,14 @@ public class WorldDropZone : MonoBehaviour,
     }
 
     /// <summary>
-    /// °ÔÀÓ ÀÎº¥Åä¸® µå·Ó Ã³¸® (¼ö·® Â÷°¨)
+    /// ï¿½ï¿½ï¿½ï¿½ ï¿½Îºï¿½ï¿½ä¸® ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
     /// </summary>
     private async System.Threading.Tasks.Task HandleGameDrop(
         ItemBase draggedItem, Vector3 dropPosition)
     {
         if (inventoryItemData == null)
         {
-            Debug.LogError("[WorldDropZone] InventoryItemData°¡ ¾ø½À´Ï´Ù!");
+            Debug.LogError("[WorldDropZone] InventoryItemDataï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½!");
             return;
         }
 
@@ -187,36 +185,35 @@ public class WorldDropZone : MonoBehaviour,
 
         if (itemCount <= 0)
         {
-            Debug.LogWarning($"[WorldDropZone] {draggedItem.itemName}ÀÌ(°¡) ÀÎº¥Åä¸®¿¡ ¾ø½À´Ï´Ù.");
+            Debug.LogWarning($"[WorldDropZone] {draggedItem.itemName}ï¿½ï¿½(ï¿½ï¿½) ï¿½Îºï¿½ï¿½ä¸®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
             return;
         }
 
-        // ¾ÆÀÌÅÛ »ý¼º
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         for (int i = 0; i < itemCount; i++)
         {
             await itemSpawner.DropItem(draggedItem, dropPosition, Vector3.zero);
         }
 
-        // ÀÎº¥Åä¸®¿¡¼­ Á¦°Å
+        // ï¿½Îºï¿½ï¿½ä¸®ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         inventoryItemData.RemoveItem(draggedItem.itemID, itemCount);
-        questUI?.Refresh();
 
-        Debug.Log($"[WorldDropZone] {draggedItem.itemName} x{itemCount}À»(¸¦) µå·ÓÇß½À´Ï´Ù.");
+        Debug.Log($"[WorldDropZone] {draggedItem.itemName} x{itemCount}ï¿½ï¿½(ï¿½ï¿½) ï¿½ï¿½ï¿½ï¿½ß½ï¿½ï¿½Ï´ï¿½.");
     }
 
     /// <summary>
-    /// µð¹ö±× ÀÎº¥Åä¸® µå·Ó Ã³¸® (¼ö·® Â÷°¨ ¾øÀ½)
+    /// ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Îºï¿½ï¿½ä¸® ï¿½ï¿½ï¿½ Ã³ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
     /// </summary>
     private async System.Threading.Tasks.Task HandleDebugDrop(
         ItemBase draggedItem, Vector3 dropPosition)
     {
-        // ¹«Á¦ÇÑ »ý¼º
+        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         for (int i = 0; i < debugSpawnCount; i++)
         {
             await itemSpawner.DropItem(draggedItem, dropPosition, Vector3.zero);
         }
 
-        Debug.Log($"[WorldDropZone] {draggedItem.itemName} x{debugSpawnCount}À»(¸¦) »ý¼ºÇß½À´Ï´Ù. (µð¹ö±×)");
+        Debug.Log($"[WorldDropZone] {draggedItem.itemName} x{debugSpawnCount}ï¿½ï¿½(ï¿½ï¿½) ï¿½ï¿½ï¿½ï¿½ï¿½ß½ï¿½ï¿½Ï´ï¿½. (ï¿½ï¿½ï¿½ï¿½ï¿½)");
     }
     #endregion
 
