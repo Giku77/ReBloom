@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class QuickSlot : MonoBehaviour
 {
@@ -52,49 +53,49 @@ public class QuickSlot : MonoBehaviour
         items = new ItemBase[slotCount];
         slotUIs = new QuickSlotUI[slotCount];
         assignedSlotCount = 0;
-        Debug.Log($"[QuickSlot] {slotCount}°³ ½½·Ô ÃÊ±âÈ­ ¿Ï·á");
+        Debug.Log($"[QuickSlot] {slotCount}ê°œ ìŠ¬ë¡¯ ì´ˆê¸°í™” ì™„ë£Œ");
     }
 
     private void ValidateReferences()
     {
         if (slotsRef == null || slotsRef.Count == 0)
         {
-            Debug.LogError("[QuickSlot] slotsRef°¡ ºñ¾îÀÖ½À´Ï´Ù!", this);
+            Debug.LogError("[QuickSlot] slotsRefê°€ ë¹„ì–´ìˆìŠµë‹ˆë‹¤!", this);
             return;
         }
 
         if (slotsRef.Count < slotCount)
         {
-            Debug.LogWarning($"[QuickSlot] slotsRef °³¼ö({slotsRef.Count})°¡ slotCount({slotCount})º¸´Ù Àû½À´Ï´Ù!", this);
+            Debug.LogWarning($"[QuickSlot] slotsRef ê°œìˆ˜({slotsRef.Count})ê°€ slotCount({slotCount})ë³´ë‹¤ ì ìŠµë‹ˆë‹¤!", this);
         }
 
         if (quickSlotUIPrefab == null)
         {
-            Debug.LogError("[QuickSlot] QuickSlotUI ÇÁ¸®ÆÕÀÌ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù!", this);
+            Debug.LogError("[QuickSlot] QuickSlotUI í”„ë¦¬íŒ¹ì´ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!", this);
         }
 
         if (inventoryData == null)
         {
-            Debug.LogWarning("[QuickSlot] InventoryData°¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù!", this);
+            Debug.LogWarning("[QuickSlot] InventoryDataê°€ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!", this);
         }
 
         if (gameInventory == null)
         {
-            Debug.LogWarning("[QuickSlot] GameInventory°¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù!", this);
+            Debug.LogWarning("[QuickSlot] GameInventoryê°€ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!", this);
         }
     }
     #endregion
 
     #region Event Subscription
     /// <summary>
-    /// ÀÎº¥Åä¸® º¯°æ ÀÌº¥Æ® ±¸µ¶
+    /// ì¸ë²¤í† ë¦¬ ë³€ê²½ ì´ë²¤íŠ¸ êµ¬ë…
     /// </summary>
     private void SubscribeToInventoryEvents()
     {
         if (inventoryData != null)
         {
             inventoryData.OnInventoryChanged += OnInventoryChanged;
-            Debug.Log("[QuickSlot] ÀÎº¥Åä¸® º¯°æ ÀÌº¥Æ® ±¸µ¶ ¿Ï·á");
+            Debug.Log("[QuickSlot] ì¸ë²¤í† ë¦¬ ë³€ê²½ ì´ë²¤íŠ¸ êµ¬ë… ì™„ë£Œ");
         }
     }
 
@@ -107,7 +108,7 @@ public class QuickSlot : MonoBehaviour
     }
 
     /// <summary>
-    /// ÀÎº¥Åä¸® º¯°æ ½Ã ÀÚµ¿ µ¿±âÈ­
+    /// ì¸ë²¤í† ë¦¬ ë³€ê²½ ì‹œ ìë™ ë™ê¸°í™”
     /// </summary>
     private void OnInventoryChanged()
     {
@@ -117,17 +118,17 @@ public class QuickSlot : MonoBehaviour
 
     #region Slot Assignment
     /// <summary>
-    /// ¾ÆÀÌÅÛÀ» Äü½½·Ô¿¡ ¹èÄ¡ ½Ãµµ
+    /// ì•„ì´í…œì„ í€µìŠ¬ë¡¯ì— ë°°ì¹˜ ì‹œë„
     /// </summary>
     public bool TryAssign(ItemBase item, int quantity)
     {
         if (item == null)
         {
-            Debug.LogWarning("[QuickSlot] null ¾ÆÀÌÅÛÀº ¹èÄ¡ÇÒ ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("[QuickSlot] null ì•„ì´í…œì€ ë°°ì¹˜í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             return false;
         }
 
-        // À¯È¿¼º °ËÁõ Ãß°¡
+        // ìœ íš¨ì„± ê²€ì¦ ì¶”ê°€
         if (!CanAssignToQuickSlot(item))
         {
             return false;
@@ -135,13 +136,13 @@ public class QuickSlot : MonoBehaviour
 
         if (assignedSlotCount >= slotCount)
         {
-            Debug.LogWarning("[QuickSlot] ½½·ÔÀÌ °¡µæ Ã¡½À´Ï´Ù.");
+            Debug.LogWarning("[QuickSlot] ìŠ¬ë¡¯ì´ ê°€ë“ ì°¼ìŠµë‹ˆë‹¤.");
             return false;
         }
 
         if (IsItemAlreadyAssigned(item))
         {
-            Debug.LogWarning($"[QuickSlot] {item.itemName}Àº(´Â) ÀÌ¹Ì ¹èÄ¡µÇ¾î ÀÖ½À´Ï´Ù.");
+            Debug.LogWarning($"[QuickSlot] {item.itemName}ì€(ëŠ”) ì´ë¯¸ ë°°ì¹˜ë˜ì–´ ìˆìŠµë‹ˆë‹¤.");
             return false;
         }
 
@@ -150,29 +151,29 @@ public class QuickSlot : MonoBehaviour
     }
 
     /// <summary>
-    /// Æ¯Á¤ ½½·Ô¿¡ Á÷Á¢ ÇÒ´ç (µå·¡±× ¾Ø µå·Ó¿ë)
+    /// íŠ¹ì • ìŠ¬ë¡¯ì— ì§ì ‘ í• ë‹¹ (ë“œë˜ê·¸ ì•¤ ë“œë¡­ìš©)
     /// </summary>
     public bool AssignToSlot(int targetIndex, ItemBase item, int quantity)
     {
         if (targetIndex < 0 || targetIndex >= slotCount)
         {
-            Debug.LogError($"[QuickSlot] Àß¸øµÈ ½½·Ô ÀÎµ¦½º: {targetIndex}");
+            Debug.LogError($"[QuickSlot] ì˜ëª»ëœ ìŠ¬ë¡¯ ì¸ë±ìŠ¤: {targetIndex}");
             return false;
         }
 
         if (item == null)
         {
-            Debug.LogWarning("[QuickSlot] null ¾ÆÀÌÅÛÀº ¹èÄ¡ÇÒ ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("[QuickSlot] null ì•„ì´í…œì€ ë°°ì¹˜í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             return false;
         }
 
-        // À¯È¿¼º °ËÁõ
+        // ìœ íš¨ì„± ê²€ì¦
         if (!CanAssignToQuickSlot(item))
         {
             return false;
         }
 
-        // ±âÁ¸ ¾ÆÀÌÅÛÀÌ ÀÖÀ¸¸é Á¦°Å
+        // ê¸°ì¡´ ì•„ì´í…œì´ ìˆìœ¼ë©´ ì œê±°
         if (items[targetIndex] != null)
         {
             if (slotUIs[targetIndex] != null)
@@ -186,12 +187,12 @@ public class QuickSlot : MonoBehaviour
             assignedSlotCount++;
         }
 
-        // »õ ¾ÆÀÌÅÛ ÇÒ´ç
+        // ìƒˆ ì•„ì´í…œ í• ë‹¹
         items[targetIndex] = item;
         CreateSlotUI(targetIndex, item, quantity);
         OnSlotAssign?.Invoke(item, quantity);
 
-        Debug.Log($"[QuickSlot] {item.itemName} x{quantity}¸¦ ½½·Ô {targetIndex}¿¡ ÇÒ´ç");
+        Debug.Log($"[QuickSlot] {item.itemName} x{quantity}ë¥¼ ìŠ¬ë¡¯ {targetIndex}ì— í• ë‹¹");
         return true;
     }
 
@@ -201,13 +202,13 @@ public class QuickSlot : MonoBehaviour
 
         if (targetIndex == -1)
         {
-            Debug.LogError("[QuickSlot] ºó ½½·ÔÀ» Ã£À» ¼ö ¾ø½À´Ï´Ù!");
+            Debug.LogError("[QuickSlot] ë¹ˆ ìŠ¬ë¡¯ì„ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤!");
             return;
         }
 
         if (targetIndex < 0 || targetIndex >= slotsRef.Count)
         {
-            Debug.LogError($"[QuickSlot] ½½·Ô ÀÎµ¦½º {targetIndex}°¡ ¹üÀ§¸¦ ¹ş¾î³µ½À´Ï´Ù.");
+            Debug.LogError($"[QuickSlot] ìŠ¬ë¡¯ ì¸ë±ìŠ¤ {targetIndex}ê°€ ë²”ìœ„ë¥¼ ë²—ì–´ë‚¬ìŠµë‹ˆë‹¤.");
             return;
         }
 
@@ -216,14 +217,14 @@ public class QuickSlot : MonoBehaviour
         CreateSlotUI(targetIndex, item, quantity);
         OnSlotAssign?.Invoke(item, quantity);
 
-        Debug.Log($"[QuickSlot] {item.itemName} x{quantity}¸¦ ½½·Ô {targetIndex}¿¡ ¹èÄ¡");
+        Debug.Log($"[QuickSlot] {item.itemName} x{quantity}ë¥¼ ìŠ¬ë¡¯ {targetIndex}ì— ë°°ì¹˜");
     }
 
     private void CreateSlotUI(int index, ItemBase item, int quantity)
     {
         if (quickSlotUIPrefab == null)
         {
-            Debug.LogError("[QuickSlot] QuickSlotUI ÇÁ¸®ÆÕÀÌ ¾ø½À´Ï´Ù!");
+            Debug.LogError("[QuickSlot] QuickSlotUI í”„ë¦¬íŒ¹ì´ ì—†ìŠµë‹ˆë‹¤!");
             return;
         }
 
@@ -246,7 +247,7 @@ public class QuickSlot : MonoBehaviour
 
     #region Validation
     /// <summary>
-    /// Äü½½·Ô¿¡ ¹èÄ¡ °¡´ÉÇÑÁö °ËÁõ
+    /// í€µìŠ¬ë¡¯ì— ë°°ì¹˜ ê°€ëŠ¥í•œì§€ ê²€ì¦
     /// </summary>
     private bool CanAssignToQuickSlot(ItemBase item)
     {
@@ -255,17 +256,17 @@ public class QuickSlot : MonoBehaviour
             return false;
         }
 
-        // 1. ¾ÆÀÌÅÛÀÇ canQuickSlot ÇÃ·¡±× È®ÀÎ
+        // 1. ì•„ì´í…œì˜ canQuickSlot í”Œë˜ê·¸ í™•ì¸
         if (!item.canQuickSlot)
         {
-            Debug.LogWarning($"[QuickSlot] {item.itemName}Àº(´Â) Äü½½·Ô¿¡ ¹èÄ¡ÇÒ ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogWarning($"[QuickSlot] {item.itemName}ì€(ëŠ”) í€µìŠ¬ë¡¯ì— ë°°ì¹˜í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             return false;
         }
 
-        // 2. ÀÎº¥Åä¸®¿¡ ¾ÆÀÌÅÛÀÌ ÀÖ´ÂÁö È®ÀÎ
+        // 2. ì¸ë²¤í† ë¦¬ì— ì•„ì´í…œì´ ìˆëŠ”ì§€ í™•ì¸
         if (gameInventory != null && !gameInventory.HasItem(item.itemID, 1))
         {
-            Debug.LogWarning($"[QuickSlot] ÀÎº¥Åä¸®¿¡ {item.itemName}ÀÌ(°¡) ¾ø½À´Ï´Ù.");
+            Debug.LogWarning($"[QuickSlot] ì¸ë²¤í† ë¦¬ì— {item.itemName}ì´(ê°€) ì—†ìŠµë‹ˆë‹¤.");
             return false;
         }
 
@@ -278,13 +279,13 @@ public class QuickSlot : MonoBehaviour
     {
         if (index < 0 || index >= slotCount)
         {
-            Debug.LogError($"[QuickSlot] Àß¸øµÈ ½½·Ô ÀÎµ¦½º: {index}");
+            Debug.LogError($"[QuickSlot] ì˜ëª»ëœ ìŠ¬ë¡¯ ì¸ë±ìŠ¤: {index}");
             return false;
         }
 
         if (items[index] == null)
         {
-            Debug.LogWarning($"[QuickSlot] ½½·Ô {index}´Â ÀÌ¹Ì ºñ¾îÀÖ½À´Ï´Ù.");
+            Debug.LogWarning($"[QuickSlot] ìŠ¬ë¡¯ {index}ëŠ” ì´ë¯¸ ë¹„ì–´ìˆìŠµë‹ˆë‹¤.");
             return false;
         }
 
@@ -299,7 +300,7 @@ public class QuickSlot : MonoBehaviour
         assignedSlotCount--;
         OnSlotRemoved?.Invoke(index);
 
-        Debug.Log($"[QuickSlot] ½½·Ô {index} Á¦°ÅµÊ");
+        Debug.Log($"[QuickSlot] ìŠ¬ë¡¯ {index} ì œê±°ë¨");
         return true;
     }
 
@@ -315,7 +316,7 @@ public class QuickSlot : MonoBehaviour
             }
         }
 
-        Debug.LogWarning($"[QuickSlot] {item.itemName}À»(¸¦) Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+        Debug.LogWarning($"[QuickSlot] {item.itemName}ì„(ë¥¼) ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
         return false;
     }
 
@@ -329,7 +330,7 @@ public class QuickSlot : MonoBehaviour
             }
         }
 
-        Debug.Log("[QuickSlot] ¸ğµç ½½·Ô ÃÊ±âÈ­ ¿Ï·á");
+        Debug.Log("[QuickSlot] ëª¨ë“  ìŠ¬ë¡¯ ì´ˆê¸°í™” ì™„ë£Œ");
     }
     #endregion
 
@@ -364,7 +365,7 @@ public class QuickSlot : MonoBehaviour
     {
         if (index < 0 || index >= slotCount)
         {
-            Debug.LogError($"[QuickSlot] Àß¸øµÈ ½½·Ô ÀÎµ¦½º: {index}");
+            Debug.LogError($"[QuickSlot] ì˜ëª»ëœ ìŠ¬ë¡¯ ì¸ë±ìŠ¤: {index}");
             return null;
         }
 
@@ -412,16 +413,16 @@ public class QuickSlot : MonoBehaviour
     }
     #endregion
 
-    #region Auto Fill(µğ¹ö±× ¿ëµµ)
+    #region Auto Fill(ë””ë²„ê·¸ ìš©ë„)
     /// <summary>
-    /// Äü½½·Ô ÀÚµ¿ ¹èÄ¡ (OÅ° ±â´É)
+    /// í€µìŠ¬ë¡¯ ìë™ ë°°ì¹˜ (Oí‚¤ ê¸°ëŠ¥)
     /// </summary>
     [ContextMenu("Auto Fill Quick Slots")]
     public int AutoFillQuickSlots()
     {
         if (inventoryData == null || gameInventory == null)
         {
-            Debug.LogWarning("[QuickSlot] InventoryData ¶Ç´Â GameInventory°¡ ¾ø½À´Ï´Ù!");
+            Debug.LogWarning("[QuickSlot] InventoryData ë˜ëŠ” GameInventoryê°€ ì—†ìŠµë‹ˆë‹¤!");
             return 0;
         }
 
@@ -447,13 +448,57 @@ public class QuickSlot : MonoBehaviour
                 }
                 else
                 {
-                    break; // ½½·Ô °¡µæ Âü
+                    break; // ìŠ¬ë¡¯ ê°€ë“ ì°¸
                 }
             }
         }
 
-        Debug.Log($"[QuickSlot] ÀÚµ¿ ¹èÄ¡ ¿Ï·á: {filledCount}°³ ¾ÆÀÌÅÛ");
+        Debug.Log($"[QuickSlot] ìë™ ë°°ì¹˜ ì™„ë£Œ: {filledCount}ê°œ ì•„ì´í…œ");
         return filledCount;
     }
     #endregion
+
+    #region QuickSlot ì‚¬ìš©
+    public void OnQuickSlot1(InputAction.CallbackContext context)
+    {
+        if (context.started) UseSlot(0);
+
+        Debug.Log("[QuickSlot] 1ë²ˆ í€µìŠ¬ë¡¯ í˜¸ì¶œ ë¨");
+    }
+    public void OnQuickSlot2(InputAction.CallbackContext context)
+    {
+        if (context.started) UseSlot(1);
+    }
+    public void OnQuickSlot3(InputAction.CallbackContext context)
+    {
+        if (context.started) UseSlot(2);
+    }
+    public void OnQuickSlot4(InputAction.CallbackContext context)
+    {
+        if (context.started) UseSlot(3);
+    }
+    public void OnQuickSlot5(InputAction.CallbackContext context)
+    {
+        if (context.started) UseSlot(4);
+    }
+    public void OnQuickSlot6(InputAction.CallbackContext context)
+    {
+        if (context.started) UseSlot(5);
+    }
+
+    void UseSlot(int index)
+    {
+        var item = items[index];
+
+        if (item != null)
+        {
+            gameInventory.Consume(item.itemID, 1);
+        }
+        else
+        {
+            Debug.LogError($"[QuickSlot] {item.itemName}ì€ ì—†ëŠ” ì•„ì´í…œì…ë‹ˆë‹¤.");
+        }
+    }
+    #endregion
+
 }

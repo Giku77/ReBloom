@@ -57,7 +57,7 @@ public class PlayerInteractable : MonoBehaviour
 
     private bool TryInteract()
     {
-        if (Physics.SphereCast(transform.position, interactRadius, Camera.main.transform.forward, out RaycastHit hit, interactRange, interactLayer))
+        if (Physics.SphereCast(transform.position, interactRadius, transform.forward, out RaycastHit hit, interactRange, interactLayer))
         {
             if (hit.collider.TryGetComponent<IInteractable>(out var interactable))
             {
@@ -72,7 +72,7 @@ public class PlayerInteractable : MonoBehaviour
 
     private void CheckForInteractable()
     {
-        if (Physics.SphereCast(transform.position, interactRadius, Camera.main.transform.forward, out RaycastHit hit, interactRange, interactLayer))
+        if (Physics.SphereCast(transform.position, interactRadius, transform.forward, out RaycastHit hit, interactRange, interactLayer))
         {
             if (hit.collider.TryGetComponent<InteractionHighlight>(out var highlight))
             {
