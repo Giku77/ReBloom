@@ -456,26 +456,4 @@ public class QuickSlot : MonoBehaviour
         return filledCount;
     }
     #endregion
-
-    #region Debug
-    [ContextMenu("Debug/Print Slot Status")]
-    public void CMD_PrintSlotStatus()
-    {
-        Debug.Log("=== QuickSlot 상태 ===");
-        Debug.Log($"할당된 슬롯: {assignedSlotCount}/{slotCount}");
-
-        for (int i = 0; i < slotCount; i++)
-        {
-            if (items[i] != null)
-            {
-                int quantity = inventoryData != null ? inventoryData.GetItemCount(items[i].itemID) : 0;
-                Debug.Log($"슬롯 [{i}]: {items[i].name} x{quantity}");
-            }
-            else
-            {
-                Debug.Log($"슬롯 [{i}]: 비어있음");
-            }
-        }
-    }
-    #endregion
 }

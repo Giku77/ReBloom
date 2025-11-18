@@ -1,4 +1,7 @@
+using Cysharp.Threading.Tasks;
+using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -16,7 +19,7 @@ public class ItemSpawner : MonoBehaviour
     [SerializeField] private bool collectionCheck = true;
 
     [Header("Batch Spawn Settings")]
-    [SerializeField] private float batchSpawnRadius = 3f; // 대량 생성 시 퍼지는 반경
+    [SerializeField] private float batchSpawnRadius = 4f; // 대량 생성 시 퍼지는 반경
     [SerializeField] private int maxSpawnPerFrame = 10;   // 프레임당 최대 생성 수
 
     // 아이템 ID별 오브젝트 풀
@@ -29,7 +32,7 @@ public class ItemSpawner : MonoBehaviour
     public PoolStatistics Statistics { get; private set; } = new PoolStatistics();
 
     #region 단일 아이템 스폰
-    public async Task<GameObject> SpawnItemInWorld(int itemID, Vector3 position)
+    public async UniTask<GameObject> SpawnItemInWorld(int itemID, Vector3 position)
     {
         ItemBase itemData = ItemDatabase.I.GetItem(itemID);
         if (itemData == null)
@@ -38,10 +41,14 @@ public class ItemSpawner : MonoBehaviour
             return null;
         }
 
-        return await SpawnItemInWorld(itemData, position);
+        return await SpawnItemInWorld(
+           itemData,
+           position,
+           this.GetCancellationTokenOnDestroy()
+       );
     }
 
-    public async Task<GameObject> SpawnItemInWorld(ItemBase itemData, Vector3 position)
+    public async UniTask<GameObject> SpawnItemInWorld(ItemBase itemData, Vector3 position, CancellationToken ctx)
     {
         if (itemData == null)
         {
@@ -70,16 +77,16 @@ public class ItemSpawner : MonoBehaviour
         return itemObj;
     }
 
-    public async Task<GameObject> DropItem(ItemBase itemData, Vector3 position, Vector3 force)
+    public async UniTask<GameObject> DropItem(ItemBase itemData, Vector3 position, Vector3 force)
     {
-        GameObject itemObj = await SpawnItemInWorld(itemData, position);
+        GameObject itemObj = await SpawnItemInWorld(itemData, position, this.GetCancellationTokenOnDestroy());
 
         if (itemObj != null && itemObj.TryGetComponent<Rigidbody>(out var rb))
         {
             rb.isKinematic = false;
             rb.useGravity = true;
             rb.AddForce(force, ForceMode.Impulse);
-            rb.angularVelocity = Random.insideUnitSphere * 2f;
+            rb.angularVelocity = UnityEngine.Random.insideUnitSphere * 2f;
         }
 
         return itemObj;
@@ -94,7 +101,7 @@ public class ItemSpawner : MonoBehaviour
     /// <param name="centerPosition">중심 위치</param>
     /// <param name="count">생성 개수</param>
     /// <param name="scatterRadius">퍼지는 반경</param>
-    public async Task<List<GameObject>> SpawnItemBatch(ItemBase itemData, Vector3 centerPosition, int count, float scatterRadius = 0f)
+    public async UniTask<List<GameObject>> SpawnItemBatch(ItemBase itemData, Vector3 centerPosition, int count, float scatterRadius = 0f)
     {
         if (itemData == null)
         {
@@ -123,12 +130,12 @@ public class ItemSpawner : MonoBehaviour
         for (int i = 0; i < count; i++)
         {
             // 랜덤 위치 계산 (원형으로 퍼지기)
-            Vector3 randomOffset = Random.insideUnitSphere * scatterRadius;
+            Vector3 randomOffset = UnityEngine.Random.insideUnitSphere * scatterRadius;
             randomOffset.y = 0; // Y축은 고정
             Vector3 spawnPosition = centerPosition + randomOffset;
 
             // 아이템 생성
-            GameObject itemObj = await SpawnItemInWorld(itemData, spawnPosition);
+            GameObject itemObj = await SpawnItemInWorld(itemData, spawnPosition, this.GetCancellationTokenOnDestroy());
             if (itemObj != null)
             {
                 spawnedItems.Add(itemObj);
@@ -141,8 +148,8 @@ public class ItemSpawner : MonoBehaviour
 
                     // 중심에서 바깥쪽으로 밀어내기
                     Vector3 pushDirection = (spawnPosition - centerPosition).normalized;
-                    rb.AddForce(pushDirection * Random.Range(1f, 3f), ForceMode.Impulse);
-                    rb.angularVelocity = Random.insideUnitSphere * 2f;
+                    rb.AddForce(pushDirection * UnityEngine.Random.Range(1f, 3f), ForceMode.Impulse);
+                    rb.angularVelocity = UnityEngine.Random.insideUnitSphere * 2f;
                 }
             }
 
@@ -162,9 +169,9 @@ public class ItemSpawner : MonoBehaviour
     /// <summary>
     /// 스택 아이템 드롭 (수량 설정 가능)
     /// </summary>
-    public async Task<GameObject> DropItemWithQuantity(ItemBase itemData, Vector3 position, int quantity)
+    public async UniTask<GameObject> DropItemWithQuantity(ItemBase itemData, Vector3 position, int quantity)
     {
-        GameObject itemObj = await SpawnItemInWorld(itemData, position);
+        GameObject itemObj = await SpawnItemInWorld(itemData, position, this.GetCancellationTokenOnDestroy());
 
         if (itemObj != null)
         {
@@ -180,7 +187,7 @@ public class ItemSpawner : MonoBehaviour
             {
                 rb.isKinematic = false;
                 rb.useGravity = true;
-                rb.angularVelocity = Random.insideUnitSphere * 2f;
+                rb.angularVelocity = UnityEngine.Random.insideUnitSphere * 2f;
             }
         }
 
@@ -189,7 +196,7 @@ public class ItemSpawner : MonoBehaviour
     #endregion
 
     #region 오브젝트 풀 관리 (기존 코드)
-    private async Task CreatePoolForItem(ItemBase itemData)
+    private async UniTask CreatePoolForItem(ItemBase itemData)
     {
         int itemID = itemData.itemID;
 
@@ -302,7 +309,7 @@ public class ItemSpawner : MonoBehaviour
     #endregion
 
     #region 프리팹 로딩 (기존 코드)
-    private async Task<GameObject> LoadOrGetCachedPrefab(ItemBase itemData)
+    private async UniTask<GameObject> LoadOrGetCachedPrefab(ItemBase itemData)
     {
         int itemID = itemData.itemID;
 
@@ -320,13 +327,20 @@ public class ItemSpawner : MonoBehaviour
         return prefab;
     }
 
-    private async Task<GameObject> LoadItemPrefabAsync(ItemBase itemData)
+    private async UniTask<GameObject> LoadItemPrefabAsync(ItemBase itemData)
     {
         try
         {
             var handle = Addressables.LoadAssetAsync<GameObject>(itemData.worldPrefabAddress);
-            GameObject prefab = await handle.Task;
+
+            GameObject prefab = await handle.WithCancellation(
+                this.GetCancellationTokenOnDestroy()
+            );
             return prefab;
+        }
+        catch (OperationCanceledException)
+        {
+            return null;
         }
         catch (System.Exception e)
         {
@@ -337,7 +351,7 @@ public class ItemSpawner : MonoBehaviour
     #endregion
 
     #region 유틸리티
-    public async Task PreloadItemPool(int itemID, int count = 10)
+    public async UniTask PreloadItemPool(int itemID, int count = 10)
     {
         ItemBase itemData = ItemDatabase.I.GetItem(itemID);
         if (itemData == null) return;
@@ -438,10 +452,12 @@ public class ItemSpawner : MonoBehaviour
     }
     #endregion
 
+    #region Unity 생명주기
     private void OnDestroy()
     {
         ClearAllPools();
     }
+    #endregion
 
     #region 디버그 데이터 구조
     /// <summary>
