@@ -10,7 +10,7 @@ public class InventoryItemData : ScriptableObject
 
     private Dictionary<int, int> _items = new Dictionary<int, int>();
 
-    // �̺�Ʈ
+    // 이벤트
     public event Action<int, int> OnItemAdded;
     public event Action<int, int> OnItemRemoved;
     public event Action OnInventoryChanged;
@@ -20,7 +20,7 @@ public class InventoryItemData : ScriptableObject
     public int MaxSlots => maxInventorySlots;
 
     /// <summary>
-    /// �޽��� ���� (�ܺο��� ȣ�� ����)
+    /// 메시지 전송 (인벤토리 관련 메시지 출력)
     /// </summary>
     public void SendMessage(string message)
     {
@@ -45,7 +45,7 @@ public class InventoryItemData : ScriptableObject
         };
 
         OnInventoryChanged?.Invoke();
-        Debug.Log("[InventoryData] �ʱ�ȭ �Ϸ�");
+        Debug.Log("[InventoryData] 인벤토리 초기화 완료");
     }
 
     public int GetItemCount(int itemId)
@@ -59,20 +59,20 @@ public class InventoryItemData : ScriptableObject
         {
             _items[itemId] += amount;
             OnItemAdded?.Invoke(itemId, amount);
-            SendMessage($"{ItemDatabase.I.GetItem(itemId).itemName}��(��) {amount}�� ȹ���߽��ϴ�.");
+            SendMessage($"{ItemDatabase.I.GetItem(itemId).itemName}을(를) {amount}개 획득했습니다.");
         }
         else
         {
             if (_items.Count >= maxInventorySlots)
             {
-                SendMessage($"�ִ� ����({maxInventorySlots}��)�� �����Ͽ� ȹ�� ����!");
-                Debug.LogWarning($"[�κ��丮] ������ ���� ��!");
+                SendMessage($"인벤토리 슬롯({maxInventorySlots}개)이 모두 찼습니다!");
+                Debug.LogWarning($"[인벤토리] 슬롯이 모두 찼습니다!");
                 return;
             }
 
             _items[itemId] = amount;
             OnItemAdded?.Invoke(itemId, amount);
-            SendMessage($"{ItemDatabase.I.GetItem(itemId).itemName}��(��) {amount}�� ȹ���߽��ϴ�.");
+            SendMessage($"{ItemDatabase.I.GetItem(itemId).itemName}을(를) {amount}개 획득했습니다.");
         }
 
         OnInventoryChanged?.Invoke();

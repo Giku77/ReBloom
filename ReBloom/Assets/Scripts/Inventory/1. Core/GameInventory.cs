@@ -3,8 +3,8 @@ using System.Linq;
 using UnityEngine;
 
 /// <summary>
-/// ���� �κ��丮 ��Ʈ�ѷ�
-/// ����Ͻ� ������ ������ ������ ���
+/// 게임 인벤토리 컨트롤러
+/// 비즈니스 로직과 데이터 조작을 담당
 /// </summary>
 public class GameInventory : MonoBehaviour, IInventoryProvider
 {
@@ -19,7 +19,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     [SerializeField] private PlayerController playerController;
 
 
-    #region IInventoryProvider ����
+    #region IInventoryProvider 구현
     public int GetItemCount(int itemId)
     {
         return inventoryData.GetItemCount(itemId);
@@ -56,30 +56,30 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
                 RemoveItem(itemId, amount);
                 item.Apply(playerController);
 
-                inventoryData.SendMessage($"{item.itemName}��(��) {amount}�� ����߽��ϴ�.");
+                inventoryData.SendMessage($"{item.itemName}을(를) {amount}개 사용했습니다.");
             }
             else if (item.canEquip)
             {
                 RemoveItem(itemId, amount);
                 item.Apply(playerController);
 
-                inventoryData.SendMessage($"{item.itemName}��(��) {amount}�� �����߽��ϴ�.");
+                inventoryData.SendMessage($"{item.itemName}을(를) {amount}개 장착했습니다.");
             }
             else
             {
-                inventoryData.SendMessage($"{item?.itemName}��(��) ����� �� �����ϴ�.");
+                inventoryData.SendMessage($"{item?.itemName}을(를) {amount}개 사용할 수 없습니다.");
             }
         }
         else
         {
-            Debug.LogError("[GameInventory] ������ �����Ͱ� �����ϴ�.");
+            Debug.LogError("[GameInventory] 아이템을 찾을 수 없습니다.");
         }
     }
     #endregion
 
-    #region ���͸� & ����
+    #region 아이템 & 테이블
     /// <summary>
-    /// ���̺� Ÿ�Ժ��� ������ ���͸�
+    /// 특정 테이블에 속하는 아이템만 필터링하여 반환
     /// </summary>
     public Dictionary<int, int> GetItemsByTable(ItemTableType tableType)
     {
@@ -107,7 +107,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     }
 
     /// <summary>
-    /// ��� ������ ��������
+    /// 모든 아이템 가져오기
     /// </summary>
     public Dictionary<int, int> GetAllItems()
     {
@@ -115,7 +115,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     }
 
     /// <summary>
-    /// ������ ���� (ID ����)
+    /// 아이템 정렬 (ID 기준)
     /// </summary>
     public List<KeyValuePair<int, int>> GetSortedItems(ItemTableType? tableType = null)
     {
@@ -127,7 +127,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     }
 
     /// <summary>
-    /// ������ ���� (�̸� ����)
+    /// 아이템 정렬 (이름 기준)
     /// </summary>
     public List<KeyValuePair<int, int>> GetSortedItemsByName(ItemTableType? tableType = null)
     {
@@ -139,7 +139,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     }
 
     /// <summary>
-    /// ������ ���� (���� ����)
+    /// 아이템 정렬 (수량 기준)
     /// </summary>
     public List<KeyValuePair<int, int>> GetSortedItemsByQuantity(ItemTableType? tableType = null, bool descending = true)
     {
@@ -153,7 +153,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     }
 
     /// <summary>
-    /// ������ ��ġ ������ �����۸� ���͸�
+    /// 퀵슬롯에 할당 가능한 아이템만 반환
     /// </summary>
     public List<KeyValuePair<int, int>> GetQuickSlotableItems()
     {
@@ -172,7 +172,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     }
     #endregion
 
-    //#region ������ ����
+    //#region 퀵슬롯 할당 가능 여부
     //private bool CanAssignQuickSlot(int itemId)
     //{
     //    ItemBase item = ItemDatabase.I.GetItem(itemId);
@@ -180,7 +180,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     //}
     //#endregion
 
-    #region UI ����
+    #region UI 제어
     public void OpenInventory()
     {
         if (inventoryUI != null)
