@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -172,7 +173,7 @@ public class WorldDropZone : MonoBehaviour,
     /// <summary>
     /// ���� �κ��丮 ��� ó�� (���� ����)
     /// </summary>
-    private async System.Threading.Tasks.Task HandleGameDrop(
+    private async UniTask HandleGameDrop(
         ItemBase draggedItem, Vector3 dropPosition)
     {
         if (inventoryItemData == null)
@@ -204,7 +205,7 @@ public class WorldDropZone : MonoBehaviour,
     /// <summary>
     /// ����� �κ��丮 ��� ó�� (���� ���� ����)
     /// </summary>
-    private async System.Threading.Tasks.Task HandleDebugDrop(
+    private async UniTask HandleDebugDrop(
         ItemBase draggedItem, Vector3 dropPosition)
     {
         // ������ ����
