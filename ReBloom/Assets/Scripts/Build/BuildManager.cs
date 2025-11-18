@@ -4,7 +4,18 @@ using UnityEngine;
 public class BuildManager : MonoBehaviour
 {
     public static BuildManager I;
-    private void Awake() => I = this;
+    private void Awake()
+    {
+        I = this;
+        
+        var inventory = FindFirstObjectByType<GameInventory>();
+        var arcDB = new ArcDB();
+        arcDB.LoadFromBG();
+        var arcRecipeDB = new ArcRecipeDB();
+        arcRecipeDB.LoadFromBG();
+
+        Init(arcDB, arcRecipeDB, inventory);
+    } 
 
     private BuildingFootprintProvider footprintProvider;
     private ToastMessageUI toastMessageUI;
@@ -62,14 +73,8 @@ public class BuildManager : MonoBehaviour
         return true;
     }
 
-    public bool TryBuild(int arcId, Vector3 pos, Quaternion rot)
+    public bool CanBuildAt(ArcData arc, Vector3 pos, Quaternion rot, out string errorCode)
     {
-        if (!arcDB.TryGet(arcId, out var arc))
-        {
-            Debug.LogWarning($"없는 건물: {arcId}");
-            return false;
-        }
-
         var ctx = new ArcContext
         {
             Data = arc,
@@ -79,7 +84,18 @@ public class BuildManager : MonoBehaviour
             PlayerTransform = GameObject.FindWithTag("Player").transform
         };
 
-        if (!Validate(ctx, out var errorCode))
+        return Validate(ctx, out errorCode);
+    }
+
+    public bool TryBuild(int arcId, Vector3 pos, Quaternion rot)
+    {
+        if (!arcDB.TryGet(arcId, out var arc))
+        {
+            Debug.LogWarning($"없는 건물: {arcId}");
+            return false;
+        }
+
+        if (!CanBuildAt(arc, pos, rot, out var errorCode))
         {
             toastMessageUI.Show($"건물 설치 불가: {errorCode}");
             return false;
