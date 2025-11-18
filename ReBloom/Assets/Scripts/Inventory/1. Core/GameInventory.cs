@@ -15,6 +15,10 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     [SerializeField] private GameInventoryUI inventoryUI;
     [SerializeField] private QuickSlot quickSlot;
 
+    [Header("Player")]
+    [SerializeField] private PlayerController playerController;
+
+
     #region IInventoryProvider 구현
     public int GetItemCount(int itemId)
     {
@@ -45,14 +49,30 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     {
         ItemBase item = ItemDatabase.I.GetItem(itemId);
 
-        if (item != null && item.canUseable)
+        if (item != null)
         {
-            RemoveItem(itemId, amount);
-            inventoryData.SendMessage($"{item.itemName}을(를) {amount}개 사용했습니다.");
+            if (item.canUseable)
+            {
+                RemoveItem(itemId, amount);
+                item.Apply(playerController);
+
+                inventoryData.SendMessage($"{item.itemName}을(를) {amount}개 사용했습니다.");
+            }
+            else if (item.canEquip)
+            {
+                RemoveItem(itemId, amount);
+                item.Apply(playerController);
+
+                inventoryData.SendMessage($"{item.itemName}을(를) {amount}개 착용했습니다.");
+            }
+            else
+            {
+                inventoryData.SendMessage($"{item?.itemName}은(는) 사용할 수 없습니다.");
+            }
         }
         else
         {
-            inventoryData.SendMessage($"{item?.itemName ?? "알 수 없는 아이템"}은(는) 사용할 수 없습니다.");
+            Debug.LogError("[GameInventory] 아이템 데이터가 없습니다.");
         }
     }
     #endregion
@@ -67,6 +87,18 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
 
         foreach (var itemPair in inventoryData.Items)
         {
+            quickSlot.OnSlotAssign += AssignQuickSlot;
+        }
+
+        playerController = FindAnyObjectByType<PlayerController>();
+    }
+    private void OnDestroy()
+    {
+        if (quickSlot != null)
+        {
+            quickSlot.OnSlotAssign -= AssignQuickSlot;
+        }
+    }
             int itemId = itemPair.Key;
             ItemTableType itemTableType = ItemIDParser.GetTableType(itemId);
 

@@ -61,8 +61,10 @@ public class ProtectiveItemData : ItemBase
         canQuickSlot = Convert.ToBoolean(Quickable[entity]);
         canQuickSlot = Convert.ToBoolean(Quickable[entity]);
         canDiscard = Convert.ToBoolean(Discardable[entity]);
+        canUseable = Convert.ToBoolean(Useable[entity]);
         canStorage = Convert.ToBoolean(Storageable[entity]);
         description = Description[entity];
+        canEquip = true;
 
         gearType = (ProtectiveGearType)Category[entity];
 
@@ -80,6 +82,7 @@ public class ProtectiveItemData : ItemBase
         float height_resist = Defense[entity];
 
         // TODO: player 스탯 적용
+        player.playerEquip.Apply(this);
 
         Debug.Log($"[장비 장착] {itemName} - 오염방어:{pollutionResist}%, 체온보너스:{temp}");
 

@@ -113,6 +113,7 @@ public class PlayerStats : MonoBehaviour
         Thirst.Set(50f);
         Temperature.Set(36.5f);
 
+
         isDead = false;
     }
 

@@ -33,7 +33,7 @@ public class PlayerController : MonoBehaviour
     //임시 장착 확인용 
     [Header("Equipment")]
     [SerializeField] private InventoryItemData inventoryItemData;
-    [SerializeField] private PlayerEquipManager playerEquipManager;
+    public PlayerEquipManager playerEquip;
 
     [Header("Jump Setting")]
     [SerializeField] private Transform groundCheck;
@@ -62,7 +62,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float debugSpeed = 15f;
     private bool debugMode = false;
 
-    private PlayerStats playerStats;
+    public PlayerStats playerStats;
 
     private float highestY;
     private bool wasGround = false;
@@ -84,6 +84,7 @@ public class PlayerController : MonoBehaviour
 
         animator = GetComponentInChildren<Animator>();
         playerStats = GetComponent<PlayerStats>();
+        playerEquip = GetComponent<PlayerEquipManager>();
     }
 
     private void Start()
@@ -306,7 +307,7 @@ public class PlayerController : MonoBehaviour
     //임시 장착 확인용
     private void EquipWeapon()
     {
-        if (inventoryItemData == null || playerEquipManager == null)
+        if (inventoryItemData == null || playerEquip == null)
         {
             Debug.LogError("[PlayerController] InventoryItemData 또는 PlayerEquipManager가 할당되지 않았습니다.");
             return;
@@ -316,7 +317,7 @@ public class PlayerController : MonoBehaviour
         
         if (inventoryItemData.HasItem(weaponItemId, 1))
         {
-            playerEquipManager.EquipItem(weaponItemId);
+            playerEquip.EquipItem(weaponItemId);
             Debug.Log($"[PlayerController] 무기 장착: {weaponItemId}");
         }
         else
@@ -361,7 +362,7 @@ public class PlayerController : MonoBehaviour
             if (fallHeight > minDropHeight)
             {
                 float effectiveHeight = fallHeight - minDropHeight;
-                float shoeResist = playerEquipManager.GetHeightResist();
+                float shoeResist = playerEquip.GetHeightResist();
 
                 float damage = Mathf.Pow(effectiveHeight, 1.8f) * shoeResist;
 
