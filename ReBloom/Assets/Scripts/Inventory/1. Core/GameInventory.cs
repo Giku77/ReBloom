@@ -43,16 +43,30 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     {
         ItemBase item = ItemDatabase.I.GetItem(itemId);
 
-        if (item != null && (item.canUseable || item.canEquip))
+        if (item != null)
         {
-            RemoveItem(itemId, amount);
-            item.Apply(playerController);
+            if (item.canUseable)
+            {
+                RemoveItem(itemId, amount);
+                item.Apply(playerController);
 
-            inventoryData.SendMessage($"{item.itemName}을(를) {amount}개 사용했습니다.");
+                inventoryData.SendMessage($"{item.itemName}을(를) {amount}개 사용했습니다.");
+            }
+            else if (item.canEquip)
+            {
+                RemoveItem(itemId, amount);
+                item.Apply(playerController);
+
+                inventoryData.SendMessage($"{item.itemName}을(를) {amount}개 착용했습니다.");
+            }
+            else
+            {
+                inventoryData.SendMessage($"{item?.itemName}은(는) 사용할 수 없습니다.");
+            }
         }
         else
         {
-            inventoryData.SendMessage($"{item?.itemName ?? "알 수 없는 아이템"}은(는) 사용할 수 없습니다.");
+            Debug.LogError("[GameInventory] 아이템 데이터가 없습니다.");
         }
     }
     #endregion
