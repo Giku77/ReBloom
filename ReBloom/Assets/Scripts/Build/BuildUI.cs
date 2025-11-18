@@ -7,6 +7,7 @@ public class BuildUI : MonoBehaviour
     [SerializeField] private Transform parentTransform; // ScrollView Content
     [SerializeField] private BuildInfoUI buildInfoPrefab;
     [SerializeField] private BuildSlotUI slotItemPrefab;
+    [SerializeField] private BuildToolTip toolTip;
 
     private readonly string[] arcTypeNames = { "기본", "바이오", "에너지", "기술" };
 
@@ -21,6 +22,7 @@ public class BuildUI : MonoBehaviour
         arcRecipeDB = BuildManager.I.RecipeDB;
 
         BuildAll();
+        Toggle();
     }
 
     private void BuildAll()
@@ -43,6 +45,7 @@ public class BuildUI : MonoBehaviour
 
             arcRecipeDB.TryGetRecipe(arcId, out var recipe);
             slotUI.Set(arc, recipe);
+            slotUI.Init(toolTip);
         }
     }
 

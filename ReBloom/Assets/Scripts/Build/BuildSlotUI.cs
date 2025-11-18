@@ -2,14 +2,20 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class BuildSlotUI : MonoBehaviour
+public class BuildSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerMoveHandler
 {
     [SerializeField] private TextMeshProUGUI txtName;
     [SerializeField] private TextMeshProUGUI txtTier;
     [SerializeField] private List<TextMeshProUGUI> txtMaterials; 
 
+    [SerializeField] private Image iconImage;
+
     private BuildUI parentUI;
+    private BuildToolTip toolTip;
+
+    private ArcData arcData;
 
     [SerializeField] private Button buildButton;
 
@@ -21,8 +27,51 @@ public class BuildSlotUI : MonoBehaviour
         parentUI = GetComponentInParent<BuildUI>();
     }
 
+    public void Init(BuildToolTip toolTip)
+    {
+        this.toolTip = toolTip;
+    }
+
+     public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (toolTip == null) return;
+
+        var go = eventData.pointerCurrentRaycast.gameObject;
+        if (go == null || !go.transform.IsChildOf(iconImage.transform))
+            return;
+
+        string info = arcData.text;            // 설명 텍스트
+
+
+        toolTip.Show(info, eventData.position);
+    }
+
+    public void OnPointerMove(PointerEventData eventData)
+    {
+        if (toolTip == null) return;
+
+        var go = eventData.pointerCurrentRaycast.gameObject;
+        if (go == null || !go.transform.IsChildOf(iconImage.transform))
+            return;
+
+        toolTip.SetPosition(eventData.position);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        if (toolTip == null) return;
+
+        var go = eventData.pointerCurrentRaycast.gameObject;
+        if (go == null || !go.transform.IsChildOf(iconImage.transform))
+            return;
+            
+        toolTip.Hide();
+    }
+
     public void Set(ArcData arc, ArcRecipe recipe)
     {
+        arcData = arc;
+
         txtName.text = arc.name;
         txtTier.text = arc.tier.ToString();
 
