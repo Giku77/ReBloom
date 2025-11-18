@@ -124,7 +124,7 @@ public class BuildManager : MonoBehaviour
         return Spawn(arc, pos, rot);
     }
 
-    private bool HasMaterials(ArcRecipe recipe)
+    public bool HasMaterials(ArcRecipe recipe)
     {
         foreach (var (itemId, amount) in recipe.materials)
         {

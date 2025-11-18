@@ -27,8 +27,14 @@ public class BuildPlacementController : MonoBehaviour
         I = this;
     }
 
-    public void StartPlacement(ArcData arc, GameObject previewPrefab)
+    public void StartPlacement(ArcData arc, ArcRecipe arcRecipe, GameObject previewPrefab)
     {
+
+        if (!BuildManager.I.HasMaterials(arcRecipe))
+        {
+            toast.Show("재료가 부족합니다.");
+            return;
+        }
 
         CancelPlacement();
 
@@ -89,6 +95,7 @@ public class BuildPlacementController : MonoBehaviour
             pos = playerTransform.position + playerTransform.forward * placeDistance;
         }
 
+        pos += Vector3.up * 1.5f; // 약간 띄우기
         rot = Quaternion.LookRotation(playerTransform.forward, Vector3.up);
         lastValidPos = pos;
         lastRot = rot;
