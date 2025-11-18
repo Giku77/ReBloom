@@ -4,8 +4,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// ���� ���� �����
-/// �巡�� �ҽ�(����/�����)�� ���� �ٸ��� ó��
+/// 퀵슬롯 개별 슬롯에 붙이는 드롭존
+/// 인벤토리에서 드래그한 아이템을 퀵슬롯에 할당
 /// </summary>
 public class WorldDropZone : MonoBehaviour,
     IDropHandler, IPointerEnterHandler, IPointerExitHandler
@@ -13,7 +13,7 @@ public class WorldDropZone : MonoBehaviour,
     [Header("References")]
     [SerializeField] private Transform playerTransform;
     [SerializeField] private ItemSpawner itemSpawner;
-    [SerializeField] private InventoryItemData inventoryItemData; // ���� �κ��丮��
+    [SerializeField] private InventoryItemData inventoryItemData; // 인벤토리 데이터
 
     [Header("Drop Settings")]
     [SerializeField] private float dropDistance = 2f;
@@ -29,7 +29,7 @@ public class WorldDropZone : MonoBehaviour,
     [SerializeField] private float groundRaycastDistance = 10f;
 
     [Header("Debug Settings")]
-    [SerializeField] private int debugSpawnCount = 1; // ����� ��� ���� ����
+    [SerializeField] private int debugSpawnCount = 1; // 디버그용 아이템 몇 개 생성
 
     private bool isPointerOver = false;
 
@@ -44,7 +44,7 @@ public class WorldDropZone : MonoBehaviour,
             }
             else
             {
-                Debug.LogError("[WorldDropZone] �÷��̾ ã�� �� �����ϴ�!");
+                Debug.LogError("[WorldDropZone] 플레이어를 찾을 수 없습니다!");
             }
         }
 
@@ -100,13 +100,13 @@ public class WorldDropZone : MonoBehaviour,
 
         if (draggedItem == null)
         {
-            Debug.LogWarning("[WorldDropZone] ��ӵ� �������� �����ϴ�.");
+            Debug.LogWarning("[WorldDropZone] 드래그한 아이템이 없습니다.");
             return;
         }
 
         if (playerTransform == null)
         {
-            Debug.LogError("[WorldDropZone] �÷��̾� Transform�� �����ϴ�!");
+            Debug.LogError("[WorldDropZone] 플레이어 Transform을 찾을 수 없습니다!");
             return;
         }
 
@@ -116,28 +116,28 @@ public class WorldDropZone : MonoBehaviour,
         {
             try
             {
-                // �巡�� �ҽ� Ȯ��
+                // 디버그 인벤토리 여부 확인
                 bool isFromDebugInventory = IsFromDebugInventory(eventData);
 
                 if (isFromDebugInventory)
                 {
-                    // ����� ���: ������ ����
+                    // 디버그 모드: 아이템 생성
                     await HandleDebugDrop(draggedItem, dropPosition);
                 }
                 else
                 {
-                    // ���� ���: �κ��丮���� ����
+                    // 게임 모드: 인벤토리에서 드롭
                     await HandleGameDrop(draggedItem, dropPosition);
                 }
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[WorldDropZone] ������ ��� �� ����: {ex.Message}");
+                Debug.LogError($"[WorldDropZone] 아이템 드롭 중 오류 발생: {ex.Message}");
             }
         }
         else
         {
-            Debug.LogError("[WorldDropZone] ItemSpawner�� ã�� �� �����ϴ�!");
+            Debug.LogError("[WorldDropZone] ItemSpawner를 찾을 수 없습니다!");
         }
 
         if (dropIndicator != null)
@@ -149,11 +149,11 @@ public class WorldDropZone : MonoBehaviour,
 
     #region Drop Handling
     /// <summary>
-    /// ����� �κ��丮���� �巡���ߴ��� Ȯ��
+    ///  디버그 인벤토리에서 드롭한 것인지 확인
     /// </summary>
     private bool IsFromDebugInventory(PointerEventData eventData)
     {
-        // �巡�� ������ ������Ʈ ������Ʈ�� �Ǵ�
+        // 드롭된 아이템이 디버그 인벤토리에서 온 것인지 확인
         if (eventData.pointerDrag != null)
         {
             Transform current = eventData.pointerDrag.transform;
@@ -171,14 +171,14 @@ public class WorldDropZone : MonoBehaviour,
     }
 
     /// <summary>
-    /// ���� �κ��丮 ��� ó�� (���� ����)
+    /// 게임 모드: 인벤토리에서 드롭
     /// </summary>
     private async UniTask HandleGameDrop(
         ItemBase draggedItem, Vector3 dropPosition)
     {
         if (inventoryItemData == null)
         {
-            Debug.LogError("[WorldDropZone] InventoryItemData�� �����ϴ�!");
+            Debug.LogError("[WorldDropZone] InventoryItemData를 찾을 수 없습니다!");
             return;
         }
 
@@ -186,35 +186,35 @@ public class WorldDropZone : MonoBehaviour,
 
         if (itemCount <= 0)
         {
-            Debug.LogWarning($"[WorldDropZone] {draggedItem.itemName}��(��) �κ��丮�� �����ϴ�.");
+            Debug.LogWarning($"[WorldDropZone] {draggedItem.itemName}의(가) 인벤토리에 없습니다.");
             return;
         }
 
-        // ������ ����
+        // 아이템 생성
         for (int i = 0; i < itemCount; i++)
         {
             await itemSpawner.DropItem(draggedItem, dropPosition, Vector3.zero);
         }
 
-        // �κ��丮���� ����
+        // 인벤토리에서 제거
         inventoryItemData.RemoveItem(draggedItem.itemID, itemCount);
 
-        Debug.Log($"[WorldDropZone] {draggedItem.itemName} x{itemCount}��(��) ����߽��ϴ�.");
+        Debug.Log($"[WorldDropZone] {draggedItem.itemName} x{itemCount}개를 드롭했습니다.");
     }
 
     /// <summary>
-    /// ����� �κ��丮 ��� ó�� (���� ���� ����)
+    /// 디버그 인벤토리에서 드롭한 것인지 확인
     /// </summary>
     private async UniTask HandleDebugDrop(
         ItemBase draggedItem, Vector3 dropPosition)
     {
-        // ������ ����
+        // 아이템 생성
         for (int i = 0; i < debugSpawnCount; i++)
         {
             await itemSpawner.DropItem(draggedItem, dropPosition, Vector3.zero);
         }
 
-        Debug.Log($"[WorldDropZone] {draggedItem.itemName} x{debugSpawnCount}��(��) �����߽��ϴ�. (�����)");
+        Debug.Log($"[WorldDropZone] {draggedItem.itemName} x{debugSpawnCount}개를 드롭했습니다. (디버그 모드)");
     }
     #endregion
 
