@@ -1681,7 +1681,7 @@ MonoBehaviour:
   isDead: 0
   cameraTransform: {fileID: 0}
   inventoryItemData: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
-  playerEquipManager: {fileID: 3683887210291562536}
+  playerEquip: {fileID: 0}
   groundCheck: {fileID: 5050456059720074350}
   groundCheckRadius: 0.3
   groundLayer:
@@ -1689,7 +1689,9 @@ MonoBehaviour:
     m_Bits: 8
   minDropHeight: 3
   maxDropHeight: 15
+  landingSlow: 0.2
   debugSpeed: 30
+  playerStats: {fileID: 0}
   spawnPoint: {fileID: 9150461246077990646}
 --- !u!114 &7606702177261600104
 MonoBehaviour:
@@ -1704,7 +1706,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   data: {fileID: 11400000, guid: 983f500effa44c14a9518a1c7ce8c2e7, type: 2}
-  isDebug: 1
+  isDebug: 0
 --- !u!114 &8101906087064541247
 MonoBehaviour:
   m_ObjectHideFlags: 0

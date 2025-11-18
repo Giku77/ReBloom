@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class BuildSlotUI : MonoBehaviour
 {
@@ -10,6 +11,9 @@ public class BuildSlotUI : MonoBehaviour
     [SerializeField] private List<TextMeshProUGUI> txtMaterials; 
 
     private BuildUI parentUI;
+    private BuildToolTip toolTip;
+
+    private ArcData arcData;
 
     [SerializeField] private Button buildButton;
 
@@ -21,8 +25,35 @@ public class BuildSlotUI : MonoBehaviour
         parentUI = GetComponentInParent<BuildUI>();
     }
 
+    public void Init(BuildToolTip toolTip)
+    {
+        this.toolTip = toolTip;
+    }
+
+    public void OnIconPointerEnter(PointerEventData eventData)
+    {
+        if (toolTip == null || arcData == null) return;
+
+        string info = arcData.text;
+        toolTip.Show(info, eventData.position);
+    }
+
+    public void OnIconPointerMove(PointerEventData eventData)
+    {
+        if (toolTip == null) return;
+        toolTip.SetPosition(eventData.position);
+    }
+
+    public void OnIconPointerExit(PointerEventData eventData)
+    {
+        if (toolTip == null) return;
+        toolTip.Hide();
+    }
+
     public void Set(ArcData arc, ArcRecipe recipe)
     {
+        arcData = arc;
+
         txtName.text = arc.name;
         txtTier.text = arc.tier.ToString();
 
