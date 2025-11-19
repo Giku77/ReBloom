@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.InputSystem;
 
@@ -16,7 +16,7 @@ public class WorldItem : MonoBehaviour, IInteractable
     [SerializeField] private InventoryItemData inventoryData;
 
     private PooledItem pooledItem;
-    public float HoldTime => 1f;
+    public float HoldTime => 0f;
 
     private void Awake()
     {

@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -13,8 +13,9 @@ public class PlayerInteractable : MonoBehaviour
 
     private CancellationTokenSource cts;
 
-    //private bool isInteractive = false;
     private InteractionHighlight currentHighlight = null;
+
+    private float currentHoldTime = 0;
 
     private void Awake()
     {
@@ -23,7 +24,12 @@ public class PlayerInteractable : MonoBehaviour
 
     public void OnInteract(InputAction.CallbackContext context)
     {
-        TryInteract();
+        //TryInteract();
+
+        if (context.started)
+            StartInteract().Forget();
+        else if (context.canceled)
+            CancelInteract();
     }
 
     private void CancelInteract()
@@ -38,20 +44,50 @@ public class PlayerInteractable : MonoBehaviour
         CheckForInteractable();
     }
 
-    //private async UniTask StartInteract()
-    //{
-    //    try
-    //    {
-    //        if (TryInteract())
-    //            return;
-    //        await UniTask.Yield(PlayerLoopTiming.Update, cts);
+    private async UniTask StartInteract()
+    {
+        CancelInteract();
+        cts = new CancellationTokenSource();
 
-    //    }
-    //    catch (System.Exception e)
-    //    {
-    //        CancelInteract();
-    //    }
-    //}
+        try
+        {
+            Collider[] hits = Physics.OverlapSphere(transform.position, interactRange, interactLayer);
+            IInteractable closestInteractable = null;
+            float closestDistance = float.MaxValue;
+
+            foreach (var hit in hits)
+            {
+                if (hit.TryGetComponent<IInteractable>(out var interactable))
+                {
+                    Vector3 toTarget = hit.transform.position - transform.position;
+                    float distance = toTarget.magnitude;
+                    float dot = Vector3.Dot(transform.forward, toTarget.normalized);
+
+                    if (dot > 0.5f && distance < closestDistance)
+                    {
+                        closestDistance = distance;
+                        closestInteractable = interactable;
+                    }
+                }
+            }
+
+            if (closestInteractable != null)
+            {
+                float holdTime = closestInteractable.HoldTime;
+                if (holdTime > 0f)
+                {
+                    await UniTask.Delay(System.TimeSpan.FromSeconds(holdTime), cancellationToken: cts.Token);
+                }
+                closestInteractable.Interact(player);
+            }
+        }
+        catch (System.OperationCanceledException)
+        {
+            CancelInteract();
+        }
+
+    }
+
 
     private bool TryInteract()
     {
