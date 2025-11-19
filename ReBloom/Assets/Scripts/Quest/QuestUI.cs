@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 
@@ -5,6 +6,10 @@ public class QuestUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI title;
     [SerializeField] private TextMeshProUGUI description;
+
+    [SerializeField] private QuestPathGuide pathGuide;
+    private int TargetIndex = 0;
+
 
     private void OnEnable()
     {
@@ -46,8 +51,19 @@ public class QuestUI : MonoBehaviour
                         var craftName = bld != null ? bld.name : "Unknown Building";
                         description.text += $"\n - {craftName} ({currentAmt} / {goal.amount})";
                     }
+                    else if (goal.type == QuestGoalType.Enter)
+                    {
+                        //description.text += $"\n - 위치에 도달하기";
+                        pathGuide.SetTarget(pathGuide.Target[TargetIndex], TargetIndex);
+                        TargetIndex = Mathf.Clamp(TargetIndex + 1, 0, pathGuide.Target.Length - 1);
+                    }
                 }
             }
         }
+    }
+
+    public void ClearPathGuide()
+    {
+        pathGuide.ClearTarget();
     }
 }

@@ -43,7 +43,10 @@ public class StageDetector : MonoBehaviour
                     var stageId = QuestManager.I.Current.goals[0].objectId;
                     var enterName = stageManager.DB.TryGet(stageId, out var questStage) ? questStage.name : "";
                     if (enterName == stage.Data.name)
-                      QuestManager.I?.TryCompleteCurrent();
+                    {
+                        QuestManager.I?.TryCompleteCurrent();
+                        QuestManager.I?.ClearPathGuide();
+                    }
                     toastMessageUI.Show($"오염도 지역에 진입했습니다 : 1초마다 오염도({stage.Data.stagePollution}) 증가");
                 }
             }
