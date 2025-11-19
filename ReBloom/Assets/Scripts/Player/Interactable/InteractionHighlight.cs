@@ -72,6 +72,8 @@ public class InteractionHighlight : MonoBehaviour
 
     public void Hide()
     {
+        if (isPermanent) return;
+
         if (isHighlighted)
         {
             highlightLight.enabled = false;

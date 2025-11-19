@@ -19,7 +19,7 @@ public class HoldInteractionUI : MonoBehaviour
 
     public void UpdateProgress(float progress)
     {
-        progressSlider.value = progress; // 0~1 사이 값
+        progressSlider.value = progress;
     }
 
     public void Hide()

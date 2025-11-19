@@ -74,7 +74,7 @@ public class PlayerInteractable : MonoBehaviour
                 }
             }
 
-            if (closestInteractable != null)
+            if (closestInteractable != null && closestInteractable.CanInteract())
             {
                 float holdTime = closestInteractable.HoldTime;
                 if (holdTime > 0f)
@@ -114,6 +114,9 @@ public class PlayerInteractable : MonoBehaviour
 
         foreach (var hit in hits)
         {
+            if (hit.GetComponent<GatherObject>() != null)
+                continue;
+
             if (hit.TryGetComponent<InteractionHighlight>(out var highlight))
             {
                 Vector3 toTarget = hit.transform.position - transform.position;

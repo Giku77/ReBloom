@@ -17,7 +17,15 @@ public class GatherObject : MonoBehaviour, IInteractable
 
     [SerializeField] private InventoryItemData inventoryItemData;
 
+    private InteractionHighlight highlight;
+
     public float HoldTime => gatherObjectData.searchTime;
+
+    private void Awake()
+    {
+        highlight = GetComponent<InteractionHighlight>();
+    }
+
 
     private void Update()
     {
@@ -28,6 +36,9 @@ public class GatherObject : MonoBehaviour, IInteractable
             {
                 isAvailable = true;
                 timer = respawnTime;
+
+                if (highlight != null)
+                    highlight.Show();
             }
         }
     }
@@ -39,6 +50,7 @@ public class GatherObject : MonoBehaviour, IInteractable
 
         if (!isAvailable)
             return;
+
 
         Debug.Log($"[GatherObject] 상호작용 시작 - gatherObjectID: {gatherObjectID}");
 
@@ -55,6 +67,9 @@ public class GatherObject : MonoBehaviour, IInteractable
 
         isAvailable = false;
         timer = 0;
+
+        if (highlight != null)
+            highlight.Hide();
     }
 
     public void Initialize(GatherObjectDB db)
@@ -68,6 +83,14 @@ public class GatherObject : MonoBehaviour, IInteractable
             timer = respawnTime;
 
             Debug.Log($"채집 오브젝트 초기화 {gatherObjectData.objectNameId}");
+
+            if (highlight != null)
+                highlight.Show();
         }
+    }
+
+    public bool CanInteract()
+    { 
+        return isAvailable;
     }
 }

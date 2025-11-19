@@ -1,8 +1,8 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 /// <summary>
-/// ¿ùµå¿¡ ¹èÄ¡µÈ ½ÃÃ¼¹Ú½º¿ÍÀÇ »óÈ£ÀÛ¿ë
-/// ÇÃ·¹ÀÌ¾î°¡ EÅ°¸¦ ´­·¯ ¾ÆÀÌÅÛ È¸¼ö
+/// ì›”ë“œì— ë°°ì¹˜ëœ ì‹œì²´ë°•ìŠ¤ì™€ì˜ ìƒí˜¸ì‘ìš©
+/// í”Œë ˆì´ì–´ê°€ Eí‚¤ë¥¼ ëˆŒëŸ¬ ì•„ì´í…œ íšŒìˆ˜
 /// </summary>
 public class WorldDeathBox : MonoBehaviour, IInteractable
 {
@@ -15,14 +15,14 @@ public class WorldDeathBox : MonoBehaviour, IInteractable
     public float HoldTime => 1f;
 
     /// <summary>
-    /// ¿ÜºÎ¿¡¼­ ÃÊ±âÈ­ (PlayerDeathHandler¿¡¼­ È£Ãâ)
+    /// ì™¸ë¶€ì—ì„œ ì´ˆê¸°í™” (PlayerDeathHandlerì—ì„œ í˜¸ì¶œ)
     /// </summary>
     public void Initialize(DeathBoxData data, InventoryItemData inventory)
     {
         deathBoxData = data;
         playerInventory = inventory;
 
-        // ÇÃ·¹ÀÌ¾î Ã£±â
+        // í”Œë ˆì´ì–´ ì°¾ê¸°
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
@@ -34,38 +34,43 @@ public class WorldDeathBox : MonoBehaviour, IInteractable
     {
         if (playerTransform == null || deathBoxData == null) return;
 
-        // ÇÃ·¹ÀÌ¾î¿ÍÀÇ °Å¸® °è»ê
+        // í”Œë ˆì´ì–´ì™€ì˜ ê±°ë¦¬ ê³„ì‚°
         float distance = Vector3.Distance(transform.position, playerTransform.position);
     }
 
     /// <summary>
-    /// ¸ğµç ¾ÆÀÌÅÛ È¸¼ö
+    /// ëª¨ë“  ì•„ì´í…œ íšŒìˆ˜
     /// </summary>
     private void RetrieveAllItems()
     {
         if (deathBoxData == null || playerInventory == null)
         {
-            Debug.LogError("[DeathBoxInteraction] µ¥ÀÌÅÍ°¡ ÃÊ±âÈ­µÇÁö ¾Ê¾Ò½À´Ï´Ù!");
+            Debug.LogError("[DeathBoxInteraction] ë°ì´í„°ê°€ ì´ˆê¸°í™”ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
             return;
         }
 
         if (!deathBoxData.HasItems)
         {
-            Debug.LogWarning("[DeathBoxInteraction] ½ÃÃ¼¹Ú½º°¡ ºñ¾îÀÖ½À´Ï´Ù!");
+            Debug.LogWarning("[DeathBoxInteraction] ì‹œì²´ë°•ìŠ¤ê°€ ë¹„ì–´ìˆìŠµë‹ˆë‹¤!");
             return;
         }
 
-        // ¾ÆÀÌÅÛ È¸¼ö
+        // ì•„ì´í…œ íšŒìˆ˜
         deathBoxData.RetrieveItemsToInventory(playerInventory);
 
-        Debug.Log("[DeathBoxInteraction] ¸ğµç ¾ÆÀÌÅÛÀ» È¸¼öÇß½À´Ï´Ù!");
+        Debug.Log("[DeathBoxInteraction] ëª¨ë“  ì•„ì´í…œì„ íšŒìˆ˜í–ˆìŠµë‹ˆë‹¤!");
 
-        // ½ÃÃ¼¹Ú½º Á¦°Å
+        // ì‹œì²´ë°•ìŠ¤ ì œê±°
         Destroy(gameObject);
     }
 
     public void Interact(PlayerController player)
     {
         RetrieveAllItems();
+    }
+
+    public bool CanInteract()
+    {
+        return true;
     }
 }
