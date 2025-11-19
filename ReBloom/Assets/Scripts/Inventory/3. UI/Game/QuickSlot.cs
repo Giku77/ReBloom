@@ -241,6 +241,7 @@ public class QuickSlot : MonoBehaviour
         );
 
         newSlotUI.OnUpdateSlotInfo(item, quantity);
+        SetDragDropHandlerData(item, newSlotUI); // 'this' is passed as the QuickSlot instance
         slotUIs[index] = newSlotUI;
     }
     #endregion
@@ -329,7 +330,6 @@ public class QuickSlot : MonoBehaviour
                 RemoveSlot(i);
             }
         }
-
         Debug.Log("[QuickSlot] 모든 슬롯 초기화 완료");
     }
     #endregion
@@ -455,6 +455,17 @@ public class QuickSlot : MonoBehaviour
 
         Debug.Log($"[QuickSlot] 자동 배치 완료: {filledCount}개 아이템");
         return filledCount;
+    }
+
+    public void SetDragDropHandlerData(ItemBase item, QuickSlotUI slot)
+    {
+        if (!slot.TryGetComponent(out ItemIconDragHandler dragHandler))
+        {
+            Debug.LogError("[QuickSlot] ItemIconDragHandler 컴포넌트를 찾을 수 없습니다!");
+            return;
+        }
+
+        dragHandler.SetItemData(item);
     }
     #endregion
 
