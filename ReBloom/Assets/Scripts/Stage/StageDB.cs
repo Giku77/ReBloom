@@ -11,7 +11,7 @@ public class StageDB
         var meta = BGRepo.I.GetMeta("Stage");
         if (meta == null)
         {
-            Debug.LogWarning("[DebuffDB] 'Stage' ���̺��� ã�� �� �����ϴ�.");
+            Debug.LogWarning("[DebuffDB] 'Stage' 데이터 테이블을 찾을 수 없습니다.");
             return;
         }
 
