@@ -1,8 +1,15 @@
+ï»¿using Unity.VisualScripting;
 using UnityEngine;
 
 public class GatherObject : MonoBehaviour, IInteractable
 {
     public int gatherObjectID;
+
+    private float respawnTime;
+
+    private float timer;
+
+    private bool isAvailable = true;
 
     private GatherObjectData gatherObjectData;
 
@@ -12,25 +19,42 @@ public class GatherObject : MonoBehaviour, IInteractable
 
     public float HoldTime => gatherObjectData.searchTime;
 
+    private void Update()
+    {
+        if (!isAvailable)
+        {
+            timer += Time.deltaTime;
+            if (timer >= respawnTime)
+            {
+                isAvailable = true;
+                timer = respawnTime;
+            }
+        }
+    }
+
     public void Interact(PlayerController player)
     {
         if (player == null)
             return;
 
-        Debug.Log($"[GatherObject] »óÈ£ÀÛ¿ë ½ÃÀÛ - gatherObjectID: {gatherObjectID}");
+        if (!isAvailable)
+            return;
+
+        Debug.Log($"[GatherObject] ìƒí˜¸ì‘ìš© ì‹œì‘ - gatherObjectID: {gatherObjectID}");
 
         var drops = gatherManager.GetDropResult(gatherObjectID);
 
         if (drops == null)
         {
-            Debug.Log("[GatherObject] º¸°ü ¾ÆÀÌÅÛÀÌ nullÀÔ´Ï´Ù.");
+            Debug.Log("[GatherObject] ë³´ê´€ ì•„ì´í…œì´ nullì…ë‹ˆë‹¤.");
             return;
         }
 
         inventoryItemData.AddItem(drops.itemID, 1);
-        Debug.Log($"[GatherObject] {drops.itemName} È¹µæ");
+        Debug.Log($"[GatherObject] {drops.itemName} íšë“");
 
-        Destroy(gameObject);
+        isAvailable = false;
+        timer = 0;
     }
 
     public void Initialize(GatherObjectDB db)
@@ -39,7 +63,11 @@ public class GatherObject : MonoBehaviour, IInteractable
 
         if (db.TryGet(gatherObjectID, out gatherObjectData))
         {
-            Debug.Log($"Ã¤Áı ¿ÀºêÁ§Æ® ÃÊ±âÈ­ {gatherObjectData.objectNameId}");
+            respawnTime = gatherObjectData.respawnTime;
+
+            timer = respawnTime;
+
+            Debug.Log($"ì±„ì§‘ ì˜¤ë¸Œì íŠ¸ ì´ˆê¸°í™” {gatherObjectData.objectNameId}");
         }
     }
 }
