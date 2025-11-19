@@ -1,4 +1,4 @@
-using TMPro;
+ï»¿using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -11,16 +11,16 @@ public class QuickSlotUI : MonoBehaviour
     [SerializeField] TextMeshProUGUI itemName;
 
     [Header("Fallback")]
-    [SerializeField] private Sprite defaultIcon; // ±âº» ¾ÆÀÌÄÜ (Optional)
+    [SerializeField] private Sprite defaultIcon; // ê¸°ë³¸ ì•„ì´ì½˜ (Optional)
 
     /// <summary>
-    /// ½½·Ô Á¤º¸ ¾÷µ¥ÀÌÆ®
+    /// ìŠ¬ë¡¯ ì •ë³´ ì—…ë°ì´íŠ¸
     /// </summary>
     public void OnUpdateSlotInfo(ItemBase currentSlotData, int quantity)
     {
         if (currentSlotData == null)
         {
-            Debug.LogError("[QuickSlotUI] currentSlotData°¡ nullÀÔ´Ï´Ù!");
+            Debug.LogError("[QuickSlotUI] currentSlotDataê°€ nullì…ë‹ˆë‹¤!");
             return;
         }
 
@@ -30,22 +30,21 @@ public class QuickSlotUI : MonoBehaviour
             {
                 slotIcon.sprite = currentSlotData.icon;
                 slotIcon.enabled = true;
-                slotIcon.color = Color.white;
             }
             else
             {
-                // ¾ÆÀÌÄÜÀÌ ¾øÀ¸¸é ±âº» ¾ÆÀÌÄÜ »ç¿ë ¶Ç´Â ºñÈ°¼ºÈ­
+                // ì•„ì´ì½˜ì´ ì—†ìœ¼ë©´ ê¸°ë³¸ ì•„ì´ì½˜ ì‚¬ìš© ë˜ëŠ” ë¹„í™œì„±í™”
                 if (defaultIcon != null)
                 {
                     slotIcon.sprite = defaultIcon;
                     slotIcon.enabled = true;
-                    slotIcon.color = Color.gray;  // ·Îµù Áß Ç¥½Ã
-                    Debug.LogWarning($"[QuickSlotUI] {currentSlotData.itemName} ¾ÆÀÌÄÜÀÌ ¾ø¾î ±âº» ¾ÆÀÌÄÜ »ç¿ë");
+                    slotIcon.color = Color.gray;  // ë¡œë”© ì¤‘ í‘œì‹œ
+                    Debug.LogWarning($"[QuickSlotUI] {currentSlotData.itemName} ì•„ì´ì½˜ì´ ì—†ì–´ ê¸°ë³¸ ì•„ì´ì½˜ ì‚¬ìš©");
                 }
                 else
                 {
                     slotIcon.enabled = false;
-                    Debug.LogWarning($"[QuickSlotUI] {currentSlotData.itemName} ¾ÆÀÌÄÜ ¾øÀ½ (ºñÈ°¼ºÈ­)");
+                    Debug.LogWarning($"[QuickSlotUI] {currentSlotData.itemName} ì•„ì´ì½˜ ì—†ìŒ (ë¹„í™œì„±í™”)");
                 }
             }
         }

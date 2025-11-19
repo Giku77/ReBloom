@@ -100,18 +100,19 @@ public class ItemIconDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
         bool droppedOnValidSlot = eventData.pointerEnter != null &&
                                   eventData.pointerEnter.GetComponent<QuickSlotDropZone>() != null;
 
-        //if (!droppedOnValidSlot)
-        //{
-        //    // 유효하지 않은 곳에 드롭: 원래 위치로 복구
-        //    Debug.Log($"[DragHandler] 잘못된 위치 드롭 - 원래 위치로 복구");
-        //    transform.SetParent(originalParent, true);
-        //    transform.SetSiblingIndex(originalSiblingIndex);
-        //    rectTransform.anchoredPosition = originalPosition;
-        //}
-        if(droppedOnValidSlot)
+        if (!droppedOnValidSlot && isDraggingFromInventory)
+        {
+            // 유효하지 않은 곳에 드롭: 원래 위치로 복구
+            Debug.Log($"[DragHandler] 잘못된 위치 드롭 - 원래 위치로 복구");
+            transform.SetParent(originalParent, true);
+            transform.SetSiblingIndex(originalSiblingIndex);
+            rectTransform.anchoredPosition = originalPosition;
+        }
+        else
         {
             // 유효한 드롭 성공
             Debug.Log($"[DragHandler] 유효한 드롭 완료");
+            //Debug.Log($"[DragHandler] {eventData.pointerEnter} or {eventData.pointerEnter.GetComponent<QuickSlotDropZone>()}");
 
             // 인벤토리에서 드래그한 경우: 인벤토리 UI 새로고침
             if (isDraggingFromInventory)

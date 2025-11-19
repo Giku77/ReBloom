@@ -85,4 +85,10 @@ public class WorldItem : MonoBehaviour, IInteractable
             pooledItem.ReturnToPoolAfterDelay(600f); // 10분
         }
     }
+
+    public void ResetItem()
+    {
+        itemData = null;
+        quantity = 1;
+    }
 }

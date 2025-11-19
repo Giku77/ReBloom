@@ -11,7 +11,8 @@ public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandl
 
     [Header("Visual Feedback")]
     [SerializeField] private Image backgroundImage;
-    [SerializeField] private Color normalColor = Color.white;
+
+    [SerializeField] private Color originColor;
     [SerializeField] private Color hoverColor = new Color(0.8f, 1f, 0.8f, 1f);
     [SerializeField] private Color invalidColor = new Color(1f, 0.8f, 0.8f, 1f);
 
@@ -35,7 +36,7 @@ public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandl
 
         if (backgroundImage != null)
         {
-            backgroundImage.color = normalColor;
+            originColor = backgroundImage.color;
         }
     }
 
@@ -63,7 +64,7 @@ public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandl
 
         if (backgroundImage != null)
         {
-            backgroundImage.color = normalColor;
+            backgroundImage.color = originColor;
         }
     }
 
@@ -107,7 +108,7 @@ public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandl
         // 색상 복원
         if (backgroundImage != null)
         {
-            backgroundImage.color = normalColor;
+            backgroundImage.color = originColor;
         }
     }
 
@@ -266,7 +267,7 @@ public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandl
     {
         if (backgroundImage != null)
         {
-            backgroundImage.color = normalColor;
+            backgroundImage.color = originColor;
         }
     }
 

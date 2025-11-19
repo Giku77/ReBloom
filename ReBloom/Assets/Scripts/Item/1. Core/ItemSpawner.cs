@@ -277,6 +277,11 @@ public class ItemSpawner : MonoBehaviour
             rb.isKinematic = true;
         }
 
+       if(obj.TryGetComponent<WorldItem>(out var wordItem))
+        {
+            wordItem.ResetItem();
+        }
+
         // 통계 업데이트
         var pooledItem = obj.GetComponent<PooledItem>();
         if (pooledItem != null)
@@ -354,7 +359,7 @@ public class ItemSpawner : MonoBehaviour
     #endregion
 
     #region 유틸리티
-    public async UniTask PreloadItemPool(int itemID, int count = 10)
+    public async UniTask PreloadItemPool(int itemID, int count = 10) //TODO: defaultPoolSize로 변경 고려 및 최대치 검토, 적용 여부 확인
     {
         ItemBase itemData = ItemDatabase.I.GetItem(itemID);
         if (itemData == null) return;

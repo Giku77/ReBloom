@@ -44,7 +44,7 @@ public class RemovePopUPUI : MonoBehaviour
         contentTxt.text = $"'{item.itemName}'을(를)\n버리시겠습니까?";
 
         // 슬라이더 설정
-        quantitySlider.minValue = 1;
+        quantitySlider.minValue = 0;
         quantitySlider.maxValue = maxQuantity;
         quantitySlider.wholeNumbers = true;
 
@@ -114,7 +114,7 @@ public class RemovePopUPUI : MonoBehaviour
     {
         if (quantityTxt != null)
         {
-            quantityTxt.text = quantity.ToString();
+            quantityTxt.text = quantity.ToString()+"개";
         }
     }
     #endregion
