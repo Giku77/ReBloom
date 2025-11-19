@@ -15,6 +15,7 @@ public class WorldDropZone : MonoBehaviour,
     [SerializeField] private Transform playerTransform;
     [SerializeField] private ItemSpawner itemSpawner;
     [SerializeField] private InventoryItemData inventoryItemData; // 인벤토리 데이터
+    [SerializeField] private RemovePopUp removePopUp; // 삭제 팝업 컨트롤러
 
     [Header("Drop Settings")]
     [SerializeField] private float dropDistance = 2f;
@@ -31,6 +32,8 @@ public class WorldDropZone : MonoBehaviour,
 
     [Header("Debug Settings")]
     [SerializeField] private int debugSpawnCount = 1; // 디버그용 아이템 몇 개 생성
+
+    private ItemBase lastDroppedItem;
 
     private bool isPointerOver = false;
 
@@ -105,45 +108,53 @@ public class WorldDropZone : MonoBehaviour,
             return;
         }
 
+        lastDroppedItem = draggedItem;
+
         if (playerTransform == null)
         {
             Debug.LogError("[WorldDropZone] 플레이어 Transform을 찾을 수 없습니다!");
             return;
         }
 
-        Vector3 dropPosition = CalculateDropPosition();
-
-        if (itemSpawner != null)
+        if (itemSpawner == null)
         {
-            try
-            {
-                // 디버그 인벤토리 여부 확인
-                bool isFromDebugInventory = IsFromDebugInventory(eventData);
-                bool isFromQuickSlot = IsFromQuickSlot(eventData);
+            Debug.LogError("[WorldDropZone] ItemSpawner를 찾을 수 없습니다!");
+            return;
+        }
 
-                if (isFromDebugInventory)
+        try
+        {
+            bool isFromDebugInventory = IsFromDebugInventory(eventData);
+            bool isFromQuickSlot = IsFromQuickSlot(eventData);
+
+            if (isFromDebugInventory)
+            {
+                // 디버그 모드: 즉시 드롭
+                Vector3 dropPosition = CalculateDropPosition();
+                await HandleDebugDrop(draggedItem, dropPosition);
+            }
+            else if (isFromQuickSlot)
+            {
+                // 퀵슬롯에서 드래그: 무시
+                Debug.Log("[WorldDropZone] 퀵슬롯에서의 드래그는 무시됩니다.");
+            }
+            else
+            {
+                // 게임 인벤토리에서 드래그: 팝업 열기
+                if (removePopUp != null)
                 {
-                    // 디버그 모드: 아이템 생성
-                    await HandleDebugDrop(draggedItem, dropPosition);
-                }
-                else if (isFromQuickSlot)
-                {
-                    // 아무것도 안함
+                    removePopUp.OnOpen(lastDroppedItem);
+                    Debug.Log("[WorldDropZone] 수량 선택 팝업 열림");
                 }
                 else
                 {
-                    // 게임 모드: 인벤토리에서 드롭
-                    await HandleGameDrop(draggedItem, dropPosition);
+                    Debug.LogError("[WorldDropZone] RemovePopUp이 할당되지 않았습니다!");
                 }
             }
-            catch (Exception ex)
-            {
-                Debug.LogError($"[WorldDropZone] 아이템 드롭 중 오류 발생: {ex.Message}");
-            }
         }
-        else
+        catch (Exception ex)
         {
-            Debug.LogError("[WorldDropZone] ItemSpawner를 찾을 수 없습니다!");
+            Debug.LogError($"[WorldDropZone] 아이템 드롭 중 오류 발생: {ex.Message}");
         }
 
         if (dropIndicator != null)
@@ -152,6 +163,26 @@ public class WorldDropZone : MonoBehaviour,
         }
     }
     #endregion
+
+    #region RemovePopUp에서 호출
+    /// <summary>
+    /// 팝업에서 확정된 수량으로 아이템 드롭
+    /// </summary>
+    public async void DropItemFromPopup(ItemBase item, int quantity)
+    {
+        if (item == null || quantity <= 0)
+        {
+            Debug.LogWarning("[WorldDropZone] 유효하지 않은 아이템 또는 수량입니다.");
+            return;
+        }
+
+        Vector3 dropPosition = CalculateDropPosition();
+        await HandleGameDrop(item, dropPosition, quantity);
+
+        lastDroppedItem = null;
+    }
+    #endregion
+
 
     #region Drop Handling
     /// <summary>
@@ -195,10 +226,9 @@ public class WorldDropZone : MonoBehaviour,
     }
 
     /// <summary>
-    /// 게임 모드: 인벤토리에서 드롭
+    /// 게임 모드: 인벤토리에서 드롭 (수량 지정)
     /// </summary>
-    private async UniTask HandleGameDrop(
-        ItemBase draggedItem, Vector3 dropPosition)
+    private async UniTask HandleGameDrop(ItemBase draggedItem, Vector3 dropPosition, int quantity)
     {
         if (inventoryItemData == null)
         {
@@ -206,24 +236,20 @@ public class WorldDropZone : MonoBehaviour,
             return;
         }
 
-        int itemCount = inventoryItemData.GetItemCount(draggedItem.itemID);
+        // 실제 인벤토리 수량 확인 (이미 RemovePopUp에서 제거했으므로 체크만)
+        int currentCount = inventoryItemData.GetItemCount(draggedItem.itemID);
+        Debug.Log($"[WorldDropZone] 드롭 후 인벤토리 남은 수량: {currentCount}");
 
-        if (itemCount <= 0)
+        // 아이템 월드에 생성 (설정한 수량 만큼)
+        if (itemSpawner != null)
         {
-            Debug.LogWarning($"[WorldDropZone] {draggedItem.itemName}의(가) 인벤토리에 없습니다.");
-            return;
+            await itemSpawner.DropItemWithQuantity(draggedItem, dropPosition, quantity);
+            Debug.Log($"[WorldDropZone] {draggedItem.itemName} x{quantity}개를 월드에 Stack 드롭했습니다.");
         }
-
-        // 아이템 생성
-        for (int i = 0; i < itemCount; i++)
+        else
         {
-            await itemSpawner.DropItem(draggedItem, dropPosition, Vector3.zero);
+            Debug.LogError("[WorldDropZone] ItemSpawner를 찾을 수 없습니다!");
         }
-
-        // 인벤토리에서 제거
-        inventoryItemData.RemoveItem(draggedItem.itemID, itemCount);
-
-        Debug.Log($"[WorldDropZone] {draggedItem.itemName} x{itemCount}개를 드롭했습니다.");
     }
 
     /// <summary>
@@ -235,7 +261,7 @@ public class WorldDropZone : MonoBehaviour,
         // 아이템 생성
         for (int i = 0; i < debugSpawnCount; i++)
         {
-            await itemSpawner.DropItem(draggedItem, dropPosition, Vector3.zero);
+            await itemSpawner.DropItemWithQuantity(draggedItem, dropPosition, 1); //TODO: 설정한 수량에 맞게 stack 생성
         }
 
         Debug.Log($"[WorldDropZone] {draggedItem.itemName} x{debugSpawnCount}개를 드롭했습니다. (디버그 모드)");

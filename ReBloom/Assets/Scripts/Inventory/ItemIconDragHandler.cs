@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -12,20 +12,20 @@ public class ItemIconDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
     private RectTransform rectTransform;
     private CanvasGroup canvasGroup;
 
-    // ¿ø·¡ À§Ä¡ Á¤º¸
+    // ì›ë˜ ìœ„ì¹˜ ì •ë³´
     private Vector2 originalPosition;
     private Transform originalParent;
     private int originalSiblingIndex;
 
-    // µå·¡±× ½ÃÀÛ À§Ä¡ ÆÇ´Ü¿ë
+    // ë“œë˜ê·¸ ì‹œì‘ ìœ„ì¹˜ íŒë‹¨ìš©
     private bool isDraggingFromQuickSlot;
     private bool isDraggingFromInventory;
 
-    // Á¤Àû º¯¼ö
+    // ì •ì  ë³€ìˆ˜
     public static ItemBase CurrentDraggedItem { get; private set; }
     public static int CurrentDraggedSlotIndex { get; private set; } = -1;
 
-    #region À¯´ÏÆ¼ »ı¸íÁÖ±â
+    #region ìœ ë‹ˆí‹° ìƒëª…ì£¼ê¸°
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
@@ -39,7 +39,7 @@ public class ItemIconDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
     }
     #endregion
 
-    #region µ¥ÀÌÅÍ ¼Â
+    #region ë°ì´í„° ì…‹
     public void SetItemData(ItemBase data)
     {
         itemData = data;
@@ -50,32 +50,32 @@ public class ItemIconDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
     }
     #endregion
 
-    #region µå·¡±×¾Ø µå·Ó
+    #region ë“œë˜ê·¸ì•¤ ë“œë¡­
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (itemData == null) return;
 
-        // ¿ø·¡ Á¤º¸ ÀúÀå
+        // ì›ë˜ ì •ë³´ ì €ì¥
         originalPosition = rectTransform.anchoredPosition;
         originalParent = transform.parent;
         originalSiblingIndex = transform.GetSiblingIndex();
 
-        // ¾îµğ¼­ µå·¡±× ½ÃÀÛÇß´ÂÁö È®ÀÎ
+        // ì–´ë””ì„œ ë“œë˜ê·¸ ì‹œì‘í–ˆëŠ”ì§€ í™•ì¸
         isDraggingFromQuickSlot = originalParent.GetComponentInParent<QuickSlotDropZone>() != null;
         isDraggingFromInventory = originalParent.GetComponentInParent<GameInventoryUI>() != null;
 
-        // Äü½½·Ô ÀÎµ¦½º ÀúÀå
+        // í€µìŠ¬ë¡¯ ì¸ë±ìŠ¤ ì €ì¥
         if (isDraggingFromQuickSlot)
         {
             CurrentDraggedSlotIndex = originalParent.GetSiblingIndex();
-            Debug.Log($"[DragHandler] Äü½½·Ô {CurrentDraggedSlotIndex}¿¡¼­ µå·¡±× ½ÃÀÛ");
+            Debug.Log($"[DragHandler] í€µìŠ¬ë¡¯ {CurrentDraggedSlotIndex}ì—ì„œ ë“œë˜ê·¸ ì‹œì‘");
         }
         else
         {
             CurrentDraggedSlotIndex = -1;
         }
 
-        // µå·¡±× ¼³Á¤
+        // ë“œë˜ê·¸ ì„¤ì •
         transform.SetParent(canvas.transform, true);
         canvasGroup.blocksRaycasts = false;
         canvasGroup.alpha = 0.6f;
@@ -83,7 +83,7 @@ public class ItemIconDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
         CurrentDraggedItem = itemData;
         rectTransform.SetAsLastSibling();
 
-        Debug.Log($"[DragHandler] µå·¡±× ½ÃÀÛ: {itemData.itemName} (Äü½½·Ô: {isDraggingFromQuickSlot}, ÀÎº¥Åä¸®: {isDraggingFromInventory})");
+        Debug.Log($"[DragHandler] ë“œë˜ê·¸ ì‹œì‘: {itemData.itemName} (í€µìŠ¬ë¡¯: {isDraggingFromQuickSlot}, ì¸ë²¤í† ë¦¬: {isDraggingFromInventory})");
     }
 
     public void OnDrag(PointerEventData eventData)
@@ -96,44 +96,45 @@ public class ItemIconDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
     {
         if (itemData == null) return;
 
-        // µå·Ó ¼º°ø ¿©ºÎ È®ÀÎ
+        // ë“œë¡­ ì„±ê³µ ì—¬ë¶€ í™•ì¸
         bool droppedOnValidSlot = eventData.pointerEnter != null &&
-                                   eventData.pointerEnter.GetComponent<QuickSlotDropZone>() != null;
+                                  eventData.pointerEnter.GetComponent<QuickSlotDropZone>() != null;
 
-        if (!droppedOnValidSlot)
+        if (!droppedOnValidSlot && isDraggingFromInventory)
         {
-            // À¯È¿ÇÏÁö ¾ÊÀº °÷¿¡ µå·Ó: ¿ø·¡ À§Ä¡·Î º¹±¸
-            Debug.Log($"[DragHandler] Àß¸øµÈ À§Ä¡ µå·Ó - ¿ø·¡ À§Ä¡·Î º¹±¸");
+            // ìœ íš¨í•˜ì§€ ì•Šì€ ê³³ì— ë“œë¡­: ì›ë˜ ìœ„ì¹˜ë¡œ ë³µêµ¬
+            Debug.Log($"[DragHandler] ì˜ëª»ëœ ìœ„ì¹˜ ë“œë¡­ - ì›ë˜ ìœ„ì¹˜ë¡œ ë³µêµ¬");
             transform.SetParent(originalParent, true);
             transform.SetSiblingIndex(originalSiblingIndex);
             rectTransform.anchoredPosition = originalPosition;
         }
         else
         {
-            // À¯È¿ÇÑ µå·Ó ¼º°ø
-            Debug.Log($"[DragHandler] À¯È¿ÇÑ µå·Ó ¿Ï·á");
+            // ìœ íš¨í•œ ë“œë¡­ ì„±ê³µ
+            Debug.Log($"[DragHandler] ìœ íš¨í•œ ë“œë¡­ ì™„ë£Œ");
+            //Debug.Log($"[DragHandler] {eventData.pointerEnter} or {eventData.pointerEnter.GetComponent<QuickSlotDropZone>()}");
 
-            // ÀÎº¥Åä¸®¿¡¼­ µå·¡±×ÇÑ °æ¿ì: ÀÎº¥Åä¸® UI »õ·Î°íÄ§
+            // ì¸ë²¤í† ë¦¬ì—ì„œ ë“œë˜ê·¸í•œ ê²½ìš°: ì¸ë²¤í† ë¦¬ UI ìƒˆë¡œê³ ì¹¨
             if (isDraggingFromInventory)
             {
                 RefreshInventoryUI();
             }
 
-            // ±âÁ¸ UI ÆÄ±« (»õ UI°¡ »ı¼ºµÇ¹Ç·Î)
+            // ê¸°ì¡´ UI íŒŒê´´ (ìƒˆ UIê°€ ìƒì„±ë˜ë¯€ë¡œ)
             Destroy(gameObject);
         }
 
-        // »óÅÂ º¹¿ø
+        // ìƒíƒœ ë³µì›
         canvasGroup.blocksRaycasts = true;
         canvasGroup.alpha = 1f;
 
-        // Á¤Àû º¯¼ö ÃÊ±âÈ­
+        // ì •ì  ë³€ìˆ˜ ì´ˆê¸°í™”
         CurrentDraggedItem = null;
         CurrentDraggedSlotIndex = -1;
     }
 
     /// <summary>
-    /// ÀÎº¥Åä¸® UI °­Á¦ »õ·Î°íÄ§
+    /// ì¸ë²¤í† ë¦¬ UI ê°•ì œ ìƒˆë¡œê³ ì¹¨
     /// </summary>
     private void RefreshInventoryUI()
     {
@@ -141,11 +142,11 @@ public class ItemIconDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
         if (inventoryUI != null)
         {
             inventoryUI.RefreshUI();
-            Debug.Log("[DragHandler] ÀÎº¥Åä¸® UI »õ·Î°íÄ§ ¿Ï·á");
+            Debug.Log("[DragHandler] ì¸ë²¤í† ë¦¬ UI ìƒˆë¡œê³ ì¹¨ ì™„ë£Œ");
         }
         else
         {
-            Debug.LogWarning("[DragHandler] GameInventoryUI¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù!");
+            Debug.LogWarning("[DragHandler] GameInventoryUIë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤!");
         }
     }
     #endregion

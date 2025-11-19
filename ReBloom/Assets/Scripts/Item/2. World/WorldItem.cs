@@ -33,6 +33,7 @@ public class WorldItem : MonoBehaviour, IInteractable
     /// </summary>
     public void SetQuantity(int amount)
     {
+        //풀에 돌아갈때 1로 초기화 필요
         quantity = Mathf.Max(1, amount);
     }
 
@@ -54,9 +55,8 @@ public class WorldItem : MonoBehaviour, IInteractable
 
     private void PickupItem()
     {
-        // TODO: 인벤토리에 추가
         var inv = (GameInventory)QuestManager.I.Inventory;
-        inv.AddItem(itemData.itemID, 1);
+        inv.AddItem(itemData.itemID, quantity);
 
 
         Debug.Log($"{itemData.itemName} 획득!");
@@ -84,5 +84,11 @@ public class WorldItem : MonoBehaviour, IInteractable
         {
             pooledItem.ReturnToPoolAfterDelay(600f); // 10분
         }
+    }
+
+    public void ResetItem()
+    {
+        itemData = null;
+        quantity = 1;
     }
 }
