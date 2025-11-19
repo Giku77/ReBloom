@@ -8,6 +8,7 @@ public class QuickSlotUI : MonoBehaviour
     [Header("Ref")]
     [SerializeField] Image slotIcon;
     [SerializeField] TextMeshProUGUI itemQuantity;
+    [SerializeField] TextMeshProUGUI itemName;
 
     [Header("Fallback")]
     [SerializeField] private Sprite defaultIcon; // 기본 아이콘 (Optional)
@@ -52,6 +53,11 @@ public class QuickSlotUI : MonoBehaviour
         if (itemQuantity != null)
         {
             itemQuantity.text = quantity.ToString();
+        }
+
+        if(itemName != null)
+        {
+            itemName.text = currentSlotData.itemName;
         }
     }
 }
