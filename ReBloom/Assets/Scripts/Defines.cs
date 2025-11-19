@@ -39,10 +39,10 @@ public enum ItemTableType
 /// </summary>
 public enum InventorySlotType
 {
-    Equipment = 0,      // 장비 탭
-    Consumable = 1,     // 소비 아이템 탭
-    Misc = 2,           // 기타 아이템 탭
-    Important = 3       // 중요 아이템 탭
+    Equipment = 1,      // 장비 탭
+    Consumable = 2,     // 소비 아이템 탭
+    Misc = 3,           // 기타 아이템 탭
+    Important = 4       // 중요 아이템 탭
 }
 
 /// <summary>

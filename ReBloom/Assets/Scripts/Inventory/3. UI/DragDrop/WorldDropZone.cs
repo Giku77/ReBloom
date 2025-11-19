@@ -1,5 +1,6 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -118,11 +119,16 @@ public class WorldDropZone : MonoBehaviour,
             {
                 // 디버그 인벤토리 여부 확인
                 bool isFromDebugInventory = IsFromDebugInventory(eventData);
+                bool isFromQuickSlot = IsFromQuickSlot(eventData);
 
                 if (isFromDebugInventory)
                 {
                     // 디버그 모드: 아이템 생성
                     await HandleDebugDrop(draggedItem, dropPosition);
+                }
+                else if (isFromQuickSlot)
+                {
+                    // 아무것도 안함
                 }
                 else
                 {
@@ -160,6 +166,24 @@ public class WorldDropZone : MonoBehaviour,
             while (current != null)
             {
                 if (current.GetComponent<DebugInventoryMarker>() != null)
+                {
+                    return true;
+                }
+                current = current.parent;
+            }
+        }
+
+        return false;
+    }
+    private bool IsFromQuickSlot(PointerEventData eventData)
+    {
+        // 드롭된 아이템이 퀵슬롯에서 온 것인지 확인
+        if (eventData.pointerDrag != null)
+        {
+            Transform current = eventData.pointerDrag.transform;
+            while (current != null)
+            {
+                if (current.GetComponent<QuickSlotUI>() != null)
                 {
                     return true;
                 }
