@@ -883,6 +883,10 @@ PrefabInstance:
       propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6991050825801678880, guid: 8055610cf6f71b84880d4621c0179f57, type: 3}
+      propertyPath: playerController
+      value: 
+      objectReference: {fileID: 483847822}
     - target: {fileID: 7000898224202803645, guid: 8055610cf6f71b84880d4621c0179f57, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1436,6 +1440,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2337004310381711414, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
   m_PrefabInstance: {fileID: 903014004}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &483847822 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 251664490291277007, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
+  m_PrefabInstance: {fileID: 903014004}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 838ff50d40bdaf841bc5e98f4e9ef801, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &643928202
 GameObject:
   m_ObjectHideFlags: 0
@@ -19003,6 +19018,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 251664490291277007, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
+      propertyPath: groundLayer.m_Bits
+      value: 648
+      objectReference: {fileID: 0}
     - target: {fileID: 528702365561573907, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
