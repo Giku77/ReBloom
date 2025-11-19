@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -131,6 +131,31 @@ public class QuestPathGuide : MonoBehaviour
             }
 
             markers[i].transform.position = pos;
+
+            Vector3 dir;
+
+            if (samplePoints.Count == 1)
+            {
+                dir = (target[currentTargetIndex].position - player.position);
+            }
+            else if (i < samplePoints.Count - 1)
+            {
+                dir = samplePoints[i + 1] - samplePoints[i];
+            }
+            else
+            {
+                dir = samplePoints[i] - samplePoints[i - 1];
+            }
+
+            dir.y = 0f;
+
+            if (dir.sqrMagnitude > 0.0001f)
+            {
+                // 파티클이 로컬 Z+ 방향으로 흐르도록 프리팹 세팅했다면
+                // LookRotation(forward: dir)
+                markers[i].transform.rotation = Quaternion.LookRotation(dir.normalized, Vector3.up);
+            }
+
             markers[i].SetActive(true);
         }
         // if (!NavMesh.CalculatePath(player.position, target[currentTargetIndex].position, NavMesh.AllAreas, path))

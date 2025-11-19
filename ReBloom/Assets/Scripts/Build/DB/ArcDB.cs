@@ -24,6 +24,8 @@ public class ArcDB
                 installLimit = e.Get<int>("Installationlimit"),
                 buildTime = e.Get<float>("ArcTime"),
                 text = e.Get<string>("Text"),
+                interactType = e.Get<int>("ArcInteraction"),
+                interactTime = e.Get<float>("InteractionTime"),
             };
             _arcs[d.arcId] = d;
         }

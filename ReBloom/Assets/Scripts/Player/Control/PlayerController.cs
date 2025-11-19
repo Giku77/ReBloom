@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -13,6 +13,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float turnSpeed = 15f;
     [SerializeField] private float slowSpeed = 4f;
     [SerializeField] private float changeSpeedRadius = 4;
+
+    [Header("Step Climb Settings")]
+    [SerializeField] private float stepHeight = 0.4f;      // 올라갈 수 있는 최대 턱 높이
+    [SerializeField] private float stepRayLength = 0.5f;   // 앞쪽 감지 거리
+    [SerializeField] private LayerMask stepLayerMask;      // 부딪힐 지면/장애물 레이어 (groundLayer랑 같게 써도 됨)
+    [SerializeField] private float stepSmooth = 0.1f;      // 한 프레임에 얼마나 올릴지
 
     public float currentSpeed = 0f;
     private float targetSpeed;
@@ -95,6 +101,24 @@ public class PlayerController : MonoBehaviour
             playerStats.OnDeath += HandleDeath;
     }
 
+    private void StepClimb()
+    {
+        if (!isGround) return;
+        if (moveDirection.sqrMagnitude < 0.01f) return;
+
+        Vector3 originLow = transform.position + Vector3.up * 0.1f;
+        if (Physics.Raycast(originLow, transform.forward, out RaycastHit hitLow, stepRayLength, stepLayerMask))
+        {
+            Vector3 originHigh = transform.position + Vector3.up * (stepHeight + 0.1f);
+            if (!Physics.Raycast(originHigh, transform.forward, stepRayLength, stepLayerMask))
+            {
+                // 위쪽은 비어있다 = 올라갈 수 있는 작은 턱
+                // 살짝 위로 올려준다
+                rb.position += Vector3.up * stepSmooth;
+            }
+        }
+    }
+
     private void Update()
     {
         isGround = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
@@ -121,6 +145,7 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         MovePlayer();
+        StepClimb();
         RotatePlayer();
         JumpPlayer();
     }

@@ -14,6 +14,8 @@ public class ArcData
     public int installLimit;
     public float buildTime;        
     public string text;
+    public int interactType;
+    public float interactTime;
 }
 
 public class ArcContext
