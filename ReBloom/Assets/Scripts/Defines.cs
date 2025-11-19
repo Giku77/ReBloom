@@ -64,7 +64,7 @@ public enum ConsumableCategory
 {
     Food = 1,           // 1. 식량
     Medical = 2,        // 2. 구급물품
-    Jammer = 3          // 3. 재밍 아이템 (주파수)
+    Jamming = 3          // 3. 재밍 아이템 (주파수)
 }
 
 /// <summary>
@@ -125,7 +125,8 @@ public enum ToolCategory
 public enum ProtectiveGearType
 {
     Clothing = 1,       // 옷
-    Shoes = 2           // 신발
+    Shoes = 2,           // 신발
+    None = 3
 }
 
 // ==================== 기타 아이템 관련 ====================
@@ -174,7 +175,7 @@ public enum WeatherType
 {
     Sunny,    // 맑음
     Rain,     // 비
-    Cloudy,   // 흐림
+    Radio,    // Radio
     Snow,     // 눈
     Thunder,  // 천둥 (번개)
     Hot       // 더움
