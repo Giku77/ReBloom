@@ -1,41 +1,38 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-/// <summary>
-/// Äü½½·Ô °³º° ½½·Ô¿¡ ºÙÀÌ´Â µå·ÓÁ¸
-/// ÀÎº¥Åä¸®¿¡¼­ µå·¡±×ÇÑ ¾ÆÀÌÅÛÀ» Äü½½·Ô¿¡ ÇÒ´ç
-/// </summary>
-[RequireComponent(typeof(Image))] // ·¹ÀÌÄ³½ºÆ®¸¦ À§ÇØ Image ÇÊ¿ä
+[RequireComponent(typeof(Image))]
 public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("References")]
-    [SerializeField] private QuickSlot quickSlotManager; // QuickSlot ¸Å´ÏÀú
-    [SerializeField] private int slotIndex; // ÀÌ ½½·ÔÀÇ ÀÎµ¦½º (0~5)
+    [SerializeField] private QuickSlot quickSlotManager;
+    [SerializeField] private int slotIndex;
 
     [Header("Visual Feedback")]
-    [SerializeField] private Image backgroundImage; // ¹è°æ ÀÌ¹ÌÁö
+    [SerializeField] private Image backgroundImage;
     [SerializeField] private Color normalColor = Color.white;
-    [SerializeField] private Color hoverColor = new Color(0.8f, 1f, 0.8f, 1f); // ¿¬ÇÑ ÃÊ·Ï
-    [SerializeField] private Color invalidColor = new Color(1f, 0.8f, 0.8f, 1f); // ¿¬ÇÑ »¡°­
+    [SerializeField] private Color hoverColor = new Color(0.8f, 1f, 0.8f, 1f);
+    [SerializeField] private Color invalidColor = new Color(1f, 0.8f, 0.8f, 1f);
 
     private bool isPointerOver = false;
 
-    #region Unity Lifecycle
     private void Awake()
     {
         if (quickSlotManager == null)
         {
-            Debug.Log("QuickSlotÀÌ ÀÎ½ºÆåÅÍ¿¡¼­ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù");
+            quickSlotManager = FindFirstObjectByType<QuickSlot>();
+            if (quickSlotManager == null)
+            {
+                Debug.LogError("[QuickSlotDropZone] QuickSlot ë§¤ë‹ˆì €ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤!");
+            }
         }
 
-        // ¹è°æ ÀÌ¹ÌÁö ÀÚµ¿ Ã£±â
         if (backgroundImage == null)
         {
             backgroundImage = GetComponent<Image>();
         }
 
-        // ÃÊ±â »ö»ó ¼³Á¤
         if (backgroundImage != null)
         {
             backgroundImage.color = normalColor;
@@ -44,20 +41,16 @@ public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandl
 
     private void Update()
     {
-        // µå·¡±× ÁßÀÏ ¶§¸¸ ½Ã°¢ ÇÇµå¹é
         if (isPointerOver && ItemIconDragHandler.CurrentDraggedItem != null)
         {
             UpdateVisualFeedback();
         }
     }
-    #endregion
 
-    #region Event Handlers
     public void OnPointerEnter(PointerEventData eventData)
     {
         isPointerOver = true;
 
-        // µå·¡±× ÁßÀÌ¸é ½Ã°¢ ÇÇµå¹é
         if (ItemIconDragHandler.CurrentDraggedItem != null)
         {
             UpdateVisualFeedback();
@@ -68,7 +61,6 @@ public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandl
     {
         isPointerOver = false;
 
-        // ¿ø·¡ »ö»óÀ¸·Î º¹¿ø
         if (backgroundImage != null)
         {
             backgroundImage.color = normalColor;
@@ -78,164 +70,194 @@ public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandl
     public void OnDrop(PointerEventData eventData)
     {
         ItemBase draggedItem = ItemIconDragHandler.CurrentDraggedItem;
+        int draggedFromSlot = ItemIconDragHandler.CurrentDraggedSlotIndex;
 
         if (draggedItem == null)
         {
-            Debug.LogWarning("[QuickSlotDropZone] µå·¡±×µÈ ¾ÆÀÌÅÛÀÌ ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("[QuickSlotDropZone] ë“œë˜ê·¸ëœ ì•„ì´í…œì´ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
-        // À¯È¿¼º °ËÁõ
-        if (!CanAssignToQuickSlot(draggedItem))
+        // ê°™ì€ ìŠ¬ë¡¯ì— ë“œë¡­: ë¬´ì‹œ
+        if (draggedFromSlot == slotIndex)
         {
-            //Debug.LogWarning($"[QuickSlotDropZone] {draggedItem.itemName}Àº(´Â) Äü½½·Ô¿¡ ¹èÄ¡ÇÒ ¼ö ¾ø½À´Ï´Ù.");
+            Debug.Log($"[QuickSlotDropZone] ê°™ì€ ìŠ¬ë¡¯({slotIndex})ì— ë“œë¡­ - ë¬´ì‹œ");
+            return;
+        }
+
+        // ìœ íš¨ì„± ê²€ì¦
+        if (!CanAssignToQuickSlot(draggedItem, draggedFromSlot))
+        {
             ShowInvalidFeedback();
             return;
         }
 
-        // Äü½½·Ô¿¡ ÇÒ´ç
-        AssignToQuickSlot(draggedItem);
+        // í€µìŠ¬ë¡¯ ê°„ ì´ë™ vs ì¸ë²¤í† ë¦¬ì—ì„œ í€µìŠ¬ë¡¯ ë¶„ê¸°
+        if (draggedFromSlot >= 0)
+        {
+            // í€µìŠ¬ë¡¯: í€µìŠ¬ë¡¯ (ìŠ¤ì™‘)
+            SwapQuickSlots(draggedFromSlot, slotIndex);
+        }
+        else
+        {
+            // ì¸ë²¤í† ë¦¬: í€µìŠ¬ë¡¯ (ë°°ì¹˜ ë˜ëŠ” êµì²´)
+            AssignToQuickSlot(draggedItem);
+        }
 
-        // »ö»ó º¹¿ø
+        // ìƒ‰ìƒ ë³µì›
         if (backgroundImage != null)
         {
             backgroundImage.color = normalColor;
         }
-        Debug.Log("Äü½½·Ô ¹èÄ¡ ¿Ï·á");
     }
-    #endregion
 
-    #region Assignment Logic
     /// <summary>
-    /// ¾ÆÀÌÅÛÀ» Äü½½·Ô¿¡ ÇÒ´ç
+    /// í€µìŠ¬ë¡¯ ê°„ ìŠ¤ì™‘ (A to B / B to A)
+    /// </summary>
+    private void SwapQuickSlots(int fromIndex, int toIndex)
+    {
+        if (quickSlotManager == null) return;
+
+        ItemBase fromItem = quickSlotManager.GetItemAtSlot(fromIndex);
+        ItemBase toItem = quickSlotManager.GetItemAtSlot(toIndex);
+
+        GameInventory gameInventory = FindFirstObjectByType<GameInventory>();
+        if (gameInventory == null)
+        {
+            Debug.LogError("[QuickSlotDropZone] GameInventoryë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤!");
+            return;
+        }
+
+        int fromQuantity = gameInventory.GetItemCount(fromItem.itemID);
+        int toQuantity = toItem != null ? gameInventory.GetItemCount(toItem.itemID) : 0;
+
+        Debug.Log($"[QuickSlotDropZone] ìŠ¤ì™‘ ì‹œì‘: [{fromIndex}] {fromItem.itemName} swap [{toIndex}] {(toItem != null ? toItem.itemName : "ë¹ˆ ìŠ¬ë¡¯")}");
+
+        // 1ï¸.âƒ£ ë‘ ìŠ¬ë¡¯ ëª¨ë‘ ì œê±°
+        quickSlotManager.RemoveSlot(fromIndex);
+        if (toItem != null)
+        {
+            quickSlotManager.RemoveSlot(toIndex);
+        }
+
+        // 2ï¸.âƒ£ êµì°¨ ë°°ì¹˜
+        quickSlotManager.AssignToSlot(toIndex, fromItem, fromQuantity);
+
+        if (toItem != null)
+        {
+            quickSlotManager.AssignToSlot(fromIndex, toItem, toQuantity);
+        }
+
+        Debug.Log($"[QuickSlotDropZone] ìŠ¤ì™‘ ì™„ë£Œ!");
+    }
+
+    /// <summary>
+    /// ì¸ë²¤í† ë¦¬ì—ì„œ í€µìŠ¬ë¡¯ ë°°ì¹˜
     /// </summary>
     private void AssignToQuickSlot(ItemBase item)
     {
         if (quickSlotManager == null)
         {
-            Debug.LogError("[QuickSlotDropZone] QuickSlot ¸Å´ÏÀú¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù!");
+            Debug.LogError("[QuickSlotDropZone] QuickSlot ë§¤ë‹ˆì €ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤!");
             return;
         }
 
-        // ÀÎº¥Åä¸®¿¡¼­ ¼ö·® °¡Á®¿À±â (GameInventory¸¦ ÅëÇØ)
         GameInventory gameInventory = FindFirstObjectByType<GameInventory>();
         int quantity = gameInventory != null ? gameInventory.GetItemCount(item.itemID) : 0;
 
         if (quantity <= 0)
         {
-            Debug.LogWarning($"[QuickSlotDropZone] ÀÎº¥Åä¸®¿¡ {item.itemName}ÀÌ(°¡) ¾ø½À´Ï´Ù!");
+            Debug.LogWarning($"[QuickSlotDropZone] ì¸ë²¤í† ë¦¬ì— {item.itemName}ì´(ê°€) ì—†ìŠµë‹ˆë‹¤!");
             return;
         }
 
-        // ±âÁ¸ ½½·Ô¿¡ ¾ÆÀÌÅÛÀÌ ÀÖ´ÂÁö È®ÀÎ
-        ItemBase existingItem = quickSlotManager.GetItemAtSlot(slotIndex);
+        // ì´ë¯¸ ë‹¤ë¥¸ ìŠ¬ë¡¯ì— ë“±ë¡ë˜ì–´ ìˆëŠ”ì§€ í™•ì¸
+        int existingSlotIndex = quickSlotManager.FindItemSlot(item);
 
-        if (existingItem != null)
+        if (existingSlotIndex >= 0 && existingSlotIndex != slotIndex)
         {
-            // ±³Ã¼: ±âÁ¸ ¾ÆÀÌÅÛ Á¦°Å ÈÄ »õ ¾ÆÀÌÅÛ ÇÒ´ç
-            Debug.Log($"[QuickSlotDropZone] ½½·Ô {slotIndex}ÀÇ {existingItem.itemName}À»(¸¦) {item.itemName}(À¸)·Î ±³Ã¼ÇÕ´Ï´Ù.");
+            // ë‹¤ë¥¸ ìŠ¬ë¡¯ì— ì´ë¯¸ ìˆìŒ: ê¸°ì¡´ ìŠ¬ë¡¯ ì œê±° í›„ ìƒˆ ìŠ¬ë¡¯ì— ë°°ì¹˜
+            Debug.Log($"[QuickSlotDropZone] {item.itemName}ì´(ê°€) ìŠ¬ë¡¯ {existingSlotIndex}ì— ìˆì–´ì„œ ì œê±° í›„ ìŠ¬ë¡¯ {slotIndex}ì— ì¬ë°°ì¹˜");
+            quickSlotManager.RemoveSlot(existingSlotIndex);
+        }
 
+        // í˜„ì¬ ìŠ¬ë¡¯ì— ê¸°ì¡´ ì•„ì´í…œ ìˆìœ¼ë©´ êµì²´
+        ItemBase currentSlotItem = quickSlotManager.GetItemAtSlot(slotIndex);
+
+        if (currentSlotItem != null)
+        {
+            Debug.Log($"[QuickSlotDropZone] ìŠ¬ë¡¯ {slotIndex}: {currentSlotItem.itemName} ì—ì„œ {item.itemName} (êµì²´)");
             quickSlotManager.RemoveSlot(slotIndex);
         }
 
-        // »õ ¾ÆÀÌÅÛ ÇÒ´ç
-        bool success = AssignToSpecificSlot(item, quantity, slotIndex);
+        // ìƒˆ ì•„ì´í…œ ë°°ì¹˜
+        bool success = quickSlotManager.AssignToSlot(slotIndex, item, quantity);
 
         if (success)
         {
-            Debug.Log($"[QuickSlotDropZone] {item.itemName} x{quantity}¸¦ Äü½½·Ô {slotIndex}¿¡ ¹èÄ¡Çß½À´Ï´Ù.");
+            Debug.Log($"[QuickSlotDropZone] {item.itemName} x{quantity}ë¥¼ ìŠ¬ë¡¯ {slotIndex}ì— ë°°ì¹˜ ì™„ë£Œ");
         }
         else
         {
-            Debug.LogWarning($"[QuickSlotDropZone] Äü½½·Ô ÇÒ´ç ½ÇÆĞ!");
+            Debug.LogWarning($"[QuickSlotDropZone] ë°°ì¹˜ ì‹¤íŒ¨!");
         }
     }
 
     /// <summary>
-    /// Æ¯Á¤ ½½·Ô¿¡ Á÷Á¢ ÇÒ´ç (QuickSlot È®Àå ÇÊ¿ä)
+    /// ìœ íš¨ì„± ê²€ì¦ (ì¶œë°œ ìŠ¬ë¡¯ ì •ë³´ ê³ ë ¤)
     /// </summary>
-    private bool AssignToSpecificSlot(ItemBase item, int quantity, int targetSlot)
-    {
-        return quickSlotManager.AssignToSlot(targetSlot, item, quantity);
-    }
-    #endregion
-
-    #region Validation
-    /// <summary>
-    /// Äü½½·Ô¿¡ ¹èÄ¡ °¡´ÉÇÑÁö °ËÁõ
-    /// </summary>
-    private bool CanAssignToQuickSlot(ItemBase item)
+    private bool CanAssignToQuickSlot(ItemBase item, int fromSlotIndex)
     {
         if (item == null) return false;
 
-        // 1. Äü½½·Ô ÇÃ·¡±× Ã¼Å©
+        // 1ï¸âƒ£. canQuickSlot í”Œë˜ê·¸ ì²´í¬
         if (!item.canQuickSlot)
         {
-            //Debug.LogWarning($"[QuickSlotDropZone] {item.itemName}Àº(´Â) canQuickSlotÀÌ falseÀÔ´Ï´Ù.");
+            Debug.LogWarning($"[QuickSlotDropZone] {item.itemName}ì€(ëŠ”) í€µìŠ¬ë¡¯ì— ë°°ì¹˜í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             return false;
         }
 
-        // 2. ÀÎº¥Åä¸®¿¡ ¾ÆÀÌÅÛÀÌ ÀÖ´ÂÁö È®ÀÎ
+        // 2ï¸.âƒ£ ì¸ë²¤í† ë¦¬ì— ì•„ì´í…œ ìˆëŠ”ì§€ í™•ì¸
         GameInventory gameInventory = FindFirstObjectByType<GameInventory>();
         if (gameInventory != null && !gameInventory.HasItem(item.itemID, 1))
         {
-            Debug.LogWarning($"[QuickSlotDropZone] ÀÎº¥Åä¸®¿¡ {item.itemName}ÀÌ(°¡) ¾ø½À´Ï´Ù.");
+            Debug.LogWarning($"[QuickSlotDropZone] ì¸ë²¤í† ë¦¬ì— {item.itemName}ì´(ê°€) ì—†ìŠµë‹ˆë‹¤.");
             return false;
         }
 
-        // 3. ÀÌ¹Ì ´Ù¸¥ ½½·Ô¿¡ ¹èÄ¡µÇ¾î ÀÖ´ÂÁö È®ÀÎ
-        if (quickSlotManager.IsItemAlreadyAssigned(item))
+        // 3ï¸.âƒ£ í€µìŠ¬ë¡¯ ê°„ ì´ë™ì¸ ê²½ìš°: í•­ìƒ í—ˆìš©
+        if (fromSlotIndex >= 0)
         {
-            int existingSlot = quickSlotManager.FindItemSlot(item);
-
-            // °°Àº ½½·Ô¿¡ µå·ÓÇÏ¸é ¹«½Ã
-            if (existingSlot == slotIndex)
-            {
-                Debug.Log($"[QuickSlotDropZone] °°Àº ½½·Ô¿¡ µå·Ó (¹«½Ã)");
-                return false;
-            }
-
-            // ´Ù¸¥ ½½·Ô¿¡ ÀÖÀ¸¸é ÀÌµ¿ Çã¿ë
-            Debug.Log($"[QuickSlotDropZone] {item.itemName}À»(¸¦) ½½·Ô {existingSlot}¿¡¼­ {slotIndex}(À¸)·Î ÀÌµ¿ÇÕ´Ï´Ù.");
-
-            // ±âÁ¸ ½½·Ô¿¡¼­ Á¦°Å
-            quickSlotManager.RemoveSlot(existingSlot);
+            return true;
         }
 
+        // 4ï¸âƒ£ ì¸ë²¤í† ë¦¬ì—ì„œ í€µìŠ¬ë¡¯ì¸ ê²½ìš°
+        // ì´ë¯¸ ë‹¤ë¥¸ ìŠ¬ë¡¯ì— ìˆì–´ë„ ì´ë™ ê°œë…ì´ë¯€ë¡œ í—ˆìš©
+        // (ë‹¨, ê°™ì€ ì•„ì´í…œì„ ì—¬ëŸ¬ ìŠ¬ë¡¯ì— ì¤‘ë³µ ë“±ë¡í•˜ëŠ” ê±´ ë°©ì§€ë¨ : AssignToQuickSlotì—ì„œ ì²˜ë¦¬)
         return true;
     }
-    #endregion
 
-    #region Visual Feedback
-    /// <summary>
-    /// ½Ã°¢ ÇÇµå¹é ¾÷µ¥ÀÌÆ®
-    /// </summary>
     private void UpdateVisualFeedback()
     {
         if (backgroundImage == null) return;
 
         ItemBase draggedItem = ItemIconDragHandler.CurrentDraggedItem;
+        int draggedFromSlot = ItemIconDragHandler.CurrentDraggedSlotIndex;
 
-        if (draggedItem != null && CanAssignToQuickSlot(draggedItem))
+        if (draggedItem != null && CanAssignToQuickSlot(draggedItem, draggedFromSlot))
         {
-            // ¹èÄ¡ °¡´É: ÃÊ·Ï»ö
             backgroundImage.color = hoverColor;
         }
         else
         {
-            // ¹èÄ¡ ºÒ°¡: »¡°£»ö
             backgroundImage.color = invalidColor;
         }
     }
 
-    /// <summary>
-    /// Àß¸øµÈ µå·Ó ÇÇµå¹é
-    /// </summary>
     private void ShowInvalidFeedback()
     {
         if (backgroundImage == null) return;
 
-        // »¡°£»öÀ¸·Î ±ôºıÀÓ
         backgroundImage.color = invalidColor;
         Invoke(nameof(ResetColor), 0.3f);
     }
@@ -247,17 +269,11 @@ public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandl
             backgroundImage.color = normalColor;
         }
     }
-    #endregion
 
-    #region Inspector Helper
-    /// <summary>
-    /// Inspector¿¡¼­ ½½·Ô ÀÎµ¦½º ÀÚµ¿ ¼³Á¤
-    /// </summary>
     [ContextMenu("Auto Set Slot Index")]
     private void AutoSetSlotIndex()
     {
         slotIndex = transform.GetSiblingIndex();
-        Debug.Log($"[QuickSlotDropZone] ½½·Ô ÀÎµ¦½º ÀÚµ¿ ¼³Á¤: {slotIndex}");
+        Debug.Log($"[QuickSlotDropZone] ìŠ¬ë¡¯ ì¸ë±ìŠ¤ ìë™ ì„¤ì •: {slotIndex}");
     }
-    #endregion
 }
