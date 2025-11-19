@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -21,6 +22,7 @@ public class PlayerStats : MonoBehaviour
     [SerializeField] private bool isDebug = true;
 
     public bool DebugMode { get; set; } = false;
+    public bool StatDebugMode { get; set; } = false;
 
     private void Awake()
     {
@@ -44,17 +46,9 @@ public class PlayerStats : MonoBehaviour
 
     private void Update()
     {
-        if (Keyboard.current.kKey.wasPressedThisFrame)
-        {
-            PrintStats();
-        }
+        AssignmentDebugKeys();
 
-        if (Keyboard.current.f4Key.wasPressedThisFrame)
-        {
-            Health.Modify(-10f);
-        }
-
-        if (DebugMode)
+        if (DebugMode || StatDebugMode)
         return;
 
         Hunger.Tick();
@@ -141,6 +135,37 @@ public class PlayerStats : MonoBehaviour
         else
         {
             Debug.LogWarning("[PlayerStats] DeathBoxHandler를 찾을 수 없습니다!");
+        }
+    }
+
+    private void RevertStats()
+    {
+        Health.Set(100f);
+        Hunger.Set(0f);
+        Pollution.Set(0f);
+        Thirst.Set(0f);
+        Temperature.Set(36.5f);
+    }
+    private void AssignmentDebugKeys()
+    {
+        if (Keyboard.current.kKey.wasPressedThisFrame)
+        {
+            PrintStats();
+        }
+
+        if (Keyboard.current.f4Key.wasPressedThisFrame)
+        {
+            Health.Modify(-10f);
+        }
+
+        if (Keyboard.current.f5Key.wasPressedThisFrame)
+        {
+            StatDebugMode = !StatDebugMode;
+        }
+
+        if (Keyboard.current.f6Key.wasPressedThisFrame)
+        {
+            RevertStats();
         }
     }
 }

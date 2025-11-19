@@ -56,6 +56,9 @@ public class DebuffManager : MonoBehaviour
 
     private void Update()
     {
+        if (playerStats.StatDebugMode || playerStats.DebugMode)
+            return;
+
         for (int i = activeDebuffs.Count - 1; i >= 0; i--)
         {
             var debuff = activeDebuffs[i];
