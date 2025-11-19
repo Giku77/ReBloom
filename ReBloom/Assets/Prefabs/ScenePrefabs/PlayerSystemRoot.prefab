@@ -853,7 +853,8 @@ GameObject:
   - component: {fileID: 5597119052996685627}
   - component: {fileID: 5853015606077576483}
   - component: {fileID: 5414552780530236600}
-  m_Layer: 0
+  - component: {fileID: 6463764645195855169}
+  m_Layer: 7
   m_Name: StoveObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -963,6 +964,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910000
   inventoryItemData: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
+--- !u!114 &6463764645195855169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2640527187559535076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bcb90db3cf36fe4d8707b36f1985768, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  lightIntensity: 2
+  backlightRange: 3
+  bodylightRange: 0.05
 --- !u!1 &2758152993424828436
 GameObject:
   m_ObjectHideFlags: 0
@@ -1835,7 +1852,7 @@ MonoBehaviour:
   groundCheckRadius: 0.3
   groundLayer:
     serializedVersion: 2
-    m_Bits: 520
+    m_Bits: 648
   minDropHeight: 3
   maxDropHeight: 15
   landingSlow: 0.2
