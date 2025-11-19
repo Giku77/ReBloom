@@ -148,7 +148,10 @@ public class BuildManager : MonoBehaviour
             Debug.LogError($"프리팹 없음: {arc.arcId}");
             return false;
         }
-        Instantiate(prefab, pos, rot);
+        var p = Instantiate(prefab, pos, rot);
+        var bInstance = p.GetComponent<BuildingInstance>();
+        bInstance.arcId = arc.arcId;
+        p.GetComponent<InteractionHighlight>().promptFormat = $"상호작용[E] : {arc.name}";
         return true;
     }
 }

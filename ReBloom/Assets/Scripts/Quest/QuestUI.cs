@@ -8,12 +8,24 @@ public class QuestUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI description;
 
     [SerializeField] private QuestPathGuide pathGuide;
-    private int TargetIndex = 0;
 
-
-    private void OnEnable()
+    public int GetPathTransformCount()
     {
-        //Refresh();
+        return pathGuide.Target.Length;
+    }
+    [NonSerialized] public int TargetIndex = 0;
+
+    private bool isShowPathGuide = false;
+
+
+    public void SetShowPathGuide(bool show)
+    {
+        isShowPathGuide = show;
+    }
+
+    public bool GetShowPathGuide()
+    {
+        return isShowPathGuide;
     }
 
     public void Refresh()
@@ -51,11 +63,11 @@ public class QuestUI : MonoBehaviour
                         var craftName = bld != null ? bld.name : "Unknown Building";
                         description.text += $"\n - {craftName} ({currentAmt} / {goal.amount})";
                     }
-                    else if (goal.type == QuestGoalType.Enter)
+                    else if (goal.type == QuestGoalType.Enter && !isShowPathGuide)
                     {
                         //description.text += $"\n - 위치에 도달하기";
                         pathGuide.SetTarget(pathGuide.Target[TargetIndex], TargetIndex);
-                        TargetIndex = Mathf.Clamp(TargetIndex + 1, 0, pathGuide.Target.Length - 1);
+                        SetShowPathGuide(true);
                     }
                 }
             }

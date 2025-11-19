@@ -96,6 +96,11 @@ public class QuestManager : MonoBehaviour
         {
             SetCurrent(nextId);
         }
+        if (questUI != null && questUI.GetShowPathGuide())
+        {
+              questUI.TargetIndex = Mathf.Clamp(questUI.TargetIndex + 1, 0, questUI.GetPathTransformCount() - 1);
+              questUI?.SetShowPathGuide(false);
+        }
     }
     
     bool IsQuestSatisfied(QuestData data)
