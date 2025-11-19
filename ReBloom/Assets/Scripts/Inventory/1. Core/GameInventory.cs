@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -18,6 +18,10 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     [Header("Player")]
     [SerializeField] private PlayerController playerController;
 
+    private void Awake()
+    {
+        playerController = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
+    }
 
     #region IInventoryProvider 구현
     public int GetItemCount(int itemId)
