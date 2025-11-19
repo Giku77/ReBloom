@@ -8,18 +8,21 @@ public class PlayerInteractable : MonoBehaviour
     [Header("Interaction")]
     [SerializeField] private float interactRange = 5f;
     [SerializeField] private LayerMask interactLayer;
+    [SerializeField] private HoldInteractionUI holdUI;
 
     PlayerController player;
 
     private CancellationTokenSource cts;
 
     private InteractionHighlight currentHighlight = null;
-
-    private float currentHoldTime = 0;
+    private ToastMessageUI toastMessageUI;
+    
 
     private void Awake()
     {
         player = GetComponent<PlayerController>();
+
+        toastMessageUI = GameObject.FindWithTag("ToastMsg").GetComponent<ToastMessageUI>();
     }
 
     public void OnInteract(InputAction.CallbackContext context)
@@ -76,48 +79,31 @@ public class PlayerInteractable : MonoBehaviour
                 float holdTime = closestInteractable.HoldTime;
                 if (holdTime > 0f)
                 {
-                    await UniTask.Delay(System.TimeSpan.FromSeconds(holdTime), cancellationToken: cts.Token);
+                    float elapsed = 0f;
+                    holdUI.Show();
+                    toastMessageUI.Show("채집 중....", holdTime);
+
+                    while (elapsed < holdTime)
+                    {
+                        elapsed += Time.deltaTime;
+                        float progress = elapsed / holdTime;
+                        holdUI.UpdateProgress(progress);
+
+                        await UniTask.Yield(cancellationToken: cts.Token);
+                    }
+
+                    toastMessageUI.Show("채집 완료!", 2f);
+                    holdUI.Hide();
                 }
                 closestInteractable.Interact(player);
             }
         }
         catch (System.OperationCanceledException)
         {
+            toastMessageUI.Show("채집 중단!", 2f);
+            holdUI.Hide(); // 취소 시에도 UI 숨기기
             CancelInteract();
         }
-
-    }
-
-
-    private bool TryInteract()
-    {
-        Collider[] hits = Physics.OverlapSphere(transform.position, interactRange, interactLayer);
-        IInteractable closestInteractable = null;
-        float closestDistance = float.MaxValue;
-
-        foreach (var hit in hits)
-        {
-            if (hit.TryGetComponent<IInteractable>(out var interactable))
-            {
-                Vector3 toTarget = hit.transform.position - transform.position;
-                float distance = toTarget.magnitude;
-                float dot = Vector3.Dot(transform.forward, toTarget.normalized);
-
-                if (dot > 0.5f && distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closestInteractable = interactable;
-                }
-            }
-        }
-
-        if (closestInteractable != null)
-        {
-            closestInteractable.Interact(player);
-            return true;
-        }
-
-        return false;
     }
 
     private void CheckForInteractable()
