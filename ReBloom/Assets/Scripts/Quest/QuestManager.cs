@@ -71,6 +71,11 @@ public class QuestManager : MonoBehaviour
         }
     }
 
+    public void ClearPathGuide()
+    {
+        questUI?.ClearPathGuide();
+    }
+
     public void TryCompleteCurrent()
     {
         if (_current == null) return;

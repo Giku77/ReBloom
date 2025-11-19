@@ -1405,6 +1405,32 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &423301841 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 711844912529541261, guid: ea49e91556f98ee4e9edba3377d33993, type: 3}
+  m_PrefabInstance: {fileID: 1619329284}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &423301845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 423301841}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dce57c0b3f1a4c4bb64cf242297a0d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 443533650}
+  target:
+  - {fileID: 1062571667}
+  - {fileID: 2084984591}
+  markerPrefab: {fileID: 950348094479844491, guid: 991719d74609bae4d9708dc31b02e3fb, type: 3}
+  updateInterval: 1
+  markerSpacing: 3
+  groundOffset: 0.1
+  maxMarkerCount: 50
 --- !u!4 &443533650 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2337004310381711414, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
@@ -18960,7 +18986,13 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 3791329112609813589, guid: 52279f7fa6837764dbfe21ed189b4a9c, type: 3}
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 5025828096253353469, guid: 52279f7fa6837764dbfe21ed189b4a9c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2084984591}
+    - targetCorrespondingSourceObject: {fileID: 5025828096253353469, guid: 52279f7fa6837764dbfe21ed189b4a9c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1062571667}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 52279f7fa6837764dbfe21ed189b4a9c, type: 3}
 --- !u!1001 &903014004
@@ -19352,6 +19384,42 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
+--- !u!1 &1062571666
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1062571667}
+  m_Layer: 0
+  m_Name: SchoolMarkPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1062571667
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1062571666}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -379.75, y: 139.45, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1353908642}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &1353908642 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5025828096253353469, guid: 52279f7fa6837764dbfe21ed189b4a9c, type: 3}
+  m_PrefabInstance: {fileID: 799572897}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1619329284
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -19364,6 +19432,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: QuestSystemBoot
       objectReference: {fileID: 0}
+    - target: {fileID: 5033706301798668409, guid: ea49e91556f98ee4e9edba3377d33993, type: 3}
+      propertyPath: pathGuide
+      value: 
+      objectReference: {fileID: 423301845}
     - target: {fileID: 6281385835130049015, guid: ea49e91556f98ee4e9edba3377d33993, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -19407,7 +19479,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 711844912529541261, guid: ea49e91556f98ee4e9edba3377d33993, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 423301845}
   m_SourcePrefab: {fileID: 100100000, guid: ea49e91556f98ee4e9edba3377d33993, type: 3}
 --- !u!1001 &1979078237
 PrefabInstance:
@@ -19440,6 +19515,10 @@ PrefabInstance:
     - target: {fileID: 2111357878188287519, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2343580704092054137, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
+      propertyPath: obstacleLayer.m_Bits
+      value: 648
       objectReference: {fileID: 0}
     - target: {fileID: 4334353796023776682, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
       propertyPath: m_LocalPosition.x
@@ -19627,6 +19706,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &2084984590
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2084984591}
+  m_Layer: 0
+  m_Name: ShopMarkPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2084984591
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2084984590}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -272.63, y: 134.65216, z: -0.48709148}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1353908642}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2022723681540426244
 PrefabInstance:
   m_ObjectHideFlags: 0

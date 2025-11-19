@@ -27,6 +27,13 @@ public class BuildPlacementController : MonoBehaviour
         I = this;
     }
 
+    private void SetupPreview(GameObject preview)
+    {
+        int previewLayer = LayerMask.NameToLayer("BuildingPreview");
+        foreach (var tr in preview.GetComponentsInChildren<Transform>(true))
+            tr.gameObject.layer = previewLayer;
+    }
+
     public void StartPlacement(ArcData arc, ArcRecipe arcRecipe, GameObject previewPrefab)
     {
 
@@ -42,6 +49,7 @@ public class BuildPlacementController : MonoBehaviour
 
 
         previewInstance = Instantiate(previewPrefab);
+        SetupPreview(previewInstance);
         previewVisual = previewInstance.GetComponent<BuildPreviewVisual>();
 
         isPlacing = true;
