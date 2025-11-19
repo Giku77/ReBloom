@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class GatheringObjectData
+public class GatherObjectData
 {
     public int id;
     public string objectNameId;

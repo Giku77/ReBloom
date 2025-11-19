@@ -2,9 +2,9 @@ using BansheeGz.BGDatabase;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GatheringObjectDB
+public class GatherObjectDB
 {
-    private Dictionary<int, GatheringObjectData> dataById = new Dictionary<int, GatheringObjectData>();
+    private Dictionary<int, GatherObjectData> dataById = new Dictionary<int, GatherObjectData>();
 
     public void LoadFromBG()
     {
@@ -21,12 +21,15 @@ public class GatheringObjectDB
         {
             var data = ParseDebuff(entity);
             dataById[data.id] = data;
+            Debug.Log($"[GatherObjectDB] ID {data.id} ·ÎµåµÊ");
         }
+
+        Debug.Log($"[GatherObjectDB] ÃÑ {dataById.Count}°³ ·Îµå ¿Ï·á");
     }
 
-    private GatheringObjectData ParseDebuff(BGEntity entity)
+    private GatherObjectData ParseDebuff(BGEntity entity)
     {
-        var data = new GatheringObjectData();
+        var data = new GatherObjectData();
 
         data.id = entity.Get<int>("ObjectID");
         data.objectNameId = entity.Get<string>("ObjectNameID");
@@ -40,12 +43,12 @@ public class GatheringObjectDB
         return data;
     }
 
-    public bool TryGet(int id, out GatheringObjectData data)
+    public bool TryGet(int id, out GatherObjectData data)
     {
         return dataById.TryGetValue(id, out data);
     }
 
-    public Dictionary<int, GatheringObjectData> GetAll()
+    public Dictionary<int, GatherObjectData> GetAll()
     {
         return dataById;
     }
