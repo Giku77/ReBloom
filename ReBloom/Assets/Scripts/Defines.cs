@@ -1,4 +1,4 @@
-public enum QuestIds
+﻿public enum QuestIds
 {
     Quest_001,
     Quest_002,
@@ -16,167 +16,166 @@ public enum QuestIds
 
 public enum EntranceType
 {
-    AbandonedSchool = 41,   // ��
-    DepartmentStore = 42,   // ��ȭ��
-    Factory = 43,           // ����
+    AbandonedSchool = 41,   // 폐교
+    DepartmentStore = 42,   // 백화점
+    Factory = 43,           // 공장
 }
 
 
-// =====================================================
-// ==================== ������ ���� ====================
-// =====================================================
+// ============================================================
+// ==================== 아이템 테이블 타입 ====================
+// ============================================================
 
 public enum ItemTableType
 {
-    Consumable,
-    Protective,
-    Tool,
-    Misc
+    Consumable,     // 소모품
+    Protective,     // 보호구
+    Tool,           // 도구
+    Misc            // 기타
 }
 
 /// <summary>
-/// �κ��丮 ���� ��ġ (���?/�Һ�/��Ÿ/�߿�)
+/// 인벤토리 슬롯 위치 (장비/소비/기타/중요)
 /// </summary>
 public enum InventorySlotType
 {
-    Equipment = 1,      // ���? ��
-    Consumable = 2,     // �Һ� ������ ��
-    Misc = 3,           // ��Ÿ ������ ��
-    Important = 4       // �߿� ������ ��
+    Equipment = 0,      // 장비 탭
+    Consumable = 1,     // 소비 아이템 탭
+    Misc = 2,           // 기타 아이템 탭
+    Important = 3       // 중요 아이템 탭
 }
 
 /// <summary>
-/// ������ Ƽ�� (3�ܰ�)
+/// 아이템 티어 (3단계)
 /// </summary>
 public enum ItemTier
 {
-    Common = 1,         // �Ϲ� (1�ܰ�)
-    Rare = 2,           // ���? (2�ܰ�)
-    Epic = 3            // ���� (3�ܰ�)
+    Common = 0,         // 일반 (1단계)
+    Rare = 1,           // 희귀 (2단계)
+    Epic = 2            // 영웅 (3단계)
 }
 
-// ==================== �Һ� ������ ���� ====================
+// ==================== 소비 아이템 관련 ====================
 
 /// <summary>
-/// �Һ� ������ ��з�?
+/// 소비 아이템 대분류
 /// </summary>
 public enum ConsumableCategory
 {
-    Food = 1,           // 1. �ķ�
-    Medical = 2,        // 2. ���޹�ǰ
-    Jamming = 3          // 3. ���? ������ (���ļ�)
+    Food = 1,           // 1. 식량
+    Medical = 2,        // 2. 구급물품
+    Jammer = 3          // 3. 재밍 아이템 (주파수)
 }
 
 /// <summary>
-/// �Һ� ������ �Һз�
+/// 소비 아이템 소분류
 /// </summary>
 public enum ConsumableSubCategory
 {
-    CannedFood = 0,             // ������
-    Water = 1,                  // ��
-    Antidote = 2,               // ���� �ص�
-    MedicalKit = 3,             // ���޻���
-    CultivatedVegetable = 4,    // ���? ä��
-    HeatPack = 5,               // �߿���
-    Jammer = 6                  // ���?
+    CannedFood = 0,             // 통조림
+    Water = 1,                  // 물
+    Antidote = 2,               // 방사능 해독
+    MedicalKit = 3,             // 구급상자
+    CultivatedVegetable = 4,    // 재배 채소
+    HeatPack = 5,               // 발열팩
+    Jammer = 6                  // 재머
 }
 
 /// <summary>
-/// ������ (4�ܰ�)
-/// �����ʹ� float��
-/// ui �� �̺�Ʈ �뵵 (����)
+/// 오염도 (4단계)
+/// 데이터는 float형
+/// ui 및 이벤트 용도 (예비)
 /// </summary>
 public enum ContaminationLevel
 {
-    None = 0,           // 0�ܰ� - ���� ����
-    Low = 1,            // 1�ܰ� - ����
-    Medium = 2,         // 2�ܰ� - �߰�
-    High = 3            // 3�ܰ� - ����
+    None = 0,           // 0단계 - 오염 없음
+    Low = 1,            // 1단계 - 낮음
+    Medium = 2,         // 2단계 - 중간
+    High = 3            // 3단계 - 높음
 }
 
-// ==================== ���� ���� ====================
+// ==================== 도구 관련 ====================
 
 /// <summary>
-/// ���� ���? ���?
+/// 도구 사용 장소
 /// </summary>
 public enum ToolUsageType
 {
-    Plant = 1,              // 1. �Ĺ� (��)
-    BuildingMineral = 2,    // 2. �ǹ�, ���� (���)
-    All = 3                 // 3. �ǹ�, ����, �ڵ��� (��ġ)
+    Plant = 1,              // 1. 식물 (낫)
+    BuildingMineral = 2,    // 2. 건물, 광물 (곡괭이)
+    All = 3                 // 3. 건물, 광물, 자동차 (도끼)
 }
 
 /// <summary>
-/// ���� ī�װ���
+/// 도구 카테고리
 /// </summary>
 public enum ToolCategory
 {
-    Shovel = 1,     // ��
-    Pickaxe = 2,    // ���
-    Bag = 3         // ����
-    //��ġ??
+    Shovel = 1,     // 삽
+    Pickaxe = 2,    // 곡괭이
+    Bag = 3         // 가방
+    // 추가 카테고리 필요 시 여기에 추가
 }
 
-// ==================== ��ȣ�� ���� ====================
+// ==================== 보호구 관련 ====================
 
 /// <summary>
-/// ��ȣ�� ����
+/// 보호구 종류
 /// </summary>
 public enum ProtectiveGearType
 {
-    Clothing = 1,       // 1. ��
-    Shoes = 2,           // 2. �Ź�
-    None = 3             // 3. ����
+    Clothing = 1,       // 옷
+    Shoes = 2           // 신발
 }
 
-// ==================== ��Ÿ ������ ���� ====================
+// ==================== 기타 아이템 관련 ====================
 
 /// <summary>
-/// ��Ÿ ������ �з�
+/// 기타 아이템 분류
 /// </summary>
 public enum MiscItemCategory
 {
-    UnidentifiedSeed = 1,   // 1. ��Ȯ�� ����
-    Seed = 2,              // 2. ����
-    NaturalMaterial = 3,   // 3. �ڿ����?
-    ProcessedMaterial = 4, // 4. �������?
-    ImportantItem = 5      // 5. �߿� ������
+    UnidentifiedSeed = 1,   // 미확인 종자
+    Seed = 2,               // 종자
+    NaturalMaterial = 3,    // 자연 재료
+    ProcessedMaterial = 4,  // 가공 재료
+    ImportantItem = 5       // 중요 아이템
 }
 
 /// <summary>
-/// ���̵� ���? (���? ������ ���?)
-/// ���� ���� ���̵� + ���� ���̵��� ����Ͽ�? ���?
+/// 변이도 등급 (드랍 결정에 사용)
+/// 지역 고유 변이도 + 날씨 변이도를 계산하여 사용
 /// </summary>
 public enum MutationLevel
 {
-    VeryLow = 0,        // �ſ� ����
-    Low = 1,            // ����
-    Medium = 2,         // ����
-    High = 3,           // ����
+    VeryLow = 0,        // 매우 낮음
+    Low = 1,            // 낮음
+    Medium = 2,         // 보통
+    High = 3,           // 높음
 }
 
 // =====================================================
-// ==================== �κ��丮 ���� ====================
+// ==================== 정렬 옵션 ======================
 // =====================================================
 
 /// <summary>
-/// ���� �ɼ�
+/// 정렬 옵션
 /// </summary>
 public enum SortOption
 {
-    ByID,           // ID ��
-    ByName,         // �̸� ��
-    ByTier,         // Ƽ�� ��
-    BySubCategory   // �Һз� ��
+    ByID,           // ID 정렬
+    ByName,         // 이름 정렬
+    ByTier,         // 등급 정렬
+    BySubCategory   // 하위 분류 정렬
 }
 
-// ==================== ���� ���� ====================
+// ==================== 날씨 타입 ====================
 public enum WeatherType
 {
-    Sunny,    // ����
-    Rain,     // ��
-    Radio,    // ����
-    Snow,     // ��
-    Thunder,  // õ��
-    Hot       // ����
+    Sunny,    // 맑음
+    Rain,     // 비
+    Cloudy,   // 흐림
+    Snow,     // 눈
+    Thunder,  // 천둥 (번개)
+    Hot       // 더움
 }
