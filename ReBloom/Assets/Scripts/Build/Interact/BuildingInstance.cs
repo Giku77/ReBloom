@@ -8,6 +8,22 @@ public class BuildingInstance : MonoBehaviour
     public int ArcId => arcId;
     public ArcData Data { get; private set; }
 
+    private void OnEnable()
+    {
+        if (ResearchManager.I != null)
+        {
+            ResearchManager.I.RegisterBuilding(this);
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (ResearchManager.I != null)
+        {
+            ResearchManager.I.UnregisterBuilding(this);
+        }
+    }
+
     private void Awake()
     {
         BuildManager.I.ArcDB.TryGet(arcId, out var arc);

@@ -121,6 +121,12 @@ public class BuildManager : MonoBehaviour
             buildingCounts[arc.arcId] = 1;
         QuestManager.I.NotifyBuildingBuilt(arc.arcId);
 
+        // if (arc.researchInc > 0f)
+        // {
+        //     Debug.Log($"건물 건설로 연구 진척도 +{arc.researchInc}");
+        //     ResearchManager.I.AddProgress(arc.researchInc);
+        // }
+
         return Spawn(arc, pos, rot);
     }
 

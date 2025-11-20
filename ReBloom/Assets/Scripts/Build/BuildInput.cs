@@ -8,6 +8,8 @@ public class BuildInput : MonoBehaviour
     [SerializeField] private InputAction buildAction;
     [SerializeField] private InputAction toggleBuildUIAction;
 
+    [SerializeField] private InputAction debugResearchPointAction;
+
     [SerializeField] private BuildUI buildUI;   
     private GameObject player;
 
@@ -22,6 +24,8 @@ public class BuildInput : MonoBehaviour
         buildAction.performed += OnBuild;
         toggleBuildUIAction.Enable();
         toggleBuildUIAction.performed += OnToggleBuildUI;
+        debugResearchPointAction.Enable();
+        debugResearchPointAction.performed += OnDebugAddResearchPoint;
     }
 
     private void OnDisable()
@@ -30,6 +34,8 @@ public class BuildInput : MonoBehaviour
         buildAction.Disable();
         toggleBuildUIAction.performed -= OnToggleBuildUI;
         toggleBuildUIAction.Disable();
+        debugResearchPointAction.performed -= OnDebugAddResearchPoint;
+        debugResearchPointAction.Disable();
     }
 
     private void OnBuild(InputAction.CallbackContext ctx)
@@ -48,5 +54,10 @@ public class BuildInput : MonoBehaviour
         {
             buildUI.Toggle();
         }
+    }
+
+    private void OnDebugAddResearchPoint(InputAction.CallbackContext ctx)
+    {
+        ResearchManager.I.DebugFillToMax();
     }
 }

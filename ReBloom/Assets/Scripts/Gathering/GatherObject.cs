@@ -38,7 +38,7 @@ public class GatherObject : MonoBehaviour, IInteractable
                 timer = respawnTime;
 
                 if (highlight != null)
-                    highlight.Show();
+                    highlight.ShowHighlightOnly();
             }
         }
     }
@@ -88,7 +88,7 @@ public class GatherObject : MonoBehaviour, IInteractable
             Debug.Log($"채집 오브젝트 초기화 {gatherObjectData.objectNameId}");
 
             if (highlight != null)
-                highlight.Show();
+                highlight.ShowHighlightOnly();
         }
     }
 
