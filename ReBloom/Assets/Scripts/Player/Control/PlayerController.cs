@@ -56,13 +56,16 @@ public class PlayerController : MonoBehaviour
     private bool jumpRequested = false;
 
     private Animator animator;
-    
+    public Animator Animator => animator;
+
     public static readonly string jumpAni = "Jump";
     public static readonly string speedAni = "Speed";
+    public static readonly string slow = "Slow";
 
-    bool isAutoRun = false;
-
-    bool isGround = false;
+    private bool isAutoRun = false;
+    private bool isGround = false;
+    private bool wasJumping = false;
+    public bool isInteracting = false;
 
     [Header("Debug")]
     [SerializeField] private float debugSpeed = 15f;
@@ -137,11 +140,22 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+
         DropPlayer();
         MovePlayer();
         StepClimb();
         RotatePlayer();
         JumpPlayer();
+
+        if (wasJumping && isGround)
+        {
+            if (animator != null)
+            {
+                animator.SetBool(slow, false);
+            }
+
+            wasJumping = false;
+        }
     }
 
     private void OnDestroy()
@@ -179,11 +193,13 @@ public class PlayerController : MonoBehaviour
 
     public void OnMoveSlow(InputAction.CallbackContext context)
     { 
-        if(context.performed)
+        if(context.started)
             isSlow = true;
 
         if (context.canceled)
             isSlow = false;
+
+        animator.SetBool(slow, isSlow);
     }
 
     public void OnFreeLook(InputAction.CallbackContext context)
@@ -216,7 +232,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        if (!isGround) return;
+        if (!isGround || isInteracting) return;
 
         Vector2 finalMoveInput = moveInput;
 
@@ -304,6 +320,7 @@ public class PlayerController : MonoBehaviour
         }
 
         jumpRequested = false;
+        wasJumping = true;
     }
 
     private void RotatePlayer()

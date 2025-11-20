@@ -2,6 +2,7 @@
 using System.Threading;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class PlayerInteractable : MonoBehaviour
 {
@@ -16,12 +17,11 @@ public class PlayerInteractable : MonoBehaviour
 
     private InteractionHighlight currentHighlight = null;
     private ToastMessageUI toastMessageUI;
-    
 
+    public static readonly string gathering = "Gather";
     private void Awake()
     {
         player = GetComponent<PlayerController>();
-
         toastMessageUI = GameObject.FindWithTag("ToastMsg").GetComponent<ToastMessageUI>();
     }
 
@@ -79,11 +79,16 @@ public class PlayerInteractable : MonoBehaviour
                 float holdTime = closestInteractable.HoldTime;
                 if (holdTime > 0f)
                 {
+                    player.isInteracting = true;
                     float elapsed = 0f;
                     holdUI.Show();
                     bool isGatherObject = closestInteractable is GatherObject;
                     bool isBuildingInteractable = closestInteractable is BuildingInteractableBase;
-                    if (isGatherObject) msg = "채집";
+                    if (isGatherObject)
+                    {
+                        msg = "채집";
+                        player.Animator.SetBool(gathering, true);
+                    }
                     else if (isBuildingInteractable) msg = "상호작용";
                     else msg = "작업";
                     toastMessageUI.Show($"{msg} 중....", holdTime);
@@ -101,12 +106,16 @@ public class PlayerInteractable : MonoBehaviour
                     holdUI.Hide();
                 }
                 closestInteractable.Interact(player);
+                player.Animator.SetBool(gathering, false);
+                player.isInteracting = false;
             }
         }
         catch (System.OperationCanceledException)
         {
             toastMessageUI.Show($"{msg} 중단!", 2f);
             holdUI.Hide(); // 취소 시에도 UI 숨기기
+            player.Animator.SetBool(gathering, false);
+            player.isInteracting = false;
             CancelInteract();
         }
     }
