@@ -1,23 +1,25 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ÇÃ·¹ÀÌ¾î »ç¸Á ½Ã µå·ÓµÇ´Â ½ÃÃ¼ ¹Ú½º µ¥ÀÌÅÍ
-/// À§Ä¡ Á¤º¸¿Í ¾ÆÀÌÅÛ ¸ñ·ÏÀ» ÀúÀå
+/// í”Œë ˆì´ì–´ ì‚¬ë§ ì‹œ ë“œë¡­ë˜ëŠ” ì‹œì²´ ë°•ìŠ¤ ë°ì´í„°
+/// ìœ„ì¹˜ ì •ë³´ì™€ ì•„ì´í…œ ëª©ë¡ì„ ì €ì¥
 /// </summary>
 [CreateAssetMenu(fileName = "New DeathBox Data", menuName = "ReBloom/Inventory/DeathBox Data")]
 public class DeathBoxData : ScriptableObject
 {
     [Header("Death Info")]
-    [SerializeField] private string deathBoxID; // °íÀ¯ ID (º¹¼ö ½ÃÃ¼¹Ú½º ´ëºñ)
-    [SerializeField] private Vector3 deathPosition; // »ç¸Á À§Ä¡
-    [SerializeField] private DateTime deathTime; // »ç¸Á ½Ã°£
+    [SerializeField] private string deathBoxID; // ê³ ìœ  ID (ë³µìˆ˜ ì‹œì²´ë°•ìŠ¤ ëŒ€ë¹„)
+    [SerializeField] private Vector3 deathPosition; // ì‚¬ë§ ìœ„ì¹˜
+    [SerializeField] private DateTime deathTime; // ì‚¬ë§ ì‹œê°„
+
+    public string BoxID => deathBoxID;
 
     [Header("Item Data")]
     [SerializeField] private List<ItemSlotData> storedItems = new List<ItemSlotData>();
 
-    // ÀÌº¥Æ®: ½ÃÃ¼¹Ú½º µ¥ÀÌÅÍ º¯°æ ½Ã
+    // ì´ë²¤íŠ¸: ì‹œì²´ë°•ìŠ¤ ë°ì´í„° ë³€ê²½ ì‹œ
     public event Action OnDeathBoxDataChanged;
 
     #region Properties
@@ -29,25 +31,25 @@ public class DeathBoxData : ScriptableObject
     #endregion
 
     /// <summary>
-    /// ÀÎº¥Åä¸® µ¥ÀÌÅÍ¿¡¼­ ½ÃÃ¼¹Ú½º·Î ¾ÆÀÌÅÛ ÀÌµ¿
+    /// ì¸ë²¤í† ë¦¬ ë°ì´í„°ì—ì„œ ì‹œì²´ë°•ìŠ¤ë¡œ ì•„ì´í…œ ì´ë™
     /// </summary>
     public void StoreItemsFromInventory(InventoryItemData inventoryData, Vector3 position)
     {
         if (inventoryData == null)
         {
-            Debug.LogError("[DeathBoxData] InventoryItemData°¡ nullÀÔ´Ï´Ù!");
+            Debug.LogError("[DeathBoxData] InventoryItemDataê°€ nullì…ë‹ˆë‹¤!");
             return;
         }
 
-        // ±âÁ¸ µ¥ÀÌÅÍ ÃÊ±âÈ­
+        // ê¸°ì¡´ ë°ì´í„° ì´ˆê¸°í™”
         Clear();
 
-        // »ç¸Á Á¤º¸ ¼³Á¤
-        deathBoxID = Guid.NewGuid().ToString(); // °íÀ¯ ID »ı¼º
+        // ì‚¬ë§ ì •ë³´ ì„¤ì •
+        deathBoxID = Guid.NewGuid().ToString(); // ê³ ìœ  ID ìƒì„±
         deathPosition = position;
         deathTime = DateTime.Now;
 
-        // ÀÎº¥Åä¸® ¾ÆÀÌÅÛÀ» ½ÃÃ¼¹Ú½º·Î º¹»ç
+        // ì¸ë²¤í† ë¦¬ ì•„ì´í…œì„ ì‹œì²´ë°•ìŠ¤ë¡œ ë³µì‚¬
         foreach (var slot in inventoryData.GetAllItems())
         {
             if (slot.Value > 0)
@@ -64,36 +66,36 @@ public class DeathBoxData : ScriptableObject
     }
 
     /// <summary>
-    /// ½ÃÃ¼¹Ú½º¿¡¼­ ÀÎº¥Åä¸®·Î ¾ÆÀÌÅÛ È¸¼ö
+    /// ì‹œì²´ë°•ìŠ¤ì—ì„œ ì¸ë²¤í† ë¦¬ë¡œ ì•„ì´í…œ íšŒìˆ˜
     /// </summary>
     public void RetrieveItemsToInventory(InventoryItemData inventoryData)
     {
         if (inventoryData == null)
         {
-            Debug.LogError("[DeathBoxData] InventoryItemData°¡ nullÀÔ´Ï´Ù!");
+            Debug.LogError("[DeathBoxData] InventoryItemDataê°€ nullì…ë‹ˆë‹¤!");
             return;
         }
 
         if (!HasItems)
         {
-            Debug.LogWarning("[DeathBoxData] ½ÃÃ¼¹Ú½º°¡ ºñ¾îÀÖ½À´Ï´Ù!");
+            Debug.LogWarning("[DeathBoxData] ì‹œì²´ë°•ìŠ¤ê°€ ë¹„ì–´ìˆìŠµë‹ˆë‹¤!");
             return;
         }
 
-        // ½ÃÃ¼¹Ú½º ¾ÆÀÌÅÛÀ» ÀÎº¥Åä¸®·Î ÀÌµ¿
+        // ì‹œì²´ë°•ìŠ¤ ì•„ì´í…œì„ ì¸ë²¤í† ë¦¬ë¡œ ì´ë™
         foreach (var slot in storedItems)
         {
            inventoryData.AddItem(slot.itemID, slot.count);
         }
 
-        Debug.Log($"[DeathBoxData] {storedItems.Count}°³ ¾ÆÀÌÅÛÀ» ÀÎº¥Åä¸®·Î È¸¼öÇß½À´Ï´Ù.");
+        Debug.Log($"[DeathBoxData] {storedItems.Count}ê°œ ì•„ì´í…œì„ ì¸ë²¤í† ë¦¬ë¡œ íšŒìˆ˜í–ˆìŠµë‹ˆë‹¤.");
 
-        // ½ÃÃ¼¹Ú½º ºñ¿ì±â
+        // ì‹œì²´ë°•ìŠ¤ ë¹„ìš°ê¸°
         Clear();
     }
 
     /// <summary>
-    /// Æ¯Á¤ ¾ÆÀÌÅÛ¸¸ È¸¼ö
+    /// íŠ¹ì • ì•„ì´í…œë§Œ íšŒìˆ˜
     /// </summary>
     public bool TryRetrieveItem(int itemID, int count, InventoryItemData inventoryData)
     {
@@ -103,10 +105,10 @@ public class DeathBoxData : ScriptableObject
             return false;
         }
 
-        // ÀÎº¥Åä¸®¿¡ Ãß°¡
+        // ì¸ë²¤í† ë¦¬ì— ì¶”ê°€
         inventoryData.AddItem(itemID, count);
 
-        // ½ÃÃ¼¹Ú½º¿¡¼­ Á¦°Å
+        // ì‹œì²´ë°•ìŠ¤ì—ì„œ ì œê±°
         slot.count -= count;
         if (slot.count <= 0)
         {
@@ -118,7 +120,7 @@ public class DeathBoxData : ScriptableObject
     }
 
     /// <summary>
-    /// ½ÃÃ¼¹Ú½º ºñ¿ì±â
+    /// ì‹œì²´ë°•ìŠ¤ ë¹„ìš°ê¸°
     /// </summary>
     public void Clear()
     {
@@ -129,7 +131,7 @@ public class DeathBoxData : ScriptableObject
     }
 
     /// <summary>
-    /// Æ¯Á¤ ¾ÆÀÌÅÛ °³¼ö Á¶È¸
+    /// íŠ¹ì • ì•„ì´í…œ ê°œìˆ˜ ì¡°íšŒ
     /// </summary>
     public int GetItemCount(int itemID)
     {
@@ -139,7 +141,7 @@ public class DeathBoxData : ScriptableObject
 }
 
 /// <summary>
-/// ½ÃÃ¼¹Ú½º ½½·Ô µ¥ÀÌÅÍ
+/// ì‹œì²´ë°•ìŠ¤ ìŠ¬ë¡¯ ë°ì´í„°
 /// </summary>
 [Serializable]
 public class ItemSlotData
