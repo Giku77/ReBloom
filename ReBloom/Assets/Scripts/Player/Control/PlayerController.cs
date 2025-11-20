@@ -123,8 +123,6 @@ public class PlayerController : MonoBehaviour
     {
         isGround = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
 
-        DropPlayer();
-
         if (Keyboard.current.rKey.wasPressedThisFrame)
         {
             EquipWeapon();
@@ -144,6 +142,7 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        DropPlayer();
         MovePlayer();
         StepClimb();
         RotatePlayer();
@@ -279,6 +278,16 @@ public class PlayerController : MonoBehaviour
         //oldMoveDirection = moveDirection;
 
         currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed, changeSpeedRadius * Time.deltaTime);
+
+        //float animationSpeed = currentSpeed;
+
+        //if(targetSpeed > 0.1f && (isSlow || currentSpeed < moveSpeed))
+        //{
+        //    float minAnimSpeed = moveSpeed * minAnimationSpeedRatio;
+        //    animationSpeed = Mathf.Max(currentSpeed, minAnimSpeed);
+        //}
+
+        //animator.SetFloat(speedAni, animationSpeed);
 
         animator.SetFloat(speedAni, currentSpeed);
 

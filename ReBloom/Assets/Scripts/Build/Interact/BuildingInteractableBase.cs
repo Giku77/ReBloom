@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public abstract class BuildingInteractableBase : MonoBehaviour, IInteractable
 {
@@ -15,4 +15,9 @@ public abstract class BuildingInteractableBase : MonoBehaviour, IInteractable
     }
 
     public abstract void Interact(PlayerController player);
+
+    public bool CanInteract()
+    {
+        return true;
+    }
 }

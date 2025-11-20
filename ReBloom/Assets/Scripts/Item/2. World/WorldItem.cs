@@ -86,6 +86,11 @@ public class WorldItem : MonoBehaviour, IInteractable
         }
     }
 
+    public bool CanInteract()
+    {
+        return true;
+    }
+    
     public void ResetItem()
     {
         itemData = null;

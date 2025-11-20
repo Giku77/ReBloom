@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 
 public class InteractionHighlight : MonoBehaviour
@@ -17,6 +17,8 @@ public class InteractionHighlight : MonoBehaviour
     private Light highlightLight;
     private bool isHighlighted = false;
     private Renderer highlightRend;
+
+    public bool isPermanent = false;
 
     private void Awake()
     {
@@ -72,6 +74,8 @@ public class InteractionHighlight : MonoBehaviour
 
     public void Hide()
     {
+        if (isPermanent) return;
+
         if (isHighlighted)
         {
             highlightLight.enabled = false;
