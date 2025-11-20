@@ -1,16 +1,16 @@
-using BansheeGz.BGDatabase;
+﻿using BansheeGz.BGDatabase;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerEquipManager : MonoBehaviour
 {
+    [SerializeField] private GameObject equipInventory;
+    [SerializeField] private EquipmentUI equipmentUI;
+
     private PlayerEquipData player;
 
-    [SerializeField] private int defaultClothID = 4301002;
-    [SerializeField] private int defaultShoesID = 4302002;
-
-
     [SerializeField] private InventoryItemData inventoryItemData;
+
 
     private void Awake()
     {
@@ -19,14 +19,18 @@ public class PlayerEquipManager : MonoBehaviour
 
     private void Start()
     {
-
+        if (equipInventory != null)
+        {
+            equipInventory.SetActive(false);
+        }
     }
 
     private void Update()
     {
         if (Keyboard.current.rKey.wasPressedThisFrame)
         {
-
+            equipInventory.gameObject.SetActive(!equipInventory.activeSelf);
+            HandleCursorState(equipInventory.activeSelf);
         }
     }
 
@@ -63,8 +67,18 @@ public class PlayerEquipManager : MonoBehaviour
                 return;
         }
 
-
         Debug.Log($"[EquipManager] 장착 완료: {item.itemName} (오염 저항: {item.GetPollutionResist()}%)");
+
+        // UI 업데이트
+        if (equipmentUI != null)
+        {
+            equipmentUI.RefreshAllSlots();
+            Debug.Log("[EquipManager] UI 갱신 호출");
+        }
+        else
+        {
+            Debug.LogWarning("[EquipManager] equipmentUI가 null입니다!");
+        }
     }
 
     public void EquipItem(int itemId)
@@ -84,8 +98,14 @@ public class PlayerEquipManager : MonoBehaviour
             Debug.LogError($"[PlayerEquipManager] 아이템 ID {itemId}는 보호구 아이템이 아닙니다.");
             return;
         }
-        
+
         Apply(itemData);
+        
+        // UI 업데이트
+        if (equipmentUI != null)
+        {
+            equipmentUI.RefreshAllSlots();
+        }
     }
 
 
@@ -114,6 +134,14 @@ public class PlayerEquipManager : MonoBehaviour
         }
 
         Debug.Log($"아이템 해제 완료");
+
+        // UI 업데이트
+        if (equipmentUI != null)
+        {
+            equipmentUI.RefreshAllSlots();
+        }
+
+        
     }
 
     public float GetTotalPollutionResist()
@@ -175,5 +203,27 @@ public class PlayerEquipManager : MonoBehaviour
         }
 
         return resist;
+    }
+
+    public void OnToggleEquipInventory(InputAction.CallbackContext context)
+    {
+        if (equipInventory == null) return;
+
+        equipInventory.gameObject.SetActive(!equipInventory.activeSelf);
+        HandleCursorState(equipInventory.activeSelf);
+
+        Debug.Log($"[EquipmentUI] 장비창 호출");
+    }
+
+    private void HandleCursorState(bool show)
+    {
+        Cursor.visible = show;
+        Cursor.lockState = show ? CursorLockMode.None : CursorLockMode.Locked;
+    }
+
+    public void OnCloseButtonClicked()
+    {
+        equipInventory.gameObject.SetActive(false);
+        HandleCursorState(equipInventory.activeSelf);
     }
 }

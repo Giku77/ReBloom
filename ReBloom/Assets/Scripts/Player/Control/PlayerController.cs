@@ -123,11 +123,6 @@ public class PlayerController : MonoBehaviour
     {
         isGround = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
 
-        if (Keyboard.current.rKey.wasPressedThisFrame)
-        {
-            EquipWeapon();
-        }
-
         if (Keyboard.current.f3Key.wasPressedThisFrame)
         {
             debugMode = !debugMode;
@@ -335,28 +330,6 @@ public class PlayerController : MonoBehaviour
         {
             Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
-        }
-    }
-
-    //임시 장착 확인용
-    private void EquipWeapon()
-    {
-        if (inventoryItemData == null || playerEquip == null)
-        {
-            Debug.LogError("[PlayerController] InventoryItemData 또는 PlayerEquipManager가 할당되지 않았습니다.");
-            return;
-        }
-        
-        int weaponItemId = 4302002;
-        
-        if (inventoryItemData.HasItem(weaponItemId, 1))
-        {
-            playerEquip.EquipItem(weaponItemId);
-            Debug.Log($"[PlayerController] 무기 장착: {weaponItemId}");
-        }
-        else
-        {
-            Debug.LogWarning($"[PlayerController] 인벤토리에 아이템 {weaponItemId}이(가) 없습니다.");
         }
     }
 

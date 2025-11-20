@@ -21,6 +21,7 @@ public class ItemIconDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
     // 드래그 시작 위치 판단용
     private bool isDraggingFromQuickSlot;
     private bool isDraggingFromInventory;
+    private bool isDraggingFromEquipmentSlot;
 
     // 정적 변수
     public static ItemBase CurrentDraggedItem { get; private set; }
@@ -32,11 +33,11 @@ public class ItemIconDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
         rectTransform = GetComponent<RectTransform>();
         canvas = GetComponentInParent<Canvas>();
 
+        canvasGroup = GetComponent<CanvasGroup>();
         if (canvasGroup == null)
         {
             canvasGroup = gameObject.AddComponent<CanvasGroup>();
         }
-        canvasGroup = GetComponent<CanvasGroup>();
     }
     #endregion
 
@@ -65,6 +66,7 @@ public class ItemIconDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
         isDraggingFromQuickSlot = originalParent.GetComponentInParent<QuickSlotDropZone>() != null;
         isDraggingFromInventory = originalParent.GetComponentInParent<GameInventoryUI>() != null;
         isDebugSlot = originalParent.GetComponentInParent<DebugInventoryUI>() != null;
+        isDraggingFromEquipmentSlot = originalParent.GetComponentInParent<EquipmentSlotUI>() != null;
 
         // 퀵슬롯 인덱스 저장
         if (isDraggingFromQuickSlot)

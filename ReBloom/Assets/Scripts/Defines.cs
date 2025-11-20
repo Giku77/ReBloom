@@ -129,6 +129,15 @@ public enum ProtectiveGearType
     None = 3
 }
 
+//==================== 장착 아이템 관련 ====================
+public enum EquipmentType
+{ 
+    Bag = 0,
+    Clothing = 1,
+    Shoes = 2,
+    Tool = 4,
+}
+
 // ==================== 기타 아이템 관련 ====================
 
 /// <summary>
