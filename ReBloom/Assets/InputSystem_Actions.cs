@@ -1593,6 +1593,34 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""EquipInventory"",
+            ""id"": ""2f74eef2-699a-4813-8b70-0ad7e36c013d"",
+            ""actions"": [
+                {
+                    ""name"": ""ToggleEquipInventory"",
+                    ""type"": ""Button"",
+                    ""id"": ""0311ef15-8edd-4733-b285-13eb4683422f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""66ea81b5-dce4-45bc-a3b6-0eea52e8f02f"",
+                    ""path"": ""<Keyboard>/r"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleEquipInventory"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": [
@@ -1711,6 +1739,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_QuickSlots_Slot4 = m_QuickSlots.FindAction("Slot4", throwIfNotFound: true);
         m_QuickSlots_Slot5 = m_QuickSlots.FindAction("Slot5", throwIfNotFound: true);
         m_QuickSlots_Slot6 = m_QuickSlots.FindAction("Slot6", throwIfNotFound: true);
+        // EquipInventory
+        m_EquipInventory = asset.FindActionMap("EquipInventory", throwIfNotFound: true);
+        m_EquipInventory_ToggleEquipInventory = m_EquipInventory.FindAction("ToggleEquipInventory", throwIfNotFound: true);
     }
 
     ~@InputSystem_Actions()
@@ -1721,6 +1752,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         UnityEngine.Debug.Assert(!m_GameInventory.enabled, "This will cause a leak and performance issues, InputSystem_Actions.GameInventory.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_Camera.enabled, "This will cause a leak and performance issues, InputSystem_Actions.Camera.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_QuickSlots.enabled, "This will cause a leak and performance issues, InputSystem_Actions.QuickSlots.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_EquipInventory.enabled, "This will cause a leak and performance issues, InputSystem_Actions.EquipInventory.Disable() has not been called.");
     }
 
     /// <summary>
@@ -2753,6 +2785,102 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="QuickSlotsActions" /> instance referencing this action map.
     /// </summary>
     public QuickSlotsActions @QuickSlots => new QuickSlotsActions(this);
+
+    // EquipInventory
+    private readonly InputActionMap m_EquipInventory;
+    private List<IEquipInventoryActions> m_EquipInventoryActionsCallbackInterfaces = new List<IEquipInventoryActions>();
+    private readonly InputAction m_EquipInventory_ToggleEquipInventory;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "EquipInventory".
+    /// </summary>
+    public struct EquipInventoryActions
+    {
+        private @InputSystem_Actions m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public EquipInventoryActions(@InputSystem_Actions wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "EquipInventory/ToggleEquipInventory".
+        /// </summary>
+        public InputAction @ToggleEquipInventory => m_Wrapper.m_EquipInventory_ToggleEquipInventory;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_EquipInventory; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="EquipInventoryActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(EquipInventoryActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="EquipInventoryActions" />
+        public void AddCallbacks(IEquipInventoryActions instance)
+        {
+            if (instance == null || m_Wrapper.m_EquipInventoryActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_EquipInventoryActionsCallbackInterfaces.Add(instance);
+            @ToggleEquipInventory.started += instance.OnToggleEquipInventory;
+            @ToggleEquipInventory.performed += instance.OnToggleEquipInventory;
+            @ToggleEquipInventory.canceled += instance.OnToggleEquipInventory;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="EquipInventoryActions" />
+        private void UnregisterCallbacks(IEquipInventoryActions instance)
+        {
+            @ToggleEquipInventory.started -= instance.OnToggleEquipInventory;
+            @ToggleEquipInventory.performed -= instance.OnToggleEquipInventory;
+            @ToggleEquipInventory.canceled -= instance.OnToggleEquipInventory;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="EquipInventoryActions.UnregisterCallbacks(IEquipInventoryActions)" />.
+        /// </summary>
+        /// <seealso cref="EquipInventoryActions.UnregisterCallbacks(IEquipInventoryActions)" />
+        public void RemoveCallbacks(IEquipInventoryActions instance)
+        {
+            if (m_Wrapper.m_EquipInventoryActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="EquipInventoryActions.AddCallbacks(IEquipInventoryActions)" />
+        /// <seealso cref="EquipInventoryActions.RemoveCallbacks(IEquipInventoryActions)" />
+        /// <seealso cref="EquipInventoryActions.UnregisterCallbacks(IEquipInventoryActions)" />
+        public void SetCallbacks(IEquipInventoryActions instance)
+        {
+            foreach (var item in m_Wrapper.m_EquipInventoryActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_EquipInventoryActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="EquipInventoryActions" /> instance referencing this action map.
+    /// </summary>
+    public EquipInventoryActions @EquipInventory => new EquipInventoryActions(this);
     private int m_KeyboardMouseSchemeIndex = -1;
     /// <summary>
     /// Provides access to the input control scheme.
@@ -3152,5 +3280,20 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSlot6(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "EquipInventory" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="EquipInventoryActions.AddCallbacks(IEquipInventoryActions)" />
+    /// <seealso cref="EquipInventoryActions.RemoveCallbacks(IEquipInventoryActions)" />
+    public interface IEquipInventoryActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "ToggleEquipInventory" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleEquipInventory(InputAction.CallbackContext context);
     }
 }
