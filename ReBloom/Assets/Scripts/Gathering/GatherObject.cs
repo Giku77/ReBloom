@@ -69,7 +69,10 @@ public class GatherObject : MonoBehaviour, IInteractable
         timer = 0;
 
         if (highlight != null)
+        {
+            highlight.isPermanent = false;
             highlight.Hide();
+        }
     }
 
     public void Initialize(GatherObjectDB db)

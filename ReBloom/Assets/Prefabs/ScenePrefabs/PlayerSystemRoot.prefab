@@ -980,6 +980,10 @@ MonoBehaviour:
   lightIntensity: 2
   backlightRange: 3
   bodylightRange: 0.05
+  promptCanvas: {fileID: 0}
+  promptText: {fileID: 0}
+  promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
+  isPermanent: 0
 --- !u!1 &2758152993424828436
 GameObject:
   m_ObjectHideFlags: 0
@@ -1434,7 +1438,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0.97741026, b: 0.051886797, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1954,7 +1958,12 @@ MonoBehaviour:
   turnSpeed: 12
   slowSpeed: 3
   changeSpeedRadius: 8
-  minAnimationSpeedRatio: 1
+  stepHeight: 0.4
+  stepRayLength: 0.5
+  stepLayerMask:
+    serializedVersion: 2
+    m_Bits: 8
+  stepSmooth: 0.15
   currentSpeed: 0
   isDead: 0
   cameraTransform: {fileID: 0}
@@ -2012,7 +2021,7 @@ MonoBehaviour:
   interactRange: 0.5
   interactLayer:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 640
   holdUI: {fileID: 2137150480756015781}
 --- !u!114 &1388426644026376058
 MonoBehaviour:
