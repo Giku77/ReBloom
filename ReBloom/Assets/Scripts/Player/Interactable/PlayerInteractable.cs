@@ -19,6 +19,8 @@ public class PlayerInteractable : MonoBehaviour
     private ToastMessageUI toastMessageUI;
 
     public static readonly string gathering = "Gather";
+    public static readonly string pickUp = "PickUp";
+
     private void Awake()
     {
         player = GetComponent<PlayerController>();
@@ -77,6 +79,15 @@ public class PlayerInteractable : MonoBehaviour
             if (closestInteractable != null && closestInteractable.CanInteract())
             {
                 float holdTime = closestInteractable.HoldTime;
+
+                bool isWorldItem = closestInteractable is WorldItem;
+                if (isWorldItem)
+                {
+                    player.Animator.SetTrigger(pickUp);
+                    player.isInteracting = true;
+                    await UniTask.Delay(800);
+                }
+
                 if (holdTime > 0f)
                 {
                     player.isInteracting = true;

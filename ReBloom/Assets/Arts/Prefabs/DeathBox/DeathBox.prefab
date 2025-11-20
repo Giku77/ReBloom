@@ -50,6 +50,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac9bc1a3bba4422418234727b9ec6b3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  deathBoxDataRef: {fileID: 0}
+  playerInventory: {fileID: 0}
 --- !u!33 &8526913737511623835
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -118,7 +120,7 @@ BoxCollider:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -140,6 +142,10 @@ MonoBehaviour:
   lightIntensity: 2
   backlightRange: 3
   bodylightRange: 0.05
+  promptCanvas: {fileID: 0}
+  promptText: {fileID: 0}
+  promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
+  isPermanent: 0
 --- !u!114 &444278690439659124
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -176,7 +182,7 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0

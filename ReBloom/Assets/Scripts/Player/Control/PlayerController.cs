@@ -61,6 +61,7 @@ public class PlayerController : MonoBehaviour
     public static readonly string jumpAni = "Jump";
     public static readonly string speedAni = "Speed";
     public static readonly string slow = "Slow";
+    public static readonly string death = "Death";
 
     private bool isAutoRun = false;
     private bool isGround = false;
@@ -350,18 +351,36 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void HandleDeath()
+    private async void HandleDeath()
     {
         isDead = true;
-
+        isInteracting = false;
         rb.linearVelocity = Vector3.zero;
 
-        transform.position = spawnPoint.position;
+        animator.SetTrigger(death);
+        animator.applyRootMotion = true;
 
         Debug.Log("Player is Dead!");
 
+        await UniTask.Delay(4383);
+
+        animator.applyRootMotion = false;
+
+        animator.transform.localPosition = Vector3.zero;
+        animator.transform.localRotation = Quaternion.identity;
+
+        transform.position = spawnPoint.position;
+
+        //Vector3 pos = transform.position;
+        //if (Physics.Raycast(pos + Vector3.up, Vector3.down, out RaycastHit hit, 10f, groundLayer))
+        //{
+        //    pos.y = hit.point.y;
+        //    transform.position = pos;
+        //}
+        playerStats.GetResurrection();
         isDead = false;
     }
+
 
     private void DropPlayer()
     {
