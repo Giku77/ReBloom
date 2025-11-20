@@ -6,7 +6,7 @@ using UnityEngine;
 public class StorageData : ScriptableObject
 {
     [Header("Settings")]
-    [SerializeField] private int maxStorageSlots = 50; //TODO: 창고 수량 기획에 맞게 조정
+    [SerializeField] private int maxStorageSlots; //TODO: 창고 수량 기획에 맞게 조정
 
     private Dictionary<int, int> storagedItems = new Dictionary<int, int>();
 
