@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class BuildUI : MonoBehaviour
@@ -8,13 +9,29 @@ public class BuildUI : MonoBehaviour
     [SerializeField] private BuildInfoUI buildInfoPrefab;
     [SerializeField] private BuildSlotUI slotItemPrefab;
     [SerializeField] private BuildToolTip toolTip;
+    [SerializeField] private TextMeshProUGUI researchPoint;
 
     private readonly string[] arcTypeNames = { "기본", "바이오", "에너지", "기술" };
 
     private readonly Dictionary<int, BuildInfoUI> arcTypeUIs = new();
+    private readonly Dictionary<int, BuildSlotUI> slotUIsByArcId = new();
 
     private ArcDB arcDB;
     private ArcRecipeDB arcRecipeDB;
+
+    private void OnEnable()
+    {
+        ResearchManager.I.OnProgressChanged += UpdateResearchPointDisplay;
+         if (arcDB != null)
+        {
+            UpdateResearchPointDisplay(ResearchManager.I.CurrentProgress);
+        }
+    }
+
+    private void OnDisable()
+    {
+        ResearchManager.I.OnProgressChanged -= UpdateResearchPointDisplay;
+    }
 
     private void Start()
     {
@@ -35,6 +52,33 @@ public class BuildUI : MonoBehaviour
 
         BuildAll();
         Toggle();
+        UpdateResearchPointDisplay(ResearchManager.I.CurrentProgress);
+    }
+
+    private void UpdateResearchPointDisplay(float p)
+    {
+        //researchPoint.text = $"{p:F0}"; // 반올림
+        researchPoint.text = Mathf.FloorToInt(p).ToString(); // 버림
+        RefreshUnlockStates();
+    }
+
+    private void RefreshUnlockStates()
+    {
+        if (arcDB == null) return;
+
+        foreach (var pair in slotUIsByArcId)
+        {
+            int arcId = pair.Key;
+            BuildSlotUI slotUI = pair.Value;
+            if (slotUI == null) continue;
+
+            if (!arcDB.GetAll().TryGetValue(arcId, out var arc))
+                continue;
+
+            bool unlocked = ResearchManager.I.IsUnlocked(arc);
+
+            slotUI.UpdateUnlockState(unlocked);
+        }
     }
 
     private void BuildAll()
@@ -52,12 +96,16 @@ public class BuildUI : MonoBehaviour
                 arcTypeUIs.Add(arc.arcType, infoUI);
             }
 
-            // 2) 슬롯 생성 및 세팅
+            // 2) 슬롯 생성 및 세팅      
             var slotUI = Instantiate(slotItemPrefab, infoUI.SlotParent);
 
+            bool unlocked = ResearchManager.I.IsUnlocked(arc);
+
             arcRecipeDB.TryGetRecipe(arcId, out var recipe);
-            slotUI.Set(arc, recipe);
+            slotUI.Set(arc, recipe, unlocked);
             slotUI.Init(toolTip);
+
+            slotUIsByArcId[arcId] = slotUI;
         }
     }
 

@@ -49,7 +49,14 @@ public class InteractionHighlight : MonoBehaviour
         }
     }
 
-    public void Show()
+    public void Show() 
+    {
+        ShowHighlightOnly();
+        ShowPrompt();
+    }
+
+    /// <summary>빛/Emission만 켜기 (텍스트는 안 건드림)</summary>
+    public void ShowHighlightOnly()
     {
         if (!isHighlighted)
         {
@@ -62,14 +69,24 @@ public class InteractionHighlight : MonoBehaviour
             highlightRend.material.EnableKeyword("_EMISSION");
             highlightRend.material.SetColor("_EmissionColor", highlightColor * bodylightRange);
         }
+    }
 
+    /// <summary>프롬프트 텍스트만 켜기</summary>
+    public void ShowPrompt(string overrideText = null)
+    {
+        if (promptCanvas == null) return;
+
+        if (promptText != null)
+            promptText.text = string.IsNullOrEmpty(overrideText) ? promptFormat : overrideText;
+
+        promptCanvas.gameObject.SetActive(true);
+    }
+
+    /// <summary>프롬프트만 숨기기</summary>
+    public void HidePrompt()
+    {
         if (promptCanvas != null)
-        {
-            if (promptText != null)
-                promptText.text = promptFormat;
-
-            promptCanvas.gameObject.SetActive(true);
-        }
+            promptCanvas.gameObject.SetActive(false);
     }
 
     public void Hide()
@@ -88,10 +105,7 @@ public class InteractionHighlight : MonoBehaviour
             highlightRend.material.SetColor("_EmissionColor", Color.black);
         }
 
-        if (promptCanvas != null)
-        {
-            promptCanvas.gameObject.SetActive(false);
-        }
+        HidePrompt();
     }
 
     private void OnDestroy()

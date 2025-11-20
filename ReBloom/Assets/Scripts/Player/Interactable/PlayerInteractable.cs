@@ -51,7 +51,7 @@ public class PlayerInteractable : MonoBehaviour
     {
         CancelInteract();
         cts = new CancellationTokenSource();
-
+        var msg = string.Empty;
         try
         {
             Collider[] hits = Physics.OverlapSphere(transform.position, interactRange, interactLayer);
@@ -81,7 +81,12 @@ public class PlayerInteractable : MonoBehaviour
                 {
                     float elapsed = 0f;
                     holdUI.Show();
-                    toastMessageUI.Show("채집 중....", holdTime);
+                    bool isGatherObject = closestInteractable is GatherObject;
+                    bool isBuildingInteractable = closestInteractable is BuildingInteractableBase;
+                    if (isGatherObject) msg = "채집";
+                    else if (isBuildingInteractable) msg = "상호작용";
+                    else msg = "작업";
+                    toastMessageUI.Show($"{msg} 중....", holdTime);
 
                     while (elapsed < holdTime)
                     {
@@ -92,7 +97,7 @@ public class PlayerInteractable : MonoBehaviour
                         await UniTask.Yield(cancellationToken: cts.Token);
                     }
 
-                    toastMessageUI.Show("채집 완료!", 2f);
+                    toastMessageUI.Show($"{msg} 완료!", 2f);
                     holdUI.Hide();
                 }
                 closestInteractable.Interact(player);
@@ -100,7 +105,7 @@ public class PlayerInteractable : MonoBehaviour
         }
         catch (System.OperationCanceledException)
         {
-            toastMessageUI.Show("채집 중단!", 2f);
+            toastMessageUI.Show($"{msg} 중단!", 2f);
             holdUI.Hide(); // 취소 시에도 UI 숨기기
             CancelInteract();
         }
@@ -114,8 +119,8 @@ public class PlayerInteractable : MonoBehaviour
 
         foreach (var hit in hits)
         {
-            if (hit.GetComponent<GatherObject>() != null)
-                continue;
+            // if (hit.GetComponent<GatherObject>() != null)
+            //     continue;
 
             if (hit.TryGetComponent<InteractionHighlight>(out var highlight))
             {
@@ -133,9 +138,23 @@ public class PlayerInteractable : MonoBehaviour
 
         if (currentHighlight != closestHighlight)
         {
-            currentHighlight?.Hide();
+            if (currentHighlight != null)
+            {
+                if (currentHighlight.TryGetComponent<GatherObject>(out _))
+                    currentHighlight.HidePrompt();
+                else
+                    currentHighlight.Hide();
+            }
+
             currentHighlight = closestHighlight;
-            currentHighlight?.Show();
+
+            if (currentHighlight != null)
+            {
+                if (currentHighlight.TryGetComponent<GatherObject>(out _))
+                    currentHighlight.ShowPrompt();
+                else
+                    currentHighlight.Show(); 
+            }
         }
     }
 }

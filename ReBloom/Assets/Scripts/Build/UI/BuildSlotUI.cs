@@ -11,6 +11,7 @@ public class BuildSlotUI : MonoBehaviour
     [SerializeField] private List<TextMeshProUGUI> txtMaterials; 
 
     [SerializeField] private GameObject testPrefab;
+    [SerializeField] private GameObject lockView;
 
     private BuildUI parentUI;
     private BuildToolTip toolTip;
@@ -20,6 +21,8 @@ public class BuildSlotUI : MonoBehaviour
     [SerializeField] private Button buildButton;
 
     private GameObject player;
+
+    private bool isUnlocked = false;
 
     private void Awake()
     {
@@ -52,12 +55,23 @@ public class BuildSlotUI : MonoBehaviour
         toolTip.Hide();
     }
 
-    public void Set(ArcData arc, ArcRecipe recipe)
+    
+    public void UpdateUnlockState(bool unlocked)
+    {
+        isUnlocked = unlocked;
+
+        if (lockView != null)
+            lockView.SetActive(!unlocked);
+    }
+
+    public void Set(ArcData arc, ArcRecipe recipe, bool unlocked)
     {
         arcData = arc;
 
         txtName.text = arc.name;
         txtTier.text = arc.tier.ToString();
+
+        lockView.SetActive(!unlocked);
 
         buildButton.onClick.AddListener(() =>
         {
