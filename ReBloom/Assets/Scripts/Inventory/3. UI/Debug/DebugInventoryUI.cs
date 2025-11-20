@@ -231,11 +231,23 @@ public class DebugInventoryUI : MonoBehaviour
 
     private void ClearSlots()
     {
-        foreach (var slot in activeSlots)
+         for (int i = activeSlots.Count - 1; i >= 0; i--)
         {
-            Destroy(slot.gameObject);
+            var slot = activeSlots[i];
+
+            if (slot == null)
+            {
+                activeSlots.RemoveAt(i);
+                continue;
+            }
+
+            if (slot.gameObject != null)
+            {
+                Destroy(slot.gameObject);
+            }
+
+            activeSlots.RemoveAt(i);
         }
-        activeSlots.Clear();
     }
 
     private void CreateItemSlot(ItemBase item)

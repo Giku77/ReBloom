@@ -9,6 +9,7 @@ public class ItemIconDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
 
     private Canvas canvas;
     private ItemBase itemData;
+    private bool isDebugSlot;
     private RectTransform rectTransform;
     private CanvasGroup canvasGroup;
 
@@ -63,6 +64,7 @@ public class ItemIconDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
         // 어디서 드래그 시작했는지 확인
         isDraggingFromQuickSlot = originalParent.GetComponentInParent<QuickSlotDropZone>() != null;
         isDraggingFromInventory = originalParent.GetComponentInParent<GameInventoryUI>() != null;
+        isDebugSlot = originalParent.GetComponentInParent<DebugInventoryUI>() != null;
 
         // 퀵슬롯 인덱스 저장
         if (isDraggingFromQuickSlot)
@@ -99,6 +101,24 @@ public class ItemIconDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
         // 드롭 성공 여부 확인
         bool droppedOnValidSlot = eventData.pointerEnter != null &&
                                   eventData.pointerEnter.GetComponent<QuickSlotDropZone>() != null;
+
+        if (isDebugSlot)
+        {
+            Debug.Log("[DragHandler] 디버그 슬롯 드래그 종료 - 슬롯은 유지");
+
+            // UI 원위치
+            transform.SetParent(originalParent, true);
+            transform.SetSiblingIndex(originalSiblingIndex);
+            rectTransform.anchoredPosition = originalPosition;
+
+            // 상태 복원
+            canvasGroup.blocksRaycasts = true;
+            canvasGroup.alpha = 1f;
+
+            CurrentDraggedItem = null;
+            CurrentDraggedSlotIndex = -1;
+            return;
+        }
 
         if (!droppedOnValidSlot && isDraggingFromInventory)
         {
