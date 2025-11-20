@@ -1,3 +1,4 @@
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class Storage : MonoBehaviour
@@ -12,5 +13,10 @@ public class Storage : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public Dictionary<int, int> GetSortedItems(InventorySlotType currentType)
+    {
+        return new Dictionary<int, int>();
     }
 }
