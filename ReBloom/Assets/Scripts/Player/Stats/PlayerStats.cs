@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -99,7 +99,7 @@ public class PlayerStats : MonoBehaviour
         Debug.Log("================================\n");
     }
 
-    private void GetResurrection()
+    public void GetResurrection()
     {
         Health.Set(50f);
         Hunger.Set(50f);
