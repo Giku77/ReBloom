@@ -6,7 +6,7 @@ using UnityEngine;
 public class InventoryItemData : ScriptableObject
 {
     [Header("Settings")]
-    [SerializeField] private int maxInventorySlots = 10;
+    [SerializeField] private int maxInventorySlots = 10; //TODO: 확장 아이템 구현시 변경
 
     private Dictionary<int, int> _items = new Dictionary<int, int>();
 
