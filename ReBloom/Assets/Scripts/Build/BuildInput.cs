@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -9,6 +9,9 @@ public class BuildInput : MonoBehaviour
     [SerializeField] private InputAction toggleBuildUIAction;
 
     [SerializeField] private InputAction debugResearchPointAction;
+
+    [SerializeField] private InputAction addMouse;
+    [SerializeField] private InputAction subMouse;
 
     [SerializeField] private BuildUI buildUI;   
     private GameObject player;
@@ -26,6 +29,11 @@ public class BuildInput : MonoBehaviour
         toggleBuildUIAction.performed += OnToggleBuildUI;
         debugResearchPointAction.Enable();
         debugResearchPointAction.performed += OnDebugAddResearchPoint;
+        addMouse.Enable();
+        addMouse.performed += OnDebugAddMouse;
+        subMouse.Enable();
+        subMouse.performed += OnDebugSubMouse;
+
     }
 
     private void OnDisable()
@@ -36,6 +44,10 @@ public class BuildInput : MonoBehaviour
         toggleBuildUIAction.Disable();
         debugResearchPointAction.performed -= OnDebugAddResearchPoint;
         debugResearchPointAction.Disable();
+        addMouse.performed -= OnDebugAddMouse;
+        addMouse.Disable();
+        subMouse.performed -= OnDebugSubMouse;
+        subMouse.Disable();
     }
 
     private void OnBuild(InputAction.CallbackContext ctx)
@@ -59,5 +71,17 @@ public class BuildInput : MonoBehaviour
     private void OnDebugAddResearchPoint(InputAction.CallbackContext ctx)
     {
         ResearchManager.I.DebugFillToMax();
+    }
+
+    private void OnDebugAddMouse(InputAction.CallbackContext ctx)
+    {
+        var camera = Camera.main.GetComponent<ThirdPersonCamera>();
+        camera.AddMouseSensitivity(10f);
+    }
+
+    private void OnDebugSubMouse(InputAction.CallbackContext ctx)
+    {
+        var camera = Camera.main.GetComponent<ThirdPersonCamera>();
+        camera.SubMouseSensitivity(10f);
     }
 }

@@ -1,9 +1,15 @@
-using TMPro;
+ï»¿using TMPro;
 using UnityEngine;
 
 public class QuestTest : MonoBehaviour
 {
+
     private void Awake()
+    {
+        Application.targetFrameRate = 120;
+        QualitySettings.vSyncCount = 0;
+    }
+    private void Start()
     {
         var db = new QuestDB();
         db.LoadFromBG();
@@ -12,7 +18,7 @@ public class QuestTest : MonoBehaviour
 
         if (inventory == null)
         {
-            Debug.LogError("[QuestTest] ¾À¿¡ GameInventory°¡ ¾ø½À´Ï´Ù!");
+            Debug.LogError("[QuestTest] ì”¬ì— GameInventoryê°€ ì—†ìŠµë‹ˆë‹¤!");
             return;
         }
         QuestManager.I.Init(db, inventory, stageDetector);

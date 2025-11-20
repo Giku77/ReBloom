@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class ThirdPersonCamera : MonoBehaviour
@@ -26,7 +26,7 @@ public class ThirdPersonCamera : MonoBehaviour
         Look();
     }
 
-    //ÀÎÇ²½Ã½ºÅÛ Äİ¹ÙÀÌÇÔ¼ö ·è
+    //ì¸í’‹ì‹œìŠ¤í…œ ì½œë°”ì´í•¨ìˆ˜ ë£©
     public void OnLook(InputAction.CallbackContext context)
     {
         if (Cursor.lockState != CursorLockMode.Locked)
@@ -38,6 +38,18 @@ public class ThirdPersonCamera : MonoBehaviour
         lookInput = context.ReadValue<Vector2>();
     }
 
+    public void AddMouseSensitivity(float sensitivity)
+    {
+        mouseSensitivity += sensitivity;
+    }
+
+    public void SubMouseSensitivity(float sensitivity)
+    {
+        mouseSensitivity -= sensitivity;
+        if (mouseSensitivity < 1f)
+            mouseSensitivity = 1f;
+    }
+
     public void OnScroll(InputAction.CallbackContext context)
     {
         Vector2 scrollDelta = context.ReadValue<Vector2>();
@@ -45,7 +57,7 @@ public class ThirdPersonCamera : MonoBehaviour
         distance = Mathf.Clamp(distance, maxZoominDistance, maxZoomOutDistance);
     }
 
-    //½Ã¾ß ÀÌµ¿ ÇÔ¼ö
+    //ì‹œì•¼ ì´ë™ í•¨ìˆ˜
     private void Look()
     {
         //if (Cursor.lockState != CursorLockMode.Locked)
