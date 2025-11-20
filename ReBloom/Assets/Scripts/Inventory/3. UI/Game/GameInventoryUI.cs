@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+ï»¿using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -7,8 +7,8 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 /// <summary>
-/// °ÔÀÓ ÀÎº¥Åä¸® UI (View)
-/// UI Ç¥½Ã¸¸ ´ã´ç - ºñÁî´Ï½º ·ÎÁ÷Àº GameInventory¿¡¼­ Ã³¸®
+/// ê²Œì„ ì¸ë²¤í† ë¦¬ UI (View)
+/// UI í‘œì‹œë§Œ ë‹´ë‹¹ - ë¹„ì¦ˆë‹ˆìŠ¤ ë¡œì§ì€ GameInventoryì—ì„œ ì²˜ë¦¬
 /// </summary>
 public class GameInventoryUI : MonoBehaviour
 {
@@ -20,7 +20,7 @@ public class GameInventoryUI : MonoBehaviour
 
     [Header("UI References")]
     [SerializeField] private GameObject inventoryUIRoot;
-    [SerializeField] private TextMeshProUGUI messageText;
+    //[SerializeField] private TextMeshProUGUI messageText;
     [SerializeField] private DebugItemTooltip tooltip;
     [SerializeField] private Transform contentContainer;
     [SerializeField] private List<Transform> emptySlotList;
@@ -34,13 +34,13 @@ public class GameInventoryUI : MonoBehaviour
 
     private QuestUI questUI;
 
-    #region »óÅÂ º¯¼ö
+    #region ìƒíƒœ ë³€ìˆ˜
     private InventorySlotType currentType = InventorySlotType.Consumable;
     private readonly List<DebugItemSlot> activeSlots = new();
     private readonly Dictionary<Button, InventorySlotType> tabButtons = new();
     #endregion
 
-    #region Unity »ı¸íÁÖ±â
+    #region Unity ìƒëª…ì£¼ê¸°
     private void Awake()
     {
         InitializeTabButtons();
@@ -51,20 +51,19 @@ public class GameInventoryUI : MonoBehaviour
     {
         if (inventoryData == null)
         {
-            Debug.LogError("[GameInventoryUI] InventoryData°¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù!", this);
+            Debug.LogError("[GameInventoryUI] InventoryDataê°€ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!", this);
             enabled = false;
             return;
         }
 
-        // ÀÌº¥Æ® ±¸µ¶
+        // ì´ë²¤íŠ¸ êµ¬ë…
         inventoryData.OnInventoryChanged += RefreshUI;
-        inventoryData.OnMessage += ShowMessage;
 
-        // ÃÊ±âÈ­
+        // ì´ˆê¸°í™”
         inventoryData.Initialize();
         RefreshUI();
 
-        // ½ÃÀÛ ½Ã ÀÎº¥Åä¸® ´İ±â
+        // ì‹œì‘ ì‹œ ì¸ë²¤í† ë¦¬ ë‹«ê¸°
         inventoryUIRoot.SetActive(false);
     }
 
@@ -73,7 +72,7 @@ public class GameInventoryUI : MonoBehaviour
         EventSystem currentEventSystem = EventSystem.current;
         if (currentEventSystem == null)
         {
-            Debug.LogWarning("[GameInventoryUI] EventSystemÀÌ È°¼ºÈ­µÇ¾î ÀÖÁö ¾Ê½À´Ï´Ù.");
+            Debug.LogWarning("[GameInventoryUI] EventSystemì´ í™œì„±í™”ë˜ì–´ ìˆì§€ ì•ŠìŠµë‹ˆë‹¤.");
         }
         else
         {
@@ -83,9 +82,9 @@ public class GameInventoryUI : MonoBehaviour
                 {
                     currentEventSystem.SetSelectedGameObject(pair.Key.gameObject);
                     OnTabClicked(currentType);
-                    return false; // Áß´Ü
+                    return false; // ì¤‘ë‹¨
                 }
-                return true; // °è¼Ó
+                return true; // ê³„ì†
             });
         }
     }
@@ -95,12 +94,11 @@ public class GameInventoryUI : MonoBehaviour
         if (inventoryData != null)
         {
             inventoryData.OnInventoryChanged -= RefreshUI;
-            inventoryData.OnMessage -= ShowMessage;
         }
     }
     #endregion
 
-    #region ÃÊ±âÈ­
+    #region ì´ˆê¸°í™”
     private void InitializeTabButtons()
     {
         if (btnConsumable != null)
@@ -131,7 +129,7 @@ public class GameInventoryUI : MonoBehaviour
     }
     #endregion
 
-    #region UI ÀÌº¥Æ®
+    #region UI ì´ë²¤íŠ¸
     public void ToggleInventory()
     {
         if (inventoryUIRoot == null) return;
@@ -143,18 +141,18 @@ public class GameInventoryUI : MonoBehaviour
         {
             RefreshUI();
 
-            // Ä¿¼­ Ç¥½Ã
+            // ì»¤ì„œ í‘œì‹œ
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
         }
         else
         {
-            // °ÔÀÓ Áß¿¡´Â Ä¿¼­ ¼û±è
+            // ê²Œì„ ì¤‘ì—ëŠ” ì»¤ì„œ ìˆ¨ê¹€
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
         }
 
-        //Debug.Log($"[°ÔÀÓ ÀÎº¥Åä¸®] {(isActive ? "¿­¸²" : "´İÈû")}");
+        //Debug.Log($"[ê²Œì„ ì¸ë²¤í† ë¦¬] {(isActive ? "ì—´ë¦¼" : "ë‹«í˜")}");
     }
 
     private void OnTabClicked(InventorySlotType inventoryType)
@@ -168,26 +166,26 @@ public class GameInventoryUI : MonoBehaviour
     }
     #endregion
 
-    #region UI °»½Å
+    #region UI ê°±ì‹ 
     /// <summary>
-    /// ÀÎº¥Åä¸® ¾ÆÀÌÅÛ ¸ñ·Ï »õ·Î°íÄ§
-    /// ÄÁÆ®·Ñ·¯¿¡¼­ ÇÊÅÍ¸µµÈ µ¥ÀÌÅÍ¸¦ ¹Ş¾Æ¼­ Ç¥½Ã¸¸ ÇÔ
+    /// ì¸ë²¤í† ë¦¬ ì•„ì´í…œ ëª©ë¡ ìƒˆë¡œê³ ì¹¨
+    /// ì»¨íŠ¸ë¡¤ëŸ¬ì—ì„œ í•„í„°ë§ëœ ë°ì´í„°ë¥¼ ë°›ì•„ì„œ í‘œì‹œë§Œ í•¨
     /// </summary>
     public void RefreshUI()
     {
         if (gameInventory == null || ItemDatabase.I == null)
         {
-            Debug.LogWarning("[GameInventoryUI] GameInventory ¶Ç´Â ItemDatabase°¡ ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("[GameInventoryUI] GameInventory ë˜ëŠ” ItemDatabaseê°€ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
-        // ±âÁ¸ ½½·Ô Á¦°Å
+        // ê¸°ì¡´ ìŠ¬ë¡¯ ì œê±°
         ClearSlots();
 
-        // ÄÁÆ®·Ñ·¯¿¡¼­ ÇÊÅÍ¸µµÈ ¾ÆÀÌÅÛ °¡Á®¿À±â
+        // ì»¨íŠ¸ë¡¤ëŸ¬ì—ì„œ í•„í„°ë§ëœ ì•„ì´í…œ ê°€ì ¸ì˜¤ê¸°
         var items = gameInventory.GetSortedItems(currentType);
 
-        // ½½·Ô »ı¼º
+        // ìŠ¬ë¡¯ ìƒì„±
         int slotIndex = 0;
         foreach (var itemPair in items)
         {
@@ -231,14 +229,14 @@ public class GameInventoryUI : MonoBehaviour
     {
         if (itemSlotPrefab == null || emptySlotList == null || slotIndex >= emptySlotList.Count)
         {
-            Debug.LogError("[GameInventoryUI] itemSlotPrefab ¶Ç´Â emptySlotList°¡ ¾ø°Å³ª ½½·Ô ÀÎµ¦½º ÃÊ°ú!");
+            Debug.LogError("[GameInventoryUI] itemSlotPrefab ë˜ëŠ” emptySlotListê°€ ì—†ê±°ë‚˜ ìŠ¬ë¡¯ ì¸ë±ìŠ¤ ì´ˆê³¼!");
             return;
         }
 
         GameObject slotObj = Instantiate(itemSlotPrefab, emptySlotList[slotIndex]);
         if (!slotObj.TryGetComponent(out DebugItemSlot slot))
         {
-            Debug.LogError("[GameInventoryUI] DebugItemSlot ÄÄÆ÷³ÍÆ®¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù!");
+            Debug.LogError("[GameInventoryUI] DebugItemSlot ì»´í¬ë„ŒíŠ¸ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤!");
             return;
         }
 
@@ -256,7 +254,7 @@ public class GameInventoryUI : MonoBehaviour
     {
         if (!slot.TryGetComponent(out ItemIconDragHandler dragHandler))
         {
-            Debug.LogError("[GameInventoryUI] ItemIconDragHandler ÄÄÆ÷³ÍÆ®¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù!");
+            Debug.LogError("[GameInventoryUI] ItemIconDragHandler ì»´í¬ë„ŒíŠ¸ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤!");
             return;
         }
 
@@ -264,7 +262,7 @@ public class GameInventoryUI : MonoBehaviour
     }
     #endregion
 
-    #region UI ¾÷µ¥ÀÌÆ®
+    #region UI ì—…ë°ì´íŠ¸
     private void UpdateTabVisuals()
     {
         foreach (var pair in tabButtons)
@@ -282,30 +280,6 @@ public class GameInventoryUI : MonoBehaviour
                 textColor.a = (type == currentType) ? 1f : 0.5f;
                 btnText.color = textColor;
             }
-        }
-    }
-    #endregion
-
-    #region ¸Ş½ÃÁö Ç¥½Ã
-    private void ShowMessage(string msg)
-    {
-        if (messageText != null)
-        {
-            messageText.text = msg;
-            messageText.color = Color.yellow;
-
-            CancelInvoke(nameof(ClearMessage));
-            Invoke(nameof(ClearMessage), 3f);
-        }
-
-        Debug.Log($"[ÀÎº¥Åä¸® ¸Ş½ÃÁö] {msg}");
-    }
-
-    private void ClearMessage()
-    {
-        if (messageText != null)
-        {
-            messageText.text = "";
         }
     }
     #endregion
