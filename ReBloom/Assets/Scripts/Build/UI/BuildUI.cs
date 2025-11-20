@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -21,7 +21,7 @@ public class BuildUI : MonoBehaviour
 
     private void OnEnable()
     {
-        ResearchManager.I.OnProgressChanged += UpdateResearchPointDisplay;
+        if (ResearchManager.I != null) ResearchManager.I.OnProgressChanged += UpdateResearchPointDisplay;
          if (arcDB != null)
         {
             UpdateResearchPointDisplay(ResearchManager.I.CurrentProgress);
@@ -30,7 +30,7 @@ public class BuildUI : MonoBehaviour
 
     private void OnDisable()
     {
-        ResearchManager.I.OnProgressChanged -= UpdateResearchPointDisplay;
+        if (ResearchManager.I != null) ResearchManager.I.OnProgressChanged -= UpdateResearchPointDisplay;
     }
 
     private void Start()

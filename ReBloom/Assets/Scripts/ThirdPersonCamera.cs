@@ -10,6 +10,8 @@ public class ThirdPersonCamera : MonoBehaviour
     [SerializeField] private float mouseSensitivity = 100f;
     [SerializeField] private float minVerticalAngle = -30f;
     [SerializeField] private float maxVerticalAngle = 60f;
+    [SerializeField] private float zoomSpeed = 0.5f;
+
     private float maxZoomOutDistance = 20f;
     private float maxZoominDistance = 1f;
 
@@ -24,6 +26,7 @@ public class ThirdPersonCamera : MonoBehaviour
     private void LateUpdate()
     {
         Look();
+        HandleZoom();
     }
 
     //인풋시스템 콜바이함수 룩
@@ -36,6 +39,19 @@ public class ThirdPersonCamera : MonoBehaviour
         }
 
         lookInput = context.ReadValue<Vector2>();
+    }
+
+    private void HandleZoom()
+    {
+        if (Mouse.current == null) return;
+
+        Vector2 scroll = Mouse.current.scroll.ReadValue();
+
+        if (Mathf.Abs(scroll.y) < 0.01f)
+            return;
+
+        distance -= scroll.y * zoomSpeed * 0.1f;
+        distance = Mathf.Clamp(distance, maxZoominDistance, maxZoomOutDistance);
     }
 
     public void AddMouseSensitivity(float sensitivity)

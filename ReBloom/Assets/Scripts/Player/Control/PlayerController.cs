@@ -386,22 +386,17 @@ public class PlayerController : MonoBehaviour
     {
         if (debugMode) return;
 
-        Debug.Log($"isGround: {isGround}, wasGround: {wasGround}");
-
         if (!isGround && wasGround)
         {
-            Debug.Log("낙하 시작");
             highestY = transform.position.y;
         }
         else if (!isGround)
         {
-            Debug.Log("낙하 중");
             if (transform.position.y > highestY)
                 highestY = transform.position.y;
         }
         else if (!wasGround && isGround)
         {
-            Debug.Log("착지 감지");
             float fallHeight = (highestY - transform.position.y) * transform.localScale.y;
 
             if (fallHeight > maxDropHeight)
