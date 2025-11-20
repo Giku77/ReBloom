@@ -183,7 +183,7 @@ public class StorageUI : MonoBehaviour
         ClearSlots();
 
         // 컨트롤러에서 필터링된 아이템 가져오기
-        var items = storage.GetSortedItems(currentType); //TODO: Storage 스크립트 구현필요
+        var items = storage.GetSortedItems(currentType);
 
         // 슬롯 생성
         int slotIndex = 0;
