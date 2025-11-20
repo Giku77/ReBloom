@@ -20,6 +20,7 @@ public class ItemIconDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
     // 드래그 시작 위치 판단용
     private bool isDraggingFromQuickSlot;
     private bool isDraggingFromInventory;
+    private bool isDraggingFromDebugInventory;
 
     // 정적 변수
     public static ItemBase CurrentDraggedItem { get; private set; }
@@ -63,6 +64,7 @@ public class ItemIconDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
         // 어디서 드래그 시작했는지 확인
         isDraggingFromQuickSlot = originalParent.GetComponentInParent<QuickSlotDropZone>() != null;
         isDraggingFromInventory = originalParent.GetComponentInParent<GameInventoryUI>() != null;
+        isDraggingFromDebugInventory = originalParent.GetComponentInParent<DebugInventoryMarker>() != null;
 
         // 퀵슬롯 인덱스 저장
         if (isDraggingFromQuickSlot)

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -32,16 +32,16 @@ public class InventoryItemData : ScriptableObject
     {
         _items = new Dictionary<int, int>()
         {
-            { 4003002, 15 },
-            { 4102001, 12 },
-            { 4102002, 6 },
-            { 4102005, 10 },
-            { 4102003, 10},
-            { 4102004, 10},
-            { 4102006, 10},
-            { 4102008, 10},
-            { 4301002, 1},
-            { 4302002, 1}
+            //{ 4003002, 15 },
+            //{ 4102001, 12 },
+            //{ 4102002, 6 },
+            //{ 4102005, 10 },
+            //{ 4102003, 10},
+            //{ 4102004, 10},
+            //{ 4102006, 10},
+            //{ 4102008, 10},
+            //{ 4301002, 1},
+            //{ 4302002, 1}
         };
 
         OnInventoryChanged?.Invoke();

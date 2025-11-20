@@ -1,71 +1,98 @@
+ï»¿using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// ¿ùµå¿¡ ¹èÄ¡µÈ ½ÃÃ¼¹Ú½º¿ÍÀÇ »óÈ£ÀÛ¿ë
-/// ÇÃ·¹ÀÌ¾î°¡ EÅ°¸¦ ´­·¯ ¾ÆÀÌÅÛ È¸¼ö
+/// ì›”ë“œì— ë°°ì¹˜ëœ ì‹œì²´ë°•ìŠ¤ì™€ì˜ ìƒí˜¸ì‘ìš©
+/// í”Œë ˆì´ì–´ê°€ Eí‚¤ë¥¼ ëˆŒëŸ¬ ì•„ì´í…œ íšŒìˆ˜
 /// </summary>
 public class WorldDeathBox : MonoBehaviour, IInteractable
 {
     [Header("References")]
+    [SerializeField] private DeathBoxData deathBoxDataRef;
     private DeathBoxData deathBoxData;
-    private InventoryItemData playerInventory;
+    [SerializeField] private InventoryItemData playerInventory;
 
     private Transform playerTransform;
-
+    private InteractionHighlight highlight;
     public float HoldTime => 1f;
 
+    private void Awake()
+    {
+        highlight = GetComponent<InteractionHighlight>();
+
+        // í…œí”Œë¦¿ì„ ë³µì‚¬í•´ì„œ ëŸ°íƒ€ì„ ì¸ìŠ¤í„´ìŠ¤ ìƒì„±
+        if (deathBoxDataRef != null)
+        {
+            deathBoxData = Instantiate(deathBoxDataRef);
+        }
+    }
+
     /// <summary>
-    /// ¿ÜºÎ¿¡¼­ ÃÊ±âÈ­ (PlayerDeathHandler¿¡¼­ È£Ãâ)
+    /// ì™¸ë¶€ì—ì„œ ì´ˆê¸°í™” (PlayerDeathHandlerì—ì„œ í˜¸ì¶œ)
     /// </summary>
     public void Initialize(DeathBoxData data, InventoryItemData inventory)
     {
-        deathBoxData = data;
-        playerInventory = inventory;
+        if (deathBoxData == null && data != null) // í€˜ìŠ¤íŠ¸ìš© ì„ì‹œ ìƒìë¥¼ ìœ„í•œ ê²€ì‚¬
+        {
+            deathBoxData = Instantiate(data);
+        }
+        if (playerInventory == null) playerInventory = inventory;
 
-        // ÇÃ·¹ÀÌ¾î Ã£±â
+        // í”Œë ˆì´ì–´ ì°¾ê¸°
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
             playerTransform = player.transform;
         }
     }
-
     private void Update()
     {
         if (playerTransform == null || deathBoxData == null) return;
 
-        // ÇÃ·¹ÀÌ¾î¿ÍÀÇ °Å¸® °è»ê
+        // í”Œë ˆì´ì–´ì™€ì˜ ê±°ë¦¬ ê³„ì‚°
         float distance = Vector3.Distance(transform.position, playerTransform.position);
     }
-
+    private void OnDestroy()
+    {
+        // ëŸ°íƒ€ì„ ì¸ìŠ¤í„´ìŠ¤ ì •ë¦¬
+        if (deathBoxData != null && deathBoxData != deathBoxDataRef)
+        {
+            Destroy(deathBoxData);
+        }
+    }
     /// <summary>
-    /// ¸ğµç ¾ÆÀÌÅÛ È¸¼ö
+    /// ëª¨ë“  ì•„ì´í…œ íšŒìˆ˜
     /// </summary>
     private void RetrieveAllItems()
     {
         if (deathBoxData == null || playerInventory == null)
         {
-            Debug.LogError("[DeathBoxInteraction] µ¥ÀÌÅÍ°¡ ÃÊ±âÈ­µÇÁö ¾Ê¾Ò½À´Ï´Ù!");
+            Debug.LogError("[DeathBoxInteraction] ë°ì´í„°ê°€ ì´ˆê¸°í™”ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
             return;
         }
 
         if (!deathBoxData.HasItems)
         {
-            Debug.LogWarning("[DeathBoxInteraction] ½ÃÃ¼¹Ú½º°¡ ºñ¾îÀÖ½À´Ï´Ù!");
+            Debug.LogWarning("[DeathBoxInteraction] ì‹œì²´ë°•ìŠ¤ê°€ ë¹„ì–´ìˆìŠµë‹ˆë‹¤!");
             return;
         }
 
-        // ¾ÆÀÌÅÛ È¸¼ö
+        // ì•„ì´í…œ íšŒìˆ˜
         deathBoxData.RetrieveItemsToInventory(playerInventory);
 
-        Debug.Log("[DeathBoxInteraction] ¸ğµç ¾ÆÀÌÅÛÀ» È¸¼öÇß½À´Ï´Ù!");
+        Debug.Log("[DeathBoxInteraction] ëª¨ë“  ì•„ì´í…œì„ íšŒìˆ˜í–ˆìŠµë‹ˆë‹¤!");
 
-        // ½ÃÃ¼¹Ú½º Á¦°Å
+        if (highlight != null)
+        {
+            highlight.Hide();
+        }
+        // ì‹œì²´ë°•ìŠ¤ ì œê±°
         Destroy(gameObject);
     }
 
     public void Interact(PlayerController player)
     {
+        Debug.Log("[WorldDeathBox] Interact");
         RetrieveAllItems();
     }
 }
