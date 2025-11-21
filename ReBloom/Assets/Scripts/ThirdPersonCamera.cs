@@ -76,10 +76,6 @@ public class ThirdPersonCamera : MonoBehaviour
     //시야 이동 함수
     private void Look()
     {
-        //if (Cursor.lockState != CursorLockMode.Locked)
-        //    return;
-
-        //if (target == null) return;
         if (target == null)
         {
             var player = GameObject.FindWithTag("Player");
@@ -99,20 +95,9 @@ public class ThirdPersonCamera : MonoBehaviour
 
         Quaternion rotation = Quaternion.Euler(pitch, yaw, 0f);
 
-        //if (Cursor.lockState == CursorLockMode.Locked)
-        //{
-            rotation = Quaternion.Euler(pitch, yaw, 0f);
-            oldRotation = rotation;
-        //}
-        //else
-        //{ 
-        //    rotation = oldRotation;
-        
-        //}
-            //Vector3 offset = rotation * new Vector3(0f, height, -distance);
+        rotation = Quaternion.Euler(pitch, yaw, 0f);
+        oldRotation = rotation;
 
-            //transform.position = target.position + offset;
-            //transform.LookAt(target.position + Vector3.up * height);
 
         Vector3 desiredPosition = target.position + rotation * new Vector3(0f, height, -distance);
         Vector3 playerEye = target.position + Vector3.up * height;
