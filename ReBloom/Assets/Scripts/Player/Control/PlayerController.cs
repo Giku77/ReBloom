@@ -1,4 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
+using System;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -8,6 +10,8 @@ public class PlayerController : MonoBehaviour
     [Header("Movement Settings")]
     public float moveSpeed = 10f;
     private float sprintSpeed;
+
+    [NonSerialized] public float originalSpeed;
     [SerializeField] private float jumpForce = 2f;
     [SerializeField] private float rotationSpeed = 1f;
     [SerializeField] private float turnSpeed = 15f;
@@ -100,9 +104,35 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         sprintSpeed = moveSpeed * 1.5f;
+        originalSpeed = moveSpeed;
 
         if (playerStats != null)
             playerStats.OnDeath += HandleDeath;
+    }
+    private readonly Dictionary<object, float> speedMultipliers = new();
+    public void AddSpeedMultiplier(object source, float multiplier)
+    {
+        speedMultipliers[source] = multiplier;
+        RecalculateMoveSpeed();
+    }
+
+    public void RemoveSpeedMultiplier(object source)
+    {
+        if (speedMultipliers.Remove(source))
+        {
+            RecalculateMoveSpeed();
+        }
+    }
+
+    private void RecalculateMoveSpeed()
+    {
+        float speed = originalSpeed;
+
+        foreach (var mul in speedMultipliers.Values)
+            speed *= mul;
+
+        moveSpeed = speed;
+        sprintSpeed = moveSpeed * 1.5f;  
     }
 
     private void StepClimb()

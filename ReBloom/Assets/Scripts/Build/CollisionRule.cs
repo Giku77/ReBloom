@@ -18,7 +18,7 @@ public class CollisionRule : IBuildRule
         var fp = ctx.FootPrint;
         Vector3 halfExtents = new Vector3(fp.sizeX / 2f, 2f, fp.sizeZ / 2f); // 높이는 대충 2~3m 여유
 
-        //DrawWireBox(ctx.Position + Vector3.up * halfExtents.y, halfExtents, ctx.Rotation, Color.red, 0.1f);
+        DrawWireBox(ctx.Position + Vector3.up * halfExtents.y, halfExtents, ctx.Rotation, Color.red, 1f);
 
         // 회전 고려해서 OverlapBox
         Collider[] hits = Physics.OverlapBox(

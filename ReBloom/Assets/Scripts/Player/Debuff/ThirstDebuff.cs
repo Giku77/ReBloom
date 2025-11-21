@@ -2,8 +2,9 @@ using UnityEngine;
 
 public class ThirstDebuff : DebuffBase
 {
-    private float originalSpeed;
     private PlayerController controller;
+    private float multiplier;
+
     
     public ThirstDebuff(DebuffData data, PlayerStats target) 
         : base(data, target) { }
@@ -13,9 +14,9 @@ public class ThirstDebuff : DebuffBase
         controller = target.GetComponent<PlayerController>();
         if (controller != null)
         {
-            originalSpeed = controller.moveSpeed;
-            controller.moveSpeed *= (1f - data.speedReduce);
-            Debug.Log($"[ThirstDebuff] 이동속도 {data.speedReduce * 100}% 감소: {originalSpeed} -> {controller.moveSpeed}");
+            multiplier = 1f - data.speedReduce;
+            controller.AddSpeedMultiplier(this, multiplier);
+            Debug.Log($"[ThirstDebuff] 이동속도 {data.speedReduce * 100}% 감소: {controller.originalSpeed} -> {controller.moveSpeed}");
         }
     }
     
@@ -23,7 +24,7 @@ public class ThirstDebuff : DebuffBase
     {
         if (controller != null)
         {
-            controller.moveSpeed = originalSpeed;
+            controller.RemoveSpeedMultiplier(this);
             Debug.Log($"[ThirstDebuff] 이동속도 복구: {controller.moveSpeed}");
         }
     }

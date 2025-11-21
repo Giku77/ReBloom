@@ -5,6 +5,8 @@ public struct BuildingFootprint
 {
     public float sizeX; // 가로
     public float sizeZ; // 세로
+    public float height; // 높이
+
 }
 
 public class BuildingFootprintProvider : MonoBehaviour
@@ -15,10 +17,12 @@ public class BuildingFootprintProvider : MonoBehaviour
     {
         // scale이 1,1,1이라고 가정하면 그냥 size.x / size.z 쓰면 됨
         var size = buildArea.size;
+        var scale = buildArea.transform.lossyScale;
         return new BuildingFootprint
         {
-            sizeX = size.x,
-            sizeZ = size.z
+            sizeX = size.x * scale.x,
+            sizeZ = size.z * scale.z,
+            height = size.y * scale.y
         };
     }
 }

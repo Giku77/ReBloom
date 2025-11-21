@@ -3,8 +3,9 @@ using UnityEngine;
 
 public class StarvationDebuff : DebuffBase
 {
-    private float originalSpeed;
     private PlayerController controller;
+    private float multiplier;
+    
     
     public StarvationDebuff(DebuffData data, PlayerStats target) 
         : base(data, target) { }
@@ -14,8 +15,8 @@ public class StarvationDebuff : DebuffBase
         controller = target.GetComponent<PlayerController>();
         if (controller != null)
         {
-            originalSpeed = controller.moveSpeed;
-            controller.moveSpeed *= (1f - data.speedReduce);
+            multiplier = 1f - data.speedReduce;
+            controller.AddSpeedMultiplier(this, multiplier);
             Debug.Log($"[StarvationDebuff] 이동속도 {data.speedReduce * 100}% 감소");
         }
     }
@@ -24,8 +25,8 @@ public class StarvationDebuff : DebuffBase
     {
         if (controller != null)
         {
-            controller.moveSpeed = originalSpeed;
-            Debug.Log($"[StarvationDebuff] 이동속도 복구");
+            controller.RemoveSpeedMultiplier(this);
+            Debug.Log($"[StarvationDebuff] 이동속도 복구: {controller.moveSpeed}");
         }
     }
     
