@@ -13,7 +13,7 @@ public class QuestUI : MonoBehaviour
     {
         return pathGuide.Target.Length;
     }
-    [NonSerialized] public int TargetIndex = 0;
+    //[NonSerialized] public int TargetIndex = 0;
 
     private bool isShowPathGuide = false;
 
@@ -66,7 +66,8 @@ public class QuestUI : MonoBehaviour
                     else if (goal.type == QuestGoalType.Enter && !isShowPathGuide)
                     {
                         //description.text += $"\n - 위치에 도달하기";
-                        pathGuide.SetTarget(pathGuide.Target[TargetIndex], TargetIndex);
+                        //pathGuide.SetTarget(pathGuide.Target[TargetIndex], TargetIndex);
+                        pathGuide.SetTarget(pathGuide.Target[FindEntranceIndex(goal.objectId)], FindEntranceIndex(goal.objectId));
                         SetShowPathGuide(true);
                     }
                 }
@@ -77,5 +78,20 @@ public class QuestUI : MonoBehaviour
     public void ClearPathGuide()
     {
         pathGuide.ClearTarget();
+    }
+
+    private int FindEntranceIndex(int entranceType)
+    {
+        switch (entranceType)
+        {
+            case (int)EntranceType.AbandonedSchool:
+                return 0;
+            case (int)EntranceType.DepartmentStore:
+                return 1;
+            case (int)EntranceType.Factory:
+                return 2;
+            default:
+                return -1;
+        }
     }
 }
