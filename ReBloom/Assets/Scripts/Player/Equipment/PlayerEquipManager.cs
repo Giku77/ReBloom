@@ -27,11 +27,11 @@ public class PlayerEquipManager : MonoBehaviour
 
     private void Update()
     {
-        if (Keyboard.current.rKey.wasPressedThisFrame)
-        {
-            equipInventory.gameObject.SetActive(!equipInventory.activeSelf);
-            HandleCursorState(equipInventory.activeSelf);
-        }
+        //if (Keyboard.current.rKey.wasPressedThisFrame)
+        //{
+        //    equipInventory.gameObject.SetActive(!equipInventory.activeSelf);
+        //    HandleCursorState(equipInventory.activeSelf);
+        //}
     }
 
     public void Apply(ProtectiveItemData item)
@@ -211,8 +211,6 @@ public class PlayerEquipManager : MonoBehaviour
 
         equipInventory.gameObject.SetActive(!equipInventory.activeSelf);
         HandleCursorState(equipInventory.activeSelf);
-
-        Debug.Log($"[EquipmentUI] 장비창 호출");
     }
 
     private void HandleCursorState(bool show)
