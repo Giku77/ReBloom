@@ -16,9 +16,9 @@
 
 public enum EntranceType
 {
-    AbandonedSchool = 41,   // 폐교
-    DepartmentStore = 42,   // 백화점
-    Factory = 43,           // 공장
+    AbandonedSchool = 401,   // 폐교
+    DepartmentStore = 402,   // 백화점
+    Factory = 403,           // 공장
 }
 
 

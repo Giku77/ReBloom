@@ -40,7 +40,7 @@ public class QuestManager : MonoBehaviour
     {
         if (!_db.TryGet(questId, out var data))
         {
-            Debug.LogError($"Äù½ºÆ® DB¿¡ ID {questId}°¡ ¾ø½À´Ï´Ù.");
+            Debug.LogError($"ï¿½ï¿½ï¿½ï¿½Æ® DBï¿½ï¿½ ID {questId}ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
             return;
         }
 
@@ -82,7 +82,7 @@ public class QuestManager : MonoBehaviour
 
         if (!IsQuestSatisfied(_current))
         {
-            Debug.Log($"Á¶°ÇÀÌ ¾ÆÁ÷ ¾È µÊ : {_current.questName}");
+            Debug.Log($"ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ : {_current.questName}");
             return;
         }
 
@@ -90,7 +90,7 @@ public class QuestManager : MonoBehaviour
         if (nextId == 0)
         {
             _current = null;
-            Debug.Log("¸ðµç Äù½ºÆ® ¿Ï·á");
+            Debug.Log("ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ® ï¿½Ï·ï¿½");
         }
         else
         {
@@ -98,7 +98,7 @@ public class QuestManager : MonoBehaviour
         }
         if (questUI != null && questUI.GetShowPathGuide())
         {
-              questUI.TargetIndex = Mathf.Clamp(questUI.TargetIndex + 1, 0, questUI.GetPathTransformCount() - 1);
+              //questUI.TargetIndex = Mathf.Clamp(questUI.TargetIndex + 1, 0, questUI.GetPathTransformCount() - 1);
               questUI?.SetShowPathGuide(false);
         }
     }
