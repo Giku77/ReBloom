@@ -60,7 +60,6 @@ public class PlayerStats : MonoBehaviour
         {
             isDead = true;
 
-            GetResurrection();
             OnDeath?.Invoke();
         }
     }

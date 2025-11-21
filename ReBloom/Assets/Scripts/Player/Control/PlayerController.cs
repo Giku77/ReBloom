@@ -263,7 +263,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        if (!isGround || isInteracting) return;
+        if (!isGround || isInteracting || isDead) return;
 
         Vector2 finalMoveInput = moveInput;
 
@@ -401,12 +401,6 @@ public class PlayerController : MonoBehaviour
 
         transform.position = spawnPoint.position;
 
-        //Vector3 pos = transform.position;
-        //if (Physics.Raycast(pos + Vector3.up, Vector3.down, out RaycastHit hit, 10f, groundLayer))
-        //{
-        //    pos.y = hit.point.y;
-        //    transform.position = pos;
-        //}
         playerStats.GetResurrection();
         isDead = false;
     }
