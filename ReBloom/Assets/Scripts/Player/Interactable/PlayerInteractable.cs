@@ -55,7 +55,11 @@ public class PlayerInteractable : MonoBehaviour
         var msg = string.Empty;
         try
         {
-            Collider[] hits = Physics.OverlapSphere(transform.position, interactRange, interactLayer);
+            Vector3 bottom = transform.position + Vector3.up * 0.5f;
+            Vector3 top = transform.position + Vector3.up * 1.3f;
+            Collider[] hits = Physics.OverlapCapsule(bottom, top, interactRange, interactLayer);
+
+            //Collider[] hits = Physics.OverlapSphere(transform.position, interactRange, interactLayer);
             IInteractable closestInteractable = null;
             float closestDistance = float.MaxValue;
 
@@ -132,7 +136,11 @@ public class PlayerInteractable : MonoBehaviour
 
     private void CheckForInteractable()
     {
-        Collider[] hits = Physics.OverlapSphere(transform.position, interactRange, interactLayer);
+        Vector3 bottom = transform.position + Vector3.up * 0.5f;
+        Vector3 top = transform.position + Vector3.up * 1.5f;
+        Collider[] hits = Physics.OverlapCapsule(bottom, top, interactRange, interactLayer);
+
+        //Collider[] hits = Physics.OverlapSphere(transform.position, interactRange, interactLayer);
         InteractionHighlight closestHighlight = null;
         float closestDistance = float.MaxValue;
 

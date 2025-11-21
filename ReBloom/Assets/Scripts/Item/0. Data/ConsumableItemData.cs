@@ -1,11 +1,11 @@
-using BansheeGz.BGDatabase;
+ï»¿using BansheeGz.BGDatabase;
 using System;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
 /// <summary>
-/// ¼Òºñ ¾ÆÀÌÅÛ (BG Database ·¡ÆÛ)
-/// ±¸±Û½ÃÆ®ÀÇ ¼Òºñ¾ÆÀÌÅÛ Å×ÀÌºí µ¥ÀÌÅÍ¸¦ Unity¿¡¼­ »ç¿ë
+/// ì†Œë¹„ ì•„ì´í…œ (BG Database ë˜í¼)
+/// êµ¬ê¸€ì‹œíŠ¸ì˜ ì†Œë¹„ì•„ì´í…œ í…Œì´ë¸” ë°ì´í„°ë¥¼ Unityì—ì„œ ì‚¬ìš©
 /// </summary>
 public class ConsumableItemData : ItemBase
 {
@@ -33,7 +33,7 @@ public class ConsumableItemData : ItemBase
     private BGField<string> Description;
 
     /// <summary>
-    /// BG Database Entity·Î ÃÊ±âÈ­
+    /// BG Database Entityë¡œ ì´ˆê¸°í™”
     /// </summary>
     public void Initialize(BGEntity entity)
     {
@@ -73,65 +73,65 @@ public class ConsumableItemData : ItemBase
         canUseable = Convert.ToBoolean(Useable[entity]);
         description = Description[entity];
 
-        // ¾ÆÀÌÄÜÀº Addressable·Î ºñµ¿±â ·Îµå
+        // ì•„ì´ì½˜ì€ Addressableë¡œ ë¹„ë™ê¸° ë¡œë“œ
         LoadIconAsync();
     }
 
     /// <summary>
-    /// ¾ÆÀÌÅÛ »ç¿ë (¼Òºñ)
+    /// ì•„ì´í…œ ì‚¬ìš© (ì†Œë¹„)
     /// </summary>
     public override bool Apply(PlayerController player)
     {
         if (player == null) return false;
 
-        // ½Ç½Ã°£À¸·Î BG Database¿¡¼­ ÃÖ½Å ¼öÄ¡ ÀĞ±â
-        // (±¸±Û½ÃÆ® ¼öÁ¤ ÈÄ BG Database µ¿±âÈ­ÇÏ¸é ÀÚµ¿ ¹İ¿µµÊ)
+        // ì‹¤ì‹œê°„ìœ¼ë¡œ BG Databaseì—ì„œ ìµœì‹  ìˆ˜ì¹˜ ì½ê¸°
+        // (êµ¬ê¸€ì‹œíŠ¸ ìˆ˜ì • í›„ BG Database ë™ê¸°í™”í•˜ë©´ ìë™ ë°˜ì˜ë¨)
         float pollution = Pollution[entity];
         float thirst = Thirst[entity];
         float hunger = Hunger[entity];
         float hp = HP[entity];
         float temp = Temp[entity];
 
-        //ÇÃ·¹ÀÌ¾î ½ºÅÈ Àû¿ë
-        player.playerStats.Health.Modify(-hp);
+        //í”Œë ˆì´ì–´ ìŠ¤íƒ¯ ì ìš©
+        player.playerStats.Health.Modify(hp);
         player.playerStats.Thirst.Modify(-thirst);
         player.playerStats.Hunger.Modify(-hunger);
         player.playerStats.Pollution.Modify(-pollution);
         player.playerStats.Temperature.Modify(temp);
 
-        // Æ¯¼ö È¿°ú (Àç¹Ö ¾ÆÀÌÅÛ)
+        // íŠ¹ìˆ˜ íš¨ê³¼ (ì¬ë° ì•„ì´í…œ)
         int mainCat = M_Cat[entity];
         if (mainCat == (int)ConsumableCategory.Jamming)
         {
             float range = Range[entity];
             float duration = Duration[entity];
-            //TODO: Àç¹Ö ÆŞ½º »ı¼º
+            //TODO: ì¬ë° í„ìŠ¤ ìƒì„±
         }
 
-        // VFX/SFX Àç»ı
+        // VFX/SFX ì¬ìƒ
         // PlayUseEffect(player.transform.position);
 
-        Debug.Log($"[¾ÆÀÌÅÛ »ç¿ë] {itemName} - HP:{hp}, ¿À¿°µµ:{pollution}, °¥Áõ:{thirst}, Çã±â:{hunger}, Ã¼¿Â:{temp}");
+        Debug.Log($"[ì•„ì´í…œ ì‚¬ìš©] {itemName} - HP:{hp}, ì˜¤ì—¼ë„:{pollution}, ê°ˆì¦:{thirst}, í—ˆê¸°:{hunger}, ì²´ì˜¨:{temp}");
         return true;
     }
 
     /// <summary>
-    /// Addressable·Î ¾ÆÀÌÄÜ ºñµ¿±â ·Îµå
+    /// Addressableë¡œ ì•„ì´ì½˜ ë¹„ë™ê¸° ë¡œë“œ
     /// </summary>
     private async void LoadIconAsync()
     {
         //string path = ImgPath[entity];
-        string path = "Icon/ConsumableIcon"; // ÀÓ½Ã °æ·Î
+        string path = "Icon/ConsumableIcon"; // ì„ì‹œ ê²½ë¡œ
 
-        // °æ·Î°¡ ºñ¾îÀÖÀ¸¸é ±âº» ¾ÆÀÌÄÜ »ç¿ë
+        // ê²½ë¡œê°€ ë¹„ì–´ìˆìœ¼ë©´ ê¸°ë³¸ ì•„ì´ì½˜ ì‚¬ìš©
         if (string.IsNullOrEmpty(path))
         {
-            path = "Icon/ItemIcon"; // ±âº» °æ·Î
+            path = "Icon/ItemIcon"; // ê¸°ë³¸ ê²½ë¡œ
         }
 
         try
         {
-            // GameObject(Prefab)·Î ·Îµå
+            // GameObject(Prefab)ë¡œ ë¡œë“œ
             var handle = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<UnityEngine.GameObject>(path);
             await handle.Task;
 
@@ -139,7 +139,7 @@ public class ConsumableItemData : ItemBase
             {
                 UnityEngine.GameObject prefab = handle.Result;
 
-                // Image ÄÄÆ÷³ÍÆ®¿¡¼­ Sprite ÃßÃâ (·çÆ®)
+                // Image ì»´í¬ë„ŒíŠ¸ì—ì„œ Sprite ì¶”ì¶œ (ë£¨íŠ¸)
                 var image = prefab.GetComponent<UnityEngine.UI.Image>();
                 if (image != null && image.sprite != null)
                 {
@@ -147,34 +147,34 @@ public class ConsumableItemData : ItemBase
                     return;
                 }
 
-                // Image°¡ ÀÚ½Ä¿¡ ÀÖ´Â °æ¿ì
+                // Imageê°€ ìì‹ì— ìˆëŠ” ê²½ìš°
                 image = prefab.GetComponentInChildren<UnityEngine.UI.Image>();
                 if (image != null && image.sprite != null)
                 {
                     icon = image.sprite;
-                    Debug.Log($"[ConsumableItemData] ¾ÆÀÌÄÜ ·Îµå ¼º°ø (ÀÚ½Ä): {itemName}");
+                    Debug.Log($"[ConsumableItemData] ì•„ì´ì½˜ ë¡œë“œ ì„±ê³µ (ìì‹): {itemName}");
                     return;
                 }
 
-                Debug.LogWarning($"[ConsumableItemData] Prefab¿¡ Image ÄÄÆ÷³ÍÆ®°¡ ¾ø°Å³ª Sprite°¡ ¾øÀ½: {path}");
+                Debug.LogWarning($"[ConsumableItemData] Prefabì— Image ì»´í¬ë„ŒíŠ¸ê°€ ì—†ê±°ë‚˜ Spriteê°€ ì—†ìŒ: {path}");
             }
             else
             {
-                Debug.LogWarning($"[ConsumableItemData] ¾ÆÀÌÄÜ ·Îµå ½ÇÆĞ: {path}");
+                Debug.LogWarning($"[ConsumableItemData] ì•„ì´ì½˜ ë¡œë“œ ì‹¤íŒ¨: {path}");
             }
         }
         catch (System.Exception e)
         {
-            Debug.LogWarning($"[ConsumableItemData] ¾ÆÀÌÄÜ ·Îµå ¿¹¿Ü: {path}\n{e.Message}");
+            Debug.LogWarning($"[ConsumableItemData] ì•„ì´ì½˜ ë¡œë“œ ì˜ˆì™¸: {path}\n{e.Message}");
         }
     }
 
     /// <summary>
-    /// »ç¿ë È¿°ú Àç»ı (VFX/SFX)
+    /// ì‚¬ìš© íš¨ê³¼ ì¬ìƒ (VFX/SFX)
     /// </summary>
     private void PlayUseEffect(Vector3 position)
     {
-        // TODO: TA ÀÛ¾÷ - VFX/SFX ½Ã½ºÅÛ°ú ¿¬µ¿
+        // TODO: TA ì‘ì—… - VFX/SFX ì‹œìŠ¤í…œê³¼ ì—°ë™
         // VFXManager.Instance.Play("ItemUse_" + itemName, position);
         // SFXManager.Instance.Play("ItemUse_Sound");
     }
