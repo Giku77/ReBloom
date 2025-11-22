@@ -1,4 +1,4 @@
-using BansheeGz.BGDatabase;
+ï»¿using BansheeGz.BGDatabase;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,6 +7,9 @@ public class TemperatureStat : StatBase
     private float normalTemperature = 36.5f;
     private float maxTemperature;
     private float minTemperature;
+
+    private float actualRate = 36.5f;
+    public float ActualRate => actualRate;
 
     private StageDetector stageDetector;
 
@@ -34,12 +37,12 @@ public class TemperatureStat : StatBase
             //if (Mathf.Abs(diff) < 0.0001f)
             //    return;
 
-            float delta = Mathf.Sign(diff) * changePerSecond * Time.deltaTime;
+            actualRate = Mathf.Sign(diff) * changePerSecond;
 
-            if (Mathf.Abs(delta) > Mathf.Abs(diff))
-                delta = diff;
+            if (Mathf.Abs(actualRate) > Mathf.Abs(diff))
+                actualRate = diff;
 
-            Modify(delta);
+            Modify(actualRate * Time.deltaTime);
         }
         else
         {
@@ -49,17 +52,17 @@ public class TemperatureStat : StatBase
             if (owner.EquipManager != null)
                 equipResist = owner.EquipManager.GetTotalInsulationResist();
 
-            //ÃßÈÄ ½Ã°£´ë ±â¿Â Ãß°¡
+            //ì¶”í›„ ì‹œê°„ëŒ€ ê¸°ì˜¨ ì¶”ê°€
             if (Value > minTemperature)
             {
-              float actualRate = (baseMultiplier - Value) * (1 - equipResist) / 120f;
+              actualRate = (baseMultiplier - Value) * (1 - equipResist) / 120f;
               Modify(actualRate * Time.deltaTime);
 
-                //ÀÓ½Ã È®ÀÎ¿ë
+                //ì„ì‹œ í™•ì¸ìš©
                 if (Keyboard.current.kKey.wasPressedThisFrame)
                 {
-                    Debug.Log($"ÇöÀç¿Âµµ Á¤º¸: {stageDetector.GetCurrentTemperatureMultiplier()}");
-                    Debug.Log($"[TemperatureStat] ÇöÁ¦ Ã¼¿Â: {Value:F2}, Àåºñ ´Ü¿­·Â: {equipResist:F2} , ÃÖÁ¾ Áõ°¨·ü: {actualRate:F4}");
+                    Debug.Log($"í˜„ì¬ì˜¨ë„ ì •ë³´: {stageDetector.GetCurrentTemperatureMultiplier()}");
+                    Debug.Log($"[TemperatureStat] í˜„ì œ ì²´ì˜¨: {Value:F2}, ì¥ë¹„ ë‹¨ì—´ë ¥: {equipResist:F2} , ìµœì¢… ì¦ê°ë¥ : {actualRate:F4}");
                 }
             }
         }

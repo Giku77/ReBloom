@@ -19,6 +19,7 @@ public class StatUI : MonoBehaviour
     [SerializeField] private Image pollutionGauge;
     [SerializeField] private Image thirstGauge;
     [SerializeField] private Image hungerGauge;
+    [SerializeField] private TextMeshProUGUI tempText;
 
 
     private void Start()
@@ -254,6 +255,11 @@ public class StatUI : MonoBehaviour
             tempBar.minValue = minTemp;
             tempBar.maxValue = maxTemp;
             tempBar.value = value;
+        }
+
+        if (tempText != null)
+        {
+            tempText.text = $"{value:F1}";
         }
     }
 }

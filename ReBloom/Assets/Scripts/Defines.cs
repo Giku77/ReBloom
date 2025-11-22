@@ -189,3 +189,11 @@ public enum WeatherType
     Thunder,  // 천둥 (번개)
     Hot       // 더움
 }
+
+public enum StatType
+{
+    Pollution = 1,  // 오염도
+    Thirst = 2,     // 갈증
+    Hunger = 3,    // 허기
+    Temperature = 4 //체온
+}
