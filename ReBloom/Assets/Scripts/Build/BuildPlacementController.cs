@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class BuildPlacementController : MonoBehaviour
@@ -10,7 +10,6 @@ public class BuildPlacementController : MonoBehaviour
     [SerializeField] private Camera playerCamera;
     [SerializeField] private float placeDistance = 3f;
     [SerializeField] private LayerMask groundMask;
-    [SerializeField] private ToastMessageUI toast;   
 
     private ArcData currentArc;
     private GameObject previewInstance;
@@ -39,7 +38,7 @@ public class BuildPlacementController : MonoBehaviour
 
         if (!BuildManager.I.HasMaterials(arcRecipe))
         {
-            toast.Show("재료가 부족합니다.");
+            ToastMessageUI.Instance.Show("재료가 부족합니다.");
             return;
         }
 
@@ -126,7 +125,7 @@ public class BuildPlacementController : MonoBehaviour
             }
             else
             {
-                toast?.Show($"설치 불가: {lastError}");
+                ToastMessageUI.Instance?.Show($"설치 불가: {lastError}");
             }
         }
 

@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+Ôªøusing Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
 using TMPro;
@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class ToastMessageUI : MonoBehaviour
 {
+    public static ToastMessageUI Instance { get; private set; }
+
     [SerializeField] private TextMeshProUGUI messageText;
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private float fadeDuration = 0.2f;
@@ -14,6 +16,15 @@ public class ToastMessageUI : MonoBehaviour
 
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+
+        DontDestroyOnLoad(transform.root.gameObject);
+
         canvasGroup.alpha = 0f;
     }
 
@@ -24,6 +35,9 @@ public class ToastMessageUI : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (Instance == this)
+            Instance = null;
+
         showCts?.Cancel();
         showCts?.Dispose();
     }
@@ -41,21 +55,21 @@ public class ToastMessageUI : MonoBehaviour
     {
         messageText.text = message;
 
-        // ∆‰¿ÃµÂ ¿Œ
+        // ÌéòÏù¥Îìú Ïù∏
         float t = 0f;
         while (t < fadeDuration)
         {
             t += Time.deltaTime;
             canvasGroup.alpha = Mathf.Lerp(0f, 1f, t / fadeDuration);
-            // «— «¡∑π¿” ¥Î±‚
+            // Ìïú ÌîÑÎ†àÏûÑ ÎåÄÍ∏∞
             await UniTask.Yield(PlayerLoopTiming.Update, token);
         }
         canvasGroup.alpha = 1f;
 
-        // duration ∏∏≈≠ ¥Î±‚
+        // duration ÎßåÌÅº ÎåÄÍ∏∞
         await UniTask.Delay(TimeSpan.FromSeconds(duration), cancellationToken: token);
 
-        // ∆‰¿ÃµÂ æ∆øÙ
+        // ÌéòÏù¥Îìú ÏïÑÏõÉ
         t = 0f;
         while (t < fadeDuration)
         {

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class BuildManager : MonoBehaviour
@@ -18,7 +18,6 @@ public class BuildManager : MonoBehaviour
     } 
 
     private BuildingFootprintProvider footprintProvider;
-    private ToastMessageUI toastMessageUI;
 
     private ArcDB arcDB;
     public ArcDB ArcDB => arcDB;
@@ -59,7 +58,6 @@ public class BuildManager : MonoBehaviour
         this.recipeDB = recipeDB;
         this.inventory = inventory;
         footprintProvider = GetComponent<BuildingFootprintProvider>();
-        toastMessageUI = GameObject.FindWithTag("ToastMsg").GetComponent<ToastMessageUI>();
     }
 
     public bool Validate(ArcContext ctx, out string errorCode)
@@ -97,7 +95,7 @@ public class BuildManager : MonoBehaviour
 
         if (!CanBuildAt(arc, pos, rot, out var errorCode))
         {
-            toastMessageUI.Show($"건물 설치 불가: {errorCode}");
+            ToastMessageUI.Instance.Show($"건물 설치 불가: {errorCode}");
             return false;
         }
 
@@ -109,7 +107,7 @@ public class BuildManager : MonoBehaviour
 
         if (!HasMaterials(recipe))
         {
-            toastMessageUI.Show("재료가 부족합니다.");
+            ToastMessageUI.Instance.Show("재료가 부족합니다.");
             return false;
         }
 
