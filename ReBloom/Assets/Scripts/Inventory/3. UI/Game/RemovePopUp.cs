@@ -114,9 +114,9 @@ public class RemovePopUp : MonoBehaviour
 
         removePopUPUI.gameObject.SetActive(true);
 
-        // 설정 수량 초기화
-        settingQuantity = 1;
-        removePopUPUI.UpdateQuantityUI(settingQuantity);
+        //// 설정 수량 초기화
+        //settingQuantity = 1;
+        //removePopUPUI.UpdateQuantityUI(settingQuantity);
 
         Debug.Log($"[RemovePopUp] 팝업 열림: {selectedItem.itemName} (수량: {currentItemQuantity})");
     }

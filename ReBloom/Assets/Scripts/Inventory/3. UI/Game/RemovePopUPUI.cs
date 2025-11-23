@@ -54,7 +54,7 @@ public class RemovePopUPUI : MonoBehaviour
 
         // 슬라이더도 동기화
         quantitySlider.value = initialQuantity;
-
+        Debug.Log($"[RemovePopUP] Init {initialQuantity} 개");
         // UI 업데이트
         UpdateQuantityUI(initialQuantity);
     }
