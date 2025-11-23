@@ -1,4 +1,4 @@
-public class ShelterInteractable : BuildingInteractableBase
+﻿public class ShelterInteractable : BuildingInteractableBase
 {
     public override float HoldTime => 1.0f; 
 
@@ -13,6 +13,6 @@ public class ShelterInteractable : BuildingInteractableBase
             playerstats.Thirst.Set(0f);
             playerstats.Temperature.Set(36.5f);
         }
-        toastMessageUI.Show("잠시 휴식을 취했습니다.");
+        ToastMessageUI.Instance.Show("잠시 휴식을 취했습니다.");
     }
 }

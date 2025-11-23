@@ -18,7 +18,6 @@ public class QuestPathGuide : MonoBehaviour
     [SerializeField] private int maxMarkerCount = 50;     // 마커 최대 개수
 
     private NavMeshPath path;
-    private ToastMessageUI toastMessageUI;
     private float timer;
 
     private int currentTargetIndex = 0;
@@ -29,14 +28,13 @@ public class QuestPathGuide : MonoBehaviour
     private void Awake()
     {
         path = new NavMeshPath();
-        toastMessageUI = FindFirstObjectByType<ToastMessageUI>();
     }
 
     public void SetTarget(Transform newTarget, int index = 0)
     {
         currentTargetIndex = index;
         target[index] = newTarget;
-        toastMessageUI.Show("<color=#FFD93B>빛을 따라가세요!</color>");
+        ToastMessageUI.Instance.Show("<color=#FFD93B>빛을 따라가세요!</color>");
         ForceUpdatePath();
         isActive = true;
     }

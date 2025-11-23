@@ -11,7 +11,10 @@ public class InteractionHighlight : MonoBehaviour
 
     [Header("Prompt UI")]
     [SerializeField] private Canvas promptCanvas;              
-    [SerializeField] private TextMeshProUGUI promptText;      
+    [SerializeField] private TextMeshProUGUI promptText;
+    [SerializeField] private HoldInteractionUI holdPromptUI;
+
+    public HoldInteractionUI HoldPromptUI => holdPromptUI;
     public string promptFormat = "상호작용 [E]";
 
     private Light highlightLight;
@@ -33,7 +36,9 @@ public class InteractionHighlight : MonoBehaviour
 
         // 처음에는 프롬프트 숨기기
         if (promptCanvas != null)
+        {
             promptCanvas.gameObject.SetActive(false);
+        }
     }
 
     private void LateUpdate()

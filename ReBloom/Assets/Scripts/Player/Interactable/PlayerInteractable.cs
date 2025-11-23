@@ -8,22 +8,21 @@ public class PlayerInteractable : MonoBehaviour
     [Header("Interaction")]
     [SerializeField] private float interactRange = 5f;
     [SerializeField] private LayerMask interactLayer;
-    [SerializeField] private HoldInteractionUI holdUI;
 
     PlayerController player;
 
     private CancellationTokenSource cts;
 
     private InteractionHighlight currentHighlight = null;
-    private ToastMessageUI toastMessageUI;
 
     public static readonly string gathering = "Gather";
     public static readonly string pickUp = "PickUp";
 
+    private InteractionHighlight hilight;
+
     private void Awake()
     {
         player = GetComponent<PlayerController>();
-        toastMessageUI = GameObject.FindWithTag("ToastMsg").GetComponent<ToastMessageUI>();
     }
 
     public void OnInteract(InputAction.CallbackContext context)
@@ -75,6 +74,7 @@ public class PlayerInteractable : MonoBehaviour
                     {
                         closestDistance = distance;
                         closestInteractable = interactable;
+                        hilight = hit.GetComponent<InteractionHighlight>();
                     }
                 }
             }
@@ -95,7 +95,7 @@ public class PlayerInteractable : MonoBehaviour
                 {
                     player.isInteracting = true;
                     float elapsed = 0f;
-                    holdUI.Show();
+                    hilight.HoldPromptUI?.Show();
                     bool isGatherObject = closestInteractable is GatherObject;
                     bool isBuildingInteractable = closestInteractable is BuildingInteractableBase;
                     if (isGatherObject)
@@ -105,19 +105,29 @@ public class PlayerInteractable : MonoBehaviour
                     }
                     else if (isBuildingInteractable) msg = "상호작용";
                     else msg = "작업";
-                    toastMessageUI.Show($"{msg} 중....", holdTime);
+                    if (hilight)
+                    {
+                        hilight.promptFormat = $"{msg} 중...";
+                        hilight.ShowPrompt();
+                    }
+                    else ToastMessageUI.Instance.Show($"{msg} 중....", holdTime);
 
                     while (elapsed < holdTime)
                     {
                         elapsed += Time.deltaTime;
                         float progress = elapsed / holdTime;
-                        holdUI.UpdateProgress(progress);
+                        hilight.HoldPromptUI?.UpdateProgress(progress);
 
                         await UniTask.Yield(cancellationToken: cts.Token);
                     }
 
-                    toastMessageUI.Show($"{msg} 완료!", 2f);
-                    holdUI.Hide();
+                    if (hilight)
+                    {
+                        hilight.promptFormat = $"{msg} 완료!";
+                        hilight.ShowPrompt();
+                    }
+                    else ToastMessageUI.Instance.Show($"{msg} 완료!", 2f);
+                    hilight.HoldPromptUI?.Hide();
                 }
                 closestInteractable.Interact(player);
                 player.Animator.SetBool(gathering, false);
@@ -126,8 +136,13 @@ public class PlayerInteractable : MonoBehaviour
         }
         catch (System.OperationCanceledException)
         {
-            toastMessageUI.Show($"{msg} 중단!", 2f);
-            holdUI.Hide(); // 취소 시에도 UI 숨기기
+            //toastMessageUI.Show($"{msg} 중단!", 2f);
+            if (hilight)
+            {
+                hilight.promptFormat = $"상호작용 [E]";
+                hilight.ShowPrompt();
+            }
+            hilight.HoldPromptUI?.Hide(); // 취소 시에도 UI 숨기기
             player.Animator.SetBool(gathering, false);
             player.isInteracting = false;
             CancelInteract();
