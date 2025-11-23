@@ -228,7 +228,7 @@ public class StatTooltipUI : MonoBehaviour
 
         if (statValueText != null)
         {
-            statValueText.text = $"체온 : {tempValue:F1}%";
+            statValueText.text = $"체온 : {tempValue:F1}°C";
         }
 
         string state = "정상";
