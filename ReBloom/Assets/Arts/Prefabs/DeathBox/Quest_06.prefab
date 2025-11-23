@@ -282,7 +282,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7201051624287285084}
-  - component: {fileID: 3591329818749700571}
   - component: {fileID: 5518117925569478246}
   - component: {fileID: 5808198884244519941}
   - component: {fileID: 5261011085206427748}
@@ -290,6 +289,7 @@ GameObject:
   - component: {fileID: 4389743844466465929}
   - component: {fileID: 6750565260472025179}
   - component: {fileID: 4814705620420482369}
+  - component: {fileID: -7718744437861115432}
   m_Layer: 7
   m_Name: Quest_06
   m_TagString: Untagged
@@ -314,20 +314,6 @@ Transform:
   - {fileID: 4084465920047247398}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3591329818749700571
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4964847142718118384}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ac9bc1a3bba4422418234727b9ec6b3a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  deathBoxDataRef: {fileID: 11400000, guid: 2cb70808c483edb4ab7b011576bc15dc, type: 2}
-  playerInventory: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
 --- !u!33 &5518117925569478246
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -476,8 +462,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ItemInfo: {fileID: 9198561294384525245}
-  ItemBoxData: {fileID: 11400000, guid: 2cb70808c483edb4ab7b011576bc15dc, type: 2}
+  ItemBoxData: {fileID: 11400000, guid: 28c3688f326b2de4ea71c97280a8bbf7, type: 2}
   worldCanvas: {fileID: 8462231110828876690}
+--- !u!114 &-7718744437861115432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4964847142718118384}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ae82f4ff9819974ab83d9438cdb29a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerInventory: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
+  questBoxDataRef: {fileID: 11400000, guid: 28c3688f326b2de4ea71c97280a8bbf7, type: 2}
 --- !u!1 &5565599991803129652
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,81 +1,145 @@
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// �÷��̾� ��� ó�� �� ��ü�ڽ� ���� ����
-/// PlayerStats���� �ڵ����� �̺�Ʈ ��ϵ�
-/// </summary>
 public class DeathBoxHandler : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private InventoryItemData playerInventory;
-    [SerializeField] private DeathBoxData deathBoxData;
+    [SerializeField] private DeathBoxData deathBoxDataTemplate;
+
+    [Header("Dog Reference")]
+    [SerializeField] private DogFollower dog; // DogFollower 직접 참조
 
     [Header("Death Box Settings")]
     [SerializeField] private GameObject deathBoxPrefab;
-    [SerializeField] private Vector3 dropOffset = Vector3.zero;
+    [SerializeField] private Vector3 dropOffset = new Vector3(0f, 0.5f, 0f);
 
     [Header("Options")]
     [SerializeField] private bool autoSpawnDeathBox = true;
     [SerializeField] private bool clearInventoryOnDeath = true;
 
-    private GameObject currentDeathBox;
+    private List<GameObject> activeDeathBoxes = new List<GameObject>();
+    private Transform playerTransform;
 
-    /// <summary>
-    /// �÷��̾� ��� ó�� (PlayerStats���� �ڵ� ȣ��)
-    /// </summary>
+    private void Awake()
+    {
+        FindReferences();
+    }
+
+    private void FindReferences()
+    {
+        // 플레이어
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player != null)
+        {
+            playerTransform = player.transform;
+        }
+
+        // 강아지
+        if (dog == null)
+        {
+            dog = Object.FindFirstObjectByType<DogFollower>();
+        }
+    }
+
     public void OnCreateDeathBox()
     {
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-
-        if (player == null)
+        if (playerTransform == null || playerInventory == null || deathBoxDataTemplate == null)
         {
-            Debug.LogError("[DeathBoxHandler] �÷��̾ ã�� �� �����ϴ�!");
+            Debug.LogError("[DeathBoxHandler] 필수 레퍼런스가 없습니다!");
             return;
         }
 
-        Transform playerTransform = player.transform;
+        // 1. 스폰 위치 계산
+        Vector3 spawnPosition = CalculateSpawnPosition();
 
-        if (playerInventory == null || deathBoxData == null)
-        {
-            Debug.LogError("[DeathBoxHandler] �ʼ� ������ �����ϴ�!");
-            return;
-        }
+        // 2. 새 DeathBoxData 인스턴스 생성
+        DeathBoxData newDeathBoxData = Instantiate(deathBoxDataTemplate);
+        newDeathBoxData.CreateFromInventory(playerInventory, spawnPosition);
 
-        // 1. �κ��丮 �������� ��ü�ڽ��� �̵�
-        Vector3 deathPosition = playerTransform.position + dropOffset;
-        deathBoxData.StoreItemsFromInventory(playerInventory, deathPosition);
-
-        // 2. �κ��丮 Ŭ����
+        // 3. 인벤토리 클리어
         if (clearInventoryOnDeath)
         {
             playerInventory.Clear();
-            Debug.Log("[DeathBoxHandler] �κ��丮�� ������ϴ�.");
         }
 
-        // 3. ��ü�ڽ� ������Ʈ ����
+        // 4. 시체박스 스폰
         if (autoSpawnDeathBox && deathBoxPrefab != null)
         {
-            SpawnDeathBox(deathPosition);
+            SpawnDeathBox(spawnPosition, newDeathBoxData);
         }
 
-        Debug.Log($"[DeathBoxHandler] �÷��̾� ��� ó�� �Ϸ�. ��ġ: {deathPosition}");
+        Debug.Log($"[DeathBoxHandler] 시체박스 생성. 위치: {spawnPosition}, 총: {activeDeathBoxes.Count}개");
     }
 
-    private void SpawnDeathBox(Vector3 position)
+    /// <summary>
+    /// 스폰 위치 계산 - 강아지 위치 기반
+    /// </summary>
+    private Vector3 CalculateSpawnPosition()
     {
-        if (currentDeathBox != null)
+        // 강아지가 없으면 플레이어 위치
+        if (dog == null)
         {
-            Destroy(currentDeathBox);
+            Debug.LogWarning("[DeathBoxHandler] 강아지가 없어 플레이어 위치에 스폰");
+            return playerTransform.position + dropOffset;
         }
 
-        currentDeathBox = Instantiate(deathBoxPrefab, position, Quaternion.identity);
+        // 강아지가 가까우면 강아지 위치
+        if (dog.IsNearPlayer)
+        {
+            Debug.Log($"[DeathBoxHandler] 강아지 위치에 스폰 (거리: {dog.DistanceToPlayer:F1}m)");
+            return dog.transform.position + dropOffset;
+        }
 
-        var deathBoxInteract = currentDeathBox.GetComponent<WorldDeathBox>();
+        // 강아지가 멀면: 텔포 위치 계산 -> 강아지 텔포 -> 해당 위치에 스폰
+        Vector3 teleportPosition = dog.GetTeleportPosition();
+
+        // 강아지 텔포 시도
+        dog.TeleportTo(teleportPosition);
+
+        Debug.Log($"[DeathBoxHandler] 강아지 텔포 후 스폰 (거리: {dog.DistanceToPlayer:F1}m)");
+        return teleportPosition + dropOffset;
+    }
+
+    private void SpawnDeathBox(Vector3 position, DeathBoxData deathBoxData)
+    {
+        GameObject newDeathBox = Instantiate(deathBoxPrefab, position, Quaternion.identity);
+
+        var deathBoxInteract = newDeathBox.GetComponent<WorldDeathBox>();
         if (deathBoxInteract != null)
         {
             deathBoxInteract.Initialize(deathBoxData, playerInventory);
         }
 
-        Debug.Log($"[DeathBoxHandler] ��ü�ڽ� ����: {position}");
+        activeDeathBoxes.Add(newDeathBox);
+
+        // 제거 시 리스트 정리
+        var cleanup = newDeathBox.AddComponent<DeathBoxCleanup>();
+        cleanup.Initialize(this);
     }
+
+    public void OnDeathBoxDestroyed(GameObject deathBox)
+    {
+        activeDeathBoxes.Remove(deathBox);
+        Debug.Log($"[DeathBoxHandler] 시체박스 제거됨. 남은: {activeDeathBoxes.Count}개");
+    }
+
+    [ContextMenu("모든 시체박스 제거")]
+    public void ClearAllDeathBoxes()
+    {
+        foreach (var box in activeDeathBoxes)
+        {
+            if (box != null) Destroy(box);
+        }
+        activeDeathBoxes.Clear();
+    }
+
+    public int ActiveDeathBoxCount => activeDeathBoxes.Count;
+}
+
+public class DeathBoxCleanup : MonoBehaviour
+{
+    private DeathBoxHandler handler;
+    public void Initialize(DeathBoxHandler h) => handler = h;
+    private void OnDestroy() => handler?.OnDeathBoxDestroyed(gameObject);
 }

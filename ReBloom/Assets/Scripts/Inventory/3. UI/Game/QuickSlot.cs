@@ -428,10 +428,11 @@ public class QuickSlot : MonoBehaviour
 
         int filledCount = 0;
 
-        foreach (var itemPair in inventoryData.Items)
+        // ItemSlotData로 순회
+        foreach (var slot in inventoryData.Items)
         {
-            int itemId = itemPair.Key;
-            int quantity = itemPair.Value;
+            int itemId = slot.itemID;
+            int quantity = slot.count;
 
             ItemBase item = ItemDatabase.I.GetItem(itemId);
 
@@ -456,6 +457,7 @@ public class QuickSlot : MonoBehaviour
         Debug.Log($"[QuickSlot] 자동 배치 완료: {filledCount}개 아이템");
         return filledCount;
     }
+    #endregion
 
     public void SetDragDropHandlerData(ItemBase item, QuickSlotUI slot)
     {
@@ -467,7 +469,6 @@ public class QuickSlot : MonoBehaviour
 
         dragHandler.SetItemData(item);
     }
-    #endregion
 
     #region QuickSlot 사용
     public void OnQuickSlot1(InputAction.CallbackContext context)

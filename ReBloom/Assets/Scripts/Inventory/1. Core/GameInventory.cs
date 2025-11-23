@@ -2,10 +2,6 @@
 using System.Linq;
 using UnityEngine;
 
-/// <summary>
-/// 게임 인벤토리 컨트롤러
-/// 비즈니스 로직과 데이터 조작을 담당
-/// </summary>
 public class GameInventory : MonoBehaviour, IInventoryProvider
 {
     [Header("Data Reference")]
@@ -24,90 +20,55 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     }
 
     #region IInventoryProvider 구현
-    public int GetItemCount(int itemId)
-    {
-        return inventoryData.GetItemCount(itemId);
-    }
-
-    public void AddItem(int itemId, int amount)
-    {
-        inventoryData.AddItem(itemId, amount);
-    }
-
-    public void RemoveItem(int itemId, int amount)
-    {
-        inventoryData.RemoveItem(itemId, amount);
-    }
-
-    public void Clear()
-    {
-        inventoryData.Clear();
-    }
-
-    public bool HasItem(int itemId, int amount)
-    {
-        return inventoryData.HasItem(itemId, amount);
-    }
+    public int GetItemCount(int itemId) => inventoryData.GetItemCount(itemId);
+    public void AddItem(int itemId, int amount) => inventoryData.AddItem(itemId, amount);
+    public void RemoveItem(int itemId, int amount) => inventoryData.RemoveItem(itemId, amount);
+    public void Clear() => inventoryData.Clear();
+    public bool HasItem(int itemId, int amount) => inventoryData.HasItem(itemId, amount);
 
     public void Consume(int itemId, int amount)
     {
         ItemBase item = ItemDatabase.I.GetItem(itemId);
-
-        if (item != null)
-        {
-            if (item.canUseable)
-            {
-                RemoveItem(itemId, amount);
-                item.Apply(playerController);
-
-                inventoryData.SendMessage($"{item.itemName}을(를) {amount}개 사용했습니다.");
-            }
-            else if (item.canEquip)
-            {
-                RemoveItem(itemId, amount);
-                item.Apply(playerController);
-
-                inventoryData.SendMessage($"{item.itemName}을(를) {amount}개 장착했습니다.");
-            }
-            else
-            {
-                inventoryData.SendMessage($"{item?.itemName}을(를) {amount}개 사용할 수 없습니다.");
-            }
-        }
-        else
+        if (item == null)
         {
             Debug.LogError("[GameInventory] 아이템을 찾을 수 없습니다.");
+            return;
+        }
+
+        if (item.canUseable)
+        {
+            RemoveItem(itemId, amount);
+            item.Apply(playerController);
+        }
+        else if (item.canEquip)
+        {
+            RemoveItem(itemId, amount);
+            item.Apply(playerController);
         }
     }
     #endregion
 
     #region 아이템 & 카테고리 분류
+
     /// <summary>
-    /// 인벤토리 카테고리 별 속하는 아이템만 필터링하여 반환
+    /// 인벤토리 카테고리 별 아이템 필터링
     /// </summary>
-    public Dictionary<int, int> GetItemsByInventroyType(InventorySlotType inventroyType)
+    public Dictionary<int, int> GetItemsByInventoryType(InventorySlotType inventoryType)
     {
         var filtered = new Dictionary<int, int>();
 
-        foreach (var itemPair in inventoryData.Items)
+        // ItemSlotData로 변경
+        foreach (var slot in inventoryData.Items)
         {
-            int itemId = itemPair.Key;
-            InventorySlotType itemInventoryType = ItemIDParser.GetInventoryType(itemId);
+            InventorySlotType itemInventoryType = ItemIDParser.GetInventoryType(slot.itemID);
 
-            if (itemInventoryType == inventroyType)
+            if (itemInventoryType == inventoryType)
             {
-                filtered.Add(itemId, itemPair.Value);
+                filtered.Add(slot.itemID, slot.count);
             }
         }
 
         return filtered;
-    }
-    private void OnDestroy()
-    {
-        if (quickSlot != null)
-        {
-            //quickSlot.OnSlotAssign -= AssignQuickSlot;
-        }
     }
 
     /// <summary>
@@ -115,7 +76,11 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     /// </summary>
     public Dictionary<int, int> GetAllItems()
     {
-        return new Dictionary<int, int>(inventoryData.Items);
+        // itemSlotData -> Dictionary 변환
+        return inventoryData.Items.ToDictionary(
+            slot => slot.itemID,
+            slot => slot.count
+        );
     }
 
     /// <summary>
@@ -124,7 +89,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     public List<KeyValuePair<int, int>> GetSortedItems(InventorySlotType? invtType = null)
     {
         var items = invtType.HasValue
-            ? GetItemsByInventroyType(invtType.Value)
+            ? GetItemsByInventoryType(invtType.Value)
             : GetAllItems();
 
         return items.OrderBy(x => x.Key).ToList();
@@ -136,7 +101,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     public List<KeyValuePair<int, int>> GetSortedItemsByName(InventorySlotType? invtType = null)
     {
         var items = invtType.HasValue
-            ? GetItemsByInventroyType(invtType.Value)
+            ? GetItemsByInventoryType(invtType.Value)
             : GetAllItems();
 
         return items.OrderBy(x => ItemDatabase.I.GetItem(x.Key)?.itemName ?? "").ToList();
@@ -148,7 +113,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     public List<KeyValuePair<int, int>> GetSortedItemsByQuantity(InventorySlotType? invtType = null, bool descending = true)
     {
         var items = invtType.HasValue
-            ? GetItemsByInventroyType(invtType.Value)
+            ? GetItemsByInventoryType(invtType.Value)
             : GetAllItems();
 
         return descending
@@ -163,12 +128,13 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     {
         var result = new List<KeyValuePair<int, int>>();
 
-        foreach (var itemPair in inventoryData.Items)
+        // ItemSlotData로 변경
+        foreach (var slot in inventoryData.Items)
         {
-            ItemBase item = ItemDatabase.I.GetItem(itemPair.Key);
+            ItemBase item = ItemDatabase.I.GetItem(slot.itemID);
             if (item != null && item.canQuickSlot)
             {
-                result.Add(itemPair);
+                result.Add(new KeyValuePair<int, int>(slot.itemID, slot.count));
             }
         }
 
@@ -176,29 +142,8 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     }
     #endregion
 
-    //#region 퀵슬롯 할당 가능 여부
-    //private bool CanAssignQuickSlot(int itemId)
-    //{
-    //    ItemBase item = ItemDatabase.I.GetItem(itemId);
-    //    return item != null && item.canQuickSlot;
-    //}
-    //#endregion
-
     #region UI 제어
-    public void OpenInventory()
-    {
-        if (inventoryUI != null)
-        {
-            inventoryUI.ToggleInventory();
-        }
-    }
-
-    public void CloseInventory()
-    {
-        if (inventoryUI != null)
-        {
-            inventoryUI.ToggleInventory();
-        }
-    }
+    public void OpenInventory() => inventoryUI?.ToggleInventory();
+    public void CloseInventory() => inventoryUI?.ToggleInventory();
     #endregion
 }
