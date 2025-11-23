@@ -5,11 +5,11 @@ public class ItemBoxInfoController : MonoBehaviour
 {
     [Header("Reference")]
     [SerializeField] private TextMeshProUGUI ItemInfo;
-    [SerializeField] private DeathBoxData ItemBoxData;
+    [SerializeField] private QuestBoxData ItemBoxData;
     [SerializeField] private Canvas worldCanvas;
     private void Start()
     {
-        ItemInfo.text = ItemBoxData.BoxID;
+        ItemInfo.text = ItemBoxData.QuestID;
         if (worldCanvas != null)
         {
             worldCanvas.transform.SetParent(transform);

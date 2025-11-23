@@ -9,16 +9,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a8d02851a64980b45b2301270440f8e2, type: 3}
-  m_Name: Quest_1_PreLoadItem
+  m_Script: {fileID: 11500000, guid: b83b50801c98a8a459f17d9a904cc7bf, type: 3}
+  m_Name: QuestBox_01
   m_EditorClassIdentifier: 
-  deathBoxID: "\uCCA0 \uD30C\uD3B8, \uAD6C\uB9AC\uC870\uAC01, \uD30C\uC1C4 \uC11D\uD68C\uC554
-    \uC218\uC9D1"
-  deathPosition: {x: 0, y: 0, z: 0}
-  storedItems:
+  items: []
+  maxSlots: 10
+  questID: "1\uBC88 \uD018\uC2A4\uD2B8"
+  isOneTimeOnly: 1
+  presetItems:
   - itemID: 4102001
     count: 12
   - itemID: 4102002
     count: 6
   - itemID: 4102005
     count: 10
+  autoRefill: 0
+  infiniteUse: 0
