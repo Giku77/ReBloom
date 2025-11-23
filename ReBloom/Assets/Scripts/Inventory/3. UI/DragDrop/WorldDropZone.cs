@@ -238,7 +238,6 @@ public class WorldDropZone : MonoBehaviour,
 
         // 실제 인벤토리 수량 확인 (이미 RemovePopUp에서 제거했으므로 체크만)
         int currentCount = inventoryItemData.GetItemCount(draggedItem.itemID);
-        Debug.Log($"[WorldDropZone] 드롭 후 인벤토리 남은 수량: {currentCount}");
 
         // 아이템 월드에 생성 (설정한 수량 만큼)
         if (itemSpawner != null)
@@ -250,6 +249,7 @@ public class WorldDropZone : MonoBehaviour,
         {
             Debug.LogError("[WorldDropZone] ItemSpawner를 찾을 수 없습니다!");
         }
+        Debug.Log($"[WorldDropZone] 드롭 후 인벤토리 남은 수량: {currentCount}");
     }
 
     /// <summary>

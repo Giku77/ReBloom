@@ -16,9 +16,8 @@ GameObject:
   - component: {fileID: -7968967850646757625}
   - component: {fileID: -224300673881371445}
   - component: {fileID: 6414478914407459084}
-  - component: {fileID: 4638502670139812297}
   - component: {fileID: 4009880546175172616}
-  m_Layer: 7
+  m_Layer: 11
   m_Name: Item00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -174,6 +173,11 @@ MonoBehaviour:
   lightIntensity: 2
   backlightRange: 3
   bodylightRange: 0.05
+  promptCanvas: {fileID: 0}
+  promptText: {fileID: 0}
+  holdPromptUI: {fileID: 0}
+  promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
+  isPermanent: 0
 --- !u!114 &6414478914407459084
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -186,29 +190,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 994bdffcbc58aad468df8611de143a46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!136 &4638502670139812297
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2998209780802710607}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 1.2
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &4009880546175172616
 MonoBehaviour:
   m_ObjectHideFlags: 0
