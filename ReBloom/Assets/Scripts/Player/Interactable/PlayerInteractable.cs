@@ -15,14 +15,14 @@ public class PlayerInteractable : MonoBehaviour
 
     private InteractionHighlight currentHighlight = null;
 
-    public static readonly string gathering = "Gather";
-    public static readonly string pickUp = "PickUp";
+    private PlayerAnimation anim;
 
     private InteractionHighlight hilight;
 
     private void Awake()
     {
         player = GetComponent<PlayerController>();
+        anim = GetComponent<PlayerAnimation>();
     }
 
     public void OnInteract(InputAction.CallbackContext context)
@@ -86,7 +86,7 @@ public class PlayerInteractable : MonoBehaviour
                 bool isWorldItem = closestInteractable is WorldItem;
                 if (isWorldItem)
                 {
-                    player.Animator.SetTrigger(pickUp);
+                    anim.PlayPickUp();
                     player.isInteracting = true;
                     await UniTask.Delay(800);
                 }
@@ -101,7 +101,7 @@ public class PlayerInteractable : MonoBehaviour
                     if (isGatherObject)
                     {
                         msg = "채집";
-                        player.Animator.SetBool(gathering, true);
+                        anim.SetGathering(true);
                     }
                     else if (isBuildingInteractable) msg = "상호작용";
                     else msg = "작업";
@@ -130,7 +130,8 @@ public class PlayerInteractable : MonoBehaviour
                     hilight.HoldPromptUI?.Hide();
                 }
                 closestInteractable.Interact(player);
-                player.Animator.SetBool(gathering, false);
+                anim.SetGathering(false);
+
                 player.isInteracting = false;
             }
         }
@@ -143,7 +144,7 @@ public class PlayerInteractable : MonoBehaviour
                 hilight.ShowPrompt();
             }
             hilight.HoldPromptUI?.Hide(); // 취소 시에도 UI 숨기기
-            player.Animator.SetBool(gathering, false);
+            anim.SetGathering(false);
             player.isInteracting = false;
             CancelInteract();
         }
