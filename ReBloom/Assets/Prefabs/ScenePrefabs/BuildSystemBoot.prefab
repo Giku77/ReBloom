@@ -1238,10 +1238,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 6063107186609717032}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 96.9, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: 25.2566, y: 0}
+  m_SizeDelta: {x: -25.8867, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5980392617000125524
 CanvasRenderer:
@@ -1336,7 +1336,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 8.618252, z: 0, w: 8.62191}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -1549,8 +1549,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 8bd8be26fc85c43059c44937d2f8f2a3, type: 3}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 5b5b9b08ec2194882b13b9a0768b29f8, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -1575,6 +1575,7 @@ MonoBehaviour:
   buildInfoPrefab: {fileID: 6089401609871091478, guid: 09075b9eee122c34bb52c736dc081f5e, type: 3}
   slotItemPrefab: {fileID: -2707125209089890644, guid: 94584f891d8a0d844b27cac24c6a8293, type: 3}
   toolTip: {fileID: 7618844156826620147}
+  researchPoint: {fileID: 4814180233252130717}
 --- !u!1 &5713064232512432139
 GameObject:
   m_ObjectHideFlags: 0
@@ -1746,8 +1747,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -95.2, y: -29.1}
-  m_SizeDelta: {x: 100, y: 40}
+  m_AnchoredPosition: {x: -55, y: -18}
+  m_SizeDelta: {x: 90.1493, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4907032726447532108
 CanvasRenderer:
@@ -1771,7 +1772,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1941,7 +1942,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &788246920685244516
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2416,7 +2417,7 @@ MonoBehaviour:
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 648
-  maxHeightDiff: 0.2
+  maxHeightDiff: 0.5
   maxSlopeAngle: 10
 --- !u!114 &2862642826964738946
 MonoBehaviour:
@@ -2464,6 +2465,57 @@ MonoBehaviour:
       m_Action: Toggle Build UI
       m_Flags: 0
     m_Flags: 0
+  debugResearchPointAction:
+    m_Name: Debug Research Point
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: d0fbf1c1-1cf6-44f6-89b5-b242c6d967c8
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 64934771-30bb-44d7-9750-ec42c503836c
+      m_Path: <Keyboard>/f4
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Debug Research Point
+      m_Flags: 0
+    m_Flags: 0
+  addMouse:
+    m_Name: Add Mouse
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 32636c3d-bedd-4f96-9647-937cbc63ee6c
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 8a0681d5-057f-4c7a-a6b5-9d700d124d61
+      m_Path: <Keyboard>/f11
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Add Mouse
+      m_Flags: 0
+    m_Flags: 0
+  subMouse:
+    m_Name: Sub Mouse
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 58a62f7c-2da9-420d-ae05-d754d7cfb462
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: f484b72e-11f7-40e1-9a7e-1956d55231ad
+      m_Path: <Keyboard>/f12
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Sub Mouse
+      m_Flags: 0
+    m_Flags: 0
   buildUI: {fileID: 3822635548090404213}
 --- !u!114 &7119969625495685998
 MonoBehaviour:
@@ -2496,7 +2548,6 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 8
-  toast: {fileID: 0}
 --- !u!114 &8723734861568843312
 MonoBehaviour:
   m_ObjectHideFlags: 0
