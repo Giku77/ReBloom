@@ -1,11 +1,11 @@
-using BansheeGz.BGDatabase;
+ï»¿using BansheeGz.BGDatabase;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 /// <summary>
-/// ¾ÆÀÌÅÛ µ¥ÀÌÅÍº£ÀÌ½º ¸Å´ÏÀú (Singleton)
-/// BG DatabaseÀÇ ¸ğµç ¾ÆÀÌÅÛ Å×ÀÌºíÀ» ·ÎµåÇÏ°í °ü¸®
+/// ì•„ì´í…œ ë°ì´í„°ë² ì´ìŠ¤ ë§¤ë‹ˆì € (Singleton)
+/// BG Databaseì˜ ëª¨ë“  ì•„ì´í…œ í…Œì´ë¸”ì„ ë¡œë“œí•˜ê³  ê´€ë¦¬
 /// </summary>
 public class ItemDatabase : MonoBehaviour
 {
@@ -33,7 +33,7 @@ public class ItemDatabase : MonoBehaviour
 
     private Dictionary<int, ItemBase> itemCache = new Dictionary<int, ItemBase>();
 
-    // ÃÊ±âÈ­ ¿Ï·á ÇÃ·¡±×
+    // ì´ˆê¸°í™” ì™„ë£Œ í”Œë˜ê·¸
     public bool IsInitialized { get; private set; } = false;
 
     private void Awake()
@@ -51,19 +51,19 @@ public class ItemDatabase : MonoBehaviour
     }
 
     /// <summary>
-    /// BG Database Å×ÀÌºí ÀÌ¸§ ¹è¿­
-    /// ItemTableType ¿­°ÅÇü°ú ¼ø¼­°¡ ÀÏÄ¡ÇØ¾ß ÇÔ
+    /// BG Database í…Œì´ë¸” ì´ë¦„ ë°°ì—´
+    /// ItemTableType ì—´ê±°í˜•ê³¼ ìˆœì„œê°€ ì¼ì¹˜í•´ì•¼ í•¨
     /// </summary>
     private string[] itemTableNames = new string[]
     {
-        "Item_Consumable",  // ¼Òºñ ¾ÆÀÌÅÛ
-        "Item_Equip",       // º¸È£±¸
-        "Item_Tool",        // µµ±¸
-        "Item_Etc"         // ±âÅ¸ (Á¾ÀÚ, ÀÚ¿ø, Àç·á)
+        "Item_Consumable",  // ì†Œë¹„ ì•„ì´í…œ
+        "Item_Equip",       // ë³´í˜¸êµ¬
+        "Item_Tool",        // ë„êµ¬
+        "Item_Etc"         // ê¸°íƒ€ (ì¢…ì, ìì›, ì¬ë£Œ)
     };
 
     /// <summary>
-    /// µ¥ÀÌÅÍº£ÀÌ½º ÃÊ±âÈ­
+    /// ë°ì´í„°ë² ì´ìŠ¤ ì´ˆê¸°í™”
     /// </summary>
     private void Initialize()
     {
@@ -71,13 +71,13 @@ public class ItemDatabase : MonoBehaviour
 
         if (repository == null)
         {
-            Debug.LogError("[ItemDatabase] BGRepo°¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù! BG Database°¡ ¾À¿¡ ÀÖ´ÂÁö È®ÀÎÇÏ¼¼¿ä.");
+            Debug.LogError("[ItemDatabase] BGRepoê°€ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤! BG Databaseê°€ ì”¬ì— ìˆëŠ”ì§€ í™•ì¸í•˜ì„¸ìš”.");
             return;
         }
 
-        Debug.Log("[ItemDatabase] ¾ÆÀÌÅÛ µ¥ÀÌÅÍ ·Îµå ½ÃÀÛ...");
+        Debug.Log("[ItemDatabase] ì•„ì´í…œ ë°ì´í„° ë¡œë“œ ì‹œì‘...");
 
-        // °¢ Å×ÀÌºí¿¡¼­ ¾ÆÀÌÅÛ ·Îµå
+        // ê° í…Œì´ë¸”ì—ì„œ ì•„ì´í…œ ë¡œë“œ
         for (int i = 0; i < itemTableNames.Length; i++)
         {
             string tableName = itemTableNames[i];
@@ -87,14 +87,14 @@ public class ItemDatabase : MonoBehaviour
         }
 
         IsInitialized = true;
-        Debug.Log($"[ItemDatabase] ÃÊ±âÈ­ ¿Ï·á - ÃÑ {itemCache.Count}°³ ¾ÆÀÌÅÛ ·ÎµåµÊ");
+        Debug.Log($"[ItemDatabase] ì´ˆê¸°í™” ì™„ë£Œ - ì´ {itemCache.Count}ê°œ ì•„ì´í…œ ë¡œë“œë¨");
 
-        // Åë°è Ãâ·Â
+        // í†µê³„ ì¶œë ¥
         PrintLoadStatistics();
     }
 
     /// <summary>
-    /// Æ¯Á¤ Å×ÀÌºí¿¡¼­ ¾ÆÀÌÅÛ ·Îµå - Factory¿¡°Ô »ı¼º À§ÀÓ
+    /// íŠ¹ì • í…Œì´ë¸”ì—ì„œ ì•„ì´í…œ ë¡œë“œ - Factoryì—ê²Œ ìƒì„± ìœ„ì„
     /// </summary>
     private void LoadItemsFromTable(string tableName, ItemTableType tableType)
     {
@@ -102,7 +102,7 @@ public class ItemDatabase : MonoBehaviour
 
         if (meta == null)
         {
-            Debug.LogWarning($"[ItemDatabase] Å×ÀÌºíÀ» Ã£À» ¼ö ¾øÀ½: {tableName}");
+            Debug.LogWarning($"[ItemDatabase] í…Œì´ë¸”ì„ ì°¾ì„ ìˆ˜ ì—†ìŒ: {tableName}");
             return;
         }
 
@@ -113,46 +113,46 @@ public class ItemDatabase : MonoBehaviour
         {
             var entity = meta.GetEntity(i);
 
-            // Factory¿¡°Ô ¾ÆÀÌÅÛ »ı¼º ¿äÃ»
+            // Factoryì—ê²Œ ì•„ì´í…œ ìƒì„± ìš”ì²­
             ItemBase item = ItemFactory.CreateItem(entity, tableType);
 
             if (item == null)
             {
-                Debug.LogWarning($"[ItemDatabase] ¾ÆÀÌÅÛ »ı¼º ½ÇÆĞ: {tableName} ÀÎµ¦½º {i}");
+                Debug.LogWarning($"[ItemDatabase] ì•„ì´í…œ ìƒì„± ì‹¤íŒ¨: {tableName} ì¸ë±ìŠ¤ {i}");
                 continue;
             }
 
-            // Áßº¹ ID Ã¼Å©
+            // ì¤‘ë³µ ID ì²´í¬
             if (itemCache.ContainsKey(item.itemID))
             {
-                Debug.LogWarning($"[ItemDatabase] Áßº¹µÈ ¾ÆÀÌÅÛ ID: {item.itemID} ({item.itemName})");
+                Debug.LogWarning($"[ItemDatabase] ì¤‘ë³µëœ ì•„ì´í…œ ID: {item.itemID} ({item.itemName})");
                 duplicateCount++;
                 continue;
             }
 
-            // Ä³½Ã¿¡ Ãß°¡
+            // ìºì‹œì— ì¶”ê°€
             itemCache[item.itemID] = item;
             loadedCount++;
         }
 
-        string statusMsg = $"[ItemDatabase] {tableName} ·Îµå ¿Ï·á: {loadedCount}°³ ¼º°ø";
+        string statusMsg = $"[ItemDatabase] {tableName} ë¡œë“œ ì™„ë£Œ: {loadedCount}ê°œ ì„±ê³µ";
         if (duplicateCount > 0)
         {
-            statusMsg += $", {duplicateCount}°³ Áßº¹";
+            statusMsg += $", {duplicateCount}ê°œ ì¤‘ë³µ";
         }
         Debug.Log(statusMsg);
     }
 
-    #region ¾ÆÀÌÅÛ Á¶È¸ ¸Ş¼­µå
+    #region ì•„ì´í…œ ì¡°íšŒ ë©”ì„œë“œ
 
     /// <summary>
-    /// ID·Î ¾ÆÀÌÅÛ °¡Á®¿À±â
+    /// IDë¡œ ì•„ì´í…œ ê°€ì ¸ì˜¤ê¸°
     /// </summary>
     public ItemBase GetItem(int itemID)
     {
         if (!IsInitialized)
         {
-            Debug.LogWarning("[ItemDatabase] ¾ÆÁ÷ ÃÊ±âÈ­µÇÁö ¾Ê¾Ò½À´Ï´Ù!");
+            Debug.LogWarning("[ItemDatabase] ì•„ì§ ì´ˆê¸°í™”ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
             return null;
         }
 
@@ -161,12 +161,12 @@ public class ItemDatabase : MonoBehaviour
             return item;
         }
 
-        Debug.LogWarning($"[ItemDatabase] ¾ÆÀÌÅÛÀ» Ã£À» ¼ö ¾øÀ½: ID {itemID}");
+        Debug.LogWarning($"[ItemDatabase] ì•„ì´í…œì„ ì°¾ì„ ìˆ˜ ì—†ìŒ: ID {itemID}");
         return null;
     }
 
     /// <summary>
-    /// ½½·Ô Å¸ÀÔº° ¾ÆÀÌÅÛ ¸ñ·Ï
+    /// ìŠ¬ë¡¯ íƒ€ì…ë³„ ì•„ì´í…œ ëª©ë¡
     /// </summary>
     public List<ItemBase> GetItemsBySlotType(InventorySlotType slotType)
     {
@@ -176,7 +176,7 @@ public class ItemDatabase : MonoBehaviour
     }
 
     /// <summary>
-    /// Æ¼¾îº° ¾ÆÀÌÅÛ ¸ñ·Ï
+    /// í‹°ì–´ë³„ ì•„ì´í…œ ëª©ë¡
     /// </summary>
     public List<ItemBase> GetItemsByTier(int tier)
     {
@@ -186,7 +186,7 @@ public class ItemDatabase : MonoBehaviour
     }
 
     /// <summary>@
-    /// Å×ÀÌºí Å¸ÀÔº° ¾ÆÀÌÅÛ °¡Á®¿À±â
+    /// í…Œì´ë¸” íƒ€ì…ë³„ ì•„ì´í…œ ê°€ì ¸ì˜¤ê¸°
     /// </summary>
     public List<ItemBase> GetItemsByTableType(ItemTableType tableType)
     {
@@ -196,7 +196,7 @@ public class ItemDatabase : MonoBehaviour
     }
 
     /// <summary>
-    /// ¸ğµç ¾ÆÀÌÅÛ °¡Á®¿À±â (µğ¹ö±×¿ë)
+    /// ëª¨ë“  ì•„ì´í…œ ê°€ì ¸ì˜¤ê¸°
     /// </summary>
     public List<ItemBase> GetAllItems()
     {
@@ -204,7 +204,7 @@ public class ItemDatabase : MonoBehaviour
     }
 
     /// <summary>
-    /// ¾ÆÀÌÅÛ Á¸Àç ¿©ºÎ È®ÀÎ
+    /// ì•„ì´í…œ ì¡´ì¬ ì—¬ë¶€ í™•ì¸
     /// </summary>
     public bool HasItem(int itemID)
     {
@@ -213,73 +213,73 @@ public class ItemDatabase : MonoBehaviour
 
     #endregion
 
-    #region Åë°è ¹× µğ¹ö±× ¸Ş¼­µå
+    #region í†µê³„ ë° ë””ë²„ê·¸ ë©”ì„œë“œ
 
     /// <summary>
-    /// ·Îµå Åë°è Ãâ·Â
+    /// ë¡œë“œ í†µê³„ ì¶œë ¥
     /// </summary>
     private void PrintLoadStatistics()
     {
-        Debug.Log("========== ¾ÆÀÌÅÛ ·Îµå Åë°è ==========");
+        Debug.Log("========== ì•„ì´í…œ ë¡œë“œ í†µê³„ ==========");
 
-        // Å×ÀÌºíº° Ä«¿îÆ®
+        // í…Œì´ë¸”ë³„ ì¹´ìš´íŠ¸
         foreach (ItemTableType tableType in System.Enum.GetValues(typeof(ItemTableType)))
         {
             int count = GetItemsByTableType(tableType).Count;
-            Debug.Log($"{GetTableName(tableType)}: {count}°³");
+            Debug.Log($"{GetTableName(tableType)}: {count}ê°œ");
         }
 
-        // Æ¼¾îº° Ä«¿îÆ®
+        // í‹°ì–´ë³„ ì¹´ìš´íŠ¸
         for (int tier = 1; tier <= 3; tier++)
         {
             int count = GetItemsByTier(tier).Count;
-            Debug.Log($"Æ¼¾î {tier}: {count}°³");
+            Debug.Log($"í‹°ì–´ {tier}: {count}ê°œ");
         }
 
-        Debug.Log($"ÃÑ ¾ÆÀÌÅÛ: {itemCache.Count}°³");
+        Debug.Log($"ì´ ì•„ì´í…œ: {itemCache.Count}ê°œ");
         Debug.Log("=====================================");
     }
 
     /// <summary>
-    /// ¸ğµç ¾ÆÀÌÅÛ Ãâ·Â
+    /// ëª¨ë“  ì•„ì´í…œ ì¶œë ¥
     /// </summary>
     [ContextMenu("Debug/Print All Items")]
     public void DebugPrintAllItems()
     {
-        Debug.Log("========== ¾ÆÀÌÅÛ µ¥ÀÌÅÍº£ÀÌ½º ==========");
+        Debug.Log("========== ì•„ì´í…œ ë°ì´í„°ë² ì´ìŠ¤ ==========");
 
         foreach (var item in itemCache.Values.OrderBy(i => i.itemID))
         {
             string tierName = item.tier switch
             {
-                1 => "ÀÏ¹İ",
-                2 => "Èñ±Í",
-                3 => "¿µ¿õ",
+                1 => "ì¼ë°˜",
+                2 => "í¬ê·€",
+                3 => "ì˜ì›…",
                 _ => "???"
             };
 
             Debug.Log($"[{item.itemID}] {item.itemName} ({tierName}, {item.slotType})");
         }
 
-        Debug.Log($"ÃÑ {itemCache.Count}°³ ¾ÆÀÌÅÛ");
+        Debug.Log($"ì´ {itemCache.Count}ê°œ ì•„ì´í…œ");
         Debug.Log("=====================================");
     }
 
     /// <summary>
-    /// Æ¯Á¤ ¾ÆÀÌÅÛ »ó¼¼ Á¤º¸
+    /// íŠ¹ì • ì•„ì´í…œ ìƒì„¸ ì •ë³´
     /// </summary>
     [ContextMenu("Debug/Print Item Details")]
     public void DebugPrintItemDetails()
     {
-        // Å×½ºÆ®¿ë: °¢ Å×ÀÌºí¿¡¼­ Ã¹ ¹øÂ° ¾ÆÀÌÅÛ Ãâ·Â
-        PrintItemDetail(4001001); // ¼Òºñ ¾ÆÀÌÅÛ
-        PrintItemDetail(4101001); // º¸È£±¸
-        PrintItemDetail(4201001); // µµ±¸
-        PrintItemDetail(2001001); // ±âÅ¸ ¾ÆÀÌÅÛ
+        // í…ŒìŠ¤íŠ¸ìš©: ê° í…Œì´ë¸”ì—ì„œ ì²« ë²ˆì§¸ ì•„ì´í…œ ì¶œë ¥
+        PrintItemDetail(4001001); // ì†Œë¹„ ì•„ì´í…œ
+        PrintItemDetail(4101001); // ë³´í˜¸êµ¬
+        PrintItemDetail(4201001); // ë„êµ¬
+        PrintItemDetail(2001001); // ê¸°íƒ€ ì•„ì´í…œ
     }
 
     /// <summary>
-    /// °³º° ¾ÆÀÌÅÛ »ó¼¼ Á¤º¸ Ãâ·Â
+    /// ê°œë³„ ì•„ì´í…œ ìƒì„¸ ì •ë³´ ì¶œë ¥
     /// </summary>
     private void PrintItemDetail(int itemID)
     {
@@ -287,47 +287,47 @@ public class ItemDatabase : MonoBehaviour
 
         if (item == null)
         {
-            Debug.LogWarning($"¾ÆÀÌÅÛ ID {itemID}¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogWarning($"ì•„ì´í…œ ID {itemID}ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
         Debug.Log($"=== {item.itemName} ===");
         Debug.Log($"ID: {item.itemID}");
-        Debug.Log($"¼³¸í: {item.description}");
-        Debug.Log($"½½·Ô: {item.slotType}");
-        Debug.Log($"Æ¼¾î: {item.tier}");
-        Debug.Log($"ÃÖ´ë ½ºÅÃ: {item.maxCount}");
-        Debug.Log($"Äü½½·Ô: {item.canQuickSlot}");
-        Debug.Log($"¹ö¸®±â: {item.canDiscard}");
-        Debug.Log($"Ã¢°í ÀúÀå: {item.canStorage}");
+        Debug.Log($"ì„¤ëª…: {item.description}");
+        Debug.Log($"ìŠ¬ë¡¯: {item.slotType}");
+        Debug.Log($"í‹°ì–´: {item.tier}");
+        Debug.Log($"ìµœëŒ€ ìŠ¤íƒ: {item.maxCount}");
+        Debug.Log($"í€µìŠ¬ë¡¯: {item.canQuickSlot}");
+        Debug.Log($"ë²„ë¦¬ê¸°: {item.canDiscard}");
+        Debug.Log($"ì°½ê³  ì €ì¥: {item.canStorage}");
         Debug.Log("====================");
     }
 
     /// <summary>
-    /// Å×ÀÌºí ÀÌ¸§ °¡Á®¿À±â
+    /// í…Œì´ë¸” ì´ë¦„ ê°€ì ¸ì˜¤ê¸°
     /// </summary>
     private string GetTableName(ItemTableType type)
     {
         return type switch
         {
-            ItemTableType.Consumable => "¼Òºñ ¾ÆÀÌÅÛ",
-            ItemTableType.Protective => "º¸È£±¸",
-            ItemTableType.Tool => "µµ±¸",
-            ItemTableType.Misc => "±âÅ¸",
-            _ => "¾Ë ¼ö ¾øÀ½"
+            ItemTableType.Consumable => "ì†Œë¹„ ì•„ì´í…œ",
+            ItemTableType.Protective => "ë³´í˜¸êµ¬",
+            ItemTableType.Tool => "ë„êµ¬",
+            ItemTableType.Misc => "ê¸°íƒ€",
+            _ => "ì•Œ ìˆ˜ ì—†ìŒ"
         };
     }
 
     #endregion
 
     /// <summary>
-    /// Unity ÀÌº¥Æ® - ½ÃÀÛ ½Ã µğ¹ö±× Á¤º¸ Ãâ·Â
+    /// Unity ì´ë²¤íŠ¸ - ì‹œì‘ ì‹œ ë””ë²„ê·¸ ì •ë³´ ì¶œë ¥
     /// </summary>
     private void Start()
     {
         if (IsInitialized)
         {
-            // Å×½ºÆ®¿ë »ó¼¼ Á¤º¸ Ãâ·Â (°³¹ß Áß¿¡¸¸ È°¼ºÈ­)
+            // í…ŒìŠ¤íŠ¸ìš© ìƒì„¸ ì •ë³´ ì¶œë ¥ (ê°œë°œ ì¤‘ì—ë§Œ í™œì„±í™”)
 #if UNITY_EDITOR
             // DebugPrintItemDetails();
 #endif

@@ -88,6 +88,11 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     /// </summary>
     public List<KeyValuePair<int, int>> GetSortedItems(InventorySlotType? invtType = null)
     {
+        if(invtType == null)
+        {
+            return GetAllItems().ToList();
+        }
+
         var items = invtType.HasValue
             ? GetItemsByInventoryType(invtType.Value)
             : GetAllItems();
