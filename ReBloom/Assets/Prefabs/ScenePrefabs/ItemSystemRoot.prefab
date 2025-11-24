@@ -1760,6 +1760,7 @@ GameObject:
   - component: {fileID: 439112758598936138}
   - component: {fileID: 2161920728093707931}
   - component: {fileID: 4324550020412932653}
+  - component: {fileID: 6322058843776343136}
   m_Layer: 5
   m_Name: BackgroundFrame
   m_TagString: Untagged
@@ -1828,6 +1829,22 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &6322058843776343136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 936422402035653318}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7771e6f79abbaca4b97ee5793a38ba69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inventoryData: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
+  background: {fileID: 4324550020412932653}
+  normalColor: {r: 1, g: 1, b: 1, a: 0}
+  hoverColor: {r: 0.5943396, g: 0.5943396, b: 0.5943396, a: 0.6392157}
 --- !u!1 &948666696702711332
 GameObject:
   m_ObjectHideFlags: 0
@@ -4543,8 +4560,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2707973772651674227}
   m_HandleRect: {fileID: 6378910028291475876}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 0.67622954
+  m_Value: 1.0000029
+  m_Size: 0.6762296
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -9638,7 +9655,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.000040691884}
+  m_AnchoredPosition: {x: 0, y: -0.000008106232}
   m_SizeDelta: {x: 0, y: 244}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &3352997095531271960
@@ -12506,7 +12523,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -0.00017273104}
   m_SizeDelta: {x: 0, y: 244}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &6821683648425196355
@@ -17523,6 +17540,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7165886664441076932}
+  - component: {fileID: 3967504775105332747}
   m_Layer: 5
   m_Name: StorageUI
   m_TagString: Untagged
@@ -17550,6 +17568,24 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -360}
   m_SizeDelta: {x: 800, y: 900}
   m_Pivot: {x: 1, y: 0}
+--- !u!114 &3967504775105332747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7220110932005978233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f648e323d9ad53f47991d75e1b79094c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerInventory: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
+  slotParent: {fileID: 6549650465713363601}
+  emptySlotPrefab: {fileID: 8328624586715774487, guid: 501c178298f71cc4e84654c0ae1f7110, type: 3}
+  storageSlotPrefab: {fileID: 7666204019609520304, guid: a736893307b418f49a7ddf8d3099f77d, type: 3}
+  dropZone: {fileID: 6322058843776343136}
+  maxSlots: 20
 --- !u!1 &7228197629934315552
 GameObject:
   m_ObjectHideFlags: 0
@@ -17696,7 +17732,6 @@ GameObject:
   m_Component:
   - component: {fileID: 9148252461547266618}
   - component: {fileID: 8976339144484374523}
-  - component: {fileID: 2129321334903196541}
   m_Layer: 5
   m_Name: StorageManager
   m_TagString: Untagged
@@ -17737,24 +17772,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerInventory: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
   storageDataRef: {fileID: 11400000, guid: f3fd6708df0d5d547b54a7c3a071aa68, type: 2}
-  storageUI: {fileID: 0}
---- !u!114 &2129321334903196541
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7257313209468358249}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f648e323d9ad53f47991d75e1b79094c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  worldStorage: {fileID: 8976339144484374523}
-  playerInventory: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
-  slotParent: {fileID: 6549650465713363601}
-  slotPrefab: {fileID: 7666204019609520304, guid: a736893307b418f49a7ddf8d3099f77d, type: 3}
-  maxSlots: 20
+  storageUI: {fileID: 3967504775105332747}
 --- !u!1 &7259687807545564588
 GameObject:
   m_ObjectHideFlags: 0
@@ -19432,7 +19450,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6176660471627486760}
   m_HandleRect: {fileID: 2928800918349161983}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:

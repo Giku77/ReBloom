@@ -5,11 +5,11 @@ public class WorldStorage : WorldItemContainerBase
     [Header("Storage References")]
     [SerializeField] private StorageData storageDataRef;
     [SerializeField] private StorageUI storageUI;
+
     private StorageData storageData;
 
     protected override IItemContainer Container => storageData;
 
-    // 창고는 비어있어도 상호작용 가능
     public override bool CanInteract() => storageData != null;
 
     protected override void Awake()
@@ -18,11 +18,17 @@ public class WorldStorage : WorldItemContainerBase
 
         if (storageDataRef != null)
         {
+            // 런타임 인스턴스 생성
             storageData = Instantiate(storageDataRef);
+
+            //StorageUI에 인스턴스 전달
+            if (storageUI != null)
+            {
+                storageUI.Initialize(storageData, this);
+            }
         }
     }
 
-    // 창고는 즉시 회수가 아니라 UI 열기
     public override void Interact(PlayerController player)
     {
         if (storageData == null)
@@ -30,14 +36,18 @@ public class WorldStorage : WorldItemContainerBase
             Debug.LogError("[WorldStorage] 데이터가 없습니다!");
             return;
         }
+
         OpenStorageUI();
     }
 
     private void OpenStorageUI()
     {
         Debug.Log("[WorldStorage] 창고 UI 열기");
-        // TODO: UIManager.Instance.OpenStorage(storageData, playerInventory);
-        storageUI.gameObject.SetActive(true);
+
+        if (storageUI != null)
+        {
+            storageUI.gameObject.SetActive(true);
+        }
     }
 
     protected override void OnTransferComplete()
@@ -48,6 +58,11 @@ public class WorldStorage : WorldItemContainerBase
 
     public void AddItem(ItemBase item, int quantity)
     {
-        storageData.AddItem(item.itemID, quantity);
+        if (storageData != null)
+        {
+            storageData.AddItem(item.itemID, quantity);
+        }
     }
+
+    public StorageData GetStorageData() => storageData;
 }

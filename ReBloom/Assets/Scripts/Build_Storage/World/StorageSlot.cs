@@ -3,9 +3,6 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
-/// <summary>
-/// 창고 슬롯 - 창고 아이템 표시 및 드래그/드롭 처리
-/// </summary>
 public class StorageSlot : MonoBehaviour,
     IDragSource, IDropTarget, IItemSlot,
     IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
@@ -13,10 +10,16 @@ public class StorageSlot : MonoBehaviour,
     [Header("UI References")]
     [SerializeField] private Image iconImage;
     [SerializeField] private TextMeshProUGUI quantityText;
+    [SerializeField] private TextMeshProUGUI itemName;
     [SerializeField] private GameObject emptyIndicator;
+    [SerializeField] private Image background;
 
     [Header("Settings")]
     [SerializeField] private float doubleClickDelay = 0.25f;
+
+    [Header("Colors")]
+    [SerializeField] private Color normalColor = Color.white;
+    [SerializeField] private Color hoverColor = new Color(0.9f, 0.9f, 1f, 1f);
 
     private ItemBase itemData;
     private int quantity;
@@ -53,16 +56,13 @@ public class StorageSlot : MonoBehaviour,
     #region IDropTarget 구현
     public bool CanAcceptDrop(DragContext context)
     {
-        // 인벤토리/퀵슬롯에서만 받을 수 있음 (디버그 불가)
         if (context?.Item == null || context.IsFromDebug)
             return false;
 
-        // 같은 슬롯이면 불가
         if (context.SourceType == DragSourceType.Storage &&
             context.SourceSlotIndex == SlotIndex)
             return false;
 
-        // 이미 아이템이 있으면 같은 종류만 받을 수 있음
         if (itemData != null && itemData.itemID != context.Item.itemID)
             return false;
 
@@ -72,9 +72,6 @@ public class StorageSlot : MonoBehaviour,
     public void HandleDrop(DragContext context)
     {
         Debug.Log($"[StorageSlot] 아이템 드롭: {context.Item.itemName}");
-
-        // 창고 슬롯은 직접 처리하지 않고 StorageUI가 처리하도록 위임
-        // (StorageUI가 데이터 동기화 담당)
     }
     #endregion
 
@@ -82,6 +79,7 @@ public class StorageSlot : MonoBehaviour,
     public void SetItem(ItemBase item, int itemQuantity)
     {
         itemData = item;
+        itemName.text = item.itemName;
         quantity = itemQuantity;
         UpdateUI();
     }
@@ -89,6 +87,7 @@ public class StorageSlot : MonoBehaviour,
     public void Clear()
     {
         itemData = null;
+        itemName.text = "";
         quantity = 0;
         UpdateUI();
     }
@@ -116,12 +115,18 @@ public class StorageSlot : MonoBehaviour,
             if (hasItem)
             {
                 quantityText.text = quantity.ToString();
+                itemName.text = itemData.itemName;
             }
         }
 
         if (emptyIndicator != null)
         {
             emptyIndicator.SetActive(!hasItem);
+        }
+
+        if (background != null)
+        {
+            background.color = normalColor;
         }
     }
 
@@ -131,7 +136,7 @@ public class StorageSlot : MonoBehaviour,
     }
     #endregion
 
-    #region 더블클릭 - 인벤토리로 회수
+    #region 더블클릭
     public void OnPointerClick(PointerEventData eventData)
     {
         if (itemData == null) return;
@@ -155,7 +160,6 @@ public class StorageSlot : MonoBehaviour,
 
         Debug.Log($"[StorageSlot] 더블클릭: {itemData.itemName} 인벤토리로 회수");
 
-        // StorageUI에게 회수 요청
         var storageUI = GetComponentInParent<StorageUI>();
         if (storageUI != null)
         {
@@ -164,21 +168,26 @@ public class StorageSlot : MonoBehaviour,
     }
     #endregion
 
-    #region 툴팁
+    #region 툴팁 & 호버
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (itemData != null)
         {
-            // TODO: 툴팁 표시
-            // TooltipManager.Instance.Show(itemData);
+            if (background != null)
+            {
+                background.color = hoverColor;
+            }
+
             Debug.Log($"[StorageSlot] 툴팁: {itemData.itemName}");
         }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        // TODO: 툴팁 숨김
-        // TooltipManager.Instance.Hide();
+        if (background != null)
+        {
+            background.color = normalColor;
+        }
     }
     #endregion
 }
