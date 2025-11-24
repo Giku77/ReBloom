@@ -9,24 +9,24 @@ public class EquipmentUI : MonoBehaviour
     [Header("Slot UI References")]
     [SerializeField] private GameObject clothSlotObject;
     [SerializeField] private GameObject shoesSlotObject;
+    [SerializeField] private GameObject toolSlotObject;
 
     [Header("Slot UI Prefab")]
     [SerializeField] private EquipmentSlotUI slotUIPrefab;
 
     private EquipmentSlotUI clothSlotUI;
     private EquipmentSlotUI shoesSlotUI;
+    private EquipmentSlotUI toolSlotUI;
 
-private void Awake()
+    private void Awake()
     {
         ValidateReferences();
     }
 
-private void Start()
+    private void Start()
     {
-        // 장비 슬롯 UI 생성
         InitializeSlotUIs();
         
-        // 초기 장비 상태 표시
         RefreshAllSlots();
 
 
@@ -62,6 +62,11 @@ private void Start()
             Debug.LogError("[EquipmentUI] ShoesSlot GameObject가 할당되지 않았습니다!", this);
         }
 
+        if (toolSlotObject == null)
+        {
+            Debug.LogError("[EquipmentUI] ToolSlot GameObject가 할당되지 않았습니다!", this);
+        }
+
         if (slotUIPrefab == null)
         {
             Debug.LogError("[EquipmentUI] EquipmentSlotUI 프리팹이 할당되지 않았습니다!", this);
@@ -72,22 +77,26 @@ private void InitializeSlotUIs()
     {
         if (slotUIPrefab == null) return;
 
-        // ClothSlot UI 생성
         if (clothSlotObject != null)
         {
-            clothSlotUI = CreateSlotUI(clothSlotObject.transform, ProtectiveGearType.Clothing);
+            clothSlotUI = CreateSlotUI(clothSlotObject.transform, GearType.Clothing);
             Debug.Log("[EquipmentUI] ClothSlot UI 생성 완료");
         }
 
-        // ShoesSlot UI 생성
         if (shoesSlotObject != null)
         {
-            shoesSlotUI = CreateSlotUI(shoesSlotObject.transform, ProtectiveGearType.Shoes);
+            shoesSlotUI = CreateSlotUI(shoesSlotObject.transform, GearType.Shoes);
             Debug.Log("[EquipmentUI] ShoesSlot UI 생성 완료");
+        }
+
+        if (toolSlotObject != null)
+        {
+            toolSlotUI = CreateSlotUI(toolSlotObject.transform, GearType.Tool);
+            Debug.Log("[EquipmentUI] ToolSlot UI 생성 완료");
         }
     }
 
-private EquipmentSlotUI CreateSlotUI(Transform parent, ProtectiveGearType gearType)
+private EquipmentSlotUI CreateSlotUI(Transform parent, GearType gearType)
     {
         EquipmentSlotUI newSlotUI = Instantiate(
             slotUIPrefab,
@@ -105,7 +114,6 @@ private EquipmentSlotUI CreateSlotUI(Transform parent, ProtectiveGearType gearTy
             rectTransform.offsetMax = Vector2.zero;
         }
 
-        // Initialize 호출
         newSlotUI.Initialize(equipManager, gearType);
 
         return newSlotUI;
@@ -115,6 +123,7 @@ private EquipmentSlotUI CreateSlotUI(Transform parent, ProtectiveGearType gearTy
     {
         RefreshClothSlot();
         RefreshShoesSlot();
+        RefreshToolSLot();
     }
 
     public void RefreshClothSlot()
@@ -131,12 +140,10 @@ private EquipmentSlotUI CreateSlotUI(Transform parent, ProtectiveGearType gearTy
         shoesSlotUI.UpdateSlotInfo(equipData.currentShoesEquip);
     }
 
+    public void RefreshToolSLot()
+    {
+        if (toolSlotUI == null || equipData == null) return;
 
-
-    /// <summary>
-    /// 장비 해제 (외부에서 호출)
-    /// </summary>
-
-
-
+        toolSlotUI.UpdateSlotInfo(equipData.currentToolEquip);
+    }
 }

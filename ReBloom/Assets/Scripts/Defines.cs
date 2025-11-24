@@ -122,11 +122,12 @@ public enum ToolCategory
 /// <summary>
 /// 보호구 종류
 /// </summary>
-public enum ProtectiveGearType
+public enum GearType
 {
     Clothing = 1,       // 옷
     Shoes = 2,           // 신발
-    None = 3
+    Tool = 3,           // 도구
+    None = 4
 }
 
 //==================== 장착 아이템 관련 ====================

@@ -1,9 +1,9 @@
-using BansheeGz.BGDatabase;
+ï»¿using BansheeGz.BGDatabase;
 using System;
 using UnityEngine;
 
 /// <summary>
-/// º¸È£±¸ ¾ÆÀÌÅÛ (BG Database ·¡ÆÛ)
+/// ë³´í˜¸êµ¬ ì•„ì´í…œ (BG Database ë˜í¼)
 /// </summary>
 public class ProtectiveItemData : ItemBase
 {
@@ -27,7 +27,7 @@ public class ProtectiveItemData : ItemBase
     private BGField<float> Insulation;
     private BGField<String> Description;
 
-    public ProtectiveGearType gearType;
+    public GearType gearType;
 
     public float currentPopullation { get; private set; }
 
@@ -66,41 +66,41 @@ public class ProtectiveItemData : ItemBase
         description = Description[entity];
         canEquip = true;
 
-        gearType = (ProtectiveGearType)Category[entity];
+        gearType = (GearType)Category[entity];
 
         LoadIconAsync();
     }
 
     /// <summary>
-    /// Àåºñ ÀåÂø
+    /// ì¥ë¹„ ì¥ì°©
     /// </summary>
     public override bool Apply(PlayerController player)
     {
-        // BG Database¿¡¼­ ÃÖ½Å ¼öÄ¡ ÀĞ±â
+        // BG Databaseì—ì„œ ìµœì‹  ìˆ˜ì¹˜ ì½ê¸°
         float pollutionResist = Pollution_Resist[entity];
         float temp = Extra_HP[entity];
         float height_resist = Defense[entity];
 
-        // TODO: player ½ºÅÈ Àû¿ë
+        // TODO: player ìŠ¤íƒ¯ ì ìš©
         player.playerEquip.Apply(this);
 
-        Debug.Log($"[Àåºñ ÀåÂø] {itemName} - ¿À¿°¹æ¾î:{pollutionResist}%, Ã¼¿Âº¸³Ê½º:{temp}");
+        Debug.Log($"[ì¥ë¹„ ì¥ì°©] {itemName} - ì˜¤ì—¼ë°©ì–´:{pollutionResist}%, ì²´ì˜¨ë³´ë„ˆìŠ¤:{temp}");
 
         return true;
     }
 
     /// <summary>
-    /// Àåºñ ÇØÁ¦
+    /// ì¥ë¹„ í•´ì œ
     /// </summary>
     public void Unequip(PlayerController player)
     {
         float pollutionResist = Pollution_Resist[entity];
 
-        // TODO: player ½ºÅÈ remove 
+        // TODO: player ìŠ¤íƒ¯ remove 
     }
 
     /// <summary>
-    /// ¿À¿°µµ Áõ°¡
+    /// ì˜¤ì—¼ë„ ì¦ê°€
     /// </summary>
     public void DecreasePopullation(float amount)
     {
@@ -109,28 +109,28 @@ public class ProtectiveItemData : ItemBase
         if (currentPopullation <= 0)
         {
             currentPopullation = 0;
-            Debug.Log($"[Àåºñ ¿À¿°] {itemName}ÀÇ ¿À¿°µµ°¡ ÃÖ´ë°¡ µÇ¾ú½À´Ï´Ù!");
-            // TODO: Àåºñ ÆÄ±« Ã³¸®
+            Debug.Log($"[ì¥ë¹„ ì˜¤ì—¼] {itemName}ì˜ ì˜¤ì—¼ë„ê°€ ìµœëŒ€ê°€ ë˜ì—ˆìŠµë‹ˆë‹¤!");
+            // TODO: ì¥ë¹„ íŒŒê´´ ì²˜ë¦¬
         }
     }
 
     /// <summary>
-    /// Addressable·Î ¾ÆÀÌÄÜ ºñµ¿±â ·Îµå
+    /// Addressableë¡œ ì•„ì´ì½˜ ë¹„ë™ê¸° ë¡œë“œ
     /// </summary>
     private async void LoadIconAsync()
     {
         //string path = ImgPath[entity];
-        string path = "Icon/EquipIcon"; // ÀÓ½Ã °æ·Î
+        string path = "Icon/EquipIcon"; // ì„ì‹œ ê²½ë¡œ
 
-        // °æ·Î°¡ ºñ¾îÀÖÀ¸¸é ±âº» ¾ÆÀÌÄÜ »ç¿ë
+        // ê²½ë¡œê°€ ë¹„ì–´ìˆìœ¼ë©´ ê¸°ë³¸ ì•„ì´ì½˜ ì‚¬ìš©
         if (string.IsNullOrEmpty(path))
         {
-            path = "Icon/ItemIcon"; // ±âº» °æ·Î
+            path = "Icon/ItemIcon"; // ê¸°ë³¸ ê²½ë¡œ
         }
 
         try
         {
-            // GameObject(Prefab)·Î ·Îµå
+            // GameObject(Prefab)ë¡œ ë¡œë“œ
             var handle = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<UnityEngine.GameObject>(path);
             await handle.Task;
 
@@ -138,7 +138,7 @@ public class ProtectiveItemData : ItemBase
             {
                 UnityEngine.GameObject prefab = handle.Result;
 
-                // Image ÄÄÆ÷³ÍÆ®¿¡¼­ Sprite ÃßÃâ (·çÆ®)
+                // Image ì»´í¬ë„ŒíŠ¸ì—ì„œ Sprite ì¶”ì¶œ (ë£¨íŠ¸)
                 var image = prefab.GetComponent<UnityEngine.UI.Image>();
                 if (image != null && image.sprite != null)
                 {
@@ -146,7 +146,7 @@ public class ProtectiveItemData : ItemBase
                     return;
                 }
 
-                // Image°¡ ÀÚ½Ä¿¡ ÀÖ´Â °æ¿ì
+                // Imageê°€ ìì‹ì— ìˆëŠ” ê²½ìš°
                 image = prefab.GetComponentInChildren<UnityEngine.UI.Image>();
                 if (image != null && image.sprite != null)
                 {
@@ -154,16 +154,16 @@ public class ProtectiveItemData : ItemBase
                     return;
                 }
 
-                Debug.LogWarning($"[ProtectiveItemData] Prefab¿¡ Image ÄÄÆ÷³ÍÆ®°¡ ¾ø°Å³ª Sprite°¡ ¾øÀ½: {path}");
+                Debug.LogWarning($"[ProtectiveItemData] Prefabì— Image ì»´í¬ë„ŒíŠ¸ê°€ ì—†ê±°ë‚˜ Spriteê°€ ì—†ìŒ: {path}");
             }
             else
             {
-                Debug.LogWarning($"[ProtectiveItemData] ¾ÆÀÌÄÜ ·Îµå ½ÇÆĞ: {path}");
+                Debug.LogWarning($"[ProtectiveItemData] ì•„ì´ì½˜ ë¡œë“œ ì‹¤íŒ¨: {path}");
             }
         }
         catch (System.Exception e)
         {
-            Debug.LogWarning($"[ProtectiveItemData] ¾ÆÀÌÄÜ ·Îµå ¿¹¿Ü: {path}\n{e.Message}");
+            Debug.LogWarning($"[ProtectiveItemData] ì•„ì´ì½˜ ë¡œë“œ ì˜ˆì™¸: {path}\n{e.Message}");
         }
     }
 
