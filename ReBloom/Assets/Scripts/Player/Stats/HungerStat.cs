@@ -1,16 +1,22 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class HungerStat : StatBase
 {
-    private float decreaseRate;
+    private float increaseRate;
 
-    public HungerStat(PlayerStats owner, float max, float decreaseRate) : base(owner, max)
+    private float actualRate = 0f;
+
+    public float ActualRate => actualRate;
+
+    public HungerStat(PlayerStats owner, float max, float increaseRate) : base(owner, max)
     { 
-        this.decreaseRate = decreaseRate;
+        this.increaseRate = increaseRate;
     }
 
     public override void Tick()
     {
-        Modify(decreaseRate * Time.deltaTime);
+        actualRate = increaseRate;
+
+        Modify(actualRate * Time.deltaTime);
     }
 }

@@ -1,10 +1,13 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PollutionStat : StatBase
 {
     //private float baseIncreaseRate;
     private StageDetector stageDetector;
+
+    private float actualRate = 0f;
+    public float ActualRate => actualRate;
 
     public PollutionStat(PlayerStats owner, float max, float increaseRate) : base(owner, max)
     {
@@ -21,12 +24,11 @@ public class PollutionStat : StatBase
         if (owner.EquipManager != null)
             equipResist = owner.EquipManager.GetTotalPollutionResist();
 
-        float actualRate = (1f - equipResist) * baseMultiplier;
+        actualRate = (1f - equipResist) * baseMultiplier;
 
         if (stageDetector.CurrentStage != null && stageDetector.CurrentStage.Data.id == 400)
             actualRate = -5f;
 
-        //임시 확인용
         if (Keyboard.current.kKey.wasPressedThisFrame)
         {
             Debug.Log($"지역오염도 정보: {stageDetector.GetCurrentPollutionMultiplier()}");
