@@ -1,4 +1,4 @@
-public static class ItemIDParser
+ï»¿public static class ItemIDParser
 {
     /// <summary>
     /// ?????? ID???? ????? ??? ????
@@ -6,7 +6,7 @@ public static class ItemIDParser
     /// </summary>
     public static ItemTableType GetTableType(int itemID)
     {
-        int tableNumber = itemID / 100000; // ??¡Æ ???
+        int tableNumber = itemID / 100000; // ??Â° ???
 
         if (tableNumber == 40) return ItemTableType.Consumable;
         if (tableNumber == 42) return ItemTableType.Tool;
@@ -17,7 +17,7 @@ public static class ItemIDParser
     }
 
     /// <summary>
-    /// ??¬Ù? ??? ????
+    /// ??Ð·? ??? ????
     /// ??: 4001001 ?? 01
     /// </summary>
     public static int GetSubCategory(int itemID)

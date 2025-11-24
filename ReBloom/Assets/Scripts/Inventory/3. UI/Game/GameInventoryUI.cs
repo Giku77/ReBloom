@@ -76,16 +76,16 @@ public class GameInventoryUI : MonoBehaviour
         }
         else
         {
-            tabButtons.All(pair =>
-            {
-                if (pair.Value == currentType)
-                {
-                    currentEventSystem.SetSelectedGameObject(pair.Key.gameObject);
-                    OnTabClicked(currentType);
-                    return false; // 중단
-                }
-                return true; // 계속
-            });
+            //tabButtons.All(pair =>
+            //{
+            //    if (pair.Value == currentType)
+            //    {
+            //        currentEventSystem.SetSelectedGameObject(pair.Key.gameObject);
+            //        OnTabClicked(currentType);
+            //        return false; // 중단
+            //    }
+            //    return true; // 계속
+            //});
         }
     }
 
@@ -183,7 +183,8 @@ public class GameInventoryUI : MonoBehaviour
         ClearSlots();
 
         // 컨트롤러에서 필터링된 아이템 가져오기
-        var items = gameInventory.GetSortedItems(currentType);
+        //var items = gameInventory.GetSortedItems(currentType);
+        var items = gameInventory.GetSortedItems();
 
         // 슬롯 생성
         int slotIndex = 0;
