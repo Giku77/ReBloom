@@ -45,4 +45,9 @@ public class WorldStorage : WorldItemContainerBase
         base.OnTransferComplete();
         // 창고는 비워져도 제거 안 함
     }
+
+    public void AddItem(ItemBase item, int quantity)
+    {
+        //TODO: 구현
+    }
 }

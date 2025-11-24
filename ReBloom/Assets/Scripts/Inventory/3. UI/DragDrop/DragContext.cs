@@ -1,0 +1,13 @@
+﻿/// <summary>
+/// 드래그 컨텍스트 - 드래그 중인 정보를 담는 데이터 클래스
+/// </summary>
+public class DragContext
+{
+    public ItemBase Item { get; set; }
+    public DragSourceType SourceType { get; set; }
+    public int SourceSlotIndex { get; set; } = -1;
+    public IDragSource Source { get; set; }
+
+    public bool IsFromQuickSlot => SourceType == DragSourceType.QuickSlot;
+    public bool IsFromDebug => SourceType == DragSourceType.Debug;
+}

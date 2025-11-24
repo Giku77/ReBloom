@@ -98,70 +98,116 @@ public class WorldDropZone : MonoBehaviour,
         }
     }
 
-    public async void OnDrop(PointerEventData eventData)
+    /// <summary>
+    /// 이 드롭존이 받을 수 있는지 판단 - 조건 로직 집중!
+    /// </summary>
+    public bool CanAcceptDrop(DragContext context)
     {
-        ItemBase draggedItem = ItemIconDragHandler.CurrentDraggedItem;
+        if (context?.Item == null) return false;
 
-        if (draggedItem == null)
+        // 퀵슬롯에서 월드로는 드롭 불가
+        if (context.IsFromQuickSlot) return false;
+
+        // 디버그/인벤토리에서는 가능
+        return true;
+    }
+
+    /// <summary>
+    /// 실제 드롭 처리
+    /// </summary>
+    public async void HandleDrop(DragContext context)
+    {
+        if (context.IsFromDebug)
         {
-            Debug.LogWarning("[WorldDropZone] 드래그한 아이템이 없습니다.");
-            return;
+            // 디버그: 즉시 드롭
+            Vector3 dropPosition = CalculateDropPosition();
+            await HandleDebugDrop(context.Item, dropPosition);
         }
-
-        lastDroppedItem = draggedItem;
-
-        if (playerTransform == null)
+        else
         {
-            Debug.LogError("[WorldDropZone] 플레이어 Transform을 찾을 수 없습니다!");
-            return;
-        }
-
-        if (itemSpawner == null)
-        {
-            Debug.LogError("[WorldDropZone] ItemSpawner를 찾을 수 없습니다!");
-            return;
-        }
-
-        try
-        {
-            bool isFromDebugInventory = IsFromDebugInventory(eventData);
-            bool isFromQuickSlot = IsFromQuickSlot(eventData);
-
-            if (isFromDebugInventory)
-            {
-                // 디버그 모드: 즉시 드롭
-                Vector3 dropPosition = CalculateDropPosition();
-                await HandleDebugDrop(draggedItem, dropPosition);
-            }
-            else if (isFromQuickSlot)
-            {
-                // 퀵슬롯에서 드래그: 무시
-                Debug.Log("[WorldDropZone] 퀵슬롯에서의 드래그는 무시됩니다.");
-            }
-            else
-            {
-                // 게임 인벤토리에서 드래그: 팝업 열기
-                if (removePopUp != null)
-                {
-                    removePopUp.OnOpen(lastDroppedItem);
-                    Debug.Log("[WorldDropZone] 수량 선택 팝업 열림");
-                }
-                else
-                {
-                    Debug.LogError("[WorldDropZone] RemovePopUp이 할당되지 않았습니다!");
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"[WorldDropZone] 아이템 드롭 중 오류 발생: {ex.Message}");
-        }
-
-        if (dropIndicator != null)
-        {
-            dropIndicator.SetActive(false);
+            // 게임 모드: 팝업
+            removePopUp?.OnOpen(context.Item);
         }
     }
+
+    // OnDrop은 IDropTarget으로 위임
+    public void OnDrop(PointerEventData eventData)
+    {
+        var context = ItemIconDragHandler.CurrentContext;
+
+        if (context == null || !CanAcceptDrop(context))
+        {
+            Debug.Log("[WorldDropZone] 드롭 거부됨");
+            return;
+        }
+
+        HandleDrop(context);
+    }
+
+    //public async void OnDrop(PointerEventData eventData)
+    //{
+    //    ItemBase draggedItem = ItemIconDragHandler.CurrentDraggedItem;
+
+    //    if (draggedItem == null)
+    //    {
+    //        Debug.LogWarning("[WorldDropZone] 드래그한 아이템이 없습니다.");
+    //        return;
+    //    }
+
+    //    lastDroppedItem = draggedItem;
+
+    //    if (playerTransform == null)
+    //    {
+    //        Debug.LogError("[WorldDropZone] 플레이어 Transform을 찾을 수 없습니다!");
+    //        return;
+    //    }
+
+    //    if (itemSpawner == null)
+    //    {
+    //        Debug.LogError("[WorldDropZone] ItemSpawner를 찾을 수 없습니다!");
+    //        return;
+    //    }
+
+    //    try
+    //    {
+    //        bool isFromDebugInventory = IsFromDebugInventory(eventData);
+    //        bool isFromQuickSlot = IsFromQuickSlot(eventData);
+
+    //        if (isFromDebugInventory)
+    //        {
+    //            // 디버그 모드: 즉시 드롭
+    //            Vector3 dropPosition = CalculateDropPosition();
+    //            await HandleDebugDrop(draggedItem, dropPosition);
+    //        }
+    //        else if (isFromQuickSlot)
+    //        {
+    //            // 퀵슬롯에서 드래그: 무시
+    //            Debug.Log("[WorldDropZone] 퀵슬롯에서의 드래그는 무시됩니다.");
+    //        }
+    //        else
+    //        {
+    //            // 게임 인벤토리에서 드래그: 팝업 열기
+    //            if (removePopUp != null)
+    //            {
+    //                removePopUp.OnOpen(lastDroppedItem);
+    //                Debug.Log("[WorldDropZone] 수량 선택 팝업 열림");
+    //            }
+    //            else
+    //            {
+    //                Debug.LogError("[WorldDropZone] RemovePopUp이 할당되지 않았습니다!");
+    //            }
+    //        }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Debug.LogError($"[WorldDropZone] 아이템 드롭 중 오류 발생: {ex.Message}");
+    //    }
+
+    //    if (dropIndicator != null)
+    //    {
+    //        dropIndicator.SetActive(false);
+    //    }
+    //}
     #endregion
 
     #region RemovePopUp에서 호출
