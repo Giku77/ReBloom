@@ -59,13 +59,7 @@ public class PlayerController : MonoBehaviour
 
     private bool jumpRequested = false;
 
-    private Animator animator;
-    public Animator Animator => animator;
-
-    public static readonly string jumpAni = "Jump";
-    public static readonly string speedAni = "Speed";
-    public static readonly string slow = "Slow";
-    public static readonly string death = "Death";
+    private PlayerAnimation anim;
 
     private bool isAutoRun = false;
     private bool isGround = false;
@@ -96,7 +90,7 @@ public class PlayerController : MonoBehaviour
             Debug.Log("No Camera");
         }
 
-        animator = GetComponentInChildren<Animator>();
+        anim = GetComponent<PlayerAnimation>();
         playerStats = GetComponent<PlayerStats>();
         playerEquip = GetComponent<PlayerEquipManager>();
     }
@@ -179,9 +173,9 @@ public class PlayerController : MonoBehaviour
 
         if (wasJumping && isGround)
         {
-            if (animator != null)
+            if (anim != null)
             {
-                animator.SetBool(slow, false);
+                anim.SetSlow(false);
             }
 
             wasJumping = false;
@@ -230,7 +224,7 @@ public class PlayerController : MonoBehaviour
         if (context.canceled)
             isSlow = false;
 
-        animator.SetBool(slow, isSlow);
+        anim.SetSlow(isSlow);
     }
 
     public void OnFreeLook(InputAction.CallbackContext context)
@@ -331,7 +325,7 @@ public class PlayerController : MonoBehaviour
 
         //animator.SetFloat(speedAni, animationSpeed);
 
-        animator.SetFloat(speedAni, currentSpeed);
+        anim.SetSpeed(currentSpeed);
 
         Vector3 movement = moveDirection * currentSpeed;
         rb.linearVelocity = new Vector3(movement.x, rb.linearVelocity.y, movement.z);
@@ -345,9 +339,9 @@ public class PlayerController : MonoBehaviour
         velocity.y = jumpForce;
         rb.linearVelocity = velocity;
 
-        if (animator != null)
+        if (anim != null)
         {
-            animator.SetTrigger(jumpAni);
+            anim.PlayJump();
         }
 
         jumpRequested = false;
@@ -387,17 +381,16 @@ public class PlayerController : MonoBehaviour
         isInteracting = false;
         rb.linearVelocity = Vector3.zero;
 
-        animator.SetTrigger(death);
-        animator.applyRootMotion = true;
+        anim.PlayDeath();
+        anim.SetRootMotion(true);
 
         Debug.Log("Player is Dead!");
 
         await UniTask.Delay(4383);
 
-        animator.applyRootMotion = false;
+        anim.SetRootMotion(false);
 
-        animator.transform.localPosition = Vector3.zero;
-        animator.transform.localRotation = Quaternion.identity;
+        anim.AnimatorRePosition();
 
         transform.position = spawnPoint.position;
 

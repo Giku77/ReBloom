@@ -204,4 +204,9 @@ public class ToolItemData : ItemBase
         // VFXManager.Instance.Play("ToolEquip_" + toolCategory, position);
         // SFXManager.Instance.Play("Tool_Equip_Sound");
     }
+
+    public float GetToolPerform()
+    { 
+        return Perform[entity];
+    }
 }

@@ -256,4 +256,16 @@ public class PlayerEquipManager : MonoBehaviour
         equipInventory.gameObject.SetActive(false);
         HandleCursorState(equipInventory.activeSelf);
     }
+
+    public float GetToolPerform()
+    {
+        float perform = 0f;
+
+        if (player.currentToolEquip is ToolItemData tool)
+        {
+            perform = tool.GetToolPerform();
+        }
+
+        return  1f - perform;
+    }
 }
