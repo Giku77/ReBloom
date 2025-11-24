@@ -52,7 +52,7 @@ public class StorageDropZone : MonoBehaviour,
 
         if (quantity <= 0)
         {
-            Debug.LogWarning($"[StorageDropZone] 인벤토리에 아이템이 없습니다!");
+            //Debug.LogWarning($"[StorageDropZone] 인벤토리에 아이템이 없습니다!");
             return;
         }
 
