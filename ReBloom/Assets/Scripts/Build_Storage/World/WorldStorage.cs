@@ -4,6 +4,7 @@ public class WorldStorage : WorldItemContainerBase
 {
     [Header("Storage References")]
     [SerializeField] private StorageData storageDataRef;
+    [SerializeField] private StorageUI storageUI;
     private StorageData storageData;
 
     protected override IItemContainer Container => storageData;
@@ -29,8 +30,6 @@ public class WorldStorage : WorldItemContainerBase
             Debug.LogError("[WorldStorage] 데이터가 없습니다!");
             return;
         }
-
-        // 창고 UI 열기 (나중에 구현)
         OpenStorageUI();
     }
 
@@ -38,6 +37,7 @@ public class WorldStorage : WorldItemContainerBase
     {
         Debug.Log("[WorldStorage] 창고 UI 열기");
         // TODO: UIManager.Instance.OpenStorage(storageData, playerInventory);
+        storageUI.gameObject.SetActive(true);
     }
 
     protected override void OnTransferComplete()
@@ -48,6 +48,6 @@ public class WorldStorage : WorldItemContainerBase
 
     public void AddItem(ItemBase item, int quantity)
     {
-        //TODO: 구현
+        storageData.AddItem(item.itemID, quantity);
     }
 }

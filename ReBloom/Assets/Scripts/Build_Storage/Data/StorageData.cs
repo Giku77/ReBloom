@@ -8,6 +8,7 @@ public class StorageData : ItemContainerBase
     [SerializeField] private string storageID;
     [SerializeField] private int storageTier = 1; // 티어에 따라 용량 다름
 
+    public System.Action OnStorageChanged;
     public string StorageID => storageID;
 
     // 티어별 슬롯 수 오버라이드
