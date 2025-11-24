@@ -50,4 +50,10 @@ public class PlayerAnimation : MonoBehaviour
     {
         animator.SetBool(Gather, value);
     }
+
+    public void AnimatorRePosition()
+    { 
+        animator.transform.localPosition = Vector3.zero;
+        animator.transform.localRotation = Quaternion.identity;
+    }
 }

@@ -390,8 +390,7 @@ public class PlayerController : MonoBehaviour
 
         anim.SetRootMotion(false);
 
-        anim.transform.localPosition = Vector3.zero;
-        anim.transform.localRotation = Quaternion.identity;
+        anim.AnimatorRePosition();
 
         transform.position = spawnPoint.position;
 
