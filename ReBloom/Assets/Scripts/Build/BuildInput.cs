@@ -76,12 +76,12 @@ public class BuildInput : MonoBehaviour
     private void OnDebugAddMouse(InputAction.CallbackContext ctx)
     {
         var camera = Camera.main.GetComponent<ThirdPersonCamera>();
-        camera.AddMouseSensitivity(10f);
+        camera.AddMouseSensitivity(1f);
     }
 
     private void OnDebugSubMouse(InputAction.CallbackContext ctx)
     {
         var camera = Camera.main.GetComponent<ThirdPersonCamera>();
-        camera.SubMouseSensitivity(10f);
+        camera.SubMouseSensitivity(1f);
     }
 }
