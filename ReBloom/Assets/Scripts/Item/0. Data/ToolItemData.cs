@@ -1,12 +1,12 @@
-using BansheeGz.BGDatabase;
+ï»¿using BansheeGz.BGDatabase;
 using System;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
 /// <summary>
-/// µµ±¸ ¾ÆÀÌÅÛ (BG Database ·¡ÆÛ)
-/// ±¸±Û½ÃÆ®ÀÇ µµ±¸ ¾ÆÀÌÅÛ Å×ÀÌºí µ¥ÀÌÅÍ¸¦ Unity¿¡¼­ »ç¿ë
-/// »ğ, °î±ªÀÌ, °¡¹æ µî
+/// ë„êµ¬ ì•„ì´í…œ (BG Database ë˜í¼)
+/// êµ¬ê¸€ì‹œíŠ¸ì˜ ë„êµ¬ ì•„ì´í…œ í…Œì´ë¸” ë°ì´í„°ë¥¼ Unityì—ì„œ ì‚¬ìš©
+/// ì‚½, ê³¡ê´­ì´, ê°€ë°© ë“±
 /// </summary>
 public class ToolItemData : ItemBase
 {
@@ -27,25 +27,25 @@ public class ToolItemData : ItemBase
     private BGField<string> Img_Path;
     private BGField<string> Description;
 
-    #region µµ±¸ Àü¿ë ¼Ó¼º
+    #region ë„êµ¬ ì „ìš© ì†ì„±
     /// <summary>
-    /// µµ±¸ Ä«Å×°í¸® (1=»ğ, 2=°î±ªÀÌ, 3=°¡¹æ)
+    /// ë„êµ¬ ì¹´í…Œê³ ë¦¬ (1=ì‚½, 2=ê³¡ê´­ì´, 3=ê°€ë°©)
     /// </summary>
     public ToolCategory toolCategory { get; private set; }
 
     /// <summary>
-    /// »ç¿ë Áß ¿©ºÎ (0=¹Ì»ç¿ë, 1=»ç¿ëÁß)
+    /// ì‚¬ìš© ì¤‘ ì—¬ë¶€ (0=ë¯¸ì‚¬ìš©, 1=ì‚¬ìš©ì¤‘)
     /// </summary>
     public bool isUsing { get; private set; }
 
     /// <summary>
-    /// ¼º´É ¼öÄ¡ (ÀÛ¾÷ ½Ã°£ ´ÜÃà µî)
+    /// ì„±ëŠ¥ ìˆ˜ì¹˜ (ì‘ì—… ì‹œê°„ ë‹¨ì¶• ë“±)
     /// </summary>
     public float performance { get; private set; }
     #endregion
 
     /// <summary>
-    /// BG Database Entity·Î ÃÊ±âÈ­
+    /// BG Database Entityë¡œ ì´ˆê¸°í™”
     /// </summary>
     public void Initialize(BGEntity entity)
     {
@@ -53,7 +53,7 @@ public class ToolItemData : ItemBase
 
         var meta = entity.Meta;
 
-        // ÇÊµå ÂüÁ¶ °¡Á®¿À±â
+        // í•„ë“œ ì°¸ì¡° ê°€ì ¸ì˜¤ê¸°
         Tool_ID = meta.GetField<int>("Tool_ID");
         Tool_Name = meta.GetField<string>("Tool_Name");
         Inventory_N = meta.GetField<int>("Inventory_N");
@@ -69,7 +69,7 @@ public class ToolItemData : ItemBase
         Img_Path = meta.GetField<string>("Img_Path");
         Description = meta.GetField<string>("Description");
 
-        // ±âº» Á¤º¸
+        // ê¸°ë³¸ ì •ë³´
         itemID = Tool_ID[entity];
         itemName = Tool_Name[entity];
         slotType = (InventorySlotType)Inventory_N[entity];
@@ -80,82 +80,85 @@ public class ToolItemData : ItemBase
         canDiscard = Convert.ToBoolean(Discardable[entity]);
         canStorage = Convert.ToBoolean(Storageable[entity]);
         description = Description[entity];
+        canEquip = true;
 
-        // µµ±¸ Àü¿ë ¼Ó¼º
+        // ë„êµ¬ ì „ìš© ì†ì„±
         toolCategory = (ToolCategory)Category[entity];
         performance = Perform[entity];
 
-        // ¾ÆÀÌÄÜÀº Addressable·Î ºñµ¿±â ·Îµå
+        // ì•„ì´ì½˜ì€ Addressableë¡œ ë¹„ë™ê¸° ë¡œë“œ
         LoadIconAsync();
     }
 
     /// <summary>
-    /// µµ±¸ »ç¿ë (ÀåÂø)
+    /// ë„êµ¬ ì‚¬ìš© (ì¥ì°©)
     /// </summary>
     public override bool Apply(PlayerController player)
     {
         if (player == null) return false;
 
-        // ½Ç½Ã°£À¸·Î BG Database¿¡¼­ ÃÖ½Å ¼öÄ¡ ÀĞ±â
+        // ì‹¤ì‹œê°„ìœ¼ë¡œ BG Databaseì—ì„œ ìµœì‹  ìˆ˜ì¹˜ ì½ê¸°
         float currentPerform = Perform[entity];
         ToolCategory category = (ToolCategory)Category[entity];
 
         switch (category)
         {
             case ToolCategory.Shovel:
-                // »ğ: ¶¥ ÆÄ±â ¼Óµµ Áõ°¡
-                Debug.Log($"[µµ±¸ ÀåÂø] {itemName} - ÆÄ±â ½Ã°£ {currentPerform}ÃÊ");
-                // TODO: ÇÃ·¹ÀÌ¾î¿¡°Ô ÆÄ±â ¼Óµµ ¹öÇÁ Àû¿ë
+                // ì‚½: ë•… íŒŒê¸° ì†ë„ ì¦ê°€
+                Debug.Log($"[ë„êµ¬ ì¥ì°©] {itemName} - íŒŒê¸° ì‹œê°„ {currentPerform}ì´ˆ");
+                // TODO: í”Œë ˆì´ì–´ì—ê²Œ íŒŒê¸° ì†ë„ ë²„í”„ ì ìš©
                 break;
 
             case ToolCategory.Pickaxe:
-                // °î±ªÀÌ: Ã¤±¤ ¼Óµµ Áõ°¡
-                Debug.Log($"[µµ±¸ ÀåÂø] {itemName} - Ã¤±¤ ½Ã°£ {currentPerform}ÃÊ");
-                // TODO: ÇÃ·¹ÀÌ¾î¿¡°Ô Ã¤±¤ ¼Óµµ ¹öÇÁ Àû¿ë
+                // ê³¡ê´­ì´: ì±„ê´‘ ì†ë„ ì¦ê°€
+                Debug.Log($"[ë„êµ¬ ì¥ì°©] {itemName} - ì±„ê´‘ ì‹œê°„ {currentPerform}ì´ˆ");
+                // TODO: í”Œë ˆì´ì–´ì—ê²Œ ì±„ê´‘ ì†ë„ ë²„í”„ ì ìš©
                 break;
 
             case ToolCategory.Bag:
-                // °¡¹æ: ÀÎº¥Åä¸® È®Àå
-                Debug.Log($"[µµ±¸ ÀåÂø] {itemName} - ÀÎº¥Åä¸® ½½·Ô Áõ°¡");
-                // TODO: ÀÎº¥Åä¸® Å©±â È®Àå
+                // ê°€ë°©: ì¸ë²¤í† ë¦¬ í™•ì¥
+                Debug.Log($"[ë„êµ¬ ì¥ì°©] {itemName} - ì¸ë²¤í† ë¦¬ ìŠ¬ë¡¯ ì¦ê°€");
+                // TODO: ì¸ë²¤í† ë¦¬ í¬ê¸° í™•ì¥
                 break;
         }
 
-        // ÀåÂø VFX/SFX
+        // ì¥ì°© VFX/SFX
+        player.playerEquip.Apply(this);
+
         // PlayEquipEffect(player.transform.position);
 
         return true;
     }
 
     /// <summary>
-    /// µµ±¸ ÇØÁ¦
+    /// ë„êµ¬ í•´ì œ
     /// </summary>
     public void Unequip(PlayerController player)
     {
         if (player == null) return;
 
-        Debug.Log($"[µµ±¸ ÇØÁ¦] {itemName}");
+        Debug.Log($"[ë„êµ¬ í•´ì œ] {itemName}");
 
-        // TODO: ¹öÇÁ Á¦°Å, ÀÎº¥Åä¸® º¹±¸ µî
+        // TODO: ë²„í”„ ì œê±°, ì¸ë²¤í† ë¦¬ ë³µêµ¬ ë“±
     }
 
     /// <summary>
-    /// Addressable·Î ¾ÆÀÌÄÜ ºñµ¿±â ·Îµå
+    /// Addressableë¡œ ì•„ì´ì½˜ ë¹„ë™ê¸° ë¡œë“œ
     /// </summary>
     private async void LoadIconAsync()
     {
         //string path = Img_Path[entity];
-        string path = "Icon/ToolIcon"; // ÀÓ½Ã °æ·Î
+        string path = "Icon/ToolIcon"; // ì„ì‹œ ê²½ë¡œ
 
-        // °æ·Î°¡ ºñ¾îÀÖÀ¸¸é ±âº» ¾ÆÀÌÄÜ »ç¿ë
+        // ê²½ë¡œê°€ ë¹„ì–´ìˆìœ¼ë©´ ê¸°ë³¸ ì•„ì´ì½˜ ì‚¬ìš©
         if (string.IsNullOrEmpty(path))
         {
-            path = "Icon/ItemIcon"; // ±âº» °æ·Î
+            path = "Icon/ItemIcon"; // ê¸°ë³¸ ê²½ë¡œ
         }
 
         try
         {
-            // GameObject(Prefab)·Î ·Îµå
+            // GameObject(Prefab)ë¡œ ë¡œë“œ
             var handle = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<UnityEngine.GameObject>(path);
             await handle.Task;
 
@@ -163,7 +166,7 @@ public class ToolItemData : ItemBase
             {
                 UnityEngine.GameObject prefab = handle.Result;
 
-                // Image ÄÄÆ÷³ÍÆ®¿¡¼­ Sprite ÃßÃâ (·çÆ®)
+                // Image ì»´í¬ë„ŒíŠ¸ì—ì„œ Sprite ì¶”ì¶œ (ë£¨íŠ¸)
                 var image = prefab.GetComponent<UnityEngine.UI.Image>();
                 if (image != null && image.sprite != null)
                 {
@@ -171,33 +174,33 @@ public class ToolItemData : ItemBase
                     return;
                 }
 
-                // Image°¡ ÀÚ½Ä¿¡ ÀÖ´Â °æ¿ì
+                // Imageê°€ ìì‹ì— ìˆëŠ” ê²½ìš°
                 image = prefab.GetComponentInChildren<UnityEngine.UI.Image>();
                 if (image != null && image.sprite != null)
                 {
                     icon = image.sprite;
-                    Debug.Log($"[ToolItemData] ¾ÆÀÌÄÜ ·Îµå ¼º°ø (ÀÚ½Ä): {itemName}");
+                    Debug.Log($"[ToolItemData] ì•„ì´ì½˜ ë¡œë“œ ì„±ê³µ (ìì‹): {itemName}");
                     return;
                 }
 
-                Debug.LogWarning($"[ToolItemData] Prefab¿¡ Image ÄÄÆ÷³ÍÆ®°¡ ¾ø°Å³ª Sprite°¡ ¾øÀ½: {path}");
+                Debug.LogWarning($"[ToolItemData] Prefabì— Image ì»´í¬ë„ŒíŠ¸ê°€ ì—†ê±°ë‚˜ Spriteê°€ ì—†ìŒ: {path}");
             }
             else
             {
-                Debug.LogWarning($"[ToolItemData] ¾ÆÀÌÄÜ ·Îµå ½ÇÆĞ: {path}");
+                Debug.LogWarning($"[ToolItemData] ì•„ì´ì½˜ ë¡œë“œ ì‹¤íŒ¨: {path}");
             }
         }
         catch (System.Exception e)
         {
-            Debug.LogWarning($"[ToolItemData] ¾ÆÀÌÄÜ ·Îµå ¿¹¿Ü: {path}\n{e.Message}");
+            Debug.LogWarning($"[ToolItemData] ì•„ì´ì½˜ ë¡œë“œ ì˜ˆì™¸: {path}\n{e.Message}");
         }
     }
     /// <summary>
-    /// ÀåÂø È¿°ú Àç»ı (VFX/SFX)
+    /// ì¥ì°© íš¨ê³¼ ì¬ìƒ (VFX/SFX)
     /// </summary>
     private void PlayEquipEffect(Vector3 position)
     {
-        // TODO: TA ÀÛ¾÷ - VFX/SFX ½Ã½ºÅÛ°ú ¿¬µ¿
+        // TODO: TA ì‘ì—… - VFX/SFX ì‹œìŠ¤í…œê³¼ ì—°ë™
         // VFXManager.Instance.Play("ToolEquip_" + toolCategory, position);
         // SFXManager.Instance.Play("Tool_Equip_Sound");
     }

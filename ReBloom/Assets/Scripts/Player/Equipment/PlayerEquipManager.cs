@@ -1,4 +1,5 @@
 ﻿using BansheeGz.BGDatabase;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -46,20 +47,20 @@ public class PlayerEquipManager : MonoBehaviour
 
         switch (item.gearType)
         {
-            case ProtectiveGearType.Clothing:
+            case GearType.Clothing:
                 if (player.currentClothEquip != null)
-                    UnEquip(ProtectiveGearType.Clothing);
+                    UnEquip(GearType.Clothing);
 
                 player.currentClothEquip = item;
                 break;
 
-            case ProtectiveGearType.Shoes:
+            case GearType.Shoes:
                 if (player.currentShoesEquip != null)
-                    UnEquip(ProtectiveGearType.Shoes);
+                    UnEquip(GearType.Shoes);
 
                 player.currentShoesEquip = item;
                 break;
-            case ProtectiveGearType.None:
+            case GearType.None:
                 Debug.Log("장착 불가능한 보호구 타입입니다.");
                 break;
             default:
@@ -69,7 +70,30 @@ public class PlayerEquipManager : MonoBehaviour
 
         Debug.Log($"[EquipManager] 장착 완료: {item.itemName} (오염 저항: {item.GetPollutionResist()}%)");
 
-        // UI 업데이트
+        if (equipmentUI != null)
+        {
+            equipmentUI.RefreshAllSlots();
+            Debug.Log("[EquipManager] UI 갱신 호출");
+        }
+        else
+        {
+            Debug.LogWarning("[EquipManager] equipmentUI가 null입니다!");
+        }
+    }
+
+    public void Apply(ToolItemData item)
+    {
+        if (item == null)
+        {
+            Debug.Log("잘못 된 도구 아이템입니다.");
+            return;
+        }
+
+        UnEquip(GearType.Tool);
+        player.currentToolEquip = item;
+
+        Debug.Log($"[EquipManager] 장착 완료: {item.itemName}");
+
         if (equipmentUI != null)
         {
             equipmentUI.RefreshAllSlots();
@@ -109,11 +133,11 @@ public class PlayerEquipManager : MonoBehaviour
     }
 
 
-    public void UnEquip(ProtectiveGearType gearType)
+    public void UnEquip(GearType gearType)
     {
         switch (gearType)
         {
-            case ProtectiveGearType.Clothing:
+            case GearType.Clothing:
                 if (!player.currentClothEquip)
                     return;
 
@@ -121,14 +145,22 @@ public class PlayerEquipManager : MonoBehaviour
                 player.currentClothEquip = null;
                 break;
 
-            case ProtectiveGearType.Shoes:
+            case GearType.Shoes:
                 if (!player.currentShoesEquip)
                     return;
 
                 inventoryItemData.AddItem(player.currentShoesEquip.itemID, 1);
                 player.currentShoesEquip = null;
                 break;
-            case ProtectiveGearType.None:
+            case GearType.Tool:
+                if (!player.currentToolEquip)
+                    return;
+
+                inventoryItemData.AddItem(player.currentToolEquip.itemID, 1);
+                player.currentToolEquip = null;
+                break;
+
+            case GearType.None:
                 Debug.Log("잘못 된 보호구 타입입니다.");
                 break;
         }

@@ -1,7 +1,8 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerEquipData : MonoBehaviour
 {
     public ProtectiveItemData currentClothEquip;
     public ProtectiveItemData currentShoesEquip;
+    public ToolItemData currentToolEquip;
 }

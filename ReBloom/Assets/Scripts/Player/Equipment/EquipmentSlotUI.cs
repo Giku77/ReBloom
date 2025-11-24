@@ -18,15 +18,15 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerClickHandler
     private float doubleClickDelay = 0.25f;
 
     private PlayerEquipManager equipManager;
-    private ProtectiveGearType slotType;
+    private GearType slotType;
 
-    public void Initialize(PlayerEquipManager manager, ProtectiveGearType type)
+    public void Initialize(PlayerEquipManager manager, GearType type)
     {
         equipManager = manager;
         slotType = type;
     }
 
-    public void UpdateSlotInfo(ProtectiveItemData itemData)
+    public void UpdateSlotInfo(ItemBase itemData)
     {
         if (itemData == null)
         {
