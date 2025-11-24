@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 public class QuickSlot : MonoBehaviour
 {
     [Header("Slot Settings")]
-    [SerializeField] private int slotCount = 7;
+    [SerializeField] private int slotCount = 6;
 
     [Header("UI References")]
     [SerializeField] private List<GameObject> slotsRef;

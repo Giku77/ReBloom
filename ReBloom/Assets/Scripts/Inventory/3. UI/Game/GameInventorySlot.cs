@@ -1,18 +1,18 @@
 ﻿using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Splines;
 using UnityEngine.UI;
 
 /// <summary>
 /// 게임 인벤토리의 아이템 슬롯
 /// </summary>
-public class GameInventorySlot : MonoBehaviour,
-    IItemSlot, IDragSource,
-    IPointerEnterHandler, IPointerExitHandler
+public class GameInventorySlot : MonoBehaviour, IItemSlot, IDragSource, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("UI References")]
     [SerializeField] private Image itemIcon;
     [SerializeField] private TextMeshProUGUI quantityText;
+    [SerializeField] private Image quantityFrame;
     [SerializeField] private TextMeshProUGUI itemNameText;
 
     [Header("Optional")]
@@ -39,9 +39,11 @@ public class GameInventorySlot : MonoBehaviour,
             if (quantityText != null)
             {
                 quantityText.text = quantity > 1 ? quantity.ToString() : "";
+                if (quantityFrame != null)
+                {
+                    quantityFrame.enabled = quantity > 1;
+                }
             }
-
-            // 이름
             if (itemNameText != null)
             {
                 itemNameText.text = item.itemName;
@@ -86,7 +88,7 @@ public class GameInventorySlot : MonoBehaviour,
         return new DragContext
         {
             Item = item,
-            SourceType = DragSourceType.Inventory,
+            SourceType = this.SourceType,
             SourceSlotIndex = SlotIndex,
             Source = this
         };

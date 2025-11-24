@@ -36,7 +36,7 @@ public class DebugItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         return new DragContext
         {
             Item = item,
-            SourceType = SourceType,
+            SourceType = this.SourceType,
             SourceSlotIndex = SlotIndex,
             Source = this
         };

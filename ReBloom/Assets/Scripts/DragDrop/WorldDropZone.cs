@@ -230,46 +230,46 @@ public class WorldDropZone : MonoBehaviour,
     #endregion
 
 
-    #region Drop Handling
-    /// <summary>
-    ///  디버그 인벤토리에서 드롭한 것인지 확인
-    /// </summary>
-    private bool IsFromDebugInventory(PointerEventData eventData)
-    {
-        // 드롭된 아이템이 디버그 인벤토리에서 온 것인지 확인
-        if (eventData.pointerDrag != null)
-        {
-            Transform current = eventData.pointerDrag.transform;
-            while (current != null)
-            {
-                if (current.GetComponent<DebugInventoryMarker>() != null)
-                {
-                    return true;
-                }
-                current = current.parent;
-            }
-        }
+    //#region Drop Handling
+    ///// <summary>
+    /////  디버그 인벤토리에서 드롭한 것인지 확인
+    ///// </summary>
+    //private bool IsFromDebugInventory(PointerEventData eventData)
+    //{
+    //    // 드롭된 아이템이 디버그 인벤토리에서 온 것인지 확인
+    //    if (eventData.pointerDrag != null)
+    //    {
+    //        Transform current = eventData.pointerDrag.transform;
+    //        while (current != null)
+    //        {
+    //            if (current.GetComponent<DebugInventoryMarker>() != null)
+    //            {
+    //                return true;
+    //            }
+    //            current = current.parent;
+    //        }
+    //    }
 
-        return false;
-    }
-    private bool IsFromQuickSlot(PointerEventData eventData)
-    {
-        // 드롭된 아이템이 퀵슬롯에서 온 것인지 확인
-        if (eventData.pointerDrag != null)
-        {
-            Transform current = eventData.pointerDrag.transform;
-            while (current != null)
-            {
-                if (current.GetComponent<QuickSlotUI>() != null)
-                {
-                    return true;
-                }
-                current = current.parent;
-            }
-        }
+    //    return false;
+    //}
+    //private bool IsFromQuickSlot(PointerEventData eventData)
+    //{
+    //    // 드롭된 아이템이 퀵슬롯에서 온 것인지 확인
+    //    if (eventData.pointerDrag != null)
+    //    {
+    //        Transform current = eventData.pointerDrag.transform;
+    //        while (current != null)
+    //        {
+    //            if (current.GetComponent<QuickSlotUI>() != null)
+    //            {
+    //                return true;
+    //            }
+    //            current = current.parent;
+    //        }
+    //    }
 
-        return false;
-    }
+    //    return false;
+    //}
 
     /// <summary>
     /// 게임 모드: 인벤토리에서 드롭 (수량 지정)
@@ -312,7 +312,7 @@ public class WorldDropZone : MonoBehaviour,
 
         Debug.Log($"[WorldDropZone] {draggedItem.itemName} x{debugSpawnCount}개를 드롭했습니다. (디버그 모드)");
     }
-    #endregion
+    //#endregion
 
     #region Drop Position Calculation
     private Vector3 CalculateDropPosition()

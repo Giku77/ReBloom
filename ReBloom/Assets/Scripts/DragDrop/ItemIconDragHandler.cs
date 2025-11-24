@@ -18,14 +18,17 @@ public class ItemIconDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
     private Transform originalParent;
     private int originalSiblingIndex;
 
-    // 드래그 시작 위치 판단용
-    private bool isDraggingFromQuickSlot;
-    private bool isDraggingFromInventory;
-    private bool isDraggingFromEquipmentSlot;
+    //// 드래그 시작 위치 판단용
+    //private bool isDraggingFromQuickSlot;
+    //private bool isDraggingFromInventory;
+    //private bool isDraggingFromEquipmentSlot;
 
     // 정적 변수
-    public static ItemBase CurrentDraggedItem { get; private set; }
-    public static int CurrentDraggedSlotIndex { get; private set; } = -1;
+    // public static ItemBase CurrentDraggedItem { get; private set; }
+    //public static int CurrentDraggedSlotIndex { get; private set; } = -1;
+
+    private IDragSource dragSource;
+    public static DragContext CurrentContext { get; private set; }
 
     #region 유니티 생명주기
     private void Awake()
@@ -54,9 +57,6 @@ public class ItemIconDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
 
     #region 드래그앤 드롭 인터페이스 구현
 
-    private IDragSource dragSource;
-
-    public static DragContext CurrentContext { get; private set; }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
@@ -248,16 +248,17 @@ public class ItemIconDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
         originalSiblingIndex = transform.GetSiblingIndex();
     }
     private void RestoreOriginalState()
-{
-    transform.SetParent(originalParent, true);
-    transform.SetSiblingIndex(originalSiblingIndex);
-    rectTransform.anchoredPosition = originalPosition;
-}
+    {
+        transform.SetParent(originalParent, true);
+        transform.SetSiblingIndex(originalSiblingIndex);
+        rectTransform.anchoredPosition = originalPosition;
+        //CurrentDraggedItem = null;
+    }
     private void SetupDragVisual()
     {
         transform.SetParent(canvas.transform, true);
         canvasGroup.blocksRaycasts = false;
-        canvasGroup.alpha = 0.6f;
+        canvasGroup.alpha = 0.3f;
         rectTransform.SetAsLastSibling();
     }
 
