@@ -1,9 +1,12 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class ThirstStat : StatBase
 {
     private float increaseRate;
+
+    private float actualRate = 0f;
+    public float ActualRate => actualRate;
 
     private StageDetector stageDetector;
 
@@ -18,14 +21,16 @@ public class ThirstStat : StatBase
     {
         float weatherRate = stageDetector != null ? stageDetector.GetCurrentThirst(): 0;
 
-        float actualRate = increaseRate + weatherRate;
+        actualRate = increaseRate + weatherRate;
 
         if (Keyboard.current.kKey.wasPressedThisFrame)
         {
-            Debug.Log($"³¯¾¾ °¥Áõ Á¤º¸: {stageDetector.GetCurrentThirst()}");
-            Debug.Log($"[ThirstStat] ±âº» Áõ°¡À²: {increaseRate:F2}, ³¯¾¾ °¥Áõ °è¼ö: {weatherRate}, ÃÖÁ¾ Áõ°¡À²: {actualRate:F4}");
+            Debug.Log($"ë‚ ì”¨ ê°ˆì¦ ì •ë³´: {stageDetector.GetCurrentThirst()}");
+            Debug.Log($"[ThirstStat] ê¸°ë³¸ ì¦ê°€ìœ¨: {increaseRate:F2}, ë‚ ì”¨ ê°ˆì¦ ê³„ìˆ˜: {weatherRate}, ìµœì¢… ì¦ê°€ìœ¨: {actualRate:F4}");
         }
 
         Modify(actualRate * Time.deltaTime);
     }
+
+
 }

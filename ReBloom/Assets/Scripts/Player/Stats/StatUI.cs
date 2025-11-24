@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
@@ -11,10 +11,16 @@ public class StatUI : MonoBehaviour
     
     [Header("StatBars")]
     [SerializeField] private Slider hpBar;
+    [SerializeField] private TextMeshProUGUI hpText;
     [SerializeField] private Slider pollutionBar;
     [SerializeField] private Slider hungerBar;
     [SerializeField] private Slider thirstBar;
     [SerializeField] private Slider tempBar;
+    [SerializeField] private Image pollutionGauge;
+    [SerializeField] private Image thirstGauge;
+    [SerializeField] private Image hungerGauge;
+    [SerializeField] private TextMeshProUGUI tempText;
+
 
     private void Start()
     {
@@ -191,6 +197,11 @@ public class StatUI : MonoBehaviour
         {
             hpBar.value = value / maxValue;
         }
+
+        if (hpText != null)
+        {
+            hpText.text = $"{((value / maxValue) * 100):F0}%";
+        }
     }
 
     private void UpdatePollutionUI(float value, float maxValue)
@@ -198,6 +209,11 @@ public class StatUI : MonoBehaviour
         if (pollutionBar != null)
         {
             pollutionBar.value = value / maxValue;
+        }
+
+        if (pollutionGauge != null)
+        {
+            pollutionGauge.fillAmount = value / 100;
         }
     }
 
@@ -207,6 +223,11 @@ public class StatUI : MonoBehaviour
         {
             hungerBar.value = value / maxValue;
         }
+
+        if (hungerGauge != null)
+        {
+            hungerGauge.fillAmount = value / 100;
+        }
     }
     
     private void UpdateThirstUI(float value, float maxValue)
@@ -214,6 +235,11 @@ public class StatUI : MonoBehaviour
         if (thirstBar != null)
         {
             thirstBar.value = value / maxValue;
+        }
+
+        if (thirstGauge != null)
+        {
+            thirstGauge.fillAmount = value / 100;
         }
     }
 
@@ -229,6 +255,11 @@ public class StatUI : MonoBehaviour
             tempBar.minValue = minTemp;
             tempBar.maxValue = maxTemp;
             tempBar.value = value;
+        }
+
+        if (tempText != null)
+        {
+            tempText.text = $"{value:F1}";
         }
     }
 }

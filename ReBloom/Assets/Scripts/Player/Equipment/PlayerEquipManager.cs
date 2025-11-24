@@ -27,11 +27,11 @@ public class PlayerEquipManager : MonoBehaviour
 
     private void Update()
     {
-        //if (Keyboard.current.rKey.wasPressedThisFrame)
-        //{
-        //    equipInventory.gameObject.SetActive(!equipInventory.activeSelf);
-        //    HandleCursorState(equipInventory.activeSelf);
-        //}
+        if (Keyboard.current.rKey.wasPressedThisFrame)
+        {
+            equipInventory.gameObject.SetActive(!equipInventory.activeSelf);
+            HandleCursorState(equipInventory.activeSelf);
+        }
     }
 
     public void Apply(ProtectiveItemData item)
@@ -205,13 +205,13 @@ public class PlayerEquipManager : MonoBehaviour
         return resist;
     }
 
-    public void OnToggleEquipInventory(InputAction.CallbackContext context)
-    {
-        if (equipInventory == null) return;
+    //public void OnToggleEquipInventory(InputAction.CallbackContext context)
+    //{
+    //    if (equipInventory == null) return;
 
-        equipInventory.gameObject.SetActive(!equipInventory.activeSelf);
-        HandleCursorState(equipInventory.activeSelf);
-    }
+    //    equipInventory.gameObject.SetActive(!equipInventory.activeSelf);
+    //    HandleCursorState(equipInventory.activeSelf);
+    //}
 
     private void HandleCursorState(bool show)
     {

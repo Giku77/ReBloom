@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,6 +13,7 @@ public class DebuffManager : MonoBehaviour
     public event Action<IDebuff> OnDebuffApplied;
     public event Action<IDebuff> OnDebuffRemoved;
     private Dictionary<int, Func<DebuffData, IDebuff>> debuffFactory;
+
 
     private void Awake()
     {
