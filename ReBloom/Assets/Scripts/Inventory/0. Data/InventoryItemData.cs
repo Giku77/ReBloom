@@ -121,7 +121,8 @@ public class InventoryItemData : ScriptableObject, IItemContainer
         _items = new Dictionary<int, int>()
         {
             //{ 4003002, 15 },
-            //{ 4102001, 12 },
+            { 4102001, 5 },
+            { 4102031, 3 },
             //{ 4102002, 6 },
             //{ 4102005, 10 },
             //{ 4102003, 10},

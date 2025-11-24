@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 public enum CraftFailReason
 {
@@ -22,9 +22,9 @@ public struct CraftCheckResult
 public class CraftingManager
 {
     private readonly CraftRecipeDB _recipeDb;
-    private readonly IInventoryProvider _inventory;
+    private readonly InventoryItemData _inventory;
 
-    public CraftingManager(CraftRecipeDB recipeDb, IInventoryProvider inventory)
+    public CraftingManager(CraftRecipeDB recipeDb, InventoryItemData inventory)
     {
         _recipeDb = recipeDb;
         _inventory  = inventory;
@@ -74,7 +74,7 @@ public class CraftingManager
             return result;
         }
 
-        if (!_inventory.HasItem(recipe.productId, recipe.productCount))
+        if (_inventory.Items.Count >= _inventory.SlotCount)
         {
             result.failReason = CraftFailReason.NoOutputSpace;
             return result;
