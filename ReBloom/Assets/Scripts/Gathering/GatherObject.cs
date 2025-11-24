@@ -19,11 +19,15 @@ public class GatherObject : MonoBehaviour, IInteractable
 
     private InteractionHighlight highlight;
 
-    public float HoldTime => gatherObjectData.searchTime;
+    private PlayerEquipManager playerEquipManager;
+
+    public float HoldTime => gatherObjectData.searchTime * playerEquipManager.GetToolPerform();
 
     private void Awake()
     {
         highlight = GetComponent<InteractionHighlight>();
+
+        playerEquipManager = FindFirstObjectByType<PlayerEquipManager>();
     }
 
 
