@@ -9,7 +9,7 @@ using UnityEngine.EventSystems;
 /// 인벤토리에서 드래그한 아이템을 퀵슬롯에 할당
 /// </summary>
 public class WorldDropZone : MonoBehaviour,
-    IDropHandler, IPointerEnterHandler, IPointerExitHandler
+    IDropHandler, IPointerEnterHandler, IPointerExitHandler, IDropTarget
 {
     [Header("References")]
     [SerializeField] private Transform playerTransform;
@@ -71,7 +71,7 @@ public class WorldDropZone : MonoBehaviour,
 
     private void Update()
     {
-        if (isPointerOver && ItemIconDragHandler.CurrentDraggedItem != null)
+        if (isPointerOver && ItemIconDragHandler.CurrentContext?.Item != null)
         {
             UpdateDropIndicator();
         }
@@ -82,7 +82,7 @@ public class WorldDropZone : MonoBehaviour,
     {
         isPointerOver = true;
 
-        if (dropIndicator != null && ItemIconDragHandler.CurrentDraggedItem != null)
+        if (dropIndicator != null && ItemIconDragHandler.CurrentContext?.Item != null)
         {
             dropIndicator.SetActive(true);
         }
