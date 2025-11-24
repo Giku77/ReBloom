@@ -105,8 +105,8 @@ public class WorldDropZone : MonoBehaviour,
     {
         if (context?.Item == null) return false;
 
-        // 퀵슬롯에서 월드로는 드롭 불가
-        if (context.IsFromQuickSlot) return false;
+        // 퀵슬롯에서 월드로는 드롭 불가 -> 월드 드롭 시 퀵슬롯에서 빠짐
+        //if (context.IsFromQuickSlot) return false;
 
         // 디버그/인벤토리에서는 가능
         return true;
@@ -123,6 +123,14 @@ public class WorldDropZone : MonoBehaviour,
             Vector3 dropPosition = CalculateDropPosition();
             await HandleDebugDrop(context.Item, dropPosition);
         }
+        else if (context.IsFromQuickSlot)
+        {
+            //// 퀵슬롯: 팝업 열고 드롭 (인벤토리 참조 제거 + 퀵슬롯 갱신)
+            //removePopUp?.OnOpen(context.Item);
+
+            // 퀵슬롯일때는 아무것도 안함.
+            HandleQuickSlotRemoval(context);
+        }
         else
         {
             // 게임 모드: 팝업
@@ -130,6 +138,31 @@ public class WorldDropZone : MonoBehaviour,
         }
     }
 
+    /// <summary>
+    /// 퀵슬롯에서 제거 (인벤토리 데이터는 유지)
+    /// </summary>
+    private void HandleQuickSlotRemoval(DragContext context)
+    {
+        QuickSlot quickSlot = FindFirstObjectByType<QuickSlot>();
+
+        if (quickSlot == null)
+        {
+            Debug.LogError("[WorldDropZone] QuickSlot을 찾을 수 없습니다!");
+            return;
+        }
+
+        int slotIndex = context.SourceSlotIndex;
+
+        if (slotIndex >= 0)
+        {
+            quickSlot.RemoveSlot(slotIndex);
+            Debug.Log($"[WorldDropZone] 퀵슬롯 {slotIndex}에서 {context.Item.itemName} 제거 (인벤토리는 유지)");
+        }
+        else
+        {
+            Debug.LogWarning("[WorldDropZone] 유효하지 않은 퀵슬롯 인덱스입니다!");
+        }
+    }
     // OnDrop은 IDropTarget으로 위임
     //public void OnDrop(PointerEventData eventData)
     //{

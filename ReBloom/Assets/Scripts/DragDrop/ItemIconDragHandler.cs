@@ -126,25 +126,31 @@ public class ItemIconDragHandler : MonoBehaviour, IBeginDragHandler, IDragHandle
             return false;
         }
 
-        // 2. 인벤토리 -> 퀵슬롯: 유지 (참조만)
+        // 2. 인벤토리 → 퀵슬롯: 유지 (참조만)
         if (context.SourceType == DragSourceType.Inventory && target is QuickSlotDropZone)
         {
             return false;
         }
 
-        // 3. 퀵슬롯 -> 퀵슬롯: 파괴 (재생성)
+        // 3. 퀵슬롯 → 월드: 파괴 (퀵슬롯에서 제거)
+        if (context.SourceType == DragSourceType.QuickSlot && target is WorldDropZone)
+        {
+            return true;
+        }
+
+        // 4. 퀵슬롯 → 퀵슬롯: 파괴 (재생성)
         if (context.SourceType == DragSourceType.QuickSlot && target is QuickSlotDropZone)
         {
             return true;
         }
 
-        // 4. 인벤토리 -> 월드: 파괴 (실제 제거)
+        // 5. 인벤토리 → 월드: 파괴
         if (context.SourceType == DragSourceType.Inventory && target is WorldDropZone)
         {
             return true;
         }
 
-        // 5. 기본값: 파괴
+        // 6. 기본값: 파괴
         return true;
     }
     #endregion
