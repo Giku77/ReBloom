@@ -7,6 +7,7 @@ public class QuickSlotUI : MonoBehaviour, IItemSlot, IDragSource
 {
     [Header("Ref")]
     [SerializeField] private Image slotIcon;
+    [SerializeField] private Image quantityFrame;
     [SerializeField] private TextMeshProUGUI itemQuantity;
     [SerializeField] private TextMeshProUGUI itemName;
 
@@ -30,6 +31,11 @@ public class QuickSlotUI : MonoBehaviour, IItemSlot, IDragSource
         if (slotIcon != null)
         {
             slotIcon.enabled = false;
+        }
+
+        if (quantityFrame != null)
+        {
+            quantityFrame.enabled = false;
         }
 
         if (itemQuantity != null)
@@ -64,7 +70,7 @@ public class QuickSlotUI : MonoBehaviour, IItemSlot, IDragSource
     public void OnDragSuccess()
     {
         // 퀵슬롯은 매니저가 처리하므로 여기선 로그만
-        Debug.Log($"[QuickSlotUI] 슬롯 {SlotIndex} 드래그 성공");
+        Debug.Log($"[QuickSlotUI] 슬롯 {SlotIndex} 드래그 성공, 빈 함수, 리팩토링 필요");
     }
 
     public void OnDragCancelled()
@@ -109,6 +115,10 @@ public class QuickSlotUI : MonoBehaviour, IItemSlot, IDragSource
         if (itemQuantity != null)
         {
             itemQuantity.text = quantity > 1 ? quantity.ToString() : "";
+        }
+        if (quantityFrame != null)
+        {
+            quantityFrame.enabled = quantity > 1;
         }
 
         // 이름

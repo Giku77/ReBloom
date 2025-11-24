@@ -9,7 +9,7 @@ using UnityEngine.EventSystems;
 /// 인벤토리에서 드래그한 아이템을 퀵슬롯에 할당
 /// </summary>
 public class WorldDropZone : MonoBehaviour,
-    IDropHandler, IPointerEnterHandler, IPointerExitHandler, IDropTarget
+ /*   IDropHandler,*/ IPointerEnterHandler, IPointerExitHandler, IDropTarget
 {
     [Header("References")]
     [SerializeField] private Transform playerTransform;
@@ -131,18 +131,18 @@ public class WorldDropZone : MonoBehaviour,
     }
 
     // OnDrop은 IDropTarget으로 위임
-    public void OnDrop(PointerEventData eventData)
-    {
-        var context = ItemIconDragHandler.CurrentContext;
+    //public void OnDrop(PointerEventData eventData)
+    //{
+    //    var context = ItemIconDragHandler.CurrentContext;
 
-        if (context == null || !CanAcceptDrop(context))
-        {
-            Debug.Log("[WorldDropZone] 드롭 거부됨");
-            return;
-        }
+    //    if (context == null || !CanAcceptDrop(context))
+    //    {
+    //        Debug.Log("[WorldDropZone] 드롭 거부됨");
+    //        return;
+    //    }
 
-        HandleDrop(context);
-    }
+    //    HandleDrop(context);
+    //}
 
     //public async void OnDrop(PointerEventData eventData)
     //{

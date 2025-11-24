@@ -38,11 +38,11 @@ public class GameInventorySlot : MonoBehaviour, IItemSlot, IDragSource, IPointer
             // 수량
             if (quantityText != null)
             {
-                quantityText.text = quantity > 1 ? quantity.ToString() : "";
                 if (quantityFrame != null)
                 {
                     quantityFrame.enabled = quantity > 1;
                 }
+                quantityText.text = quantity > 1 ? quantity.ToString() : "";
             }
             if (itemNameText != null)
             {
