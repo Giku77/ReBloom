@@ -48,6 +48,33 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     }
     #endregion
 
+    #region 모든 아이템 view
+    /// <summary>
+    /// 모든 분류를 한 페이지에 보이도록
+    /// </summary>
+    public Dictionary<int, int> GetAllItems(InventorySlotType inventoryType)
+    {
+        var filtered = new Dictionary<int, int>();
+
+        // ItemSlotData로 변경
+        foreach (var slot in inventoryData.Items)
+        {
+            InventorySlotType itemInventoryType = ItemIDParser.GetInventoryType(slot.itemID);
+
+            if (itemInventoryType == inventoryType)
+            {
+                filtered.Add(slot.itemID, slot.count);
+            }
+        }
+
+        return filtered;
+    }
+
+
+    #endregion
+
+
+
     #region 아이템 & 카테고리 분류
 
     /// <summary>
