@@ -3,7 +3,8 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(Image))]
-public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler
+public class QuickSlotDropZone : MonoBehaviour,
+    IDropTarget, IDropHandler, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("References")]
     [SerializeField] private QuickSlot quickSlotManager;
@@ -11,7 +12,6 @@ public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandl
 
     [Header("Visual Feedback")]
     [SerializeField] private Image backgroundImage;
-
     [SerializeField] private Color originColor;
     [SerializeField] private Color hoverColor = new Color(0.8f, 1f, 0.8f, 1f);
     [SerializeField] private Color invalidColor = new Color(1f, 0.8f, 0.8f, 1f);
@@ -42,7 +42,8 @@ public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandl
 
     private void Update()
     {
-        if (isPointerOver && ItemIconDragHandler.CurrentDraggedItem != null)
+        // 수정
+        if (isPointerOver && ItemIconDragHandler.CurrentContext?.Item != null)
         {
             UpdateVisualFeedback();
         }
@@ -52,7 +53,8 @@ public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandl
     {
         isPointerOver = true;
 
-        if (ItemIconDragHandler.CurrentDraggedItem != null)
+        // 수정
+        if (ItemIconDragHandler.CurrentContext?.Item != null)
         {
             UpdateVisualFeedback();
         }
@@ -68,41 +70,38 @@ public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandl
         }
     }
 
-    public void OnDrop(PointerEventData eventData)
+    #region IDropTarget 구현
+    /// <summary>
+    /// 이 퀵슬롯이 드롭을 받을 수 있는지 판단
+    /// </summary>
+    public bool CanAcceptDrop(DragContext context)
     {
-        ItemBase draggedItem = ItemIconDragHandler.CurrentDraggedItem;
-        int draggedFromSlot = ItemIconDragHandler.CurrentDraggedSlotIndex;
+        if (context?.Item == null) return false;
 
-        if (draggedItem == null)
+        // 같은 슬롯에 드롭: 거부
+        if (context.IsFromQuickSlot && context.SourceSlotIndex == slotIndex)
         {
-            Debug.LogWarning("[QuickSlotDropZone] 드래그된 아이템이 없습니다.");
-            return;
+            return false;
         }
 
-        // 같은 슬롯에 드롭: 무시
-        if (draggedFromSlot == slotIndex)
-        {
-            Debug.Log($"[QuickSlotDropZone] 같은 슬롯({slotIndex})에 드롭 - 무시");
-            return;
-        }
+        // 아이템 유효성 검증
+        return CanAssignToQuickSlot(context);
+    }
 
-        // 유효성 검증
-        if (!CanAssignToQuickSlot(draggedItem, draggedFromSlot))
+    /// <summary>
+    /// 실제 드롭 처리
+    /// </summary>
+    public void HandleDrop(DragContext context)
+    {
+        if (context.IsFromQuickSlot)
         {
-            ShowInvalidFeedback();
-            return;
-        }
-
-        // 퀵슬롯 간 이동 vs 인벤토리에서 퀵슬롯 분기
-        if (draggedFromSlot >= 0)
-        {
-            // 퀵슬롯: 퀵슬롯 (스왑)
-            SwapQuickSlots(draggedFromSlot, slotIndex);
+            // 퀵슬롯 간 스왑
+            SwapQuickSlots(context.SourceSlotIndex, slotIndex);
         }
         else
         {
-            // 인벤토리: 퀵슬롯 (배치 또는 교체)
-            AssignToQuickSlot(draggedItem);
+            // 인벤토리에서 퀵슬롯 배치
+            AssignToQuickSlot(context.Item);
         }
 
         // 색상 복원
@@ -111,9 +110,34 @@ public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandl
             backgroundImage.color = originColor;
         }
     }
+    #endregion
 
+    #region Unity IDropHandler (위임)
+    public void OnDrop(PointerEventData eventData)
+    {
+        var context = ItemIconDragHandler.CurrentContext;
+
+        if (context == null)
+        {
+            Debug.LogWarning("[QuickSlotDropZone] 드래그 컨텍스트가 없습니다.");
+            return;
+        }
+
+        // 같은 슬롯 체크는 CanAcceptDrop에서
+        if (!CanAcceptDrop(context))
+        {
+            Debug.Log($"[QuickSlotDropZone] 드롭 거부됨");
+            ShowInvalidFeedback();
+            return;
+        }
+
+        HandleDrop(context);
+    }
+    #endregion
+
+    #region 퀵슬롯 로직
     /// <summary>
-    /// 퀵슬롯 간 스왑 (A to B / B to A)
+    /// 퀵슬롯 간 스왑 (A ↔ B)
     /// </summary>
     private void SwapQuickSlots(int fromIndex, int toIndex)
     {
@@ -132,16 +156,16 @@ public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandl
         int fromQuantity = gameInventory.GetItemCount(fromItem.itemID);
         int toQuantity = toItem != null ? gameInventory.GetItemCount(toItem.itemID) : 0;
 
-        Debug.Log($"[QuickSlotDropZone] 스왑 시작: [{fromIndex}] {fromItem.itemName} swap [{toIndex}] {(toItem != null ? toItem.itemName : "빈 슬롯")}");
+        Debug.Log($"[QuickSlotDropZone] 스왑: [{fromIndex}] {fromItem.itemName} <-> [{toIndex}] {(toItem != null ? toItem.itemName : "빈 슬롯")}");
 
-        // 1️.⃣ 두 슬롯 모두 제거
+        // 1. 두 슬롯 모두 제거
         quickSlotManager.RemoveSlot(fromIndex);
         if (toItem != null)
         {
             quickSlotManager.RemoveSlot(toIndex);
         }
 
-        // 2️.⃣ 교차 배치
+        // 2. 교차 배치
         quickSlotManager.AssignToSlot(toIndex, fromItem, fromQuantity);
 
         if (toItem != null)
@@ -177,7 +201,6 @@ public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandl
 
         if (existingSlotIndex >= 0 && existingSlotIndex != slotIndex)
         {
-            // 다른 슬롯에 이미 있음: 기존 슬롯 제거 후 새 슬롯에 배치
             Debug.Log($"[QuickSlotDropZone] {item.itemName}이(가) 슬롯 {existingSlotIndex}에 있어서 제거 후 슬롯 {slotIndex}에 재배치");
             quickSlotManager.RemoveSlot(existingSlotIndex);
         }
@@ -187,7 +210,7 @@ public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandl
 
         if (currentSlotItem != null)
         {
-            Debug.Log($"[QuickSlotDropZone] 슬롯 {slotIndex}: {currentSlotItem.itemName} 에서 {item.itemName} (교체)");
+            Debug.Log($"[QuickSlotDropZone] 슬롯 {slotIndex}: {currentSlotItem.itemName} → {item.itemName} (교체)");
             quickSlotManager.RemoveSlot(slotIndex);
         }
 
@@ -203,49 +226,50 @@ public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandl
             Debug.LogWarning($"[QuickSlotDropZone] 배치 실패!");
         }
     }
+    #endregion
 
+    #region 유효성 검증
     /// <summary>
-    /// 유효성 검증 (출발 슬롯 정보 고려)
+    /// 퀵슬롯에 배치 가능한지 검증
     /// </summary>
-    private bool CanAssignToQuickSlot(ItemBase item, int fromSlotIndex)
+    private bool CanAssignToQuickSlot(DragContext context)
     {
-        if (item == null) return false;
+        if (context?.Item == null) return false;
 
-        // 1️⃣. canQuickSlot 플래그 체크
-        if (!item.canQuickSlot)
+        // 1. canQuickSlot 플래그 체크
+        if (!context.Item.canQuickSlot)
         {
-            Debug.LogWarning($"[QuickSlotDropZone] {item.itemName}은(는) 퀵슬롯에 배치할 수 없습니다.");
+            Debug.LogWarning($"[QuickSlotDropZone] {context.Item.itemName}은(는) 퀵슬롯에 배치할 수 없습니다.");
             return false;
         }
 
-        // 2️.⃣ 인벤토리에 아이템 있는지 확인
+        // 2. 인벤토리에 아이템 있는지 확인
         GameInventory gameInventory = FindFirstObjectByType<GameInventory>();
-        if (gameInventory != null && !gameInventory.HasItem(item.itemID, 1))
+        if (gameInventory != null && !gameInventory.HasItem(context.Item.itemID, 1))
         {
-            Debug.LogWarning($"[QuickSlotDropZone] 인벤토리에 {item.itemName}이(가) 없습니다.");
+            Debug.LogWarning($"[QuickSlotDropZone] 인벤토리에 {context.Item.itemName}이(가) 없습니다.");
             return false;
         }
 
-        // 3️.⃣ 퀵슬롯 간 이동인 경우: 항상 허용
-        if (fromSlotIndex >= 0)
+        // 3. 퀵슬롯 간 이동: 항상 허용
+        if (context.IsFromQuickSlot)
         {
             return true;
         }
 
-        // 4️⃣ 인벤토리에서 퀵슬롯인 경우
-        // 이미 다른 슬롯에 있어도 이동 개념이므로 허용
-        // (단, 같은 아이템을 여러 슬롯에 중복 등록하는 건 방지됨 : AssignToQuickSlot에서 처리)
+        // 4. 인벤토리에서 퀵슬롯: 허용
         return true;
     }
+    #endregion
 
+    #region 비주얼 피드백
     private void UpdateVisualFeedback()
     {
         if (backgroundImage == null) return;
 
-        ItemBase draggedItem = ItemIconDragHandler.CurrentDraggedItem;
-        int draggedFromSlot = ItemIconDragHandler.CurrentDraggedSlotIndex;
+        var context = ItemIconDragHandler.CurrentContext;
 
-        if (draggedItem != null && CanAssignToQuickSlot(draggedItem, draggedFromSlot))
+        if (context != null && CanAcceptDrop(context))
         {
             backgroundImage.color = hoverColor;
         }
@@ -270,6 +294,7 @@ public class QuickSlotDropZone : MonoBehaviour, IDropHandler, IPointerEnterHandl
             backgroundImage.color = originColor;
         }
     }
+    #endregion
 
     [ContextMenu("Auto Set Slot Index")]
     private void AutoSetSlotIndex()

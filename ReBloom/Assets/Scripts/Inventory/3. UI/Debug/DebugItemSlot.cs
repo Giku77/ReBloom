@@ -1,12 +1,12 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 
 /// <summary>
-/// µğ¹ö±× ÀÎº¥Åä¸®ÀÇ °³º° ¾ÆÀÌÅÛ ½½·Ô
+/// ë””ë²„ê·¸ ì¸ë²¤í† ë¦¬ì˜ ê°œë³„ ì•„ì´í…œ ìŠ¬ë¡¯
 /// </summary>
-public class DebugItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+public class DebugItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler, IDragSource
 {
     [Header("UI References")]
     [SerializeField] private Image imgIcon;
@@ -24,12 +24,35 @@ public class DebugItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     private float doubleClickDelay = 0.25f;
 
     private GameInventory inventory;
+    public DragSourceType SourceType => DragSourceType.Debug;
+    public int SlotIndex => transform.GetSiblingIndex();
 
     private void Awake()
     {
         inventory = FindAnyObjectByType<GameInventory>();
     }
+    public DragContext CreateDragContext(ItemBase item)
+    {
+        return new DragContext
+        {
+            Item = item,
+            SourceType = this.SourceType,
+            SourceSlotIndex = SlotIndex,
+            Source = this
+        };
+    }
 
+    public void OnDragSuccess()
+    {
+        // ì¸ë²¤í† ë¦¬ UI ìƒˆë¡œê³ ì¹¨
+        var inventoryUI = GetComponentInParent<GameInventoryUI>();
+        inventoryUI?.RefreshUI();
+    }
+
+    public void OnDragCancelled()
+    {
+        // ì›ë³µì€ DragHandlerê°€ ì²˜ë¦¬
+    }
     public void Initialize(ItemBase item, DebugItemTooltip tooltipUI)
     {
         itemData = item;
@@ -42,7 +65,7 @@ public class DebugItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     {
         if (itemData == null) return;
 
-        // ¾ÆÀÌÄÜ
+        // ì•„ì´ì½˜
         if (imgIcon != null)
         {
             if (itemData.icon != null)
@@ -57,13 +80,13 @@ public class DebugItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
             }
         }
 
-        // Æ¼¾î »ö»ó ¹Ù
+        // í‹°ì–´ ìƒ‰ìƒ ë°”
         if (imgTierBar != null)
         {
             imgTierBar.color = GetTierColor(itemData.tier);
         }
 
-        // ÀÌ¸§
+        // ì´ë¦„
         if (txtName != null)
         {
             txtName.text = itemData.itemName;
@@ -91,7 +114,7 @@ public class DebugItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         quantityTxt.text =$"{quantity}";
     }
 
-    #region È£¹ö ÀÌº¥Æ®
+    #region í˜¸ë²„ ì´ë²¤íŠ¸
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (tooltip != null && itemData != null)
@@ -113,9 +136,9 @@ public class DebugItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     {
         return tier switch
         {
-            1 => new Color(0.7f, 0.7f, 0.7f),      // ÀÏ¹İ - È¸»ö
-            2 => new Color(0.3f, 0.6f, 1f),        // Èñ±Í - ÆÄ¶û
-            3 => new Color(0.8f, 0.3f, 1f),        // ¿µ¿õ - º¸¶ó
+            1 => new Color(0.7f, 0.7f, 0.7f),      // ì¼ë°˜ - íšŒìƒ‰
+            2 => new Color(0.3f, 0.6f, 1f),        // í¬ê·€ - íŒŒë‘
+            3 => new Color(0.8f, 0.3f, 1f),        // ì˜ì›… - ë³´ë¼
             _ => Color.white
         };
     }
@@ -139,7 +162,7 @@ public class DebugItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         if (itemData == null && inventory == null)
             return;
 
-        Debug.Log($"[DebugItemSlot] {itemData.itemName} ¾ÆÀÌÅÛ »ç¿ë ¿äÃ»");
+        Debug.Log($"[DebugItemSlot] {itemData.itemName} ì•„ì´í…œ ì‚¬ìš© ìš”ì²­");
 
         inventory.Consume(itemData.itemID, 1);
     }

@@ -36,7 +36,7 @@ public class GameInventoryUI : MonoBehaviour
 
     #region 상태 변수
     private InventorySlotType currentType = InventorySlotType.Consumable;
-    private readonly List<DebugItemSlot> activeSlots = new();
+    private readonly List<GameInventorySlot> activeSlots = new();
     private readonly Dictionary<Button, InventorySlotType> tabButtons = new();
     #endregion
 
@@ -76,16 +76,16 @@ public class GameInventoryUI : MonoBehaviour
         }
         else
         {
-            //tabButtons.All(pair =>
-            //{
-            //    if (pair.Value == currentType)
-            //    {
-            //        currentEventSystem.SetSelectedGameObject(pair.Key.gameObject);
-            //        OnTabClicked(currentType);
-            //        return false; // 중단
-            //    }
-            //    return true; // 계속
-            //});
+            tabButtons.All(pair =>
+            {
+                if (pair.Value == currentType)
+                {
+                    currentEventSystem.SetSelectedGameObject(pair.Key.gameObject);
+                    OnTabClicked(currentType);
+                    return false; // 중단
+                }
+                return true; // 계속
+            });
         }
     }
 
@@ -235,23 +235,22 @@ public class GameInventoryUI : MonoBehaviour
         }
 
         GameObject slotObj = Instantiate(itemSlotPrefab, emptySlotList[slotIndex]);
-        if (!slotObj.TryGetComponent(out DebugItemSlot slot))
+
+        // GameInventorySlot 사용으로 변경!
+        if (!slotObj.TryGetComponent(out GameInventorySlot slot))
         {
-            Debug.LogError("[GameInventoryUI] DebugItemSlot 컴포넌트를 찾을 수 없습니다!");
+            Debug.LogError("[GameInventoryUI] GameInventorySlot 컴포넌트를 찾을 수 없습니다!");
             return;
         }
 
-        slot.Initialize(item, tooltip);
-        slot.SetShowDescription(false);
-        slot.SetShowStats(false);
-        slot.SetQuantity(quantity);
+        // IItemSlot 인터페이스 메서드 사용
+        slot.SetItem(item, quantity);
 
-        activeSlots.Add(slot);
-
+        // 드래그 핸들러 데이터 설정
         SetDragDropHandlerData(item, slot);
     }
 
-    private void SetDragDropHandlerData(ItemBase item, DebugItemSlot slot)
+    private void SetDragDropHandlerData(ItemBase item, GameInventorySlot slot)
     {
         if (!slot.TryGetComponent(out ItemIconDragHandler dragHandler))
         {

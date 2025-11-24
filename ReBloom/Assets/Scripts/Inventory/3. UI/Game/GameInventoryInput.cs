@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class GameInventoryInput : MonoBehaviour
@@ -14,14 +14,14 @@ public class GameInventoryInput : MonoBehaviour
     {
         if (gameInventory == null)
         {
-            Debug.LogError("[GameInventoryInput] GameInventory°¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù!");
+            Debug.LogError("[GameInventoryInput] GameInventoryê°€ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
             enabled = false;
             return;
         }
 
         inputActions = new InputSystem_Actions();
 
-        Debug.Log("[GameInventoryInput] ÃÊ±âÈ­ ¿Ï·á");
+        Debug.Log("[GameInventoryInput] ì´ˆê¸°í™” ì™„ë£Œ");
     }
 
     private void Start()
@@ -55,7 +55,7 @@ public class GameInventoryInput : MonoBehaviour
         }
     }
 
-    #region Input Actions ÀÌº¥Æ® ±¸µ¶
+    #region Input Actions ì´ë²¤íŠ¸ êµ¬ë…
     private void SubscribeInputActions()
     {
         if (inputActions == null) return;
@@ -65,7 +65,7 @@ public class GameInventoryInput : MonoBehaviour
         gameInventoryMap.ToggleInventory.performed += OnToggleInventory;
         gameInventoryMap.AssignQuickSlot.performed += OnFillQuickSlots;
 
-        Debug.Log("[GameInventoryInput] ÀÔ·Â ÀÌº¥Æ® ±¸µ¶ ¿Ï·á");
+        Debug.Log("[GameInventoryInput] ì…ë ¥ ì´ë²¤íŠ¸ êµ¬ë… ì™„ë£Œ");
     }
 
     private void UnsubscribeInputActions()
@@ -81,7 +81,7 @@ public class GameInventoryInput : MonoBehaviour
 
     #region Input Callbacks
     /// <summary>
-    /// IÅ° ÀÔ·Â - ÀÎº¥Åä¸® ¿­±â/´İ±â
+    /// Ií‚¤ ì…ë ¥ - ì¸ë²¤í† ë¦¬ ì—´ê¸°/ë‹«ê¸°
     /// </summary>
     private void OnToggleInventory(InputAction.CallbackContext context)
     {
@@ -89,7 +89,7 @@ public class GameInventoryInput : MonoBehaviour
     }
 
     /// <summary>
-    /// OÅ° ÀÔ·Â - Äü½½·Ô ÀÚµ¿ Ã¤¿ì±â
+    /// Oí‚¤ ì…ë ¥ - í€µìŠ¬ë¡¯ ìë™ ì±„ìš°ê¸°
     /// </summary>
     private void OnFillQuickSlots(InputAction.CallbackContext context)
     {
@@ -97,7 +97,7 @@ public class GameInventoryInput : MonoBehaviour
     }
     #endregion
 
-    #region ÀÎº¥Åä¸® Á¦¾î
+    #region ì¸ë²¤í† ë¦¬ ì œì–´
     public void ToggleInventory()
     {
         if (gameInventory == null) return;
@@ -114,7 +114,7 @@ public class GameInventoryInput : MonoBehaviour
         }
 
         HandleCursorState(isInventoryOpen);
-        Debug.Log($"[ÀÎº¥Åä¸®] {(isInventoryOpen ? "¿­¸²" : "´İÈû")}");
+        Debug.Log($"[ì¸ë²¤í† ë¦¬] {(isInventoryOpen ? "ì—´ë¦¼" : "ë‹«í˜")}");
     }
 
     private void HandleCursorState(bool show)
@@ -124,7 +124,7 @@ public class GameInventoryInput : MonoBehaviour
     }
     #endregion
 
-    #region µğ¹ö±× ¸í·É¾î
+    #region ë””ë²„ê·¸ ëª…ë ¹ì–´
     [ContextMenu("Debug/Toggle Inventory")]
     public void CMD_ToggleInventory()
     {

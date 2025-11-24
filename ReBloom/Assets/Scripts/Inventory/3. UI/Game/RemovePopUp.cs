@@ -8,6 +8,7 @@ public class RemovePopUp : MonoBehaviour
     [SerializeField] private InventoryItemData inventoryData;
     [SerializeField] private WorldDropZone worldDropZone;
     [SerializeField] private GameInventory gameInventory;
+    [SerializeField] private GameInventoryUI gameInventoryUI;
 
     private ItemBase selectedItem;
     private int currentItemQuantity;
@@ -127,6 +128,12 @@ public class RemovePopUp : MonoBehaviour
         selectedItem = null;
         currentItemQuantity = 0;
         settingQuantity = 1;
+
+        if (gameInventoryUI != null)
+        {
+            gameInventoryUI.RefreshUI();
+            Debug.Log("[RemovePopUp] 인벤토리 UI 갱신 완료");
+        }
     }
     #endregion
 }

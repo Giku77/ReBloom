@@ -55,8 +55,9 @@ public class WorldItem : MonoBehaviour, IInteractable
 
     private void PickupItem()
     {
-        var inv = (GameInventory)QuestManager.I.Inventory;
-        inv?.AddItem(itemData.itemID, quantity);
+        //var inv = (GameInventory)QuestManager.I.Inventory;
+        //inv?.AddItem(itemData.itemID, quantity);
+        inventoryData.AddItem(itemData.itemID, quantity);
 
 
         Debug.Log($"{itemData.itemName} 획득!");
