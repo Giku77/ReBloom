@@ -1,5 +1,4 @@
-﻿using BansheeGz.BGDatabase;
-using JetBrains.Annotations;
+using BansheeGz.BGDatabase;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,6 +8,7 @@ public class PlayerEquipManager : MonoBehaviour
     [SerializeField] private EquipmentUI equipmentUI;
 
     private PlayerEquipData player;
+    private ToolEquipManager toolEquipManager;
 
     [SerializeField] private InventoryItemData inventoryItemData;
 
@@ -16,6 +16,12 @@ public class PlayerEquipManager : MonoBehaviour
     private void Awake()
     {
         player = GetComponent<PlayerEquipData>();
+        toolEquipManager = GetComponent<ToolEquipManager>();
+        
+        if (toolEquipManager == null)
+        {
+            Debug.LogWarning("[PlayerEquipManager] ToolEquipManager를 찾을 수 없습니다!");
+        }
     }
 
     private void Start()
@@ -42,8 +48,6 @@ public class PlayerEquipManager : MonoBehaviour
             Debug.Log("잘못 된 보호구 아이템입니다.");
             return;
         }
-
-        //inventoryItemData.RemoveItem(item.itemID, 1);
 
         switch (item.gearType)
         {
@@ -91,6 +95,16 @@ public class PlayerEquipManager : MonoBehaviour
 
         UnEquip(GearType.Tool);
         player.currentToolEquip = item;
+        
+        // ToolEquipManager를 통해 실제 프리팹 생성
+        if (toolEquipManager != null)
+        {
+            toolEquipManager.EquipTool(item);
+        }
+        else
+        {
+            Debug.LogError("[PlayerEquipManager] ToolEquipManager가 없습니다!");
+        }
 
         Debug.Log($"[EquipManager] 장착 완료: {item.itemName}");
 
@@ -107,7 +121,6 @@ public class PlayerEquipManager : MonoBehaviour
 
     public void EquipItem(int itemId)
     {
-        // ItemDatabase에서 아이템 데이터 가져오기
         ItemBase itemBase = ItemDatabase.I.GetItem(itemId);
         if (itemBase == null)
         {
@@ -115,7 +128,6 @@ public class PlayerEquipManager : MonoBehaviour
             return;
         }
         
-        // ProtectiveItemData로 변환
         ProtectiveItemData itemData = itemBase as ProtectiveItemData;
         if (itemData == null)
         {
@@ -125,7 +137,6 @@ public class PlayerEquipManager : MonoBehaviour
 
         Apply(itemData);
         
-        // UI 업데이트
         if (equipmentUI != null)
         {
             equipmentUI.RefreshAllSlots();
@@ -152,12 +163,19 @@ public class PlayerEquipManager : MonoBehaviour
                 inventoryItemData.AddItem(player.currentShoesEquip.itemID, 1);
                 player.currentShoesEquip = null;
                 break;
+                
             case GearType.Tool:
                 if (!player.currentToolEquip)
                     return;
 
                 inventoryItemData.AddItem(player.currentToolEquip.itemID, 1);
                 player.currentToolEquip = null;
+                
+                // ToolEquipManager를 통해 프리팹 제거
+                if (toolEquipManager != null)
+                {
+                    toolEquipManager.UnequipTool();
+                }
                 break;
 
             case GearType.None:
@@ -167,13 +185,10 @@ public class PlayerEquipManager : MonoBehaviour
 
         Debug.Log($"아이템 해제 완료");
 
-        // UI 업데이트
         if (equipmentUI != null)
         {
             equipmentUI.RefreshAllSlots();
         }
-
-        
     }
 
     public float GetTotalPollutionResist()
@@ -194,11 +209,6 @@ public class PlayerEquipManager : MonoBehaviour
         
         float finalResist = Mathf.Clamp01(resist);
         
-        //임시 장착 확인용
-        //if (Time.frameCount % 60 == 0 && resist > 0)
-        //{
-        //    Debug.Log($"[EquipManager] 옥: {clothResist}, 신발: {shoesResist}, 합계: {resist} → 최종 저항: {finalResist:F2}");
-        //}
         return finalResist;
     }
 
@@ -236,14 +246,6 @@ public class PlayerEquipManager : MonoBehaviour
 
         return resist;
     }
-
-    //public void OnToggleEquipInventory(InputAction.CallbackContext context)
-    //{
-    //    if (equipInventory == null) return;
-
-    //    equipInventory.gameObject.SetActive(!equipInventory.activeSelf);
-    //    HandleCursorState(equipInventory.activeSelf);
-    //}
 
     private void HandleCursorState(bool show)
     {
