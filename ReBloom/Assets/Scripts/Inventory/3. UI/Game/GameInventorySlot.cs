@@ -7,7 +7,8 @@ using UnityEngine.UI;
 /// <summary>
 /// 게임 인벤토리의 아이템 슬롯
 /// </summary>
-public class GameInventorySlot : MonoBehaviour, IItemSlot, IDragSource, IPointerEnterHandler, IPointerExitHandler
+public class GameInventorySlot : MonoBehaviour, IItemSlot, IDragSource,
+    IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     [Header("UI References")]
     [SerializeField] private Image itemIcon;
@@ -19,6 +20,18 @@ public class GameInventorySlot : MonoBehaviour, IItemSlot, IDragSource, IPointer
     [SerializeField] private DebugItemTooltip tooltip;
 
     private ItemBase itemData;
+
+    #region Unity Lifecycle
+    private void Awake()
+    {
+        inventory = FindFirstObjectByType<GameInventory>();
+
+        if (inventory == null)
+        {
+            Debug.LogWarning("[GameInventorySlot] GameInventory를 찾을 수 없습니다!");
+        }
+    }
+    #endregion
 
     #region IItemSlot 구현
     public void SetItem(ItemBase item, int quantity)
@@ -123,6 +136,47 @@ public class GameInventorySlot : MonoBehaviour, IItemSlot, IDragSource, IPointer
         if (tooltip != null)
         {
             tooltip.Hide();
+        }
+    }
+    #endregion
+
+    #region 더블클릭 처리
+
+    [Header("Double Click Settings")]
+    [SerializeField] private float doubleClickDelay = 0.25f;
+    private GameInventory inventory;
+    private float lastClickTime = 0f;
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        // 좌클릭만 처리
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
+
+        float now = Time.time;
+
+        // 더블클릭 감지
+        if (now - lastClickTime <= doubleClickDelay)
+        {
+            OnDoubleClick();
+        }
+
+        lastClickTime = now;
+    }
+
+    private void OnDoubleClick()
+    {
+        if (itemData == null || inventory == null)
+            return;
+
+        // 사용 가능한 아이템만 사용
+        if (itemData.canUseable || itemData.canEquip)
+        {
+            Debug.Log($"[GameInventorySlot] {itemData.itemName} 더블클릭 사용");
+            inventory.Consume(itemData.itemID, 1);
+        }
+        else
+        {
+            Debug.Log($"[GameInventorySlot] {itemData.itemName}은(는) 사용할 수 없는 아이템입니다.");
         }
     }
     #endregion
