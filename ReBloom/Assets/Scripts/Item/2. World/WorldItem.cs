@@ -57,6 +57,11 @@ public class WorldItem : MonoBehaviour, IInteractable
     {
         //var inv = (GameInventory)QuestManager.I.Inventory;
         //inv?.AddItem(itemData.itemID, quantity);
+        if (inventoryData == null || itemData == null)
+        {
+            Debug.LogError("인벤토리 데이터 또는 아이템 데이터가 설정되지 않았습니다!");
+            return;
+        }
         inventoryData.AddItem(itemData.itemID, quantity);
 
 
