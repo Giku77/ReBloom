@@ -210,15 +210,3 @@ public enum StatType
     Hunger = 3,    // 허기
     Temperature = 4 //체온
 }
-
-/// <summary>
-/// 드래그 출발지 타입
-/// </summary>
-public enum DragSourceType
-{
-    Inventory,
-    QuickSlot,
-    Equipment,
-    Storage,
-    Debug
-}
