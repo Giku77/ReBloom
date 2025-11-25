@@ -289,6 +289,8 @@ public class InventoryItemData : ScriptableObject, IItemContainer
         // 테스트 아이템
         AddItem(4102001, 5);
         AddItem(4102031, 3);
+        AddItem(4102007, 5);
+        AddItem(4102009, 10);
 
         inventoryTier = 0;
         OnInventoryChanged?.Invoke();

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using BansheeGz.BGDatabase;
+using UnityEngine;
 
 public class ArcDB
 {
@@ -26,6 +27,8 @@ public class ArcDB
                 text = e.Get<string>("Text"),
                 interactType = e.Get<int>("ArcInteraction"),
                 interactTime = e.Get<float>("InteractionTime"),
+                buildPrefab = e.Get<GameObject>("buildPrefab"),
+                previewPrefab = e.Get<GameObject>("previewPrefab"),
             };
             _arcs[d.arcId] = d;
         }

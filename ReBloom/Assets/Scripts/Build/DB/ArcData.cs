@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ArcData
 {
@@ -16,6 +16,8 @@ public class ArcData
     public string text;
     public int interactType;
     public float interactTime;
+    public GameObject buildPrefab;   
+    public GameObject previewPrefab;
 }
 
 public class ArcContext
@@ -26,4 +28,6 @@ public class ArcContext
     public Quaternion Rotation;
     public BuildingFootprint FootPrint;
     public Transform PlayerTransform;
+
+    public float DepthOffset;
 }

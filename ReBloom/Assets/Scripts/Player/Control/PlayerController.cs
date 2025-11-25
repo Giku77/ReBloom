@@ -80,6 +80,19 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] Transform spawnPoint;
 
+    [SerializeField] private CraftingUI craftingUI;
+    [SerializeField] private StorageUI storageUI;
+    public void OpenCraftingUI()
+    {
+        if (craftingUI != null)
+            craftingUI.Toggle();
+    }
+    public void OpenStorageUI()
+    {
+        if (storageUI != null)
+            storageUI.Toggle();
+    }
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
