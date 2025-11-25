@@ -53,16 +53,18 @@ public class WorldItem : MonoBehaviour, IInteractable
         }
     }
 
-    private void PickupItem()
+    private bool PickupItem()
     {
         //var inv = (GameInventory)QuestManager.I.Inventory;
         //inv?.AddItem(itemData.itemID, quantity);
         if (inventoryData == null || itemData == null)
         {
-            return;
+            return false;
         }
-        inventoryData.AddItem(itemData.itemID, quantity);
 
+        bool success = inventoryData.AddItem(itemData.itemID, quantity);
+
+        if (!success) return false;
 
         Debug.Log($"{itemData.itemName} 획득!");
 
@@ -75,6 +77,7 @@ public class WorldItem : MonoBehaviour, IInteractable
         {
             Destroy(gameObject);
         }
+        return true;
     }
 
     public void Interact(PlayerController player)

@@ -29,7 +29,7 @@ public class DeathBoxData : ItemContainerBase
 }
 
 /// <summary>
-/// 시체박스 슬롯 데이터
+/// 슬롯 데이터
 /// </summary>
 [Serializable]
 public class ItemSlotData

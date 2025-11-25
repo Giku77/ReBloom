@@ -82,7 +82,13 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
             slot => slot.count
         );
     }
-
+    /// <summary>
+    /// 모든 슬롯 가져오기 (슬롯 기반)
+    /// </summary>
+    public IReadOnlyList<ItemSlotData> GetAllSlots()
+    {
+        return inventoryData.Items;
+    }
     /// <summary>
     /// 아이템 정렬 (ID 기준)
     /// </summary>
