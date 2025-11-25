@@ -236,9 +236,8 @@ public class GameInventoryUI : MonoBehaviour
     }
 
 
-    /// /// <summary>
-    /// 인벤토리 아이템 목록 새로고침
-    /// 컨트롤러에서 필터링된 데이터를 받아서 표시만 함
+    /// <summary>
+    /// 인벤토리 아이템 목록 새로고침 (슬롯 기반)
     /// </summary>
     public void RefreshUI()
     {
@@ -248,26 +247,23 @@ public class GameInventoryUI : MonoBehaviour
             return;
         }
 
-        // 슬롯 개수 업데이트 (확장된 경우 슬롯 추가)
+        // 슬롯 개수 업데이트
         CreateEmptySlots();
 
         // 기존 아이템 슬롯 제거
         ClearSlots();
 
-        // 컨트롤러에서 필터링된 아이템 가져오기
-        var items = gameInventory.GetSortedItems();
+        // 슬롯 리스트를 직접 가져오기
+        var slots = gameInventory.GetAllSlots();
 
         // 아이템 슬롯 생성
         int slotIndex = 0;
-        foreach (var itemPair in items)
+        foreach (var slot in slots)
         {
-            int itemId = itemPair.Key;
-            int quantity = itemPair.Value;
-
-            ItemBase item = ItemDatabase.I.GetItem(itemId);
+            ItemBase item = ItemDatabase.I.GetItem(slot.itemID);
             if (item != null)
             {
-                CreateItemSlot(item, quantity, slotIndex);
+                CreateItemSlot(item, slot.count, slotIndex);
                 slotIndex++;
             }
         }
@@ -312,7 +308,6 @@ public class GameInventoryUI : MonoBehaviour
 
         GameObject slotObj = Instantiate(itemSlotPrefab, emptySlotList[slotIndex]);
 
-        // GameInventorySlot 사용으로 변경!
         if (!slotObj.TryGetComponent(out GameInventorySlot slot))
         {
             Debug.LogError("[GameInventoryUI] GameInventorySlot 컴포넌트를 찾을 수 없습니다!");
