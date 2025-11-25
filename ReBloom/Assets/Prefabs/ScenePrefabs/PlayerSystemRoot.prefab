@@ -2934,6 +2934,7 @@ GameObject:
   - component: {fileID: 3683887210291562536}
   - component: {fileID: 1316351588427264917}
   - component: {fileID: 3774332011089175199}
+  - component: {fileID: 7076822983551525080}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -3411,6 +3412,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e41929d7021dbc84d9450659825922dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  regions:
+  - {fileID: 11400000, guid: 194d46a4c81f794469c5992251048054, type: 2}
+  - {fileID: 11400000, guid: ac9cb193a3b67c741a06fcccbe88da44, type: 2}
+  - {fileID: 11400000, guid: 97c785506a310804e986040151b25681, type: 2}
 --- !u!114 &8595353244509567925
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3477,6 +3482,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a17dc5ad1ec072c4ca9a3ad72c467f75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &7076822983551525080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3915509196807712028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39c6614c7304da3458a8d1090591e412, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  toolHolder: {fileID: 3820341977813758879}
+  hammerScale: {x: 100, y: 100, z: 100}
+  shovelScale: {x: 1, y: 1, z: 1}
 --- !u!1 &3951941231071691645
 GameObject:
   m_ObjectHideFlags: 0
