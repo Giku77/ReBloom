@@ -8,6 +8,7 @@ public class DayNightCycle : MonoBehaviour
 
     [Header("Light")]
     public Light sun;
+    public Light moon;
 
     [Header("Time Settings")]
     public float dayLengthInSeconds = 2160f; // 36분 기준 하루
@@ -30,6 +31,9 @@ public class DayNightCycle : MonoBehaviour
     public float TimeTempDelta { get; private set; }
     public int CurrentDay { get; private set; } = 1;
 
+    public DayCycle CurrentDayCycle { get; private set; } = DayCycle.Day;
+    public string CurrentDayName { get; private set; } = "낮";
+
     private void Awake()
     {
         if (Instance == null)
@@ -43,7 +47,7 @@ public class DayNightCycle : MonoBehaviour
         }
     }
     
-    void Start()
+    private void Start()
     {
         if (temperatureCurve == null || temperatureCurve.keys.Length == 0)
             InitializeTemperatureCurve();
@@ -52,7 +56,7 @@ public class DayNightCycle : MonoBehaviour
             InitializeSunCurve();
     }
 
-    void Update()
+    private void Update()
     {
         currentTime += Time.deltaTime;
         
@@ -62,8 +66,10 @@ public class DayNightCycle : MonoBehaviour
             CurrentDay++;
         }
 
+        UpdateDayCycle();
         UpdateTemperature();
         UpdateSun();
+        UpdateMoon();
 
         if (Keyboard.current.kKey.wasPressedThisFrame)
         {
@@ -71,7 +77,38 @@ public class DayNightCycle : MonoBehaviour
         }
     }
 
-void UpdateTemperature()
+    private void UpdateDayCycle()
+    {
+        int hour = GetCurrentHour();
+
+        if (hour >= 5 && hour < 7)
+        {
+            CurrentDayCycle = DayCycle.Dawn;
+            CurrentDayName = "일출";
+        }
+        else if (hour >= 7 && hour < 11)
+        {
+            CurrentDayCycle = DayCycle.Morning;
+            CurrentDayName = "아침";
+        }
+        else if (hour >= 11 && hour < 17)
+        {
+            CurrentDayCycle = DayCycle.Day;
+            CurrentDayName = "낮";
+        }
+        else if (hour >= 17 && hour < 19)
+        {
+            CurrentDayCycle = DayCycle.Dusk;
+            CurrentDayName = "일몰";
+        }
+        else
+        {
+            CurrentDayCycle = DayCycle.Night;
+            CurrentDayName = "밤";
+        }
+    }
+    
+    private void UpdateTemperature()
     {
         float t = currentTime / dayLengthInSeconds;
         float delta = temperatureCurve.Evaluate(t);
@@ -79,7 +116,7 @@ void UpdateTemperature()
         TimeTempDelta = Mathf.Lerp(minTempDelta, maxTempDelta, (delta + 1f) * 0.5f);
     }
 
-    void UpdateSun()
+    private void UpdateSun()
     {
         if (sun == null) return;
 
@@ -100,34 +137,17 @@ void UpdateTemperature()
         totalMinutes %= 1440f;
         return Mathf.FloorToInt(totalMinutes / 60f);
     }
-
-    string GetTimeOfDayString()
-    {
-        int hour = GetCurrentHour();
-        
-        if (hour >= 5 && hour < 7)
-            return "일출";
-        else if (hour >= 7 && hour < 11)
-            return "아침";
-        else if (hour >= 11 && hour < 17)
-            return "낮";
-        else if (hour >= 17 && hour < 19)
-            return "일몫";
-        else
-            return "밤";
-    }
     
-public int GetCurrentMinute()
+    public int GetCurrentMinute()
     {
         float totalMinutes = (currentTime / dayLengthInSeconds) * 1440f + 300f;
         totalMinutes %= 1440f;
         return Mathf.FloorToInt(totalMinutes % 60f);
     }
 
-void PrintDebugInfo()
+    private void PrintDebugInfo()
     {
-        string timeOfDay = GetTimeOfDayString();
-        Debug.Log($"========== Day {CurrentDay} - {GetCurrentHour():D2}:{GetCurrentMinute():D2} ({timeOfDay}) ==========");
+        Debug.Log($"========== Day {CurrentDay} - {GetCurrentHour():D2}:{GetCurrentMinute():D2} ({CurrentDayName}) ==========");
         Debug.Log($"Current Time (seconds): {currentTime:F1}s");
         Debug.Log($"Time Temp Delta: {TimeTempDelta:F1}°C");
         Debug.Log($"Sun Angle (X): {SunAngle:F1}°");
@@ -137,7 +157,7 @@ void PrintDebugInfo()
         Debug.Log($"=============================================");
     }
 
-void InitializeTemperatureCurve()
+    private void InitializeTemperatureCurve()
     {
         temperatureCurve = new AnimationCurve();
         
@@ -151,7 +171,7 @@ void InitializeTemperatureCurve()
             temperatureCurve.SmoothTangents(i, 0.5f);
     }
 
-void InitializeSunCurve()
+    private void InitializeSunCurve()
     {
         sunAngleCurve = new AnimationCurve();
         
@@ -170,4 +190,32 @@ void InitializeSunCurve()
         for (int i = 0; i < sunAngleCurve.keys.Length; i++)
             sunAngleCurve.SmoothTangents(i, 0.5f);
     }
+
+    private void UpdateMoon()
+    {
+        if (moon == null) return;
+
+        // 일몰(17~19시) 동안 서서히 페이드 인
+        if (CurrentDayCycle == DayCycle.Dusk)
+        {
+            int hour = GetCurrentHour();
+            int minute = GetCurrentMinute();
+            float fadeT = ((hour - 17) * 60 + minute) / 120f; // 0~1 (2시간 = 120분)
+            moon.intensity = Mathf.Lerp(0f, 0.15f, fadeT);
+            moon.enabled = true;
+        }
+        // 밤(19~05시) 동안 완전히 켜짐
+        else if (CurrentDayCycle == DayCycle.Night)
+        {
+            moon.intensity = 0.15f;
+            moon.enabled = true;
+        }
+        // 낮/일출/아침 동안 꺼짐
+        else
+        {
+            moon.intensity = 0f;
+            moon.enabled = false;
+        }
+    }
 }
+
