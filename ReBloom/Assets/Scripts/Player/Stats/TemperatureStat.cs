@@ -52,7 +52,6 @@ public class TemperatureStat : StatBase
             if (owner.EquipManager != null)
                 equipResist = owner.EquipManager.GetTotalInsulationResist();
 
-            //추후 시간대 기온 추가
             if (Value > minTemperature)
             {
               actualRate = (baseMultiplier - Value) * (1 - equipResist) / 120f;
