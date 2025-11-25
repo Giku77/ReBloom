@@ -44,6 +44,67 @@ public class BuildManager : MonoBehaviour
         return 0;
     }
 
+    private bool TryAdjustToGround(ArcContext ctx, out Vector3 adjustedPos, out string errorCode)
+    {
+        var fp = ctx.FootPrint;
+        Vector3 center = ctx.Position;
+        Quaternion rot = ctx.Rotation;
+
+        float halfX = fp.sizeX * 0.5f;
+        float halfZ = fp.sizeZ * 0.5f;
+
+        Vector3[] localOffsets = new[]
+        {
+            new Vector3(-halfX, 0, -halfZ),
+            new Vector3(-halfX, 0,  halfZ),
+            new Vector3( halfX, 0, -halfZ),
+            new Vector3( halfX, 0,  halfZ),
+            Vector3.zero
+        };
+
+        float minY = float.MaxValue;
+        float maxY = float.MinValue;
+
+        Vector3[] hitPoints = new Vector3[localOffsets.Length];
+        int hitCount = 0;
+
+        for (int i = 0; i < localOffsets.Length; i++)
+        {
+            Vector3 worldPos = center + rot * localOffsets[i] + Vector3.up * 5f;
+
+            if (Physics.Raycast(worldPos, Vector3.down, out var hit, 20f, buildableLayer))
+            {
+                hitPoints[i] = hit.point;
+                hitCount++;
+
+                float y = hit.point.y;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+            }
+        }
+
+        if (hitCount == 0)
+        {
+            errorCode = "NO_GROUND";
+            adjustedPos = center;
+            return false;
+        }
+
+        float heightDiff = maxY - minY;
+        if (heightDiff > maxHeightDiff)
+        {
+            errorCode = "SLOPE_TOO_HIGH";
+            adjustedPos = center;
+            return false;
+        }
+
+        float finalY = maxY - 0.1f; // 10cm 정도 박기
+
+        adjustedPos = new Vector3(center.x, finalY, center.z);
+        errorCode = null;
+        return true;
+    }
+
     private void InitRules()
     {
         buildRules.Add(new FlatSurfaceRule(buildableLayer, maxHeightDiff, maxSlopeAngle));
@@ -78,11 +139,19 @@ public class BuildManager : MonoBehaviour
             Data = arc,
             Position = pos,
             Rotation = rot,
+            ArcPrefab = arc.buildPrefab,
             FootPrint = footprintProvider.GetFootprint(),
             PlayerTransform = GameObject.FindWithTag("Player").transform
         };
 
-        return Validate(ctx, out errorCode);
+        if (!Validate(ctx, out errorCode))
+            return false;
+
+        if (!TryAdjustToGround(ctx, out var adjustedPos, out errorCode))
+            return false;
+
+        ctx.Position = adjustedPos;
+        return true;
     }
 
     public bool TryBuild(int arcId, Vector3 pos, Quaternion rot)
@@ -147,12 +216,24 @@ public class BuildManager : MonoBehaviour
     private bool Spawn(ArcData arc, Vector3 pos, Quaternion rot)
     {
         //var prefab = Resources.Load<GameObject>($"Arc/{arc.arcId}");
-        if (prefab == null)
+        var ctx = new ArcContext
+        {
+            Data = arc,
+            Position = pos,
+            Rotation = rot,
+            ArcPrefab = arc.buildPrefab,
+            FootPrint = footprintProvider.GetFootprint(),
+            PlayerTransform = GameObject.FindWithTag("Player").transform
+        };
+        if (!TryAdjustToGround(ctx, out var adjustedPos, out _))
+           adjustedPos = pos;
+        var buildprefab = arc.buildPrefab != null ? arc.buildPrefab : prefab;
+        if (buildprefab == null)
         {
             Debug.LogError($"프리팹 없음: {arc.arcId}");
             return false;
         }
-        var p = Instantiate(prefab, pos, rot);
+        var p = Instantiate(buildprefab, adjustedPos, rot);
         var bInstance = p.GetComponent<BuildingInstance>();
         bInstance.arcId = arc.arcId;
         p.GetComponent<InteractionHighlight>().promptFormat = $"상호작용[E] : {arc.name}";

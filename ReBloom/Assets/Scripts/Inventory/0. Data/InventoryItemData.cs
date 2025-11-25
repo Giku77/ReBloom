@@ -235,9 +235,31 @@ public class InventoryItemData : ScriptableObject, IItemContainer
     {
         if (targetTier < 1 || targetTier > 3)
         {
-            Debug.LogError($"[InventoryData] 잘못된 Tier: {targetTier} (1~3만 가능)");
-            return false;
-        }
+            //{ 4003002, 15 },
+            { 4102001, 5 },
+            { 4102031, 3 },
+            { 4102007, 6 },
+            { 4102009, 10 },
+            //{ 4102003, 10},
+            //{ 4102004, 10},
+            //{ 4102006, 10},
+            //{ 4102008, 10},
+            //{ 4301002, 1},
+            //{ 4302002, 1}
+        };
+        OnInventoryChanged?.Invoke();
+        Debug.Log("[InventoryData] 인벤토리 초기화 완료");
+    }
+    public bool HasItem(int itemId, int amount) => GetItemCount(itemId) >= amount;
+    public void Cleanup()
+    {
+        _items.Clear();
+        OnItemAdded = null;
+        OnItemRemoved = null;
+        OnInventoryChanged = null;
+        OnMessage = null;
+    }
+    public Dictionary<int, int> GetAllItems() => _items;
 
         int nextTier = inventoryTier + 1;
 

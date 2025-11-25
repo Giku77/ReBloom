@@ -46,8 +46,9 @@ public class BuildPlacementController : MonoBehaviour
 
         currentArc = arc;
 
+        var prefab = arc.previewPrefab != null ? arc.previewPrefab : previewPrefab;
 
-        previewInstance = Instantiate(previewPrefab);
+        previewInstance = Instantiate(prefab);
         SetupPreview(previewInstance);
         previewVisual = previewInstance.GetComponent<BuildPreviewVisual>();
 
@@ -102,7 +103,7 @@ public class BuildPlacementController : MonoBehaviour
             pos = playerTransform.position + playerTransform.forward * placeDistance;
         }
 
-        pos += Vector3.up * 1.5f; // 약간 띄우기
+        //pos += Vector3.up * 1.1f; // 약간 띄우기
         rot = Quaternion.LookRotation(playerTransform.forward, Vector3.up);
         lastValidPos = pos;
         lastRot = rot;
@@ -119,7 +120,13 @@ public class BuildPlacementController : MonoBehaviour
         {
             if (lastCanBuild)
             {
-                bool built = BuildManager.I.TryBuild(currentArc.arcId, pos, rot);
+                Vector3 spawnPos = pos;
+
+                if (Physics.Raycast(pos + Vector3.up * 5f, Vector3.down, out var hit, 20f, groundMask))
+                {
+                    spawnPos = hit.point;
+                }
+                bool built = BuildManager.I.TryBuild(currentArc.arcId, spawnPos, rot);
                 if (built)
                     CancelPlacement();
             }

@@ -16,6 +16,8 @@ public class ArcData
     public string text;
     public int interactType;
     public float interactTime;
+    public GameObject buildPrefab;   
+    public GameObject previewPrefab;
 }
 
 public class ArcContext
