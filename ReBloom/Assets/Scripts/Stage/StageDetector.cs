@@ -80,7 +80,7 @@ public class StageDetector : MonoBehaviour
     {
         if (currentStage != null && currentStage.Data != null)
         {
-            return currentStage.Data.stageTemp + currentStage.CurrentTemp;
+            return currentStage.Data.stageTemp + currentStage.CurrentTemp + DayNightCycle.Instance.TimeTempDelta;
         }
 
         //거점 + 맑음 온도 적용

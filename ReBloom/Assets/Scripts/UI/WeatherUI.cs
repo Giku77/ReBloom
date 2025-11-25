@@ -93,7 +93,7 @@ public class WeatherUI : MonoBehaviour
 
         if (stageDetector.CurrentStage.Data != null)
         {
-            return $"{stageDetector.GetCurrentTemperatureMultiplier()}°C";
+            return $"{stageDetector.GetCurrentTemperatureMultiplier():F1}°C";
         }
 
         return "36.5°C";
