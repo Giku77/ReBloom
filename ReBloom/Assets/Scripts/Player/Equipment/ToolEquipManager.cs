@@ -62,8 +62,8 @@ public class ToolEquipManager : MonoBehaviour
             if (currentHandle.Status == AsyncOperationStatus.Succeeded)
             {
                 currentToolInstance = Instantiate(currentHandle.Result, toolHolder);
-                currentToolInstance.transform.localPosition = Vector3.zero;
-                currentToolInstance.transform.localRotation = Quaternion.identity;
+                //currentToolInstance.transform.localPosition = Vector3.zero;
+                //currentToolInstance.transform.localRotation = Quaternion.identity;
 
                 
                 Debug.Log($"[ToolEquipManager] 도구 장착 완료: {tool.itemName} ({toolAddress})");
