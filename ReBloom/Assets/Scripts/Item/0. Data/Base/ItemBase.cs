@@ -1,50 +1,50 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.AddressableAssets;
 
 /// <summary>
-/// ¸ğµç ¾ÆÀÌÅÛÀÇ ±âº» Ãß»ó Å¬·¡½º
-/// BG Database µ¥ÀÌÅÍ¸¦ ·¡ÇÎÇÏ´Â ÀÎÅÍÆäÀÌ½º ¿ªÇÒ
+/// ëª¨ë“  ì•„ì´í…œì˜ ê¸°ë³¸ ì¶”ìƒ í´ë˜ìŠ¤
+/// BG Database ë°ì´í„°ë¥¼ ë˜í•‘í•˜ëŠ” ì¸í„°í˜ì´ìŠ¤ ì—­í• 
 /// </summary>
 public abstract class ItemBase : ScriptableObject
 {
-    [Header("±âº» Á¤º¸")]
-    public int itemID;              // ¾ÆÀÌÅÛ °íÀ¯ ID
-    public string itemName;         // ¾ÆÀÌÅÛ ÀÌ¸§
-    public string description;      // ¼³¸í
+    [Header("ê¸°ë³¸ ì •ë³´")]
+    public int itemID;              // ì•„ì´í…œ ê³ ìœ  ID
+    public string itemName;         // ì•„ì´í…œ ì´ë¦„
+    public string description;      // ì„¤ëª…
 
-    [Header("ºĞ·ù")]
-    public InventorySlotType slotType;  // ÀÎº¥Åä¸® ½½·Ô Å¸ÀÔ
-    public int tier;                    // Æ¼¾î (1~3)
+    [Header("ë¶„ë¥˜")]
+    public InventorySlotType slotType;  // ì¸ë²¤í† ë¦¬ ìŠ¬ë¡¯ íƒ€ì…
+    public int tier;                    // í‹°ì–´ (1~3)
 
-    [Header("ÀÎº¥Åä¸® ¼³Á¤")]
-    public int maxCount = 1;       // ÃÖ´ë ÁßÃ¸ °³¼ö
-    public bool canUseable = false;   // »ç¿ë °¡´É
-    public bool canQuickSlot = false;   // Äü½½·Ô µî·Ï °¡´É
-    public bool canDiscard = true;      // ¹ö¸®±â °¡´É
-    public bool canStorage = true;      // Ã¢°í ÀúÀå °¡´É
-    public bool canEquip = false; //ÀåÂø °¡´É
+    [Header("ì¸ë²¤í† ë¦¬ ì„¤ì •")]
+    public int maxCount = 1;       // ìµœëŒ€ ì¤‘ì²© ê°œìˆ˜
+    public bool canUseable = false;   // ì‚¬ìš© ê°€ëŠ¥
+    public bool canQuickSlot = false;   // í€µìŠ¬ë¡¯ ë“±ë¡ ê°€ëŠ¥
+    public bool canDiscard = true;      // ë²„ë¦¬ê¸° ê°€ëŠ¥
+    public bool canStorage = true;      // ì°½ê³  ì €ì¥ ê°€ëŠ¥
+    public bool canEquip = false; //ì¥ì°© ê°€ëŠ¥
 
-    [Header("ºñÁÖ¾ó")]
-    public Sprite icon;                 // UI ¾ÆÀÌÄÜ
-    public string worldPrefabAddress = "Item/Item00";   // ¿ùµå µå·Ó ÇÁ¸®ÆÕ ÁÖ¼Ò
+    [Header("ë¹„ì£¼ì–¼")]
+    public Sprite icon;                 // UI ì•„ì´ì½˜
+    public string worldPrefabAddress = "Item/Item00";   // ì›”ë“œ ë“œë¡­ í”„ë¦¬íŒ¹ ì£¼ì†Œ
 
     /// <summary>
-    /// ¾ÆÀÌÅÛ »ç¿ë (°¢ Å¸ÀÔº°·Î ±¸Çö)
+    /// ì•„ì´í…œ ì‚¬ìš© (ê° íƒ€ì…ë³„ë¡œ êµ¬í˜„)
     /// </summary>
     public abstract bool Apply(PlayerController player);
 
     /// <summary>
-    /// ¾ÆÀÌÅÛ È¹µæ ½Ã
+    /// ì•„ì´í…œ íšë“ ì‹œ
     /// </summary>
     public virtual void OnAcquire() { }
 
     /// <summary>
-    /// ¾ÆÀÌÅÛ Á¦°Å ½Ã
+    /// ì•„ì´í…œ ì œê±° ì‹œ
     /// </summary>
     public virtual void OnRemove() { }
 
     /// <summary>
-    /// ¸®¼Ò½º ÇØÁ¦ (Addressable)
+    /// ë¦¬ì†ŒìŠ¤ í•´ì œ (Addressable)
     /// </summary>
     public virtual void ReleaseResources()
     {

@@ -78,41 +78,111 @@ public class ConsumableItemData : ItemBase
     }
 
     /// <summary>
-    /// 아이템 사용 (소비)
+    /// 소비 아이템 사용
     /// </summary>
     public override bool Apply(PlayerController player)
     {
         if (player == null) return false;
 
-        // 실시간으로 BG Database에서 최신 수치 읽기
-        // (구글시트 수정 후 BG Database 동기화하면 자동 반영됨)
+        int mainCat = M_Cat[entity];
+
+        // 카테고리별 특수 처리
+        switch ((ConsumableCategory)mainCat)
+        {
+            case ConsumableCategory.Food:
+            case ConsumableCategory.Medical:
+                return ApplyBasicConsumable(player);
+
+            case ConsumableCategory.Jamming:
+                return ApplyJamming(player);
+
+            case ConsumableCategory.ExpansionChip:
+                return ApplyExpansionChip(player);
+
+            default:
+                Debug.LogWarning($"정의되지 않은 소비 아이템 카테고리: {mainCat}");
+                return false;
+        }
+    }
+    // 기본 소비 (음식, 약)
+    private bool ApplyBasicConsumable(PlayerController player)
+    {
         float pollution = Pollution[entity];
         float thirst = Thirst[entity];
         float hunger = Hunger[entity];
         float hp = HP[entity];
         float temp = Temp[entity];
 
-        //플레이어 스탯 적용
         player.playerStats.Health.Modify(hp);
         player.playerStats.Thirst.Modify(-thirst);
         player.playerStats.Hunger.Modify(-hunger);
         player.playerStats.Pollution.Modify(-pollution);
         player.playerStats.Temperature.Modify(temp);
 
-        // 특수 효과 (재밍 아이템)
-        int mainCat = M_Cat[entity];
-        if (mainCat == (int)ConsumableCategory.Jamming)
-        {
-            float range = Range[entity];
-            float duration = Duration[entity];
-            //TODO: 재밍 펄스 생성
-        }
-
-        // VFX/SFX 재생
-        // PlayUseEffect(player.transform.position);
-
-        Debug.Log($"[아이템 사용] {itemName} - HP:{hp}, 오염도:{pollution}, 갈증:{thirst}, 허기:{hunger}, 체온:{temp}");
+        Debug.Log($"[소비] {itemName} - HP:{hp}, 오염:{pollution}");
         return true;
+    }
+
+    // 재밍 아이템
+    private bool ApplyJamming(PlayerController player)
+    {
+        float range = Range[entity];
+        float duration = Duration[entity];
+
+        // 재밍 효과 적용
+
+        Debug.Log($"[재밍] 범위:{range}m, 지속:{duration}초");
+        return true;
+    }
+
+    ///// <summary>
+    ///// 아이템 사용 (소비)
+    ///// </summary>
+    //public override bool Apply(PlayerController player)
+    //{
+    //    if (player == null) return false;
+
+    //    // 실시간으로 BG Database에서 최신 수치 읽기
+    //    // (구글시트 수정 후 BG Database 동기화하면 자동 반영됨)
+    //    float pollution = Pollution[entity];
+    //    float thirst = Thirst[entity];
+    //    float hunger = Hunger[entity];
+    //    float hp = HP[entity];
+    //    float temp = Temp[entity];
+
+    //    //플레이어 스탯 적용
+    //    player.playerStats.Health.Modify(hp);
+    //    player.playerStats.Thirst.Modify(-thirst);
+    //    player.playerStats.Hunger.Modify(-hunger);
+    //    player.playerStats.Pollution.Modify(-pollution);
+    //    player.playerStats.Temperature.Modify(temp);
+
+
+    //    // 특수 효과 (재밍 아이템)
+    //    int mainCat = M_Cat[entity];
+    //    if (mainCat == (int)ConsumableCategory.Jamming)
+    //    {
+    //        float range = Range[entity];
+    //        float duration = Duration[entity];
+    //        //TODO: 재밍 펄스 생성
+    //    }
+
+    //    // VFX/SFX 재생
+    //    // PlayUseEffect(player.transform.position);
+
+    //    Debug.Log($"[아이템 사용] {itemName} - HP:{hp}, 오염도:{pollution}, 갈증:{thirst}, 허기:{hunger}, 체온:{temp}");
+    //    return true;
+    //}
+
+    public bool ApplyExpansionChip(PlayerController playerController)
+    {
+        int mainCat = M_Cat[entity];
+        if (mainCat == (int)ConsumableCategory.ExpansionChip)
+        {
+            playerController.ExpandInventory(Tier[entity]);
+            return true;
+        }
+        return false;
     }
 
     /// <summary>

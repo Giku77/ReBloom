@@ -10,8 +10,7 @@ public interface IItemContainer
     // 읽기 전용 속성
     IReadOnlyList<ItemSlotData> Items { get; }
     bool HasItems { get; }
-    int SlotCount { get; }
-
+    int SlotCount { get; set; }
     // 이벤트
     event Action OnContainerChanged;
 
