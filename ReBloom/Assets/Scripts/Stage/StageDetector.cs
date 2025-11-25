@@ -40,7 +40,7 @@ public class StageDetector : MonoBehaviour
                 {
                     var stageId = QuestManager.I.Current.goals[0].objectId;
                     var enterName = stageManager.DB.TryGet(stageId, out var questStage) ? questStage.name : "";
-                    RegionTitleUI.Instance.ShowRegion(regions[stage.Data.id % 400]);
+                    RegionTitleUI.Instance.ShowRegion(regions[(stage.Data.id % 400) - 1]);
                     if (enterName == stage.Data.name)
                     {
                         QuestManager.I?.TryCompleteCurrent();
