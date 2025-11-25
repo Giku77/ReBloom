@@ -94,21 +94,36 @@ public class InventoryItemData : ScriptableObject, IItemContainer
 
     /// <summary>
     /// 인벤토리 Tier 확장 (확장칩용)
+    /// 반드시 순차적으로만 업그레이드 가능 (1→2→3)
     /// </summary>
     public bool Expand(int targetTier)
     {
+        // 1. 범위 체크
         if (targetTier < 1 || targetTier > 3)
         {
             Debug.LogError($"[InventoryData] 잘못된 Tier: {targetTier} (1~3만 가능)");
             return false;
         }
 
-        if (inventoryTier >= targetTier)
+        // 2. 순차 업그레이드 체크 (바로 다음 단계만 가능)
+        int nextTier = inventoryTier + 1;
+
+        if (targetTier != nextTier)
         {
-            Debug.LogWarning($"[InventoryData] 이미 Tier {inventoryTier}입니다. 목표: Tier {targetTier}");
+            if (targetTier <= inventoryTier)
+            {
+                // 같거나 낮은 단계
+                Debug.LogWarning($"[InventoryData] 이미 Tier {inventoryTier}입니다. 목표: Tier {targetTier}");
+            }
+            else
+            {
+                // 건너뛰기 시도
+                Debug.LogWarning($"[InventoryData] Tier {targetTier}는 현재 적용 불가! (현재: Tier {inventoryTier}, 다음 단계: Tier {nextTier})");
+            }
             return false;
         }
 
+        // 3. 확장 실행
         int oldTier = inventoryTier;
         int oldSlots = SlotCount;
 
@@ -117,16 +132,25 @@ public class InventoryItemData : ScriptableObject, IItemContainer
         int newSlots = SlotCount;
         int addedSlots = newSlots - oldSlots;
 
+        Debug.Log($"[인벤토리 확장] Tier {oldTier} → {targetTier} ({oldSlots}칸 → {newSlots}칸, +{addedSlots}칸)");
+
         OnInventoryChanged?.Invoke();
         return true;
     }
 
     /// <summary>
-    /// 다음 Tier로 업그레이드 (간편 메서드)
+    /// 다음 Tier로 업그레이드 (가장 안전한 방법)
     /// </summary>
     public bool ExpandToNextTier()
     {
         int nextTier = inventoryTier + 1;
+
+        if (nextTier > 3)
+        {
+            Debug.LogWarning("[InventoryData] 이미 최대 Tier입니다!");
+            return false;
+        }
+
         return Expand(nextTier);
     }
 

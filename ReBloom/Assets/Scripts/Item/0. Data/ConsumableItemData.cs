@@ -179,12 +179,11 @@ public class ConsumableItemData : ItemBase
         int mainCat = M_Cat[entity];
         if (mainCat == (int)ConsumableCategory.ExpansionChip)
         {
-            playerController.ExpandInventory(Tier[entity]);
-            return true;
+            bool success = playerController.ExpandInventory(Tier[entity]);
+            return success;
         }
         return false;
     }
-
     /// <summary>
     /// Addressable로 아이콘 비동기 로드
     /// </summary>
