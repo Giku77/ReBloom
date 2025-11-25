@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ArcData
 {
@@ -28,4 +28,6 @@ public class ArcContext
     public Quaternion Rotation;
     public BuildingFootprint FootPrint;
     public Transform PlayerTransform;
+
+    public float DepthOffset;
 }

@@ -98,7 +98,7 @@ public class BuildManager : MonoBehaviour
             return false;
         }
 
-        float finalY = maxY - 0.1f; // 10cm 정도 박기
+        float finalY = maxY - ctx.DepthOffset;
 
         adjustedPos = new Vector3(center.x, finalY, center.z);
         errorCode = null;
@@ -134,14 +134,24 @@ public class BuildManager : MonoBehaviour
 
     public bool CanBuildAt(ArcData arc, Vector3 pos, Quaternion rot, out string errorCode)
     {
+        float depthOffset = 0.1f; 
+
+        if (arc.buildPrefab != null &&
+            arc.buildPrefab.TryGetComponent<BuildingInstance>(out var biOnPrefab))
+        {
+            if (biOnPrefab.depthOffset != 0f)
+              depthOffset = biOnPrefab.depthOffset;
+        }
+
         var ctx = new ArcContext
         {
             Data = arc,
             Position = pos,
             Rotation = rot,
             ArcPrefab = arc.buildPrefab,
-            FootPrint = footprintProvider.GetFootprint(),
-            PlayerTransform = GameObject.FindWithTag("Player").transform
+            FootPrint = footprintProvider.GetFootprint(arc),
+            PlayerTransform = GameObject.FindWithTag("Player").transform,
+            DepthOffset = depthOffset
         };
 
         if (!Validate(ctx, out errorCode))
@@ -216,14 +226,23 @@ public class BuildManager : MonoBehaviour
     private bool Spawn(ArcData arc, Vector3 pos, Quaternion rot)
     {
         //var prefab = Resources.Load<GameObject>($"Arc/{arc.arcId}");
+        float depthOffset = 0.1f;
+
+        if (arc.buildPrefab != null &&
+            arc.buildPrefab.TryGetComponent<BuildingInstance>(out var biOnPrefab))
+        {
+            if (biOnPrefab.depthOffset != 0f)
+                depthOffset = biOnPrefab.depthOffset;
+        }
         var ctx = new ArcContext
         {
             Data = arc,
             Position = pos,
             Rotation = rot,
             ArcPrefab = arc.buildPrefab,
-            FootPrint = footprintProvider.GetFootprint(),
-            PlayerTransform = GameObject.FindWithTag("Player").transform
+            FootPrint = footprintProvider.GetFootprint(arc),
+            PlayerTransform = GameObject.FindWithTag("Player").transform,
+            DepthOffset = depthOffset
         };
         if (!TryAdjustToGround(ctx, out var adjustedPos, out _))
            adjustedPos = pos;

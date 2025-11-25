@@ -1,9 +1,11 @@
-using System;
+﻿using System;
 using UnityEngine;
 
 public class BuildingInstance : MonoBehaviour
 {
     public int arcId; 
+
+    public float depthOffset = 0f;
 
     public int ArcId => arcId;
     public ArcData Data { get; private set; }

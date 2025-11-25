@@ -1,23 +1,40 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 [System.Serializable]
 public struct BuildingFootprint
 {
-    public float sizeX; // °¡·Î
-    public float sizeZ; // ¼¼·Î
-    public float height; // ³ôÀÌ
+    public float sizeX; // ê°€ë¡œ
+    public float sizeZ; // ì„¸ë¡œ
+    public float height; // ë†’ì´
 
 }
 
 public class BuildingFootprintProvider : MonoBehaviour
 {
-    [SerializeField] private BoxCollider buildArea; // BuildArea¿¡ ÀÖ´Â Äİ¶óÀÌ´õ
+    [SerializeField] private BoxCollider buildArea; // BuildAreaì— ìˆëŠ” ì½œë¼ì´ë”
 
-    public BuildingFootprint GetFootprint()
+    public BuildingFootprint GetFootprint(ArcData data)
     {
-        // scaleÀÌ 1,1,1ÀÌ¶ó°í °¡Á¤ÇÏ¸é ±×³É size.x / size.z ¾²¸é µÊ
-        var size = buildArea.size;
-        var scale = buildArea.transform.lossyScale;
+        if (data.buildPrefab == null)
+        {
+            Debug.LogWarning($"ArcData {data.arcId} ì— buildPrefabì´ ì—†ìŠµë‹ˆë‹¤. ê¸°ë³¸ BuildArea ì‚¬ì´ì¦ˆ ì‚¬ìš©.");
+            return FromCollider(buildArea);
+        }
+
+        if (data.buildPrefab.TryGetComponent<BoxCollider>(out var box))
+        {
+            return FromCollider(box);
+        }
+
+        Debug.LogWarning($"Prefab {data.buildPrefab.name} ì— BoxColliderê°€ ì—†ìŠµë‹ˆë‹¤. ê¸°ë³¸ BuildArea ì‚¬ì´ì¦ˆ ì‚¬ìš©.");
+        return FromCollider(buildArea);
+    }
+
+    private BuildingFootprint FromCollider(BoxCollider col)
+    {
+        var size = col.size;
+        var scale = col.transform.lossyScale;
+
         return new BuildingFootprint
         {
             sizeX = size.x * scale.x,
