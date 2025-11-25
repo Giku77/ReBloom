@@ -7,11 +7,40 @@ using UnityEngine;
 public class InventoryItemData : ScriptableObject, IItemContainer
 {
     [Header("Settings")]
-    [SerializeField] private int maxInventorySlots = 10;
+    [SerializeField] private int inventoryTier = 0;
+
+    public int InventoryTier
+    {
+        get => inventoryTier;
+        private set => inventoryTier = Mathf.Clamp(value, 0, 3);
+    }
+
+    // IItemContainer 인터페이스 구현: SlotCount
+    // getter는 Tier 기반 계산, setter는 무시 (Tier로만 변경)
+    public int SlotCount
+    {
+        get => inventoryTier switch
+        {
+            0 => 10,
+            1 => 20,
+            2 => 30,
+            3 => 40,
+            _ => 10
+        };
+        set
+        {
+            // IItemContainer 요구사항이지만, Tier 시스템에선 직접 설정 안함
+            // 필요시 역계산으로 Tier 설정
+            if (value <= 10) InventoryTier = 0;
+            else if (value <= 20) InventoryTier = 1;
+            else if (value <= 30) InventoryTier = 2;
+            else InventoryTier = 3;
+        }
+    }
 
     private Dictionary<int, int> _items = new Dictionary<int, int>();
 
-    // ---- 인벤토리 전용 이벤트z---
+    // ---- 인벤토리 전용 이벤트---
     public event Action<int, int> OnItemAdded;
     public event Action<int, int> OnItemRemoved;
     public event Action OnInventoryChanged;
@@ -31,7 +60,7 @@ public class InventoryItemData : ScriptableObject, IItemContainer
         _items.Select(kvp => new ItemSlotData { itemID = kvp.Key, count = kvp.Value }).ToList();
 
     public bool HasItems => _items.Count > 0;
-    public int SlotCount => maxInventorySlots;
+
 
     // ---- IItemContainer 메서드 구현 ----
     public bool AddItem(int itemID, int count)
@@ -49,7 +78,7 @@ public class InventoryItemData : ScriptableObject, IItemContainer
         }
         else
         {
-            if (_items.Count >= maxInventorySlots)
+            if (_items.Count >= SlotCount)
             {
                 SendWarningMessage("인벤토리가 가득 찼습니다!", Color.red);
                 return false;
@@ -61,6 +90,68 @@ public class InventoryItemData : ScriptableObject, IItemContainer
         SendItemToastMessage(item, count);
         OnInventoryChanged?.Invoke();
         return true;
+    }
+
+    /// <summary>
+    /// 인벤토리 Tier 확장 (확장칩용)
+    /// 반드시 순차적으로만 업그레이드 가능 (1→2→3)
+    /// </summary>
+    public bool Expand(int targetTier)
+    {
+        // 1. 범위 체크
+        if (targetTier < 1 || targetTier > 3)
+        {
+            Debug.LogError($"[InventoryData] 잘못된 Tier: {targetTier} (1~3만 가능)");
+            return false;
+        }
+
+        // 2. 순차 업그레이드 체크 (바로 다음 단계만 가능)
+        int nextTier = inventoryTier + 1;
+
+        if (targetTier != nextTier)
+        {
+            if (targetTier <= inventoryTier)
+            {
+                // 같거나 낮은 단계
+                Debug.LogWarning($"[InventoryData] 이미 Tier {inventoryTier}입니다. 목표: Tier {targetTier}");
+            }
+            else
+            {
+                // 건너뛰기 시도
+                Debug.LogWarning($"[InventoryData] Tier {targetTier}는 현재 적용 불가! (현재: Tier {inventoryTier}, 다음 단계: Tier {nextTier})");
+            }
+            return false;
+        }
+
+        // 3. 확장 실행
+        int oldTier = inventoryTier;
+        int oldSlots = SlotCount;
+
+        InventoryTier = targetTier;
+
+        int newSlots = SlotCount;
+        int addedSlots = newSlots - oldSlots;
+
+        Debug.Log($"[인벤토리 확장] Tier {oldTier} → {targetTier} ({oldSlots}칸 → {newSlots}칸, +{addedSlots}칸)");
+
+        OnInventoryChanged?.Invoke();
+        return true;
+    }
+
+    /// <summary>
+    /// 다음 Tier로 업그레이드 (가장 안전한 방법)
+    /// </summary>
+    public bool ExpandToNextTier()
+    {
+        int nextTier = inventoryTier + 1;
+
+        if (nextTier > 3)
+        {
+            Debug.LogWarning("[InventoryData] 이미 최대 Tier입니다!");
+            return false;
+        }
+
+        return Expand(nextTier);
     }
 
     public bool RemoveItem(int itemID, int count)
@@ -120,18 +211,10 @@ public class InventoryItemData : ScriptableObject, IItemContainer
     {
         _items = new Dictionary<int, int>()
         {
-            //{ 4003002, 15 },
             { 4102001, 5 },
             { 4102031, 3 },
-            //{ 4102002, 6 },
-            //{ 4102005, 10 },
-            //{ 4102003, 10},
-            //{ 4102004, 10},
-            //{ 4102006, 10},
-            //{ 4102008, 10},
-            //{ 4301002, 1},
-            //{ 4302002, 1}
         };
+        inventoryTier = 0;
         OnInventoryChanged?.Invoke();
         Debug.Log("[InventoryData] 인벤토리 초기화 완료");
     }
@@ -161,7 +244,7 @@ public class InventoryItemData : ScriptableObject, IItemContainer
 //public class InventoryItemData : ScriptableObject, IItemContainer
 //{
 //    [Header("Settings")]
-//    [SerializeField] private int maxInventorySlots = 10; //TODO: 확장 아이템 구현시 변경
+//    [SerializeField] private int maxSlot = 10; //TODO: 확장 아이템 구현시 변경
 
 //    private Dictionary<int, int> _items = new Dictionary<int, int>();
 
@@ -174,7 +257,7 @@ public class InventoryItemData : ScriptableObject, IItemContainer
 //    public event Action<string, Color> OnWarningMessage;
 
 //    public Dictionary<int, int> Items => _items;
-//    public int MaxSlots => maxInventorySlots;
+//    public int MaxSlots => maxSlot;
 
 //    /// <summary>
 //    /// 메시지 전송 (인벤토리 관련 메시지 출력)
@@ -246,9 +329,9 @@ public class InventoryItemData : ScriptableObject, IItemContainer
 //        }
 //        else
 //        {
-//            if (_items.Count >= maxInventorySlots)
+//            if (_items.Count >= maxSlot)
 //            {
-//                SendMessage($"인벤토리 슬롯({maxInventorySlots}개)이 모두 찼습니다!");
+//                SendMessage($"인벤토리 슬롯({maxSlot}개)이 모두 찼습니다!");
 
 //                // 경고 메시지 전송
 //                SendWarningMessage("인벤토리가 가득 찼습니다!", Color.red);

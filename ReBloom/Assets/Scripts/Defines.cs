@@ -64,7 +64,8 @@ public enum ConsumableCategory
 {
     Food = 1,           // 1. 식량
     Medical = 2,        // 2. 구급물품
-    Jamming = 3          // 3. 재밍 아이템 (주파수)
+    Jamming = 3,        // 3. 재밍 아이템 (주파수)
+    ExpansionChip       // 4. 가방확장칩
 }
 
 /// <summary>

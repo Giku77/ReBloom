@@ -23,8 +23,8 @@ public class GameInventoryUI : MonoBehaviour
     //[SerializeField] private TextMeshProUGUI messageText;
     [SerializeField] private DebugItemTooltip tooltip;
     [SerializeField] private Transform contentContainer;
-    [SerializeField] private List<Transform> emptySlotList;
     [SerializeField] private GameObject itemSlotPrefab;
+    [SerializeField] private GameObject emptySlotPrefab;
 
     [Header("Tab Buttons")]
     [SerializeField] private Button btnConsumable;
@@ -33,6 +33,8 @@ public class GameInventoryUI : MonoBehaviour
     [SerializeField] private Button btnImportant;
 
     private QuestUI questUI;
+
+    private List<Transform> emptySlotList;
 
     #region 상태 변수
     private InventorySlotType currentType = InventorySlotType.Consumable;
@@ -45,6 +47,10 @@ public class GameInventoryUI : MonoBehaviour
     {
         InitializeTabButtons();
         questUI = FindFirstObjectByType<QuestUI>();
+        if (emptySlotList == null)
+        {
+            emptySlotList = new List<Transform>();
+        }
     }
 
     private void Start()
@@ -61,8 +67,8 @@ public class GameInventoryUI : MonoBehaviour
 
         // 초기화
         inventoryData.Initialize();
+        CreateEmptySlots();
         RefreshUI();
-
         // 시작 시 인벤토리 닫기
         inventoryUIRoot.SetActive(false);
     }
@@ -164,10 +170,73 @@ public class GameInventoryUI : MonoBehaviour
         UpdateTabVisuals();
         RefreshUI();
     }
-    #endregion
-
-    #region UI 갱신
     /// <summary>
+    /// 인벤토리 빈슬롯 생성
+    /// </summary>
+    public void CreateEmptySlots()
+    {
+        //for (int i = 0; i < inventoryData.SlotCount; i++)
+        //{
+        //    GameObject emptySlot = new GameObject($"EmptySlot_{i}");
+        //    emptySlot.transform.SetParent(contentContainer);
+        //    emptySlotList.Add(emptySlot.transform);
+        //}
+
+        if (contentContainer == null)
+        {
+            Debug.LogError("[GameInventoryUI] contentContainer가 할당되지 않았습니다!");
+            return;
+        }
+
+        // 현재 필요한 슬롯 개수 (Tier에 따라 10/20/30)
+        int requiredSlots = inventoryData.SlotCount;
+        int currentSlots = emptySlotList.Count;
+
+        Debug.Log($"[GameInventoryUI] 슬롯 체크 - 현재: {currentSlots}개, 필요: {requiredSlots}개 (Tier {inventoryData.InventoryTier})");
+
+        // 슬롯 추가
+        if (requiredSlots > currentSlots)
+        {
+            int slotsToAdd = requiredSlots - currentSlots;
+
+            for (int i = 0; i < slotsToAdd; i++)
+            {
+                int slotIndex = currentSlots + i;
+                var emptySlot = Instantiate(emptySlotPrefab);
+                emptySlot.transform.SetParent(contentContainer, false); // worldPositionStays = false
+                emptySlot.transform.localScale = Vector3.one;
+
+                emptySlotList.Add(emptySlot.transform);
+            }
+
+            Debug.Log($"[GameInventoryUI] 빈 슬롯 {slotsToAdd}개 추가 (총 {emptySlotList.Count}개)");
+        }
+        // 슬롯 제거 (Tier가 내려가는 경우 - 보통 없음)
+        else if (requiredSlots < currentSlots)
+        {
+            int slotsToRemove = currentSlots - requiredSlots;
+
+            for (int i = 0; i < slotsToRemove; i++)
+            {
+                int lastIndex = emptySlotList.Count - 1;
+                if (lastIndex >= 0)
+                {
+                    Transform slotToRemove = emptySlotList[lastIndex];
+                    emptySlotList.RemoveAt(lastIndex);
+
+                    if (slotToRemove != null)
+                    {
+                        Destroy(slotToRemove.gameObject);
+                    }
+                }
+            }
+
+            Debug.Log($"[GameInventoryUI] 빈 슬롯 {slotsToRemove}개 제거 (총 {emptySlotList.Count}개)");
+        }
+    }
+
+
+    /// /// <summary>
     /// 인벤토리 아이템 목록 새로고침
     /// 컨트롤러에서 필터링된 데이터를 받아서 표시만 함
     /// </summary>
@@ -179,14 +248,16 @@ public class GameInventoryUI : MonoBehaviour
             return;
         }
 
-        // 기존 슬롯 제거
+        // 슬롯 개수 업데이트 (확장된 경우 슬롯 추가)
+        CreateEmptySlots();
+
+        // 기존 아이템 슬롯 제거
         ClearSlots();
 
         // 컨트롤러에서 필터링된 아이템 가져오기
-        //var items = gameInventory.GetSortedItems(currentType);
         var items = gameInventory.GetSortedItems();
 
-        // 슬롯 생성
+        // 아이템 슬롯 생성
         int slotIndex = 0;
         foreach (var itemPair in items)
         {
@@ -200,7 +271,11 @@ public class GameInventoryUI : MonoBehaviour
                 slotIndex++;
             }
         }
-        questUI.Refresh();
+
+        // 퀘스트 UI 갱신
+        questUI?.Refresh();
+
+        Debug.Log($"[GameInventoryUI] UI 갱신 완료 - Tier {inventoryData.InventoryTier}, 슬롯: {emptySlotList.Count}, 아이템: {slotIndex}");
     }
 
     private void ClearSlots()
@@ -230,6 +305,7 @@ public class GameInventoryUI : MonoBehaviour
     {
         if (itemSlotPrefab == null || emptySlotList == null || slotIndex >= emptySlotList.Count)
         {
+            Debug.LogError($"{itemSlotPrefab}:itemSlotPrefab / {emptySlotList}:emptySlotList / {slotIndex >= emptySlotList.Count}:slotIndex >= emptySlotList.Count ");
             Debug.LogError("[GameInventoryUI] itemSlotPrefab 또는 emptySlotList가 없거나 슬롯 인덱스 초과!");
             return;
         }

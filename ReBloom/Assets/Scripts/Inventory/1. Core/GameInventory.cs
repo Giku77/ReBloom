@@ -37,13 +37,13 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
 
         if (item.canUseable)
         {
-            RemoveItem(itemId, amount);
-            item.Apply(playerController);
+            bool success = item.Apply(playerController);
+            if (success) RemoveItem(itemId, amount);
         }
         else if (item.canEquip)
         {
-            RemoveItem(itemId, amount);
-            item.Apply(playerController);
+            bool success = item.Apply(playerController);
+            if(success) RemoveItem(itemId, amount);
         }
     }
     #endregion

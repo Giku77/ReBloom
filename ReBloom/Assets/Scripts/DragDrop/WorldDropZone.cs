@@ -22,9 +22,6 @@ public class WorldDropZone : MonoBehaviour,
     [SerializeField] private float dropHeight = 1.5f;
     [SerializeField] private Vector3 dropOffset = Vector3.zero;
 
-    [Header("Visual Feedback")]
-    [SerializeField] private GameObject dropIndicator;
-
     [Header("Ground Detection")]
     [SerializeField] private bool useGroundDetection = true;
     [SerializeField] private LayerMask groundLayer;
@@ -61,41 +58,17 @@ public class WorldDropZone : MonoBehaviour,
         {
             inventoryItemData = FindFirstObjectByType<InventoryItemData>();
         }
-
-        if (dropIndicator != null)
-        {
-            dropIndicator.SetActive(false);
-        }
-
-    }
-
-    private void Update()
-    {
-        if (isPointerOver && ItemIconDragHandler.CurrentContext?.Item != null)
-        {
-            UpdateDropIndicator();
-        }
     }
 
     #region Event Handlers
     public void OnPointerEnter(PointerEventData eventData)
     {
         isPointerOver = true;
-
-        if (dropIndicator != null && ItemIconDragHandler.CurrentContext?.Item != null)
-        {
-            dropIndicator.SetActive(true);
-        }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         isPointerOver = false;
-
-        if (dropIndicator != null)
-        {
-            dropIndicator.SetActive(false);
-        }
     }
 
     /// <summary>
@@ -381,25 +354,6 @@ public class WorldDropZone : MonoBehaviour,
         }
 
         return Vector3.zero;
-    }
-
-    private void UpdateDropIndicator()
-    {
-        if (dropIndicator == null) return;
-
-        Vector3 dropPosition = CalculateDropPosition();
-
-        if (useGroundDetection)
-        {
-            Vector3 groundPosition = FindGroundPosition(dropPosition);
-            if (groundPosition != Vector3.zero)
-            {
-                dropIndicator.transform.position = groundPosition + Vector3.up * 0.1f;
-                return;
-            }
-        }
-
-        dropIndicator.transform.position = new Vector3(dropPosition.x, 0f, dropPosition.z);
     }
     #endregion
 }

@@ -45,6 +45,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private InventoryItemData inventoryItemData;
     public PlayerEquipManager playerEquip;
 
+    //LSY: 읽기 전용 인벤토리
+    public InventoryItemData Inventory {  get { return inventoryItemData; } }
+
     [Header("Jump Setting")]
     [SerializeField] private Transform groundCheck;
     [SerializeField] private float groundCheckRadius = 0.3f;
@@ -103,6 +106,48 @@ public class PlayerController : MonoBehaviour
         if (playerStats != null)
             playerStats.OnDeath += HandleDeath;
     }
+
+    /// <summary>
+    /// 인벤토리 확장 (확장칩용)
+    /// </summary>
+    /// <param name="slotType">확장할 인벤토리 타입</param>
+    /// <param name="targetTier">목표 Tier (1, 2, 3)</param>
+    public bool ExpandInventory(int targetTier)
+    {
+        if (inventoryItemData == null)
+        {
+            Debug.LogError($"[PlayerController] 존재하지 않는 인벤토리: {inventoryItemData}");
+            return false;
+        }
+
+        bool success = inventoryItemData.Expand(targetTier);
+
+        if (success)
+        {
+            int newSlots = inventoryItemData.SlotCount;
+            //Debug.Log($"[PlayerController] {inventoryItemData} 인벤토리 Tier {targetTier}로 확장 완료! (현재 {newSlots}칸)");
+
+            // TODO: 토스트 메시지 표시
+            // ToastManager.Instance?.Show($"{slotType} 인벤토리 Tier {targetTier} 확장!");
+        }
+
+        return success;
+    }
+
+    /// <summary>
+    /// 다음 Tier로 업그레이드
+    /// </summary>
+    public bool ExpandInventoryToNextTier(InventorySlotType slotType)
+    {
+        if (inventoryItemData == null)
+        {
+            Debug.LogError($"[PlayerController] 존재하지 않는 인벤토리: {inventoryItemData}");
+            return false;
+        }
+
+        return inventoryItemData.ExpandToNextTier();
+    }
+
     private readonly Dictionary<object, float> speedMultipliers = new();
     public void AddSpeedMultiplier(object source, float multiplier)
     {
