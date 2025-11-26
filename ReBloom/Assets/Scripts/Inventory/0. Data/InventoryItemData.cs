@@ -290,6 +290,7 @@ public class InventoryItemData : ScriptableObject, IItemContainer
         AddItem(4102001, 5);
         AddItem(4102031, 3);
         AddItem(4102007, 5);
+        AddItem(4102008, 5);
         AddItem(4102009, 10);
 
         inventoryTier = 0;

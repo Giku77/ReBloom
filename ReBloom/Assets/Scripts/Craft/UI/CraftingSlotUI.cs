@@ -30,4 +30,11 @@ public class CraftingSlotUI : MonoBehaviour
 
         craftingUI.SelectRecipe(recipeId);
     }
+
+    public void Select()
+    {
+        if (craftingUI == null) return;
+
+        craftingUI.SelectRecipe(recipeId);
+    }
 }

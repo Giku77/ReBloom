@@ -19,6 +19,8 @@ public class PlayerInteractable : MonoBehaviour
 
     private InteractionHighlight hilight;
 
+    private string saveprompt = string.Empty;
+
     private void Awake()
     {
         player = GetComponent<PlayerController>();
@@ -90,7 +92,8 @@ public class PlayerInteractable : MonoBehaviour
                     player.isInteracting = true;
                     await UniTask.Delay(800);
                 }
-
+                
+                saveprompt = hilight.promptFormat;
                 if (holdTime > 0f)
                 {
                     player.isInteracting = true;
@@ -123,7 +126,10 @@ public class PlayerInteractable : MonoBehaviour
 
                     if (hilight)
                     {
-                        hilight.promptFormat = $"{msg} 완료!";
+                        //hilight.promptFormat = $"{msg} 완료!";
+                        //hilight.ShowPrompt();
+                        //hilight.HidePrompt();
+                        hilight.promptFormat = saveprompt;
                         hilight.ShowPrompt();
                     }
                     else ToastMessageUI.Instance.Show($"{msg} 완료!", 2f);
@@ -140,7 +146,7 @@ public class PlayerInteractable : MonoBehaviour
             //toastMessageUI.Show($"{msg} 중단!", 2f);
             if (hilight)
             {
-                hilight.promptFormat = $"상호작용 [E]";
+                hilight.promptFormat = saveprompt;
                 hilight.ShowPrompt();
             }
             hilight.HoldPromptUI?.Hide(); // 취소 시에도 UI 숨기기
