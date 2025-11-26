@@ -17,7 +17,7 @@ public class BuildingFootprintProvider : MonoBehaviour
     {
         if (data.buildPrefab == null)
         {
-            Debug.LogWarning($"ArcData {data.arcId} 에 buildPrefab이 없습니다. 기본 BuildArea 사이즈 사용.");
+            //Debug.LogWarning($"ArcData {data.arcId} 에 buildPrefab이 없습니다. 기본 BuildArea 사이즈 사용.");
             return FromCollider(buildArea);
         }
 
@@ -26,7 +26,7 @@ public class BuildingFootprintProvider : MonoBehaviour
             return FromCollider(box);
         }
 
-        Debug.LogWarning($"Prefab {data.buildPrefab.name} 에 BoxCollider가 없습니다. 기본 BuildArea 사이즈 사용.");
+        //Debug.LogWarning($"Prefab {data.buildPrefab.name} 에 BoxCollider가 없습니다. 기본 BuildArea 사이즈 사용.");
         return FromCollider(buildArea);
     }
 

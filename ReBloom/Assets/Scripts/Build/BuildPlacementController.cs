@@ -36,7 +36,7 @@ public class BuildPlacementController : MonoBehaviour
     public void StartPlacement(ArcData arc, ArcRecipe arcRecipe, GameObject previewPrefab)
     {
 
-        if (!BuildManager.I.HasMaterials(arcRecipe))
+        if (!BuildManager.I.HasMaterials(arcRecipe) && !BuildManager.I.debugMode)
         {
             ToastMessageUI.Instance.Show("재료가 부족합니다.");
             return;

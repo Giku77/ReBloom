@@ -16,6 +16,7 @@
 
 public enum EntranceType
 {
+    Shelter = 400, // 거점
     AbandonedSchool = 401,   // 폐교
     DepartmentStore = 402,   // 백화점
     Factory = 403,           // 공장
