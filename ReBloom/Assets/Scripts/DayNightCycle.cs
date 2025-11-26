@@ -128,7 +128,9 @@ public class DayNightCycle : MonoBehaviour
 
         sun.transform.rotation = Quaternion.Euler(SunAngle, SunYRotation, 0f);
 
-        sun.intensity = SunAngle > 0 ? 1f : 0.1f;
+        float targetIntensity = Mathf.Clamp01(SunAngle / 90f);
+
+        sun.intensity = Mathf.Lerp(sun.intensity, targetIntensity, 2f * Time.deltaTime);
     }
 
     public int GetCurrentHour()
