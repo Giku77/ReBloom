@@ -239,7 +239,7 @@ public class QuickSlotDropZone : MonoBehaviour,
         // 1. canQuickSlot 플래그 체크
         if (!context.Item.canQuickSlot)
         {
-            Debug.LogWarning($"[QuickSlotDropZone] {context.Item.itemName}은(는) 퀵슬롯에 배치할 수 없습니다.");
+            //Debug.LogWarning($"[QuickSlotDropZone] {context.Item.itemName}은(는) 퀵슬롯에 배치할 수 없습니다.");
             return false;
         }
 

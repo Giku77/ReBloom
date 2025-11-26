@@ -45,8 +45,8 @@ public class DebugItemSlot : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     public void OnDragSuccess()
     {
         // 인벤토리 UI 새로고침
-        var inventoryUI = GetComponentInParent<GameInventoryUI>();
-        inventoryUI?.RefreshUI();
+        var inventoryUI = GetComponentInParent<DebugInventoryUI>();
+        inventoryUI?.RefreshItemList();
     }
 
     public void OnDragCancelled()

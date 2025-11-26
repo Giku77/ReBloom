@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -35,6 +36,8 @@ public class GameInventoryUI : MonoBehaviour
     private QuestUI questUI;
 
     private List<Transform> emptySlotList;
+    private List<Transform> lockSlotList;
+    private int lastTier = -1;
 
     #region 상태 변수
     private InventorySlotType currentType = InventorySlotType.Consumable;
@@ -47,9 +50,15 @@ public class GameInventoryUI : MonoBehaviour
     {
         InitializeTabButtons();
         questUI = FindFirstObjectByType<QuestUI>();
+
         if (emptySlotList == null)
         {
             emptySlotList = new List<Transform>();
+        }
+
+        if (lockSlotList == null)
+        {
+            lockSlotList = new List<Transform>();
         }
     }
 
@@ -65,10 +74,10 @@ public class GameInventoryUI : MonoBehaviour
         // 이벤트 구독
         inventoryData.OnInventoryChanged += RefreshUI;
 
-        // 초기화
+        //// 초기화
         inventoryData.Initialize();
-        CreateEmptySlots();
-        RefreshUI();
+        //CreateEmptySlots();
+        //RefreshUI();
         // 시작 시 인벤토리 닫기
         inventoryUIRoot.SetActive(false);
     }
@@ -171,70 +180,119 @@ public class GameInventoryUI : MonoBehaviour
         RefreshUI();
     }
     /// <summary>
-    /// 인벤토리 빈슬롯 생성
+    /// 인벤토리 빈슬롯 생성 (기본 슬롯 + 잠긴 슬롯)
     /// </summary>
     public void CreateEmptySlots()
     {
-        //for (int i = 0; i < inventoryData.SlotCount; i++)
-        //{
-        //    GameObject emptySlot = new GameObject($"EmptySlot_{i}");
-        //    emptySlot.transform.SetParent(contentContainer);
-        //    emptySlotList.Add(emptySlot.transform);
-        //}
-
         if (contentContainer == null)
         {
             Debug.LogError("[GameInventoryUI] contentContainer가 할당되지 않았습니다!");
             return;
         }
 
-        // 현재 필요한 슬롯 개수 (Tier에 따라 10/20/30)
-        int requiredSlots = inventoryData.SlotCount;
-        int currentSlots = emptySlotList.Count;
+        // ===== 1단계: 현재 필요한 총 슬롯 개수 계산 =====
+        int baseSlots = inventoryData.SlotCount; // Tier에 따라 10/20/30/40
+        int lockSlots = (inventoryData.InventoryTier < 3) ? 5 : 0;
+        int totalRequiredSlots = baseSlots + lockSlots;
 
-        Debug.Log($"[GameInventoryUI] 슬롯 체크 - 현재: {currentSlots}개, 필요: {requiredSlots}개 (Tier {inventoryData.InventoryTier})");
+        Debug.Log($"[GameInventoryUI] 슬롯 체크 - Tier: {inventoryData.InventoryTier}, " +
+                  $"기본: {baseSlots}, 잠금: {lockSlots}, 총: {totalRequiredSlots}");
 
-        // 슬롯 추가
-        if (requiredSlots > currentSlots)
+        // ===== 2단계: 티어가 변경되었으면 잠금 슬롯 제거 =====
+        if (lastTier != inventoryData.InventoryTier && lockSlotList.Count > 0)
         {
-            int slotsToAdd = requiredSlots - currentSlots;
+            Debug.Log($"[GameInventoryUI] 티어 변경 감지 ({lastTier} -> {inventoryData.InventoryTier}), 기존 잠금 슬롯 제거");
+
+            foreach (var lockSlot in lockSlotList)
+            {
+                if (lockSlot != null)
+                {
+                    emptySlotList.Remove(lockSlot); // emptySlotList에서도 제거
+                    Destroy(lockSlot.gameObject);
+                }
+            }
+            lockSlotList.Clear();
+        }
+
+        // 현재 티어 저장
+        lastTier = inventoryData.InventoryTier;
+
+        // ===== 3단계: 기본 슬롯 추가 (부족한 만큼만) =====
+        int currentBaseSlots = emptySlotList.Count; // 현재는 기본 슬롯만 있음
+
+        if (currentBaseSlots < baseSlots)
+        {
+            int slotsToAdd = baseSlots - currentBaseSlots;
+            Debug.Log($"[GameInventoryUI] 기본 슬롯 {slotsToAdd}개 추가 중...");
 
             for (int i = 0; i < slotsToAdd; i++)
             {
-                int slotIndex = currentSlots + i;
-                var emptySlot = Instantiate(emptySlotPrefab);
-                emptySlot.transform.SetParent(contentContainer, false); // worldPositionStays = false
-                emptySlot.transform.localScale = Vector3.one;
+                int globalIndex = currentBaseSlots + i;
 
-                emptySlotList.Add(emptySlot.transform);
+                var slotInstance = Instantiate(emptySlotPrefab);
+                slotInstance.transform.SetParent(contentContainer, false);
+                slotInstance.transform.localScale = Vector3.one;
+                slotInstance.name = $"EmptySlot_{globalIndex}";
+
+                // 마커 비활성화 (기본 슬롯)
+                var deactivateMarker = slotInstance.GetComponentInChildren<DeactivateSlotMarker>(true);
+                var lockMarker = slotInstance.GetComponentInChildren<LockImageMarker>(true);
+
+                if (deactivateMarker != null) deactivateMarker.gameObject.SetActive(false);
+                if (lockMarker != null) lockMarker.gameObject.SetActive(false);
+
+                emptySlotList.Add(slotInstance.transform);
+                Debug.Log($"[GameInventoryUI] 기본 슬롯 생성 (인덱스: {globalIndex})");
             }
-
-            Debug.Log($"[GameInventoryUI] 빈 슬롯 {slotsToAdd}개 추가 (총 {emptySlotList.Count}개)");
         }
-        // 슬롯 제거 (Tier가 내려가는 경우 - 보통 없음)
-        else if (requiredSlots < currentSlots)
+
+        // ===== 4단계: 잠금 슬롯 추가 =====
+        if (lockSlots > 0 && lockSlotList.Count == 0)
         {
-            int slotsToRemove = currentSlots - requiredSlots;
+            Debug.Log($"[GameInventoryUI] 잠금 슬롯 {lockSlots}개 추가 중...");
 
-            for (int i = 0; i < slotsToRemove; i++)
+            for (int i = 0; i < lockSlots; i++)
             {
-                int lastIndex = emptySlotList.Count - 1;
-                if (lastIndex >= 0)
-                {
-                    Transform slotToRemove = emptySlotList[lastIndex];
-                    emptySlotList.RemoveAt(lastIndex);
+                int globalIndex = baseSlots + i;
 
-                    if (slotToRemove != null)
+                var slotInstance = Instantiate(emptySlotPrefab);
+                slotInstance.transform.SetParent(contentContainer, false);
+                slotInstance.transform.localScale = Vector3.one;
+                slotInstance.name = $"LockSlot_{i}";
+
+                var deactivateMarker = slotInstance.GetComponentInChildren<DeactivateSlotMarker>(true);
+                var lockMarker = slotInstance.GetComponentInChildren<LockImageMarker>(true);
+
+                // 일단 둘 다 비활성화
+                if (deactivateMarker != null) deactivateMarker.gameObject.SetActive(false);
+                if (lockMarker != null) lockMarker.gameObject.SetActive(false);
+
+                // 첫 번째 잠금 슬롯: LockImageMarker 활성화
+                if (i == 0)
+                {
+                    if (lockMarker != null)
                     {
-                        Destroy(slotToRemove.gameObject);
+                        lockMarker.gameObject.SetActive(true);
+                        //Debug.Log($"[GameInventoryUI] LockImageMarker 활성화 (슬롯 {globalIndex})");
                     }
                 }
+                // 나머지 잠금 슬롯: DeactivateSlotMarker 활성화
+                else
+                {
+                    if (deactivateMarker != null)
+                    {
+                        deactivateMarker.gameObject.SetActive(true);
+                        //Debug.Log($"[GameInventoryUI] DeactivateSlotMarker 활성화 (슬롯 {globalIndex})");
+                    }
+                }
+
+                lockSlotList.Add(slotInstance.transform);
+                emptySlotList.Add(slotInstance.transform);
             }
-
-            Debug.Log($"[GameInventoryUI] 빈 슬롯 {slotsToRemove}개 제거 (총 {emptySlotList.Count}개)");
         }
-    }
 
+        Debug.Log($"[GameInventoryUI] 슬롯 생성 완료 - 기본: {baseSlots}개, 잠금: {lockSlotList.Count}개, 총: {emptySlotList.Count}개");
+    }
 
     /// <summary>
     /// 인벤토리 아이템 목록 새로고침 (슬롯 기반)
@@ -285,16 +343,7 @@ public class GameInventoryUI : MonoBehaviour
         }
         activeSlots.Clear();
 
-        foreach (var emptySlot in emptySlotList)
-        {
-            if (emptySlot != null)
-            {
-                foreach (Transform child in emptySlot)
-                {
-                    Destroy(child.gameObject);
-                }
-            }
-        }
+        //Debug.Log($"[GameInventoryUI] 아이템 슬롯 정리 완료");
     }
 
     private void CreateItemSlot(ItemBase item, int quantity, int slotIndex)
@@ -316,9 +365,9 @@ public class GameInventoryUI : MonoBehaviour
 
         // IItemSlot 인터페이스 메서드 사용
         slot.SetItem(item, quantity);
-
         // 드래그 핸들러 데이터 설정
         SetDragDropHandlerData(item, slot);
+        activeSlots.Add(slot);
     }
 
     private void SetDragDropHandlerData(ItemBase item, GameInventorySlot slot)
