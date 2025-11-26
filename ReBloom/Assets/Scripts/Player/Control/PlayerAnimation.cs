@@ -10,12 +10,19 @@ public class PlayerAnimation : MonoBehaviour
     public static readonly int Death = Animator.StringToHash("Death");
     public static readonly int PickUp = Animator.StringToHash("PickUp");
     public static readonly int Gather = Animator.StringToHash("Gather");
+    public static readonly int ToolType = Animator.StringToHash("ToolType");
 
     [Header("Layer Blending")]
     [SerializeField] private float layerBlendSpeed = 5f;
     private int toolLayerIndex = 1;
     private float targetLayerWeight = 0f;
     private bool isBlending = false;
+
+    private bool isGathering = false;
+    private Vector3 leftFootPosition;
+    private Vector3 rightFootPosition;
+    private Quaternion leftFootRotation;
+    private Quaternion rightFootRotation;
 
     private void Awake()
     {
@@ -82,6 +89,12 @@ public class PlayerAnimation : MonoBehaviour
     {
         animator.SetBool(Gather, value);
     }
+
+    public void SetToolType(int toolType)
+    {
+        animator.SetInteger(ToolType, toolType);
+    }
+
 
     public void AnimatorRePosition()
     {

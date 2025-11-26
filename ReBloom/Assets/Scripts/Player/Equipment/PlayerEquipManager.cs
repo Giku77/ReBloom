@@ -103,6 +103,8 @@ public class PlayerEquipManager : MonoBehaviour
         {
             toolEquipManager.EquipTool(item);
             anim.EquipToolLayerChange();
+
+            anim.SetToolType((int)item.toolCategory);
         }
         else
         {
