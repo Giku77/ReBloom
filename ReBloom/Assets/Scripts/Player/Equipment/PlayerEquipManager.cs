@@ -34,14 +34,14 @@ public class PlayerEquipManager : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        if (Keyboard.current.rKey.wasPressedThisFrame)
-        {
-            equipInventory.gameObject.SetActive(!equipInventory.activeSelf);
-            HandleCursorState(equipInventory.activeSelf);
-        }
-    }
+    //private void Update()
+    //{
+    //    if (Keyboard.current.rKey.wasPressedThisFrame)
+    //    {
+    //        equipInventory.gameObject.SetActive(!equipInventory.activeSelf);
+    //        HandleCursorState(equipInventory.activeSelf);
+    //    }
+    //}
 
     public void Apply(ProtectiveItemData item)
     {
