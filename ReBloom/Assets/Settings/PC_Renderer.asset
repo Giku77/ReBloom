@@ -1,5 +1,28 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-3217381662937547588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 980a78cc4df543b29a2663be288cd2f5, type: 3}
+  m_Name: UniversalBlurFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  iterations: 4
+  downsample: 1
+  enableMipMaps: 1
+  scale: 1
+  offset: 1
+  scaleBlurWith: 1
+  scaleReferenceSize: 1080
+  blurType: 0
+  injectionPoint: 600
+  shader: {fileID: 4800000, guid: bb11bdc2e8aaf4c80b5315f3778d7ad4, type: 3}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26,7 +49,8 @@ MonoBehaviour:
     probeVolumeBlendStatesCS: {fileID: 7200000, guid: b9a23f869c4fd45f19c5ada54dd82176, type: 3}
   m_RendererFeatures:
   - {fileID: 7833122117494664109}
-  m_RendererFeatureMap: ad6b866f10d7b46c
+  - {fileID: -3217381662937547588}
+  m_RendererFeatureMap: ad6b866f10d7b46cbc7cc0896c9059d3
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
