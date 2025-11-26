@@ -1,4 +1,5 @@
 ﻿using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -9,6 +10,7 @@ public class CraftingUI : MonoBehaviour
     private CraftingManager crafting;
     private CraftRecipeDB recipeDb;
 
+    [Header("Info References")]
     [SerializeField] private InventoryItemData inventory;
     [SerializeField] private Button craftButton;
     [SerializeField] private TextMeshProUGUI recipeNameText;
@@ -16,12 +18,22 @@ public class CraftingUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI recipeMaterialsText;
     [SerializeField] private TextMeshProUGUI recipeResultText;
 
+    [SerializeField] private InputAction toggleCraftingUIAction;
 
 
+    [Header("Slot References")]
     [SerializeField] private Transform slotParent;
     [SerializeField] private CraftingSlotUI slotPrefab;
 
-    [SerializeField] private InputAction toggleCraftingUIAction;
+
+    [Header("Slider References")]
+    [SerializeField] private Slider craftingCountSlider;
+    [SerializeField] private TextMeshProUGUI craftingCountText;
+    [SerializeField] private Button craftingCountAddButton;
+    [SerializeField] private Button craftingCountSubButton;
+
+    private int maxCraftable = 0;
+    private int selectedAmount = 0;
 
     private void OnEnable()
     {
@@ -48,30 +60,88 @@ public class CraftingUI : MonoBehaviour
         recipeDb.LoadFromBG();
         crafting = new CraftingManager(recipeDb, inventory);
         craftButton.onClick.AddListener(OnClickCraftButton);
+        if (craftingCountSlider != null)
+            craftingCountSlider.onValueChanged.AddListener(OnSliderValueChanged);
+        OnValidate();
+    }
+
+    private void OnSliderValueChanged(float value)
+    {
+        selectedAmount = Mathf.RoundToInt(value);
+        UpdateCraftCountText();
+    }
+
+    private void UpdateCraftCountText()
+    {
+        craftingCountText.text = $"{selectedAmount} / {maxCraftable}";
+    }
+
+    private void OnValidate()
+    {
+        if (craftingCountAddButton != null)
+            craftingCountAddButton.onClick.RemoveAllListeners();
+        if (craftingCountSubButton != null)
+            craftingCountSubButton.onClick.RemoveAllListeners();
+
+        if (craftingCountAddButton != null)
+            craftingCountAddButton.onClick.AddListener(() =>
+            {
+                Debug.Log("Add Button Clicked");
+                if (selectedAmount < maxCraftable)
+                {
+                    selectedAmount++;
+                    if (craftingCountSlider != null)
+                        craftingCountSlider.value = selectedAmount;
+                    UpdateCraftCountText();
+                }
+            });
+
+        if (craftingCountSubButton != null)
+            craftingCountSubButton.onClick.AddListener(() =>
+            {
+                Debug.Log("Sub Button Clicked");
+                if (selectedAmount > 0)
+                {
+                    selectedAmount--;
+                    if (craftingCountSlider != null)
+                        craftingCountSlider.value = selectedAmount;
+                    UpdateCraftCountText();
+                }
+            });
     }
 
     private void Start()
     {
         var recipes = recipeDb.GetAll();
+        CraftingSlotUI firstslot = null;
         foreach (var recipe in recipes)
         {
             var slot = Instantiate(slotPrefab, slotParent);
+            if (firstslot == null)
+                firstslot = slot;
             slot.Init(recipe.Value.recipeId, recipe.Value.productName, this);
         }
+        firstslot?.Select();
         Toggle();
     }
 
     public void OnClickCraftButton()
     {
-        var check = crafting.CanCraft(currentRecipeId);
+        if (selectedAmount <= 0)
+        {
+            setResultText("제작 수량을 선택해주세요.");
+            return;
+        }
+
+        var check = crafting.CanCraft(currentRecipeId, selectedAmount);
 
         if (!check.canCraft)
         {
             switch (check.failReason)
             {
                 case CraftFailReason.NotEnoughMaterials:
-                    // check.missingMaterials 이용해서 "철 파편 x2 부족" 이런 메시지 가능
                     setResultText("재료가 부족합니다.");
+                    // check.missingMaterials 써서 상세 메시지 가능
                     break;
                 case CraftFailReason.NoOutputSpace:
                     setResultText("인벤토리에 공간이 부족합니다.");
@@ -81,11 +151,20 @@ public class CraftingUI : MonoBehaviour
             return;
         }
 
-        var reason = crafting.Craft(currentRecipeId);
+        var reason = crafting.Craft(currentRecipeId, selectedAmount);
         if (reason == CraftFailReason.None)
         {
-            // 성공 UI 갱신
-            setResultText("제작 성공!");
+            setResultText($"제작 성공! x{selectedAmount}");
+
+            maxCraftable = crafting.GetMaxCraftable(currentRecipeId);
+
+            if (craftingCountSlider != null)
+            {
+                craftingCountSlider.maxValue = maxCraftable;
+                selectedAmount = 0;
+                craftingCountSlider.value = selectedAmount;
+            }
+            UpdateCraftCountText();
         }
     }
 
@@ -102,11 +181,23 @@ public class CraftingUI : MonoBehaviour
         if (recipe == null)
             return;
 
-        recipeNameText.text      = recipe.productName;  
-        //recipeDescText.text      = recipe.Description;  
+        recipeNameText.text = recipe.productName;  
         recipeMaterialsText.text = BuildMaterialText(recipe); 
+        recipeResultText.text = string.Empty;
 
-        recipeResultText.text = ""; 
+        maxCraftable = crafting.GetMaxCraftable(recipeId);
+
+        if (craftingCountSlider != null)
+        {
+            craftingCountSlider.wholeNumbers = true;
+            craftingCountSlider.minValue = 0;              
+            craftingCountSlider.maxValue = maxCraftable;
+        
+            selectedAmount = 0;
+            craftingCountSlider.value = selectedAmount;
+        }
+
+        UpdateCraftCountText();
     }
 
     private string BuildMaterialText(CraftRecipeData recipe)

@@ -37,12 +37,23 @@ public class CraftingManager
 
     public CraftCheckResult CanCraft(int recipeId)
     {
+        return CanCraft(recipeId, 1);
+    }
+
+    public CraftCheckResult CanCraft(int recipeId, int amount)
+    {
         var result = new CraftCheckResult
         {
             canCraft = false,
             failReason = CraftFailReason.None,
             missingMaterials = new Dictionary<int, int>()
         };
+
+        if (amount <= 0)
+        {
+            result.failReason = CraftFailReason.None; 
+            return result;
+        }
 
         if (!_recipeDb.TryGet(recipeId, out var recipe))
         {
@@ -59,7 +70,7 @@ public class CraftingManager
         foreach (var mat in recipe.materials)
         {
             int have = _inventory.GetItemCount(mat.itemId);
-            int need = mat.count;
+            int need = mat.count * amount;  
 
             if (have < need)
             {
@@ -80,14 +91,18 @@ public class CraftingManager
             return result;
         }
 
-        // 전부 통과
         result.canCraft = true;
         return result;
     }
 
     public CraftFailReason Craft(int recipeId)
     {
-        var check = CanCraft(recipeId);
+        return Craft(recipeId, 1);
+    }
+
+    public CraftFailReason Craft(int recipeId, int amount)
+    {
+        var check = CanCraft(recipeId, amount);
         if (!check.canCraft)
             return check.failReason;
 
@@ -95,10 +110,40 @@ public class CraftingManager
 
         foreach (var mat in recipe.materials)
         {
-            _inventory.RemoveItem(mat.itemId, mat.count);
+            _inventory.RemoveItem(mat.itemId, mat.count * amount);
         }
-        
-        _inventory.AddItem(recipe.productId, recipe.productCount);
+
+        _inventory.AddItem(recipe.productId, recipe.productCount * amount);
+
         return CraftFailReason.None;
     }
+
+    public int GetMaxCraftable(int recipeId)
+    {
+        if (!_recipeDb.TryGet(recipeId, out var recipe))
+            return 0;
+
+        int maxByMat = int.MaxValue;
+
+        foreach (var mat in recipe.materials)
+        {
+            int have = _inventory.GetItemCount(mat.itemId);
+            if (mat.count <= 0) 
+                continue;
+
+            int canByThisMat = have / mat.count;  
+            if (canByThisMat < maxByMat)
+                maxByMat = canByThisMat;
+        }
+
+        if (maxByMat == int.MaxValue)
+            maxByMat = 0;
+
+        // TODO: 인벤토리 공간도 고려하려면 여기에서 한 번 더 clamp
+        // int maxByInventory = _inventory.GetMaxAddableCount(recipe.productId, recipe.productCount);
+        // maxByMat = System.Math.Min(maxByMat, maxByInventory);
+
+        return maxByMat;
+    }
+    
 }
