@@ -3901,7 +3901,7 @@ MonoBehaviour:
   stepRayLength: 0.3
   stepLayerMask:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 520
   stepSmooth: 0.15
   currentSpeed: 0
   isDead: 0
@@ -3920,6 +3920,8 @@ MonoBehaviour:
   debugSpeed: 30
   playerStats: {fileID: 0}
   spawnPoint: {fileID: 9150461246077990646}
+  craftingUI: {fileID: 0}
+  storageUI: {fileID: 0}
 --- !u!114 &7606702177261600104
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4072,6 +4074,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sun: {fileID: 0}
+  moon: {fileID: 0}
   dayLengthInSeconds: 2160
   currentTime: 800
   maxTempDelta: 8
@@ -4088,6 +4091,10 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  cloudRenderer: {fileID: 0}
+  dayCloudAlpha: 1
+  nightCloudAlpha: 0.1
+  cloudLerpSpeed: 0.1
 --- !u!1 &3951941231071691645
 GameObject:
   m_ObjectHideFlags: 0
