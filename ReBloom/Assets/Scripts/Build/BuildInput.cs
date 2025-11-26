@@ -12,6 +12,7 @@ public class BuildInput : MonoBehaviour
 
     [SerializeField] private InputAction addMouse;
     [SerializeField] private InputAction subMouse;
+    [SerializeField] private InputAction debugBuildingModeAction;
 
     [SerializeField] private BuildUI buildUI;   
     private GameObject player;
@@ -33,7 +34,8 @@ public class BuildInput : MonoBehaviour
         addMouse.performed += OnDebugAddMouse;
         subMouse.Enable();
         subMouse.performed += OnDebugSubMouse;
-
+        debugBuildingModeAction.Enable();
+        debugBuildingModeAction.performed += OnDebugBuildingMode;
     }
 
     private void OnDisable()
@@ -48,6 +50,8 @@ public class BuildInput : MonoBehaviour
         addMouse.Disable();
         subMouse.performed -= OnDebugSubMouse;
         subMouse.Disable();
+        debugBuildingModeAction.performed -= OnDebugBuildingMode;
+        debugBuildingModeAction.Disable();
     }
 
     private void OnBuild(InputAction.CallbackContext ctx)
@@ -83,5 +87,11 @@ public class BuildInput : MonoBehaviour
     {
         var camera = Camera.main.GetComponent<ThirdPersonCamera>();
         camera.SubMouseSensitivity(1f);
+    }
+
+    private void OnDebugBuildingMode(InputAction.CallbackContext ctx)
+    {
+        ToastMessageUI.Instance.Show("디버그 빌딩 모드 토글");
+        BuildManager.I.ToggleDebugBuildingMode();
     }
 }

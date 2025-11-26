@@ -14,6 +14,8 @@ public class BuildManager : MonoBehaviour
         var arcRecipeDB = new ArcRecipeDB();
         arcRecipeDB.LoadFromBG();
 
+        player = GameObject.FindWithTag("Player");
+
         Init(arcDB, arcRecipeDB, inventory);
     } 
 
@@ -32,10 +34,17 @@ public class BuildManager : MonoBehaviour
     [SerializeField] private LayerMask obstacleLayer;
     [SerializeField] private float maxHeightDiff = 0.1f;
     [SerializeField] private float maxSlopeAngle = 5f;
+    [SerializeField] private StageDetector stageDetector;
 
     private List<IBuildRule> buildRules = new List<IBuildRule>();
 
     private Dictionary <int, int> buildingCounts = new Dictionary<int, int>();
+
+    private GameObject player;
+
+    private bool debugBuildingMode = false;
+
+    public bool debugMode => debugBuildingMode;
 
     public int GetCount(int arcId)
     {
@@ -112,6 +121,11 @@ public class BuildManager : MonoBehaviour
         buildRules.Add(new LimitRule(this));
     }
 
+    public void ToggleDebugBuildingMode()
+    {
+        debugBuildingMode = !debugBuildingMode;
+    }
+
     public void Init(ArcDB arcDB, ArcRecipeDB recipeDB, GameInventory inventory)
     {
         InitRules();
@@ -150,7 +164,7 @@ public class BuildManager : MonoBehaviour
             Rotation = rot,
             ArcPrefab = arc.buildPrefab,
             FootPrint = footprintProvider.GetFootprint(arc),
-            PlayerTransform = GameObject.FindWithTag("Player").transform,
+            PlayerTransform = player.transform,
             DepthOffset = depthOffset
         };
 
@@ -172,6 +186,12 @@ public class BuildManager : MonoBehaviour
             return false;
         }
 
+        if (!IsInBuildableZone())
+        {
+            ToastMessageUI.Instance.Show("이 지역에서는 건물을 지을 수 없습니다.");
+            return false;
+        }
+
         if (!CanBuildAt(arc, pos, rot, out var errorCode))
         {
             ToastMessageUI.Instance.Show($"건물 설치 불가: {errorCode}");
@@ -184,13 +204,16 @@ public class BuildManager : MonoBehaviour
             return Spawn(arc, pos, rot);
         }
 
-        if (!HasMaterials(recipe))
+        if (!debugBuildingMode)
         {
-            ToastMessageUI.Instance.Show("재료가 부족합니다.");
-            return false;
-        }
+                if (!HasMaterials(recipe))
+                {
+                    ToastMessageUI.Instance.Show("재료가 부족합니다.");
+                    return false;
+                }
 
-        Remove(recipe);
+                Remove(recipe);
+        }
 
         if (buildingCounts.ContainsKey(arc.arcId))
             buildingCounts[arc.arcId]++;
@@ -241,11 +264,11 @@ public class BuildManager : MonoBehaviour
             Rotation = rot,
             ArcPrefab = arc.buildPrefab,
             FootPrint = footprintProvider.GetFootprint(arc),
-            PlayerTransform = GameObject.FindWithTag("Player").transform,
+            PlayerTransform = player.transform,
             DepthOffset = depthOffset
         };
         if (!TryAdjustToGround(ctx, out var adjustedPos, out _))
-           adjustedPos = pos;
+           adjustedPos = pos;   
         var buildprefab = arc.buildPrefab != null ? arc.buildPrefab : prefab;
         if (buildprefab == null)
         {
@@ -255,7 +278,33 @@ public class BuildManager : MonoBehaviour
         var p = Instantiate(buildprefab, adjustedPos, rot);
         var bInstance = p.GetComponent<BuildingInstance>();
         bInstance.arcId = arc.arcId;
-        p.GetComponent<InteractionHighlight>().promptFormat = $"상호작용[E] : {arc.name}";
+        p.TryGetComponent<InteractionHighlight>(out var highlight);
+        if (highlight != null)
+          highlight.promptFormat = $"상호작용[E] : {arc.name}";
+        SetupTemporaryPassThrough(p);
         return true;
+    }
+
+    private void SetupTemporaryPassThrough(GameObject buildingInstance)
+    {
+        if (player == null) return;
+
+        var playerColliders   = player.GetComponentsInChildren<Collider>();
+        var buildingColliders = buildingInstance.GetComponentsInChildren<Collider>();
+
+        if (playerColliders.Length == 0 || buildingColliders.Length == 0)
+            return;
+
+        var passThrough = buildingInstance.AddComponent<TemporaryPlayerPassThrough>();
+        passThrough.Init(playerColliders, buildingColliders);
+    }
+
+    public bool IsInBuildableZone()
+    {
+       if (stageDetector == null)
+            return true;
+       if (stageDetector.CurrentStage.StageID != (int)EntranceType.Shelter)
+            return false;
+       return true;
     }
 }
