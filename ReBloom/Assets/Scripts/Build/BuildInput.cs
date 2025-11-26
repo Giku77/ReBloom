@@ -91,6 +91,7 @@ public class BuildInput : MonoBehaviour
 
     private void OnDebugBuildingMode(InputAction.CallbackContext ctx)
     {
+        ToastMessageUI.Instance.Show("디버그 빌딩 모드 토글");
         BuildManager.I.ToggleDebugBuildingMode();
     }
 }
