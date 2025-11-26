@@ -6,8 +6,11 @@ public class WeatherUI : MonoBehaviour
     [Header("UI Elements")]
     [SerializeField] private TextMeshProUGUI weatherText;
     [SerializeField] private TextMeshProUGUI temperatureText;
-    [SerializeField] private TextMeshProUGUI StageText;
-    
+    [SerializeField] private TextMeshProUGUI stageText;
+    [SerializeField] private TextMeshProUGUI dayCycleText;
+    [SerializeField] private TextMeshProUGUI currentDayText;
+    [SerializeField] private TextMeshProUGUI currentTimeText;
+
     [Header("References")]
     [SerializeField] private PlayerStats playerStats;
     [SerializeField] private StageDetector stageDetector;
@@ -47,6 +50,24 @@ public class WeatherUI : MonoBehaviour
     {
         if (playerStats == null) return;
         
+        if (dayCycleText != null)
+        {
+            string timeOfDay = GetCurrentDayCycle();
+            dayCycleText.text = timeOfDay;
+        }
+        
+        if (currentDayText != null)
+        {
+            string day = GetCurrentDay();
+            currentDayText.text = day;
+        }
+        
+        if (currentTimeText != null)
+        {
+            string time = GetCurrentTime();
+            currentTimeText.text = time;
+        }
+        
         if (temperatureText != null)
         {
             string currentTemp = GetCurrentTemperature();
@@ -59,13 +80,39 @@ public class WeatherUI : MonoBehaviour
             weatherText.text = weather;
         }
         
-        if (StageText != null)
+        if (stageText != null)
         {
             string location = GetCurrentLocation();
-            StageText.text = location;
+            stageText.text = location;
         }
     }
     
+    private string GetCurrentDayCycle()
+    {
+        if (DayNightCycle.Instance == null)
+            return "낮";
+
+        return DayNightCycle.Instance.CurrentDayName;
+    }
+    
+    private string GetCurrentDay()
+    {
+        if (DayNightCycle.Instance == null)
+            return "1일차";
+        
+        return $"{DayNightCycle.Instance.CurrentDay}일차";
+    }
+    
+    private string GetCurrentTime()
+    {
+        if (DayNightCycle.Instance == null)
+            return "00시 00분";
+        
+        int hour = DayNightCycle.Instance.GetCurrentHour();
+        int minute = DayNightCycle.Instance.GetCurrentMinute();
+        
+        return $"{hour:D2}시 {minute:D2}분";
+    }
     private string GetCurrentWeather()
     {
         if (stageDetector == null || stageDetector.CurrentStage == null)

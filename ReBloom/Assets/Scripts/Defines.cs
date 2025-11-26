@@ -211,3 +211,12 @@ public enum StatType
     Hunger = 3,    // 허기
     Temperature = 4 //체온
 }
+
+public enum DayCycle
+{
+    Dawn,    // 일출 (05~07)
+    Morning, // 아침 (07~11)
+    Day,     // 낮 (11~17)
+    Dusk,    // 일몰 (17~19)
+    Night    // 밤 (19~05)
+}
