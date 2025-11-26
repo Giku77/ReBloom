@@ -1,4 +1,4 @@
-using BansheeGz.BGDatabase;
+﻿using BansheeGz.BGDatabase;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -12,11 +12,13 @@ public class PlayerEquipManager : MonoBehaviour
 
     [SerializeField] private InventoryItemData inventoryItemData;
 
+    private PlayerAnimation anim;
 
     private void Awake()
     {
         player = GetComponent<PlayerEquipData>();
         toolEquipManager = GetComponent<ToolEquipManager>();
+        anim = GetComponent<PlayerAnimation>();
         
         if (toolEquipManager == null)
         {
@@ -100,6 +102,9 @@ public class PlayerEquipManager : MonoBehaviour
         if (toolEquipManager != null)
         {
             toolEquipManager.EquipTool(item);
+            anim.EquipToolLayerChange();
+
+            anim.SetToolType((int)item.toolCategory);
         }
         else
         {
@@ -170,6 +175,7 @@ public class PlayerEquipManager : MonoBehaviour
 
                 inventoryItemData.AddItem(player.currentToolEquip.itemID, 1);
                 player.currentToolEquip = null;
+                anim.HandLayerChange();
                 
                 // ToolEquipManager를 통해 프리팹 제거
                 if (toolEquipManager != null)

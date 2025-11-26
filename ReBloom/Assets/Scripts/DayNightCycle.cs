@@ -23,6 +23,13 @@ public class DayNightCycle : MonoBehaviour
     [Header("Sun Settings")]
     public AnimationCurve sunAngleCurve;
 
+
+    [Header("Clouds Setting")]
+    [SerializeField] private Renderer cloudRenderer;
+    [SerializeField] private float dayCloudAlpha = 1f;
+    [SerializeField] private float nightCloudAlpha = 0.1f;
+    [SerializeField] private float cloudLerpSpeed = 0.1f;
+
     private float yEast = 90f;
     private float yWest = -90f;
 
@@ -33,6 +40,8 @@ public class DayNightCycle : MonoBehaviour
 
     public DayCycle CurrentDayCycle { get; private set; } = DayCycle.Day;
     public string CurrentDayName { get; private set; } = "낮";
+
+    private Color originalEmissionColor;
 
     private void Awake()
     {
@@ -54,6 +63,8 @@ public class DayNightCycle : MonoBehaviour
 
         if (sunAngleCurve == null || sunAngleCurve.keys.Length == 0)
             InitializeSunCurve();
+
+        originalEmissionColor = cloudRenderer.material.GetColor("_EmissionColor");
     }
 
     private void Update()
@@ -70,6 +81,7 @@ public class DayNightCycle : MonoBehaviour
         UpdateTemperature();
         UpdateSun();
         UpdateMoon();
+        UpdateCloudAlpha();
 
         if (Keyboard.current.kKey.wasPressedThisFrame)
         {
@@ -218,6 +230,24 @@ public class DayNightCycle : MonoBehaviour
             moon.intensity = 0f;
             moon.enabled = false;
         }
+    }
+
+    private void UpdateCloudAlpha()
+    {
+        if (cloudRenderer == null) return;
+
+        float targetAlpha = currentTime > 1400 ? nightCloudAlpha : dayCloudAlpha;
+        Color c = cloudRenderer.material.color;
+        c.a = Mathf.Lerp(c.a, targetAlpha, cloudLerpSpeed * Time.deltaTime);
+        cloudRenderer.material.color = c;
+
+        float targetIntensity = currentTime > 1400 ? 0f : 1f;
+
+        Color currentEmission = cloudRenderer.material.GetColor("_EmissionColor");
+
+        Color newEmission = Color.Lerp(currentEmission, originalEmissionColor * targetIntensity, cloudLerpSpeed * Time.deltaTime);
+
+        cloudRenderer.material.SetColor("_EmissionColor", newEmission);
     }
 }
 

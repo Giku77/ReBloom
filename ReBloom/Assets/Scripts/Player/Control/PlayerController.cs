@@ -82,6 +82,7 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private CraftingUI craftingUI;
     [SerializeField] private StorageUI storageUI;
+
     public void OpenCraftingUI()
     {
         if (craftingUI != null)

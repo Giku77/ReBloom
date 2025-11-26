@@ -220,3 +220,10 @@ public enum DayCycle
     Dusk,    // 일몰 (17~19)
     Night    // 밤 (19~05)
 }
+
+public enum ToolType
+{ 
+    Shovel = 1,   // 삽
+    Hammer = 2,   // 망치
+
+}
