@@ -75,10 +75,10 @@ GameObject:
   m_Component:
   - component: {fileID: 1991109728249163750}
   - component: {fileID: -4166275761781510076}
-  - component: {fileID: -8291003165101820078}
   - component: {fileID: 1967539148234287329}
   - component: {fileID: -1668549038590953769}
   - component: {fileID: -528809708235914306}
+  - component: {fileID: 3684068213220998504}
   m_Layer: 11
   m_Name: Herb
   m_TagString: Untagged
@@ -95,7 +95,7 @@ Transform:
   m_GameObject: {fileID: 3766144417948993250}
   serializedVersion: 2
   m_LocalRotation: {x: 1, y: 0, z: -0, w: 0.0000000754979}
-  m_LocalPosition: {x: 0.997, y: 0.0106, z: 3.986}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 4.5163646, y: 4.516365, z: 4.516365}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -130,27 +130,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!65 &-8291003165101820078
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3766144417948993250}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &1967539148234287329
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -201,6 +180,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 994bdffcbc58aad468df8611de143a46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!65 &3684068213220998504
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3766144417948993250}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.1, y: 0.1, z: 0.1}
+  m_Center: {x: 0, y: -0.05, z: 0}
 --- !u!1 &4906666809311412933
 GameObject:
   m_ObjectHideFlags: 0

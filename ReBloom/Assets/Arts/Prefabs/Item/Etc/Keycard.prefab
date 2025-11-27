@@ -12,10 +12,10 @@ GameObject:
   - component: {fileID: 3528206356996243336}
   - component: {fileID: 4130168665104658834}
   - component: {fileID: -2219730901917607087}
-  - component: {fileID: -2216990788854392529}
   - component: {fileID: -8024236952648163763}
   - component: {fileID: 9042438739678856358}
   - component: {fileID: 8123734545588920135}
+  - component: {fileID: 1419296331132001970}
   m_Layer: 11
   m_Name: Keycard
   m_TagString: Untagged
@@ -32,8 +32,8 @@ Transform:
   m_GameObject: {fileID: 8317097212493256994}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: -0.7071068}
-  m_LocalPosition: {x: 5, y: 0, z: 1}
-  m_LocalScale: {x: 3.0240457, y: 3.0240457, z: 3.0240457}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -121,27 +121,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!65 &-2216990788854392529
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8317097212493256994}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.0856, y: 0.053980004, z: 0.0011399998}
-  m_Center: {x: 0.00017543323, y: 0.00014551639, z: -5.820767e-10}
 --- !u!114 &-8024236952648163763
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -192,3 +171,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 994bdffcbc58aad468df8611de143a46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!65 &1419296331132001970
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8317097212493256994}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.1, y: 0.1, z: 0.1}
+  m_Center: {x: 0, y: 0, z: 0}

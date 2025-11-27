@@ -10,10 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 8512778558764235911}
   - component: {fileID: 6301200572408191198}
-  - component: {fileID: -2690782625072392411}
   - component: {fileID: -6376536435140878636}
   - component: {fileID: -4579603151479757660}
   - component: {fileID: 394686111099686980}
+  - component: {fileID: -6933563154820401125}
   m_Layer: 11
   m_Name: Fiber
   m_TagString: Untagged
@@ -65,27 +65,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!65 &-2690782625072392411
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 190372597856369463}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &-6376536435140878636
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -136,6 +115,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 994bdffcbc58aad468df8611de143a46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!65 &-6933563154820401125
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 190372597856369463}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 0.16, z: 1}
+  m_Center: {x: 0, y: 0.1, z: 0}
 --- !u!1001 &5838389942334065006
 PrefabInstance:
   m_ObjectHideFlags: 0

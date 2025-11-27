@@ -87,6 +87,7 @@ public class ToolItemData : ItemBase
 
         // 도구 전용 속성
         toolCategory = (ToolCategory)Category[entity];
+
         performance = Perform[entity];
 
         // 아이콘/프리팹은 Addressable로 비동기 로드
@@ -113,16 +114,10 @@ public class ToolItemData : ItemBase
                 // TODO: 플레이어에게 파기 속도 버프 적용
                 break;
 
-            case ToolCategory.Pickaxe:
-                // 곡괭이: 채광 속도 증가
-                Debug.Log($"[도구 장착] {itemName} - 채광 시간 {currentPerform}초");
-                // TODO: 플레이어에게 채광 속도 버프 적용
-                break;
-
-            case ToolCategory.Bag:
-                // 가방: 인벤토리 확장
-                Debug.Log($"[도구 장착] {itemName} - 인벤토리 슬롯 증가");
-                // TODO: 인벤토리 크기 확장
+            case ToolCategory.Hammer:
+                // Hammer: 채광 속도 증가
+                Debug.Log($"[도구 장착] {itemName} - Hammer 시간 {currentPerform}초");
+                // TODO: 플레이어에게 Hammer 속도 버프 적용
                 break;
         }
 
@@ -134,16 +129,16 @@ public class ToolItemData : ItemBase
         return true;
     }
 
+
     /// <summary>
     /// 도구 해제
     /// </summary>
-    public void Unequip(PlayerController player)
+    public override void UnApply(PlayerController player)
     {
         if (player == null) return;
 
+        player.playerEquip.UnEquip(GearType.Tool);
         Debug.Log($"[도구 해제] {itemName}");
-
-        // TODO: 버프 제거, 인벤토리 복구 등
     }
 
     /// <summary>

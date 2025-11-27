@@ -32,21 +32,6 @@ public class ItemSpawner : MonoBehaviour
     public PoolStatistics Statistics { get; private set; } = new PoolStatistics();
 
     #region 단일 아이템 스폰
-    public async UniTask<GameObject> SpawnItemInWorld(int itemID, Vector3 position)
-    {
-        ItemBase itemData = ItemDatabase.I.GetItem(itemID);
-        if (itemData == null)
-        {
-            Debug.LogError($"[ItemSpawner] 아이템 데이터 없음: {itemID}");
-            return null;
-        }
-
-        return await SpawnItemInWorld(
-           itemData,
-           position,
-           this.GetCancellationTokenOnDestroy()
-       );
-    }
 
     public async UniTask<GameObject> SpawnItemInWorld(ItemBase itemData, Vector3 position, CancellationToken ctx)
     {
@@ -58,38 +43,54 @@ public class ItemSpawner : MonoBehaviour
 
         int itemID = itemData.itemID;
 
-        // 풀이 없으면 생성
+        // 풀이 없으면 생성 시도
         if (!itemPools.ContainsKey(itemID))
         {
-            await CreatePoolForItem(itemData);
+            CreatePoolForItem(itemData);
+
+            // 생성 후에도 없으면 기본 프리팹 사용
+            if (!itemPools.ContainsKey(itemID))
+            {
+                Debug.LogError($"[ItemSpawner] Pool 생성 실패: {itemData.itemName}");
+                return await SpawnDefaultItem(position);  // 기본 아이템 스폰
+            }
         }
 
-        // 풀에서 가져오기
-        ObjectPool<GameObject> pool = itemPools[itemID];
-        GameObject itemObj = pool.Get();
+        // 안전하게 가져오기
+        if (itemPools.TryGetValue(itemID, out ObjectPool<GameObject> pool))
+        {
+            GameObject itemObj = pool.Get();
+            itemObj.transform.position = position;
+            itemObj.transform.rotation = Quaternion.identity;
 
-        itemObj.transform.position = position;
-        itemObj.transform.rotation = Quaternion.identity;
+            var worldItem = itemObj.GetComponent<WorldItem>();
+            worldItem?.Initialize(itemData);
 
-        var worldItem = itemObj.GetComponent<WorldItem>();
-        worldItem?.Initialize(itemData);
+            return itemObj;
+        }
 
-        return itemObj;
+        return null;
     }
 
-    public async UniTask<GameObject> DropItem(ItemBase itemData, Vector3 position, Vector3 force)
+    // 기본 아이템 스폰 (폴백)
+    private async UniTask<GameObject> SpawnDefaultItem(Vector3 position)
     {
-        GameObject itemObj = await SpawnItemInWorld(itemData, position, this.GetCancellationTokenOnDestroy());
+        const string DEFAULT_ITEM_PATH = "Item/Item00";
 
-        if (itemObj != null && itemObj.TryGetComponent<Rigidbody>(out var rb))
+        try
         {
-            rb.isKinematic = false;
-            rb.useGravity = true;
-            rb.AddForce(force, ForceMode.Impulse);
-            rb.angularVelocity = UnityEngine.Random.insideUnitSphere * 2f;
-        }
+            var handle = Addressables.LoadAssetAsync<GameObject>(DEFAULT_ITEM_PATH);
+            GameObject prefab = await handle.WithCancellation(this.GetCancellationTokenOnDestroy());
 
-        return itemObj;
+            GameObject itemObj = Instantiate(prefab, position, Quaternion.identity, itemParent);
+            Debug.Log($"[ItemSpawner] 기본 아이템 생성됨");
+            return itemObj;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[ItemSpawner] 기본 아이템도 실패: {e.Message}");
+            return null;
+        }
     }
     #endregion
 
@@ -121,7 +122,7 @@ public class ItemSpawner : MonoBehaviour
         int itemID = itemData.itemID;
         if (!itemPools.ContainsKey(itemID))
         {
-            await CreatePoolForItem(itemData);
+            CreatePoolForItem(itemData);
         }
 
         // 프레임 분산 생성 (너무 많으면 여러 프레임에 나눠서)
@@ -158,7 +159,7 @@ public class ItemSpawner : MonoBehaviour
             if (spawnedThisFrame >= maxSpawnPerFrame)
             {
                 spawnedThisFrame = 0;
-                await Task.Yield(); // 다음 프레임으로 양보
+                await UniTask.Yield(); // 다음 프레임으로 양보
             }
         }
 
@@ -196,11 +197,11 @@ public class ItemSpawner : MonoBehaviour
     #endregion
 
     #region 오브젝트 풀 관리 (기존 코드)
-    private async UniTask CreatePoolForItem(ItemBase itemData)
+    private void CreatePoolForItem(ItemBase itemData)
     {
         int itemID = itemData.itemID;
 
-        GameObject prefab = await LoadOrGetCachedPrefab(itemData);
+        GameObject prefab = LoadOrGetCachedPrefab(itemData);
         if (prefab == null)
         {
             Debug.LogError($"[ItemSpawner] 프리팹 로드 실패: {itemData.itemName}");
@@ -317,7 +318,7 @@ public class ItemSpawner : MonoBehaviour
     #endregion
 
     #region 프리팹 로딩 (기존 코드)
-    private async UniTask<GameObject> LoadOrGetCachedPrefab(ItemBase itemData)
+    private GameObject LoadOrGetCachedPrefab(ItemBase itemData)
     {
         int itemID = itemData.itemID;
 
@@ -326,7 +327,7 @@ public class ItemSpawner : MonoBehaviour
             return prefabCache[itemID];
         }
 
-        GameObject prefab = await LoadItemPrefabAsync(itemData);
+        GameObject prefab = LoadItemPrefab(itemData);
         if (prefab != null)
         {
             prefabCache[itemID] = prefab;
@@ -335,38 +336,21 @@ public class ItemSpawner : MonoBehaviour
         return prefab;
     }
 
-    private async UniTask<GameObject> LoadItemPrefabAsync(ItemBase itemData)
+    private GameObject LoadItemPrefab(ItemBase itemData)
     {
-        try
-        {
-            var handle = Addressables.LoadAssetAsync<GameObject>(itemData.worldPrefabAddress);
-
-            GameObject prefab = await handle.WithCancellation(
-                this.GetCancellationTokenOnDestroy()
-            );
-            return prefab;
-        }
-        catch (OperationCanceledException)
-        {
-            return null;
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"[ItemSpawner] 프리팹 로드 실패: {itemData.itemName}\n{e.Message}");
-            return null;
-        }
+        return itemData.itemPrefab;
     }
     #endregion
 
     #region 유틸리티
-    public async UniTask PreloadItemPool(int itemID, int count = 10) //TODO: defaultPoolSize로 변경 고려 및 최대치 검토, 적용 여부 확인
+    public void PreloadItemPool(int itemID, int count = 10) //TODO: defaultPoolSize로 변경 고려 및 최대치 검토, 적용 여부 확인
     {
         ItemBase itemData = ItemDatabase.I.GetItem(itemID);
         if (itemData == null) return;
 
         if (!itemPools.ContainsKey(itemID))
         {
-            await CreatePoolForItem(itemData);
+            CreatePoolForItem(itemData);
         }
 
         ObjectPool<GameObject> pool = itemPools[itemID];

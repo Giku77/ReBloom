@@ -104,7 +104,7 @@ public enum ContaminationLevel
 public enum ToolUsageType
 {
     Plant = 1,              // 1. 식물 (낫)
-    BuildingMineral = 2,    // 2. 건물, 광물 (곡괭이)
+    BuildingMineral = 2,    // 2. 건물, 광물 (곡괭이??)
     All = 3                 // 3. 건물, 광물, 자동차 (도끼)
 }
 
@@ -114,8 +114,7 @@ public enum ToolUsageType
 public enum ToolCategory
 {
     Shovel = 1,     // 삽
-    Pickaxe = 2,    // 곡괭이
-    Bag = 3         // 가방
+    Hammer = 2    // 망치
     // 추가 카테고리 필요 시 여기에 추가
 }
 
@@ -130,15 +129,6 @@ public enum GearType
     Shoes = 2,           // 신발
     Tool = 3,           // 도구
     None = 4
-}
-
-//==================== 장착 아이템 관련 ====================
-public enum EquipmentType
-{ 
-    Bag = 0,
-    Clothing = 1,
-    Shoes = 2,
-    Tool = 4,
 }
 
 // ==================== 기타 아이템 관련 ====================
