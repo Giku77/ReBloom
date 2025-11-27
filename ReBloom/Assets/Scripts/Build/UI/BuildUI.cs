@@ -122,5 +122,6 @@ public class BuildUI : MonoBehaviour
 
         Cursor.visible = next;
         Cursor.lockState = next ? CursorLockMode.None : CursorLockMode.Locked;
+        Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = next;
     }
 }

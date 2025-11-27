@@ -10,6 +10,8 @@ public class CraftingUI : MonoBehaviour
     private CraftingManager crafting;
     private CraftRecipeDB recipeDb;
 
+    [SerializeField] private Image backgroundImage;
+
     [Header("Info References")]
     [SerializeField] private InventoryItemData inventory;
     [SerializeField] private Button craftButton;
@@ -219,11 +221,15 @@ public class CraftingUI : MonoBehaviour
         {
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
+            backgroundImage.gameObject.SetActive(true);
+            Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = true;
         }
         else
         {
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
+            backgroundImage.gameObject.SetActive(false);
+            Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = false;
         }
     }
 }

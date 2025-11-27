@@ -328,6 +328,7 @@ public class GameInventoryUI : MonoBehaviour
 
         // 퀘스트 UI 갱신
         questUI?.Refresh();
+        QuestManager.I?.PlayQuestCompleteAnimation();
 
         Debug.Log($"[GameInventoryUI] UI 갱신 완료 - Tier {inventoryData.InventoryTier}, 슬롯: {emptySlotList.Count}, 아이템: {slotIndex}");
     }

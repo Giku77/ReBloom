@@ -15,6 +15,8 @@ public class ThirdPersonCamera : MonoBehaviour
     private float maxZoomOutDistance = 20f;
     private float maxZoominDistance = 1f;
 
+    public bool isZoomLocked = false;
+
     [SerializeField] private LayerMask collisionMask;
 
     private float yaw = 0f;
@@ -26,7 +28,8 @@ public class ThirdPersonCamera : MonoBehaviour
     private void LateUpdate()
     {
         Look();
-        HandleZoom();
+        if (!isZoomLocked)
+          HandleZoom();
     }
 
     //인풋시스템 콜바이함수 룩
