@@ -12,8 +12,8 @@ public class WorldItem : MonoBehaviour, IInteractable
     [SerializeField] private float pickupRange = 2f; //상호작용 가능한 범위
     [SerializeField] private LayerMask playerLayer;
 
-    [Header("Inventory Reference")]
-    [SerializeField] private InventoryItemData inventoryData;
+    //[Header("Inventory Reference")]
+    //[SerializeField] private InventoryItemData inventoryData;
 
     private PooledItem pooledItem;
     public float HoldTime => 0f;
@@ -43,20 +43,21 @@ public class WorldItem : MonoBehaviour, IInteractable
         //CheckPickup();
     }
 
-    private void CheckPickup()
-    {
-        Collider[] colliders = Physics.OverlapSphere(transform.position, pickupRange, playerLayer);
+    //private void CheckPickup()
+    //{
+    //    Collider[] colliders = Physics.OverlapSphere(transform.position, pickupRange, playerLayer);
 
-        if (colliders.Length > 0 && Keyboard.current.eKey.wasPressedThisFrame)
-        {
-            PickupItem();
-        }
-    }
+    //    if (colliders.Length > 0 && Keyboard.current.eKey.wasPressedThisFrame)
+    //    {
+    //        PickupItem();
+    //    }
+    //}
 
-    private bool PickupItem()
+    private bool PickupItem(PlayerController player)
     {
         //var inv = (GameInventory)QuestManager.I.Inventory;
         //inv?.AddItem(itemData.itemID, quantity);
+        var inventoryData = player.Inventory;
         if (inventoryData == null || itemData == null)
         {
             return false;
@@ -82,7 +83,7 @@ public class WorldItem : MonoBehaviour, IInteractable
 
     public void Interact(PlayerController player)
     {
-        PickupItem();
+        PickupItem(player);
     }
 
     private void OnEnable()
