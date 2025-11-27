@@ -19,6 +19,11 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
         playerController = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
     }
 
+    private void OnEnable()
+    {
+        quickSlot?.SyncInventoryQuickSlots();
+    }
+
     #region IInventoryProvider 구현
     public int GetItemCount(int itemId) => inventoryData.GetItemCount(itemId);
     public void AddItem(int itemId, int amount) => inventoryData.AddItem(itemId, amount);
