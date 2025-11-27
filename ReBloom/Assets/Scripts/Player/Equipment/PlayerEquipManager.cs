@@ -122,7 +122,7 @@ public class PlayerEquipManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("[EquipManager] equipmentUI가 null입니다!");
+           //Debug.LogWarning("[EquipManager] equipmentUI가 null입니다!");
         }
     }
 
@@ -160,7 +160,7 @@ public class PlayerEquipManager : MonoBehaviour
                 if (!player.currentClothEquip)
                     return;
 
-                inventoryItemData.AddItem(player.currentClothEquip.itemID, 1);
+               // inventoryItemData.AddItem(player.currentClothEquip.itemID, 1);
                 player.currentClothEquip = null;
                 break;
 
@@ -168,7 +168,7 @@ public class PlayerEquipManager : MonoBehaviour
                 if (!player.currentShoesEquip)
                     return;
 
-                inventoryItemData.AddItem(player.currentShoesEquip.itemID, 1);
+               // inventoryItemData.AddItem(player.currentShoesEquip.itemID, 1);
                 player.currentShoesEquip = null;
                 break;
                 
@@ -176,7 +176,7 @@ public class PlayerEquipManager : MonoBehaviour
                 if (!player.currentToolEquip)
                     return;
 
-                inventoryItemData.AddItem(player.currentToolEquip.itemID, 1);
+               // inventoryItemData.AddItem(player.currentToolEquip.itemID, 1);
                 player.currentToolEquip = null;
                 anim.HandLayerChange();
                 
@@ -192,7 +192,7 @@ public class PlayerEquipManager : MonoBehaviour
                 break;
         }
 
-        Debug.Log($"아이템 해제 완료");
+        // Debug.Log($"아이템 해제 완료");
 
         if (equipmentUI != null)
         {

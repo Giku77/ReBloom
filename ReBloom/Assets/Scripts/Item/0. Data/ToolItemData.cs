@@ -27,6 +27,7 @@ public class ToolItemData : ItemBase
     private BGField<string> Img_Path;
     private BGField<string> Description;
     private BGField<string> Addressable_Key;
+    private string Equip_Prefab_Key;
 
     #region 도구 전용 속성
     /// <summary>
@@ -70,6 +71,7 @@ public class ToolItemData : ItemBase
         Img_Path = meta.GetField<string>("Img_Path");
         Description = meta.GetField<string>("Description");
         Addressable_Key = meta.GetField<string>("Addressable_Key");
+        Equip_Prefab_Key = "Equip/" + Addressable_Key;
 
         // 기본 정보
         itemID = Tool_ID[entity];
@@ -228,6 +230,7 @@ public class ToolItemData : ItemBase
             Debug.LogWarning($"[ToolItemData] prefab 로드 예외: {path}\n{e.Message}");
         }
     }
+
     /// <summary>
     /// 장착 효과 재생 (VFX/SFX)
     /// </summary>
@@ -241,5 +244,10 @@ public class ToolItemData : ItemBase
     public float GetToolPerform()
     { 
         return Perform[entity];
+    }
+
+    public string GetEquipPrefabKey()
+    {
+        return Equip_Prefab_Key;
     }
 }
