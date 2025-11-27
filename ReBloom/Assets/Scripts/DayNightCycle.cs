@@ -22,6 +22,7 @@ public class DayNightCycle : MonoBehaviour
 
     [Header("Sun Settings")]
     public AnimationCurve sunAngleCurve;
+    [SerializeField] private float maxSunIntensity = 3f;
 
 
     [Header("Clouds Setting")]
@@ -29,6 +30,8 @@ public class DayNightCycle : MonoBehaviour
     [SerializeField] private float dayCloudAlpha = 1f;
     [SerializeField] private float nightCloudAlpha = 0.1f;
     [SerializeField] private float cloudLerpSpeed = 0.1f;
+
+    
 
     private float yEast = 90f;
     private float yWest = -90f;
@@ -140,7 +143,9 @@ public class DayNightCycle : MonoBehaviour
 
         sun.transform.rotation = Quaternion.Euler(SunAngle, SunYRotation, 0f);
 
-        float targetIntensity = Mathf.Clamp01(SunAngle / 90f);
+        //float targetIntensity = Mathf.Clamp01(SunAngle / 90f);
+        float normalized = Mathf.Clamp01(SunAngle / 90f);
+        float targetIntensity = Mathf.Lerp(0f, maxSunIntensity, normalized);
 
         sun.intensity = Mathf.Lerp(sun.intensity, targetIntensity, 2f * Time.deltaTime);
     }

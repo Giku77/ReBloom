@@ -65,4 +65,9 @@ public class QuestTextSwitcher : MonoBehaviour
         completeText.gameObject.SetActive(false);
         completeRect.anchoredPosition = centerPos + Vector2.left * slideDistance;
     }
+
+    public bool IsAnimating()
+    {
+        return questText.gameObject.activeSelf == true;
+    }
 }

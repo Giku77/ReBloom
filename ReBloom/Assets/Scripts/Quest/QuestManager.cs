@@ -45,21 +45,44 @@ public class QuestManager : MonoBehaviour
 
         _current = data;
 
+        SyncBuildGoalsWithWorld(_current);
+
         questUI?.Refresh();
+    }
+
+    private void SyncBuildGoalsWithWorld(QuestData quest)
+    {
+        if (quest.goals == null) return;
+        if (BuildManager.I == null) return;
+
+        foreach (var g in quest.goals)
+        {
+            if (g == null) continue;
+
+            if (g.type == QuestGoalType.Craft) 
+            {
+                int count = BuildManager.I.GetCount(g.objectId);
+                g.currentCount = count; 
+            }
+        }
     }
 
     public void NotifyBuildingBuilt(int buildingId)
     {
         if (_current == null) return;
         if (_current.goals == null) return;
+        if (BuildManager.I == null) return;
 
         bool changed = false;
 
         foreach (var g in _current.goals)
         {
+            if (g == null) continue;
+
             if (g.type == QuestGoalType.Craft && buildingId == g.objectId)
             {
-                g.currentCount++;
+                int count = BuildManager.I.GetCount(g.objectId);
+                g.currentCount = count;      
                 changed = true;
             }
         }
@@ -90,6 +113,8 @@ public class QuestManager : MonoBehaviour
 
     public void TryCompleteCurrent()
     {
+        if (questTextSwitcher != null && questTextSwitcher.IsAnimating()) return;
+
         if (_current == null) return;
 
         if (!IsQuestSatisfied(_current))
@@ -108,6 +133,10 @@ public class QuestManager : MonoBehaviour
         {
             SetCurrent(nextId);
             questTextSwitcher?.ResetQuestText();
+            if (IsQuestSatisfied(_current))
+            {
+                PlayQuestCompleteAnimation();
+            }
         }
         if (questUI != null && questUI.GetShowPathGuide())
         {

@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BuildManager : MonoBehaviour
 {
     public static BuildManager I;
+
     private void Awake()
     {
         I = this;
@@ -38,6 +40,9 @@ public class BuildManager : MonoBehaviour
 
     private List<IBuildRule> buildRules = new List<IBuildRule>();
 
+    private readonly Dictionary<int, HashSet<BuildingInstance>> instancesByArcId 
+    = new Dictionary<int, HashSet<BuildingInstance>>(); 
+
     private Dictionary <int, int> buildingCounts = new Dictionary<int, int>();
 
     private GameObject player;
@@ -46,11 +51,56 @@ public class BuildManager : MonoBehaviour
 
     public bool debugMode => debugBuildingMode;
 
+    
+    public void RegisterBuilding(BuildingInstance inst)
+    {
+        if (inst == null) return;
+
+        if (!instancesByArcId.TryGetValue(inst.ArcId, out var set))
+        {
+            set = new HashSet<BuildingInstance>();
+            instancesByArcId[inst.ArcId] = set;
+        }
+
+        if (set.Add(inst))
+        {
+            if (buildingCounts.ContainsKey(inst.ArcId))
+                buildingCounts[inst.ArcId]++;
+            else
+                buildingCounts[inst.ArcId] = 1;
+        }
+    }
+
+    public void UnregisterBuilding(BuildingInstance inst)
+    {
+        if (inst == null) return;
+
+        if (instancesByArcId.TryGetValue(inst.ArcId, out var set))
+        {
+            if (set.Remove(inst))
+            {
+                if (buildingCounts.ContainsKey(inst.ArcId))
+                {
+                    buildingCounts[inst.ArcId]--;
+                    if (buildingCounts[inst.ArcId] <= 0)
+                        buildingCounts.Remove(inst.ArcId);
+                }
+            }
+        }
+    }
+
     public int GetCount(int arcId)
     {
         if (buildingCounts.TryGetValue(arcId, out var count))
             return count;
         return 0;
+    }
+
+    public IReadOnlyCollection<BuildingInstance> GetInstances(int arcId)
+    {
+        if (instancesByArcId.TryGetValue(arcId, out var set))
+            return set;
+        return Array.Empty<BuildingInstance>();
     }
 
     private bool TryAdjustToGround(ArcContext ctx, out Vector3 adjustedPos, out string errorCode)
@@ -215,11 +265,10 @@ public class BuildManager : MonoBehaviour
                 Remove(recipe);
         }
 
-        if (buildingCounts.ContainsKey(arc.arcId))
-            buildingCounts[arc.arcId]++;
-        else
-            buildingCounts[arc.arcId] = 1;
-        QuestManager.I.NotifyBuildingBuilt(arc.arcId);
+        // if (buildingCounts.ContainsKey(arc.arcId))
+        //     buildingCounts[arc.arcId]++;
+        // else
+        //     buildingCounts[arc.arcId] = 1;
 
         // if (arc.researchInc > 0f)
         // {
@@ -227,7 +276,13 @@ public class BuildManager : MonoBehaviour
         //     ResearchManager.I.AddProgress(arc.researchInc);
         // }
 
-        return Spawn(arc, pos, rot);
+        bool spawned = Spawn(arc, pos, rot);
+        if (spawned)
+        {
+            QuestManager.I?.NotifyBuildingBuilt(arc.arcId);
+        }
+
+        return spawned;
     }
 
     public bool HasMaterials(ArcRecipe recipe)
@@ -278,6 +333,7 @@ public class BuildManager : MonoBehaviour
         var p = Instantiate(buildprefab, adjustedPos, rot);
         var bInstance = p.GetComponent<BuildingInstance>();
         bInstance.arcId = arc.arcId;
+        RegisterBuilding(bInstance);
         p.TryGetComponent<InteractionHighlight>(out var highlight);
         if (highlight != null)
           highlight.promptFormat = $"상호작용[E] : {arc.name}";
@@ -306,5 +362,30 @@ public class BuildManager : MonoBehaviour
        if (stageDetector.CurrentStage.StageID != (int)EntranceType.Shelter)
             return false;
        return true;
+    }
+
+    public bool TryRemoveBuilding(BuildingInstance inst)
+    {
+        if (inst == null) return false;
+
+        // 퀘스트에 "건물 파괴" 같은 조건이 있으면 여기서 Notify 가능
+        // QuestManager.I.NotifyBuildingRemoved(inst.ArcId);
+
+        UnregisterBuilding(inst);
+        Destroy(inst.gameObject);
+        return true;
+    }
+
+    public void RemoveAllBuildingsOfArc(int arcId)
+    {
+        var instances = new List<BuildingInstance>(GetInstances(arcId));
+        foreach (var inst in instances)
+            TryRemoveBuilding(inst);
+    }
+
+    public void MoveBuilding(BuildingInstance inst, Vector3 newPos, Quaternion newRot)
+    {
+        // 필요하면 다시 바닥 맞추기 or 규칙 체크
+        inst.transform.SetPositionAndRotation(newPos, newRot);
     }
 }
