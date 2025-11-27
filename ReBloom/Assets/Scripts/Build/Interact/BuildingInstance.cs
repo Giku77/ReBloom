@@ -16,6 +16,10 @@ public class BuildingInstance : MonoBehaviour
         {
             ResearchManager.I.RegisterBuilding(this);
         }
+        // if (BuildManager.I != null)
+        // {
+        //     BuildManager.I.RegisterBuilding(this);
+        // }
     }
 
     private void OnDisable()
@@ -23,6 +27,10 @@ public class BuildingInstance : MonoBehaviour
         if (ResearchManager.I != null)
         {
             ResearchManager.I.UnregisterBuilding(this);
+        }
+        if (BuildManager.I != null)
+        {
+            BuildManager.I.UnregisterBuilding(this);
         }
     }
 
