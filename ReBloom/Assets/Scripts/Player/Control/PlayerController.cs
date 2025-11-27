@@ -24,7 +24,28 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask stepLayerMask;      // 부딪힐 지면/장애물 레이어 (groundLayer랑 같게 써도 됨)
     [SerializeField] private float stepSmooth = 0.1f;      // 한 프레임에 얼마나 올릴지
 
+    [Header("References")]
+    [SerializeField] private EquipmentUI equipmentUI;
+
     public float currentSpeed = 0f;
+
+    public float SpeedRatio
+    {
+        get
+        {
+            if (originalSpeed <= 0f) return 1f;
+            return moveSpeed / originalSpeed;   // 1.0f == 100%
+        }
+    }
+
+    public int SpeedPercent
+    {
+        get
+        {
+            return Mathf.RoundToInt(SpeedRatio * 100f);
+        }
+    }
+
     private float targetSpeed;
 
     private bool isSprinting = false;
@@ -167,6 +188,7 @@ public class PlayerController : MonoBehaviour
     {
         speedMultipliers[source] = multiplier;
         RecalculateMoveSpeed();
+        equipmentUI?.UpdateResistText();
     }
 
     public void RemoveSpeedMultiplier(object source)
@@ -175,6 +197,7 @@ public class PlayerController : MonoBehaviour
         {
             RecalculateMoveSpeed();
         }
+        equipmentUI?.UpdateResistText();
     }
 
     private void RecalculateMoveSpeed()

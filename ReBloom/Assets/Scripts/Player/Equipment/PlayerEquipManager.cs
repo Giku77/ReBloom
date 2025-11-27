@@ -79,6 +79,7 @@ public class PlayerEquipManager : MonoBehaviour
         if (equipmentUI != null)
         {
             equipmentUI.RefreshAllSlots();
+            equipmentUI.UpdateResistText();
             Debug.Log("[EquipManager] UI 갱신 호출");
         }
         else
@@ -116,6 +117,7 @@ public class PlayerEquipManager : MonoBehaviour
         if (equipmentUI != null)
         {
             equipmentUI.RefreshAllSlots();
+            equipmentUI.UpdateResistText();
             Debug.Log("[EquipManager] UI 갱신 호출");
         }
         else
@@ -145,6 +147,7 @@ public class PlayerEquipManager : MonoBehaviour
         if (equipmentUI != null)
         {
             equipmentUI.RefreshAllSlots();
+            equipmentUI.UpdateResistText();
         }
     }
 
@@ -194,6 +197,7 @@ public class PlayerEquipManager : MonoBehaviour
         if (equipmentUI != null)
         {
             equipmentUI.RefreshAllSlots();
+            equipmentUI.UpdateResistText();
         }
     }
 

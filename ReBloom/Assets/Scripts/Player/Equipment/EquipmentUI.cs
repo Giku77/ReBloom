@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 
 public class EquipmentUI : MonoBehaviour
 {
@@ -13,6 +14,12 @@ public class EquipmentUI : MonoBehaviour
 
     [Header("Slot UI Prefab")]
     [SerializeField] private EquipmentSlotUI slotUIPrefab;
+
+    [Header("ResistanceTexts")]
+    [SerializeField] private TextMeshProUGUI pollutionResText;
+    [SerializeField] private TextMeshProUGUI heightResText;
+    [SerializeField] private TextMeshProUGUI moveResText;
+    [SerializeField] private PlayerController playerController;
 
     private EquipmentSlotUI clothSlotUI;
     private EquipmentSlotUI shoesSlotUI;
@@ -145,5 +152,26 @@ private EquipmentSlotUI CreateSlotUI(Transform parent, GearType gearType)
         if (toolSlotUI == null || equipData == null) return;
 
         toolSlotUI.UpdateSlotInfo(equipData.currentToolEquip);
+    }
+
+    public void UpdateResistText()
+    {
+        if (equipManager == null) return;
+
+        if (pollutionResText != null)
+        {
+            float pollutionResist = equipManager.GetTotalPollutionResist() * 100f;
+            pollutionResText.text = $"{pollutionResist:F0}%";
+        }
+        if (heightResText != null)
+        {
+            float heightResist = equipManager.GetHeightResist() * 100f;
+            heightResText.text = $"{heightResist:F0}%";
+        }
+        if (moveResText != null && playerController != null)
+        {
+            float moveResist = playerController.SpeedPercent;
+            moveResText.text = $"{moveResist:F0}%";
+        }
     }
 }

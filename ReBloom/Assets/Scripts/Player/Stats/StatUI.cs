@@ -8,7 +8,8 @@ public class StatUI : MonoBehaviour
     
     [SerializeField] private DebuffManager debuffManager;
     [SerializeField] private PlayerStats playerStats;
-    
+    [SerializeField] private PlayerController playerController;
+
     [Header("StatBars")]
     [SerializeField] private Slider hpBar;
     [SerializeField] private TextMeshProUGUI hpText;
@@ -20,6 +21,11 @@ public class StatUI : MonoBehaviour
     [SerializeField] private Image thirstGauge;
     [SerializeField] private Image hungerGauge;
     [SerializeField] private TextMeshProUGUI tempText;
+
+    [Header("StatTexts")]
+    [SerializeField] private TextMeshProUGUI pollutionText;
+    [SerializeField] private TextMeshProUGUI hungerText;
+    [SerializeField] private TextMeshProUGUI thirstText;
 
 
     private void Start()
@@ -61,7 +67,7 @@ public class StatUI : MonoBehaviour
         UpdateHungerUI(playerStats.Hunger.Value, playerStats.Hunger.MaxValue);
         UpdateThirstUI(playerStats.Thirst.Value, playerStats.Thirst.MaxValue);
         UpdateTemperatureUI(playerStats.Temperature.Value, playerStats.Temperature.MaxValue);
-        
+
         UpdateHungerBarColor();
         UpdateThirstBarColor();
         UpdateTemperatureBarColor();
@@ -215,6 +221,11 @@ public class StatUI : MonoBehaviour
         {
             pollutionGauge.fillAmount = value / 100;
         }
+
+        if (pollutionText != null)
+        {
+            pollutionText.text = $"{((value / maxValue) * 100):F0}%";
+        }
     }
 
     private void UpdateHungerUI(float value, float maxValue)
@@ -228,6 +239,10 @@ public class StatUI : MonoBehaviour
         {
             hungerGauge.fillAmount = value / 100;
         }
+        if (hungerText != null)
+        {
+            hungerText.text = $"{((value / maxValue) * 100):F0}%";
+        }
     }
     
     private void UpdateThirstUI(float value, float maxValue)
@@ -240,6 +255,10 @@ public class StatUI : MonoBehaviour
         if (thirstGauge != null)
         {
             thirstGauge.fillAmount = value / 100;
+        }
+        if (thirstText != null)
+        {
+            thirstText.text = $"{((value / maxValue) * 100):F0}%";
         }
     }
 
