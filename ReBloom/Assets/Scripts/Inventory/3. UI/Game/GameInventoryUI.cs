@@ -159,12 +159,14 @@ public class GameInventoryUI : MonoBehaviour
             // 커서 표시
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
+            Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = true;
         }
         else
         {
             // 게임 중에는 커서 숨김
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
+            Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = false;
         }
 
         //Debug.Log($"[게임 인벤토리] {(isActive ? "열림" : "닫힘")}");
@@ -328,6 +330,7 @@ public class GameInventoryUI : MonoBehaviour
 
         // 퀘스트 UI 갱신
         questUI?.Refresh();
+        QuestManager.I?.PlayQuestCompleteAnimation();
 
         Debug.Log($"[GameInventoryUI] UI 갱신 완료 - Tier {inventoryData.InventoryTier}, 슬롯: {emptySlotList.Count}, 아이템: {slotIndex}");
     }

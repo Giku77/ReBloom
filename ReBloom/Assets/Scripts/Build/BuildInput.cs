@@ -8,7 +8,6 @@ public class BuildInput : MonoBehaviour
     [SerializeField] private InputAction buildAction;
     [SerializeField] private InputAction toggleBuildUIAction;
 
-    [SerializeField] private InputAction debugResearchPointAction;
 
     [SerializeField] private InputAction addMouse;
     [SerializeField] private InputAction subMouse;
@@ -28,8 +27,6 @@ public class BuildInput : MonoBehaviour
         buildAction.performed += OnBuild;
         toggleBuildUIAction.Enable();
         toggleBuildUIAction.performed += OnToggleBuildUI;
-        debugResearchPointAction.Enable();
-        debugResearchPointAction.performed += OnDebugAddResearchPoint;
         addMouse.Enable();
         addMouse.performed += OnDebugAddMouse;
         subMouse.Enable();
@@ -44,8 +41,6 @@ public class BuildInput : MonoBehaviour
         buildAction.Disable();
         toggleBuildUIAction.performed -= OnToggleBuildUI;
         toggleBuildUIAction.Disable();
-        debugResearchPointAction.performed -= OnDebugAddResearchPoint;
-        debugResearchPointAction.Disable();
         addMouse.performed -= OnDebugAddMouse;
         addMouse.Disable();
         subMouse.performed -= OnDebugSubMouse;
@@ -72,11 +67,6 @@ public class BuildInput : MonoBehaviour
         }
     }
 
-    private void OnDebugAddResearchPoint(InputAction.CallbackContext ctx)
-    {
-        ResearchManager.I.DebugFillToMax();
-    }
-
     private void OnDebugAddMouse(InputAction.CallbackContext ctx)
     {
         var camera = Camera.main.GetComponent<ThirdPersonCamera>();
@@ -92,6 +82,7 @@ public class BuildInput : MonoBehaviour
     private void OnDebugBuildingMode(InputAction.CallbackContext ctx)
     {
         ToastMessageUI.Instance.Show("디버그 빌딩 모드 토글");
+        ResearchManager.I.DebugFillToMax();
         BuildManager.I.ToggleDebugBuildingMode();
     }
 }

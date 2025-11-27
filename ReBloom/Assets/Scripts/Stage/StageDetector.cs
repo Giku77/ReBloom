@@ -43,7 +43,7 @@ public class StageDetector : MonoBehaviour
                     RegionTitleUI.Instance.ShowRegion(regions[(stage.Data.id % 400) - 1]);
                     if (enterName == stage.Data.name)
                     {
-                        QuestManager.I?.TryCompleteCurrent();
+                        QuestManager.I?.PlayQuestCompleteAnimation();
                         QuestManager.I?.ClearPathGuide();
                     }
                     ToastMessageUI.Instance.Show($"오염도 지역에 진입했습니다 : 1초마다 오염도({stage.Data.stagePollution}) 증가");

@@ -13,12 +13,11 @@ public class QuestManager : MonoBehaviour
     public QuestData Current => _current;
 
     private void Awake() => I = this;
-    private QuestUI questUI;
 
-    private void Start()
-    {
-        questUI = FindFirstObjectByType<QuestUI>();
-    }
+    [SerializeField] private QuestTextSwitcher questTextSwitcher;
+    [SerializeField] private QuestUI questUI;
+
+
 
     public void Init(QuestDB db, IInventoryProvider inventory, StageDetector stageDetector)
     {
@@ -40,7 +39,7 @@ public class QuestManager : MonoBehaviour
     {
         if (!_db.TryGet(questId, out var data))
         {
-            Debug.LogError($"����Ʈ DB�� ID {questId}�� �����ϴ�.");
+            Debug.LogError($"퀘스트 DB에 ID {questId}가 없습니다.");
             return;
         }
 
@@ -67,7 +66,7 @@ public class QuestManager : MonoBehaviour
 
         if (changed)
         {
-            TryCompleteCurrent();
+            PlayQuestCompleteAnimation();
         }
     }
 
@@ -76,13 +75,26 @@ public class QuestManager : MonoBehaviour
         questUI?.ClearPathGuide();
     }
 
+    public void PlayQuestCompleteAnimation()
+    {
+        if (_current == null) return;
+
+        if (!IsQuestSatisfied(_current))
+        {
+            Debug.Log($"퀘스트 조건 미달성 : {_current.questName}");
+            return;
+        }
+
+        questTextSwitcher?.PlayQuestComplete();
+    }
+
     public void TryCompleteCurrent()
     {
         if (_current == null) return;
 
         if (!IsQuestSatisfied(_current))
         {
-            Debug.Log($"������ ���� �� �� : {_current.questName}");
+            Debug.Log($"퀘스트 조건 미달성 : {_current.questName}");
             return;
         }
 
@@ -90,11 +102,12 @@ public class QuestManager : MonoBehaviour
         if (nextId == 0)
         {
             _current = null;
-            Debug.Log("��� ����Ʈ �Ϸ�");
+            Debug.Log("퀘스트 완료, 다음 퀘스트 없음.");
         }
         else
         {
             SetCurrent(nextId);
+            questTextSwitcher?.ResetQuestText();
         }
         if (questUI != null && questUI.GetShowPathGuide())
         {
