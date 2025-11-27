@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class QuestManager : MonoBehaviour
 {
@@ -117,11 +117,11 @@ public class QuestManager : MonoBehaviour
 
         if (_current == null) return;
 
-        if (!IsQuestSatisfied(_current))
-        {
-            Debug.Log($"퀘스트 조건 미달성 : {_current.questName}");
-            return;
-        }
+        //if (!IsQuestSatisfied(_current))
+        //{
+        //    Debug.Log($"퀘스트 조건 미달성 : {_current.questName}");
+        //    return;
+        //}
 
         var nextId = FindNextByFormer(_current.questId);
         if (nextId == 0)
