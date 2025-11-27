@@ -9,7 +9,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2709812535358662316}
-  m_Layer: 0
+  - component: {fileID: 1275114639828293677}
+  - component: {fileID: 575250356330857927}
+  - component: {fileID: -2542364536705386384}
+  - component: {fileID: 4599677588895488343}
+  - component: {fileID: 4384694560810567794}
+  m_Layer: 11
   m_Name: GeneSeed
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 367863709333501367}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.8409475, z: -0, w: 0.54111665}
-  m_LocalPosition: {x: 4.993, y: 0.146, z: 3.015}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.29270995, y: 0.29270995, z: 0.29270995}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -34,6 +39,104 @@ Transform:
   - {fileID: 570604245281002310}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: -114.481, z: 0}
+--- !u!54 &1275114639828293677
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 367863709333501367}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &575250356330857927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 367863709333501367}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1e1b7fd66b097c43840613e4f2134ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pickupRange: 2
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  inventoryData: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
+--- !u!114 &-2542364536705386384
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 367863709333501367}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bcb90db3cf36fe4d8707b36f1985768, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  lightIntensity: 2
+  backlightRange: 3
+  bodylightRange: 0.05
+  promptCanvas: {fileID: 0}
+  promptText: {fileID: 0}
+  holdPromptUI: {fileID: 0}
+  promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
+  isPermanent: 0
+--- !u!114 &4599677588895488343
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 367863709333501367}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 994bdffcbc58aad468df8611de143a46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!65 &4384694560810567794
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 367863709333501367}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2012088274432587879
 GameObject:
   m_ObjectHideFlags: 0
@@ -45,7 +148,7 @@ GameObject:
   - component: {fileID: 8804100327617329717}
   - component: {fileID: 7741607059944202448}
   - component: {fileID: 2815432823847615929}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: 2_mosquito_lr
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -131,7 +234,7 @@ GameObject:
   - component: {fileID: 966431315768136840}
   - component: {fileID: 8555256635138543754}
   - component: {fileID: 4445752018850865346}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: 5_amber_lr
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -217,7 +320,7 @@ GameObject:
   - component: {fileID: 570604245281002310}
   - component: {fileID: 8750232287309606719}
   - component: {fileID: 5550444270488194733}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: 6_eclats
   m_TagString: Untagged
   m_Icon: {fileID: 0}

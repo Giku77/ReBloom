@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3427548926684052425}
   - component: {fileID: 5022238300627010853}
   - component: {fileID: 4163281937788440159}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Design_mat_0_Inside
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -97,7 +97,7 @@ GameObject:
   - component: {fileID: 9100054982454567239}
   - component: {fileID: 474057048461898087}
   - component: {fileID: 698482373109185068}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Design_mat_1_Inside
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -183,7 +183,7 @@ GameObject:
   - component: {fileID: 7521524625520780654}
   - component: {fileID: 7787606596830391013}
   - component: {fileID: 1189259772924801437}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Design_mat_0_Outside
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -269,7 +269,7 @@ GameObject:
   - component: {fileID: 2504461235551172183}
   - component: {fileID: 805723982726325130}
   - component: {fileID: 3320782351390569391}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Design_mat_1_Outside
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -355,7 +355,7 @@ GameObject:
   - component: {fileID: 7072688290441962343}
   - component: {fileID: 9007082311213307458}
   - component: {fileID: 3245423057733501262}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Design_mat_2_Inside
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -441,7 +441,7 @@ GameObject:
   - component: {fileID: 3108310279622290021}
   - component: {fileID: 4556408067564271649}
   - component: {fileID: 2487978697646346886}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Design_mat_4_Outside
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -527,7 +527,7 @@ GameObject:
   - component: {fileID: 5054311178624780534}
   - component: {fileID: 8975163897197100329}
   - component: {fileID: 8590783252824854835}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Design_mat_4_Inside
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -611,7 +611,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8122822708641433267}
-  m_Layer: 0
+  - component: {fileID: 5770954832968213113}
+  - component: {fileID: 1929109854904580931}
+  - component: {fileID: 5582042338807235275}
+  - component: {fileID: -331343530168934183}
+  - component: {fileID: 3573579351987814914}
+  m_Layer: 11
   m_Name: DefaultShirts
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -627,7 +632,7 @@ Transform:
   m_GameObject: {fileID: 7632522853263715403}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -643,6 +648,104 @@ Transform:
   - {fileID: 3108310279622290021}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &5770954832968213113
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7632522853263715403}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &1929109854904580931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7632522853263715403}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1e1b7fd66b097c43840613e4f2134ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pickupRange: 2
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  inventoryData: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
+--- !u!114 &5582042338807235275
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7632522853263715403}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bcb90db3cf36fe4d8707b36f1985768, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  lightIntensity: 2
+  backlightRange: 3
+  bodylightRange: 0.05
+  promptCanvas: {fileID: 0}
+  promptText: {fileID: 0}
+  holdPromptUI: {fileID: 0}
+  promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
+  isPermanent: 0
+--- !u!114 &-331343530168934183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7632522853263715403}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 994bdffcbc58aad468df8611de143a46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!65 &3573579351987814914
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7632522853263715403}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.64, y: 0.88, z: 0.3}
+  m_Center: {x: 0, y: 1.1, z: 0}
 --- !u!1 &8292397847542183873
 GameObject:
   m_ObjectHideFlags: 0
@@ -654,7 +757,7 @@ GameObject:
   - component: {fileID: 3122898001620905130}
   - component: {fileID: 2249826797523736724}
   - component: {fileID: 9033200579076424300}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Design_mat_3_Outside
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -740,7 +843,7 @@ GameObject:
   - component: {fileID: 7749744611683969188}
   - component: {fileID: 9063472721292046133}
   - component: {fileID: 9219043610514957955}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Design_mat_2_Outside
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -826,7 +929,7 @@ GameObject:
   - component: {fileID: 969906920569782823}
   - component: {fileID: 9210552423560725687}
   - component: {fileID: 886136005911878612}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Design_mat_3_Inside
   m_TagString: Untagged
   m_Icon: {fileID: 0}

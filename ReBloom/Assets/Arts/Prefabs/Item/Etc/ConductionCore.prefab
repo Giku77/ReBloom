@@ -9,7 +9,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1320976066701862819}
-  m_Layer: 0
+  - component: {fileID: 1968313457679727064}
+  - component: {fileID: 5075416439668897600}
+  - component: {fileID: -496594947135266177}
+  - component: {fileID: -5397721111972646589}
+  - component: {fileID: 7025240076204763481}
+  m_Layer: 11
   m_Name: ConductionCore
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 97717385902934385}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: -0, w: -0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: 0.958}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.64736784, y: 0.64736784, z: 0.64736784}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -36,6 +41,104 @@ Transform:
   - {fileID: 2309462159138805609}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 270, z: 0}
+--- !u!54 &1968313457679727064
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 97717385902934385}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &5075416439668897600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 97717385902934385}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1e1b7fd66b097c43840613e4f2134ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pickupRange: 2
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  inventoryData: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
+--- !u!114 &-496594947135266177
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 97717385902934385}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bcb90db3cf36fe4d8707b36f1985768, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  lightIntensity: 2
+  backlightRange: 3
+  bodylightRange: 0.05
+  promptCanvas: {fileID: 0}
+  promptText: {fileID: 0}
+  holdPromptUI: {fileID: 0}
+  promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
+  isPermanent: 0
+--- !u!114 &-5397721111972646589
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 97717385902934385}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 994bdffcbc58aad468df8611de143a46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!65 &7025240076204763481
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 97717385902934385}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 0.2, z: 1}
+  m_Center: {x: 0, y: 0.1, z: 0}
 --- !u!1 &307948889392486490
 GameObject:
   m_ObjectHideFlags: 0
@@ -47,7 +150,7 @@ GameObject:
   - component: {fileID: 1962997776080435048}
   - component: {fileID: 448906215617394822}
   - component: {fileID: 7737014969892229291}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: circuit-board.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -133,7 +236,7 @@ GameObject:
   - component: {fileID: 1067136733819234638}
   - component: {fileID: 8707492819938615085}
   - component: {fileID: 1681266064879701929}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: circuit-board.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -219,7 +322,7 @@ GameObject:
   - component: {fileID: 3514886392657517755}
   - component: {fileID: 7300908864359703060}
   - component: {fileID: 3382765334454370055}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: circuit-board.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -305,7 +408,7 @@ GameObject:
   - component: {fileID: 2178878692766906919}
   - component: {fileID: 2909598264700890085}
   - component: {fileID: 5126885802999695736}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: circuit-board.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -391,7 +494,7 @@ GameObject:
   - component: {fileID: 2309462159138805609}
   - component: {fileID: 8674696935663756431}
   - component: {fileID: 5692169533030016801}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: circuit-board.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}

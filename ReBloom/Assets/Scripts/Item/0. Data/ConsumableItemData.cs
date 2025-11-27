@@ -2,6 +2,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 /// <summary>
 /// 소비 아이템 (BG Database 래퍼)
@@ -31,6 +32,7 @@ public class ConsumableItemData : ItemBase
     private BGField<float> Duration;
     private BGField<string> ImgPath;
     private BGField<string> Description;
+    private BGField<string> Addressable_Key;
 
     /// <summary>
     /// BG Database Entity로 초기화
@@ -61,6 +63,7 @@ public class ConsumableItemData : ItemBase
         Duration = meta.GetField<float>("Duration");
         ImgPath = meta.GetField<string>("ImgPath");
         Description = meta.GetField<string>("Description");
+        Addressable_Key = meta.GetField<string>("Addressable_Key");
 
         itemID = ConsumeItem_ID[entity];
         itemName = ConsumeItem_Name[entity];
@@ -72,9 +75,11 @@ public class ConsumableItemData : ItemBase
         canStorage = Convert.ToBoolean(Storageable[entity]);
         canUseable = Convert.ToBoolean(Useable[entity]);
         description = Description[entity];
+        worldPrefabAddress = Addressable_Key[entity];
 
         // 아이콘은 Addressable로 비동기 로드
         LoadIconAsync();
+        LoadPrefabAsync();
     }
 
     /// <summary>
@@ -236,6 +241,66 @@ public class ConsumableItemData : ItemBase
         {
             Debug.LogWarning($"[ConsumableItemData] 아이콘 로드 예외: {path}\n{e.Message}");
         }
+    }
+    private async void LoadPrefabAsync()
+    {
+        string path = Addressable_Key[entity];
+
+        // 경로가 비어있으면 기본 사용
+        if (string.IsNullOrEmpty(path))
+        {
+            path = "Item/Item00";
+        }
+
+        // 먼저 지정된 경로 시도
+        if (!await LoadPrefabFromPath(path))
+        {
+            // 실패하면 기본 경로로 재시도
+            if (path != "Item/Item00")
+            {
+                Debug.LogWarning($"[ConsumableItemData] {path} 실패, 기본 경로로 재시도");
+                await LoadPrefabFromPath("Item/Item00");
+            }
+        }
+    }
+
+    private async System.Threading.Tasks.Task<bool> LoadPrefabFromPath(string path)
+    {
+        try
+        {
+            // InvalidKeyException을 조용히 처리
+            var checkHandle = Addressables.LoadResourceLocationsAsync(path);
+            var locations = await checkHandle.Task;
+
+            if (locations == null || locations.Count == 0)
+            {
+                Debug.Log($"[ConsumableItemData] Addressable 키 '{path}'가 없음, 기본값 사용");
+                Addressables.Release(checkHandle);
+                return false;
+            }
+            Addressables.Release(checkHandle);
+
+            // 실제 로드
+            var handle = Addressables.LoadAssetAsync<GameObject>(path);
+            await handle.Task;
+
+            if (handle.Status == AsyncOperationStatus.Succeeded)
+            {
+                itemPrefab = handle.Result;
+                return true;
+            }
+        }
+        catch (InvalidKeyException)
+        {
+            // InvalidKeyException은 조용히 처리 (스팸 방지)
+            Debug.Log($"[ConsumableItemData] '{path}' 키 없음");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"[ConsumableItemData] 예외: {e.Message}");
+        }
+
+        return false;
     }
 
     /// <summary>

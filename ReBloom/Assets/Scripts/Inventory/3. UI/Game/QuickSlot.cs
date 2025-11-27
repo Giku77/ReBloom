@@ -11,6 +11,7 @@ public class QuickSlot : MonoBehaviour
 
     [Header("UI References")]
     [SerializeField] private List<GameObject> slotsRef;
+    [SerializeField] private List<GameObject> invtQuickslotRef;
     [SerializeField] private QuickSlotUI quickSlotUIPrefab;
 
     [Header("Data Reference")]
@@ -20,6 +21,8 @@ public class QuickSlot : MonoBehaviour
 
     private ItemBase[] items;
     private QuickSlotUI[] slotUIs;
+    private QuickSlotUI[] invSlotUIs;
+
     private int assignedSlotCount = 0;
 
     public ReadOnlyCollection<ItemBase> GetItemBaseSlot => Array.AsReadOnly(items);
@@ -52,6 +55,7 @@ public class QuickSlot : MonoBehaviour
     {
         items = new ItemBase[slotCount];
         slotUIs = new QuickSlotUI[slotCount];
+        invSlotUIs = new QuickSlotUI[slotCount];
         assignedSlotCount = 0;
         Debug.Log($"[QuickSlot] {slotCount}개 슬롯 초기화 완료");
     }
@@ -228,23 +232,46 @@ public class QuickSlot : MonoBehaviour
             return;
         }
 
-        if (slotUIs[index] != null)
+        // 게임 내 퀵슬롯 UI 생성
+        if (slotsRef != null && index < slotsRef.Count && slotsRef[index] != null)
         {
-            Destroy(slotUIs[index].gameObject);
+            if (slotUIs[index] != null)
+            {
+                Destroy(slotUIs[index].gameObject);
+            }
+
+            QuickSlotUI newSlotUI = Instantiate(
+                quickSlotUIPrefab,
+                slotsRef[index].transform.position,
+                Quaternion.identity,
+                slotsRef[index].transform
+            );
+
+            newSlotUI.OnUpdateSlotInfo(item, quantity);
+            SetDragDropHandlerData(item, newSlotUI);
+            slotUIs[index] = newSlotUI;
         }
 
-        QuickSlotUI newSlotUI = Instantiate(
-            quickSlotUIPrefab,
-            slotsRef[index].transform.position,
-            Quaternion.identity,
-            slotsRef[index].transform
-        );
+        // 인벤토리 내 퀵슬롯 UI 생성 (동기화)
+        if (invtQuickslotRef != null && index < invtQuickslotRef.Count && invtQuickslotRef[index] != null)
+        {
+            if (invSlotUIs[index] != null)
+            {
+                Destroy(invSlotUIs[index].gameObject);
+            }
 
-        newSlotUI.OnUpdateSlotInfo(item, quantity);
-        SetDragDropHandlerData(item, newSlotUI); // 'this' is passed as the QuickSlot instance
-        slotUIs[index] = newSlotUI;
+            QuickSlotUI invSlotUI = Instantiate(
+                quickSlotUIPrefab,
+                invtQuickslotRef[index].transform.position,
+                Quaternion.identity,
+                invtQuickslotRef[index].transform
+            );
+
+            invSlotUI.OnUpdateSlotInfo(item, quantity);
+            SetDragDropHandlerData(item, invSlotUI);
+            invSlotUIs[index] = invSlotUI;
+        }
     }
-    #endregion
 
     #region Validation
     /// <summary>
@@ -292,10 +319,18 @@ public class QuickSlot : MonoBehaviour
 
         items[index] = null;
 
+        // 게임 내 퀵슬롯 UI 제거
         if (slotUIs[index] != null)
         {
             Destroy(slotUIs[index].gameObject);
             slotUIs[index] = null;
+        }
+
+        // 인벤토리 내 퀵슬롯 UI 제거
+        if (invSlotUIs[index] != null)
+        {
+            Destroy(invSlotUIs[index].gameObject);
+            invSlotUIs[index] = null;
         }
 
         assignedSlotCount--;
@@ -304,6 +339,7 @@ public class QuickSlot : MonoBehaviour
         Debug.Log($"[QuickSlot] 슬롯 {index} 제거됨");
         return true;
     }
+    #endregion
 
     public bool RemoveItem(ItemBase item)
     {
@@ -392,11 +428,21 @@ public class QuickSlot : MonoBehaviour
     {
         if (index < 0 || index >= slotCount) return;
         if (items[index] == null) return;
-        if (slotUIs[index] == null) return;
         if (inventoryData == null) return;
 
         int currentQuantity = inventoryData.GetItemCount(items[index].itemID);
-        slotUIs[index].OnUpdateSlotInfo(items[index], currentQuantity);
+
+        // 게임 내 퀵슬롯 UI 업데이트
+        if (slotUIs[index] != null)
+        {
+            slotUIs[index].OnUpdateSlotInfo(items[index], currentQuantity);
+        }
+
+        // 인벤토리 내 퀵슬롯 UI 업데이트
+        if (invSlotUIs[index] != null)
+        {
+            invSlotUIs[index].OnUpdateSlotInfo(items[index], currentQuantity);
+        }
 
         if (currentQuantity <= 0)
         {
@@ -410,6 +456,45 @@ public class QuickSlot : MonoBehaviour
         {
             UpdateSlotQuantity(i);
         }
+    }
+    #endregion
+
+    #region 초기 동기화
+    /// <summary>
+    /// 인벤토리 창이 열릴 때 호출하여 기존 퀵슬롯 상태를 동기화
+    /// </summary>
+    public void SyncInventoryQuickSlots()
+    {
+        if (invtQuickslotRef == null || invtQuickslotRef.Count == 0)
+        {
+            Debug.LogWarning("[QuickSlot] invtQuickslotRef가 설정되지 않음");
+            return;
+        }
+
+        for (int i = 0; i < slotCount; i++)
+        {
+            if (items[i] != null && i < invtQuickslotRef.Count)
+            {
+                // 이미 UI가 있으면 업데이트만, 없으면 생성
+                if (invSlotUIs[i] == null)
+                {
+                    int quantity = inventoryData.GetItemCount(items[i].itemID);
+
+                    QuickSlotUI invSlotUI = Instantiate(
+                        quickSlotUIPrefab,
+                        invtQuickslotRef[i].transform.position,
+                        Quaternion.identity,
+                        invtQuickslotRef[i].transform
+                    );
+
+                    invSlotUI.OnUpdateSlotInfo(items[i], quantity);
+                    SetDragDropHandlerData(items[i], invSlotUI);
+                    invSlotUIs[i] = invSlotUI;
+                }
+            }
+        }
+
+        Debug.Log("[QuickSlot] 인벤토리 퀵슬롯 동기화 완료");
     }
     #endregion
 

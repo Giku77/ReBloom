@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3900762438125911197}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Meshes
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43,7 +43,7 @@ GameObject:
   - component: {fileID: 5262977366028277520}
   - component: {fileID: 5597793858037908773}
   - component: {fileID: 425799651358726396}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Object_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -129,7 +129,7 @@ GameObject:
   - component: {fileID: 2345422788967144693}
   - component: {fileID: 3075007790973414254}
   - component: {fileID: 8260543388618750823}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Object_5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -215,7 +215,7 @@ GameObject:
   - component: {fileID: 2762287513277646889}
   - component: {fileID: 6566131368882374739}
   - component: {fileID: 7239935609663872946}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Object_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -301,7 +301,7 @@ GameObject:
   - component: {fileID: 1999991879608283356}
   - component: {fileID: 3949711951545826016}
   - component: {fileID: 9070619097809301042}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Object_7
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -385,7 +385,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2274150451539666512}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: nuggets_obj_cleaner_materialmerger_gles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -424,7 +424,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7160934331612759308}
-  m_Layer: 0
+  - component: {fileID: 3169134221156780465}
+  - component: {fileID: -1886004081138123356}
+  - component: {fileID: 7782721540897158956}
+  - component: {fileID: 493526178006482267}
+  - component: {fileID: -8469986932097471652}
+  m_Layer: 11
   m_Name: RareElement
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -440,7 +445,7 @@ Transform:
   m_GameObject: {fileID: 4553072417315709186}
   serializedVersion: 2
   m_LocalRotation: {x: -0.00000003774895, y: 0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.00017369, y: 0, z: 3.9792}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.031631134, y: 0.031631134, z: 0.031631134}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -448,6 +453,104 @@ Transform:
   - {fileID: 3900762438125911197}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &3169134221156780465
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4553072417315709186}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!114 &-1886004081138123356
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4553072417315709186}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1e1b7fd66b097c43840613e4f2134ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pickupRange: 2
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  inventoryData: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
+--- !u!114 &7782721540897158956
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4553072417315709186}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bcb90db3cf36fe4d8707b36f1985768, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  lightIntensity: 2
+  backlightRange: 3
+  bodylightRange: 0.05
+  promptCanvas: {fileID: 0}
+  promptText: {fileID: 0}
+  holdPromptUI: {fileID: 0}
+  promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
+  isPermanent: 0
+--- !u!114 &493526178006482267
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4553072417315709186}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 994bdffcbc58aad468df8611de143a46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!65 &-8469986932097471652
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4553072417315709186}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 11, y: 3, z: 11}
+  m_Center: {x: 0, y: 1.5, z: 0}
 --- !u!1 &5457974461418640235
 GameObject:
   m_ObjectHideFlags: 0
@@ -457,7 +560,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4815219966001270623}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Sketchfab_model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -491,7 +594,7 @@ GameObject:
   - component: {fileID: 1766035311333208584}
   - component: {fileID: 7011224395696574813}
   - component: {fileID: 5996844143930369572}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Object_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -577,7 +680,7 @@ GameObject:
   - component: {fileID: 2669227642356908803}
   - component: {fileID: 2682916626361465257}
   - component: {fileID: 87431477604489993}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Object_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -663,7 +766,7 @@ GameObject:
   - component: {fileID: 3572348277134412738}
   - component: {fileID: 4294105898360428659}
   - component: {fileID: 1634338228561629625}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Object_6
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -747,7 +850,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7911921722070316979}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Materials
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -780,7 +883,7 @@ GameObject:
   - component: {fileID: 5366061235772306414}
   - component: {fileID: 5396957614636541927}
   - component: {fileID: 4184116321707397071}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Object_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}

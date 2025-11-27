@@ -26,12 +26,22 @@ public abstract class ItemBase : ScriptableObject
 
     [Header("비주얼")]
     public Sprite icon;                 // UI 아이콘
+    public GameObject itemPrefab;       // 아이템 Prefab
     public string worldPrefabAddress = "Item/Item00";   // 월드 드롭 프리팹 주소
 
     /// <summary>
     /// 아이템 사용 (각 타입별로 구현)
     /// </summary>
     public abstract bool Apply(PlayerController player);
+
+    /// <summary>
+    /// 아이템 해제 (장비류만 구현)
+    /// </summary>
+    public virtual void UnApply(PlayerController player)
+    {
+        // 기본적으로는 아무것도 하지 않음
+        // 장비 아이템만 오버라이드
+    }
 
     /// <summary>
     /// 아이템 획득 시

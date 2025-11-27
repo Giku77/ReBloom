@@ -1,27 +1,27 @@
-using BansheeGz.BGDatabase;
+ï»¿using BansheeGz.BGDatabase;
 using UnityEngine;
 
 /// <summary>
-/// ¾ÆÀÌÅÛ ÆÑÅä¸® - BGEntity·ÎºÎÅÍ ÀûÀıÇÑ ItemBase »ı¼º
-/// Factory Pattern: °´Ã¼ »ı¼º ·ÎÁ÷À» ÇÑ °÷¿¡ ÁıÁß
+/// ì•„ì´í…œ íŒ©í† ë¦¬ - BGEntityë¡œë¶€í„° ì ì ˆí•œ ItemBase ìƒì„±
+/// Factory Pattern: ê°ì²´ ìƒì„± ë¡œì§ì„ í•œ ê³³ì— ì§‘ì¤‘
 /// </summary>
 public static class ItemFactory
 {
     /// <summary>
-    /// BGEntityÀÇ Å×ÀÌºí Å¸ÀÔÀ» º¸°í ¾Ë¸ÂÀº ¾ÆÀÌÅÛ »ı¼º
+    /// BGEntityì˜ í…Œì´ë¸” íƒ€ì…ì„ ë³´ê³  ì•Œë§ì€ ì•„ì´í…œ ìƒì„±
     /// </summary>
     /// <param name="entity">BG Database Entity</param>
-    /// <param name="tableType">¾ÆÀÌÅÛ Å×ÀÌºí Å¸ÀÔ</param>
-    /// <returns>»ı¼ºµÈ ItemBase °´Ã¼ (½ÇÆĞ ½Ã null)</returns>
+    /// <param name="tableType">ì•„ì´í…œ í…Œì´ë¸” íƒ€ì…</param>
+    /// <returns>ìƒì„±ëœ ItemBase ê°ì²´ (ì‹¤íŒ¨ ì‹œ null)</returns>
     public static ItemBase CreateItem(BGEntity entity, ItemTableType tableType)
     {
         if (entity == null)
         {
-            Debug.LogError("[ItemFactory] Entity°¡ nullÀÔ´Ï´Ù!");
+            Debug.LogError("[ItemFactory] Entityê°€ nullì…ë‹ˆë‹¤!");
             return null;
         }
 
-        // Å×ÀÌºí Å¸ÀÔ¿¡ µû¶ó ÀûÀıÇÑ ¾ÆÀÌÅÛ Å¬·¡½º »ı¼º
+        // í…Œì´ë¸” íƒ€ì…ì— ë”°ë¼ ì ì ˆí•œ ì•„ì´í…œ í´ë˜ìŠ¤ ìƒì„±
         return tableType switch
         {
             ItemTableType.Consumable => CreateConsumableItem(entity),
@@ -32,10 +32,10 @@ public static class ItemFactory
         };
     }
 
-    #region ¾ÆÀÌÅÛ Å¸ÀÔº° »ı¼º ¸Ş¼­µå
+    #region ì•„ì´í…œ íƒ€ì…ë³„ ìƒì„± ë©”ì„œë“œ
 
     /// <summary>
-    /// ¼Òºñ ¾ÆÀÌÅÛ »ı¼º (À½½Ä, ¹°, ¾àÇ° µî)
+    /// ì†Œë¹„ ì•„ì´í…œ ìƒì„± (ìŒì‹, ë¬¼, ì•½í’ˆ ë“±)
     /// </summary>
     private static ConsumableItemData CreateConsumableItem(BGEntity entity)
     {
@@ -44,18 +44,18 @@ public static class ItemFactory
             var item = ScriptableObject.CreateInstance<ConsumableItemData>();
             item.Initialize(entity);
 
-            //Debug.Log($"[ItemFactory] ¼Òºñ ¾ÆÀÌÅÛ »ı¼º: {item.itemName} (ID: {item.itemID})");
+            //Debug.Log($"[ItemFactory] ì†Œë¹„ ì•„ì´í…œ ìƒì„±: {item.itemName} (ID: {item.itemID})");
             return item;
         }
         catch (System.Exception)
         {
-            //Debug.LogError($"[ItemFactory] ¼Òºñ ¾ÆÀÌÅÛ »ı¼º ½ÇÆĞ: {e.Message}");
+            //Debug.LogError($"[ItemFactory] ì†Œë¹„ ì•„ì´í…œ ìƒì„± ì‹¤íŒ¨: {e.Message}");
             return null;
         }
     }
 
     /// <summary>
-    /// º¸È£±¸ »ı¼º (¹æÁø ¸¶½ºÅ©, ¹æÈ£º¹ µî)
+    /// ë³´í˜¸êµ¬ ìƒì„± (ë°©ì§„ ë§ˆìŠ¤í¬, ë°©í˜¸ë³µ ë“±)
     /// </summary>
     private static ProtectiveItemData CreateProtectiveItem(BGEntity entity)
     {
@@ -64,18 +64,18 @@ public static class ItemFactory
             var item = ScriptableObject.CreateInstance<ProtectiveItemData>();
             item.Initialize(entity);
 
-            //Debug.Log($"[ItemFactory] º¸È£±¸ »ı¼º: {item.itemName} (ID: {item.itemID})");
+            //Debug.Log($"[ItemFactory] ë³´í˜¸êµ¬ ìƒì„±: {item.itemName} (ID: {item.itemID})");
             return item;
         }
         catch (System.Exception)
         {
-            //Debug.LogError($"[ItemFactory] º¸È£±¸ »ı¼º ½ÇÆĞ: {e.Message}");
+            //Debug.LogError($"[ItemFactory] ë³´í˜¸êµ¬ ìƒì„± ì‹¤íŒ¨: {e.Message}");
             return null;
         }
     }
 
     /// <summary>
-    /// µµ±¸ »ı¼º (»ğ, °î±ªÀÌ, °¡¹æ µî)
+    /// ë„êµ¬ ìƒì„± (ì‚½, ê³¡ê´­ì´, ê°€ë°© ë“±)
     /// </summary>
     private static ToolItemData CreateToolItem(BGEntity entity)
     {
@@ -84,18 +84,18 @@ public static class ItemFactory
             var item = ScriptableObject.CreateInstance<ToolItemData>();
             item.Initialize(entity);
 
-            //Debug.Log($"[ItemFactory] µµ±¸ »ı¼º: {item.itemName} (ID: {item.itemID})");
+            //Debug.Log($"[ItemFactory] ë„êµ¬ ìƒì„±: {item.itemName} (ID: {item.itemID})");
             return item;
         }
         catch (System.Exception)
         {
-            //Debug.LogError($"[ItemFactory] µµ±¸ »ı¼º ½ÇÆĞ: {e.Message}");
+            //Debug.LogError($"[ItemFactory] ë„êµ¬ ìƒì„± ì‹¤íŒ¨: {e.Message}");
             return null;
         }
     }
 
     /// <summary>
-    /// ±âÅ¸ ¾ÆÀÌÅÛ »ı¼º (Á¾ÀÚ, ÀÚ¿ø, Àç·á µî)
+    /// ê¸°íƒ€ ì•„ì´í…œ ìƒì„± (ì¢…ì, ìì›, ì¬ë£Œ ë“±)
     /// </summary>
     private static MiscItemData CreateMiscItem(BGEntity entity)
     {
@@ -104,45 +104,45 @@ public static class ItemFactory
             var item = ScriptableObject.CreateInstance<MiscItemData>();
             item.Initialize(entity);
 
-            //Debug.Log($"[ItemFactory] ±âÅ¸ ¾ÆÀÌÅÛ »ı¼º: {item.itemName} (ID: {item.itemID})");
+            //Debug.Log($"[ItemFactory] ê¸°íƒ€ ì•„ì´í…œ ìƒì„±: {item.itemName} (ID: {item.itemID})");
             return item;
         }
         catch (System.Exception)
         {
-            //Debug.LogError($"[ItemFactory] ±âÅ¸ ¾ÆÀÌÅÛ »ı¼º ½ÇÆĞ: {e.Message}");
+            //Debug.LogError($"[ItemFactory] ê¸°íƒ€ ì•„ì´í…œ ìƒì„± ì‹¤íŒ¨: {e.Message}");
             return null;
         }
     }
 
     #endregion
 
-    #region ¿¡·¯ ÇÚµé¸µ
+    #region ì—ëŸ¬ í•¸ë“¤ë§
 
     /// <summary>
-    /// ¾Ë ¼ö ¾ø´Â Å×ÀÌºí Å¸ÀÔ Ã³¸®
+    /// ì•Œ ìˆ˜ ì—†ëŠ” í…Œì´ë¸” íƒ€ì… ì²˜ë¦¬
     /// </summary>
     private static ItemBase HandleUnknownType(ItemTableType tableType)
     {
-        Debug.LogError($"[ItemFactory] ¾Ë ¼ö ¾ø´Â Å×ÀÌºí Å¸ÀÔ: {tableType}");
+        Debug.LogError($"[ItemFactory] ì•Œ ìˆ˜ ì—†ëŠ” í…Œì´ë¸” íƒ€ì…: {tableType}");
         return null;
     }
 
     #endregion
 
-    #region µğ¹ö±× À¯Æ¿¸®Æ¼
+    #region ë””ë²„ê·¸ ìœ í‹¸ë¦¬í‹°
 
     /// <summary>
-    /// ¾ÆÀÌÅÛ »ı¼º °¡´É ¿©ºÎ °ËÁõ
+    /// ì•„ì´í…œ ìƒì„± ê°€ëŠ¥ ì—¬ë¶€ ê²€ì¦
     /// </summary>
     public static bool CanCreateItem(BGEntity entity, ItemTableType tableType)
     {
         if (entity == null)
         {
-            Debug.LogWarning("[ItemFactory] Entity°¡ nullÀÔ´Ï´Ù.");
+            Debug.LogWarning("[ItemFactory] Entityê°€ nullì…ë‹ˆë‹¤.");
             return false;
         }
 
-        // ÇÊ¼ö ÇÊµå Á¸Àç ¿©ºÎ È®ÀÎ
+        // í•„ìˆ˜ í•„ë“œ ì¡´ì¬ ì—¬ë¶€ í™•ì¸
         switch (tableType)
         {
             case ItemTableType.Consumable:
@@ -163,7 +163,7 @@ public static class ItemFactory
     }
 
     /// <summary>
-    /// ÇÊ¼ö ÇÊµå Á¸Àç ¿©ºÎ È®ÀÎ
+    /// í•„ìˆ˜ í•„ë“œ ì¡´ì¬ ì—¬ë¶€ í™•ì¸
     /// </summary>
     private static bool HasRequiredFields(BGEntity entity, params string[] fieldNames)
     {
@@ -173,7 +173,7 @@ public static class ItemFactory
         {
             if (meta.GetField(fieldName) == null)
             {
-                Debug.LogWarning($"[ItemFactory] ÇÊµå¸¦ Ã£À» ¼ö ¾øÀ½: {fieldName}");
+                Debug.LogWarning($"[ItemFactory] í•„ë“œë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŒ: {fieldName}");
                 return false;
             }
         }

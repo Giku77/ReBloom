@@ -26,6 +26,8 @@ public class ToolItemData : ItemBase
     private BGField<float> Perform;
     private BGField<string> Img_Path;
     private BGField<string> Description;
+    private BGField<string> Addressable_Key;
+    private string Equip_Prefab_Key;
 
     #region 도구 전용 속성
     /// <summary>
@@ -68,6 +70,8 @@ public class ToolItemData : ItemBase
         Perform = meta.GetField<float>("Perform");
         Img_Path = meta.GetField<string>("Img_Path");
         Description = meta.GetField<string>("Description");
+        Addressable_Key = meta.GetField<string>("Addressable_Key");
+        Equip_Prefab_Key = "Equip/" + Addressable_Key;
 
         // 기본 정보
         itemID = Tool_ID[entity];
@@ -81,13 +85,16 @@ public class ToolItemData : ItemBase
         canStorage = Convert.ToBoolean(Storageable[entity]);
         description = Description[entity];
         canEquip = true;
+        worldPrefabAddress = Addressable_Key[entity];
 
         // 도구 전용 속성
         toolCategory = (ToolCategory)Category[entity];
+
         performance = Perform[entity];
 
-        // 아이콘은 Addressable로 비동기 로드
+        // 아이콘/프리팹은 Addressable로 비동기 로드
         LoadIconAsync();
+        LoadPrefabAsync();
     }
 
     /// <summary>
@@ -109,16 +116,10 @@ public class ToolItemData : ItemBase
                 // TODO: 플레이어에게 파기 속도 버프 적용
                 break;
 
-            case ToolCategory.Pickaxe:
-                // 곡괭이: 채광 속도 증가
-                Debug.Log($"[도구 장착] {itemName} - 채광 시간 {currentPerform}초");
-                // TODO: 플레이어에게 채광 속도 버프 적용
-                break;
-
-            case ToolCategory.Bag:
-                // 가방: 인벤토리 확장
-                Debug.Log($"[도구 장착] {itemName} - 인벤토리 슬롯 증가");
-                // TODO: 인벤토리 크기 확장
+            case ToolCategory.Hammer:
+                // Hammer: 채광 속도 증가
+                Debug.Log($"[도구 장착] {itemName} - Hammer 시간 {currentPerform}초");
+                // TODO: 플레이어에게 Hammer 속도 버프 적용
                 break;
         }
 
@@ -130,16 +131,16 @@ public class ToolItemData : ItemBase
         return true;
     }
 
+
     /// <summary>
     /// 도구 해제
     /// </summary>
-    public void Unequip(PlayerController player)
+    public override void UnApply(PlayerController player)
     {
         if (player == null) return;
 
+        player.playerEquip.UnEquip(GearType.Tool);
         Debug.Log($"[도구 해제] {itemName}");
-
-        // TODO: 버프 제거, 인벤토리 복구 등
     }
 
     /// <summary>
@@ -196,6 +197,41 @@ public class ToolItemData : ItemBase
         }
     }
     /// <summary>
+    /// Addressable로 아이콘 비동기 로드
+    /// </summary>
+    private async void LoadPrefabAsync()
+    {
+        //string path = Img_Path[entity];
+        string path = Addressable_Key[entity];
+
+        // 경로가 비어있으면 기본 아이콘 사용
+        if (string.IsNullOrEmpty(path))
+        {
+            path = "Item/Item00"; // 기본 경로
+        }
+
+        try
+        {
+            // GameObject(Prefab)로 로드
+            var handle = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<UnityEngine.GameObject>(path);
+            await handle.Task;
+
+            if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+            {
+                itemPrefab = handle.Result;
+            }
+            else
+            {
+                Debug.LogWarning($"[ToolItemData] prefab 로드 실패: {path}");
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"[ToolItemData] prefab 로드 예외: {path}\n{e.Message}");
+        }
+    }
+
+    /// <summary>
     /// 장착 효과 재생 (VFX/SFX)
     /// </summary>
     private void PlayEquipEffect(Vector3 position)
@@ -208,5 +244,10 @@ public class ToolItemData : ItemBase
     public float GetToolPerform()
     { 
         return Perform[entity];
+    }
+
+    public string GetEquipPrefabKey()
+    {
+        return Equip_Prefab_Key;
     }
 }

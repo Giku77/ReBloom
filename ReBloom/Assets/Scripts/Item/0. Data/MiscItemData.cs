@@ -1,13 +1,13 @@
-using BansheeGz.BGDatabase;
+ï»¿using BansheeGz.BGDatabase;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.AddressableAssets;
 
 /// <summary>
-/// ±âÅ¸ ¾ÆÀÌÅÛ (BG Database ·¡ÆÛ)
-/// ±¸±Û½ÃÆ®ÀÇ ±âÅ¸ ¾ÆÀÌÅÛ Å×ÀÌºí µ¥ÀÌÅÍ¸¦ Unity¿¡¼­ »ç¿ë
-/// Á¾ÀÚ, ÀÚ¿ø, Àç·á, Æ¯¼ö ¾ÆÀÌÅÛ µî
+/// ê¸°íƒ€ ì•„ì´í…œ (BG Database ë˜í¼)
+/// êµ¬ê¸€ì‹œíŠ¸ì˜ ê¸°íƒ€ ì•„ì´í…œ í…Œì´ë¸” ë°ì´í„°ë¥¼ Unityì—ì„œ ì‚¬ìš©
+/// ì¢…ì, ìì›, ì¬ë£Œ, íŠ¹ìˆ˜ ì•„ì´í…œ ë“±
 /// </summary>
 public class MiscItemData : ItemBase
 {
@@ -25,8 +25,9 @@ public class MiscItemData : ItemBase
     private BGField<int> Storageable;
     private BGField<string> Imgpath;
     private BGField<string> Description;
+    private BGField<string> Addressable_Key;
 
-    #region ±âÅ¸ ¾ÆÀÌÅÛ Àü¿ë ¼Ó¼º
+    #region ê¸°íƒ€ ì•„ì´í…œ ì „ìš© ì†ì„±
     public MiscItemCategory miscCategory { get; private set; }
     public int variation { get; private set; }
     #endregion
@@ -48,6 +49,7 @@ public class MiscItemData : ItemBase
         Storageable = meta.GetField<int>("Storageable");
         Imgpath = meta.GetField<string>("Imgpath");
         Description = meta.GetField<string>("Description");
+        Addressable_Key = meta.GetField<string>("Addressable_Key");
 
         itemID = Item_ID[entity];
         itemName = Item_Name[entity];
@@ -60,8 +62,10 @@ public class MiscItemData : ItemBase
         canStorage = Convert.ToBoolean(Storageable[entity]);
         description = Description[entity];
         canUseable = false;
+        worldPrefabAddress = Addressable_Key[entity];
 
         LoadIconAsync();
+        LoadPrefabAsync();
     }
 
     public override bool Apply(PlayerController player)
@@ -73,25 +77,25 @@ public class MiscItemData : ItemBase
             return UseSpecialItem(player);
         }
 
-        Debug.LogWarning($"[±âÅ¸ ¾ÆÀÌÅÛ] {itemName}Àº(´Â) »ç¿ëÇÒ ¼ö ¾ø´Â ¾ÆÀÌÅÛÀÔ´Ï´Ù.");
+        Debug.LogWarning($"[ê¸°íƒ€ ì•„ì´í…œ] {itemName}ì€(ëŠ”) ì‚¬ìš©í•  ìˆ˜ ì—†ëŠ” ì•„ì´í…œì…ë‹ˆë‹¤.");
         return false;
     }
 
     private bool UseSpecialItem(PlayerController player)
     {
         string name = Item_Name[entity];
-        Debug.Log($"[Æ¯¼ö ¾ÆÀÌÅÛ »ç¿ë] {name}");
+        Debug.Log($"[íŠ¹ìˆ˜ ì•„ì´í…œ ì‚¬ìš©] {name}");
 
         switch (itemID)
         {
             case 2003001:
-                Debug.Log("°ÇÃà¹°À» Ã¶°ÅÇÒ ¼ö ÀÖ½À´Ï´Ù.");
+                Debug.Log("ê±´ì¶•ë¬¼ì„ ì² ê±°í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.");
                 break;
             case 2003002:
-                Debug.Log("Àá±ä ±¸¿ª¿¡ Á¢±ÙÇÒ ¼ö ÀÖ½À´Ï´Ù.");
+                Debug.Log("ì ê¸´ êµ¬ì—­ì— ì ‘ê·¼í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.");
                 break;
             default:
-                Debug.LogWarning($"¹Ì±¸Çö Æ¯¼ö ¾ÆÀÌÅÛ: {itemID}");
+                Debug.LogWarning($"ë¯¸êµ¬í˜„ íŠ¹ìˆ˜ ì•„ì´í…œ: {itemID}");
                 return false;
         }
 
@@ -102,11 +106,11 @@ public class MiscItemData : ItemBase
     {
         if (miscCategory != MiscItemCategory.Seed && miscCategory != MiscItemCategory.UnidentifiedSeed)
         {
-            Debug.LogWarning($"[±âÅ¸ ¾ÆÀÌÅÛ] {itemName}Àº(´Â) Á¾ÀÚ°¡ ¾Æ´Õ´Ï´Ù.");
+            Debug.LogWarning($"[ê¸°íƒ€ ì•„ì´í…œ] {itemName}ì€(ëŠ”) ì¢…ìê°€ ì•„ë‹™ë‹ˆë‹¤.");
             return false;
         }
 
-        Debug.Log($"[Á¾ÀÚ ½É±â] {itemName} - º¯Á¾ ·¹º§: {variation}");
+        Debug.Log($"[ì¢…ì ì‹¬ê¸°] {itemName} - ë³€ì¢… ë ˆë²¨: {variation}");
         return true;
     }
 
@@ -117,22 +121,22 @@ public class MiscItemData : ItemBase
     }
 
     /// <summary>
-    /// Addressable Prefab(GameObject)¿¡¼­ Image ÄÄÆ÷³ÍÆ®ÀÇ Sprite ÃßÃâ
+    /// Addressable Prefab(GameObject)ì—ì„œ Image ì»´í¬ë„ŒíŠ¸ì˜ Sprite ì¶”ì¶œ
     /// </summary>
     private async void LoadIconAsync()
     {
         //string path = Imgpath[entity];
-        string path = "Icon/EtcIcon"; // ÀÓ½Ã °æ·Î
+        string path = "Icon/EtcIcon"; // ì„ì‹œ ê²½ë¡œ
 
-        // °æ·Î°¡ ºñ¾îÀÖÀ¸¸é ±âº» ¾ÆÀÌÄÜ »ç¿ë
+        // ê²½ë¡œê°€ ë¹„ì–´ìˆìœ¼ë©´ ê¸°ë³¸ ì•„ì´ì½˜ ì‚¬ìš©
         if (string.IsNullOrEmpty(path))
         {
-            path = "Icon/ItemIcon"; // ±âº» °æ·Î
+            path = "Icon/ItemIcon"; // ê¸°ë³¸ ê²½ë¡œ
         }
 
         try
         {
-            // GameObject(Prefab)·Î ·Îµå
+            // GameObject(Prefab)ë¡œ ë¡œë“œ
             var handle = Addressables.LoadAssetAsync<GameObject>(path);
             await handle.Task;
 
@@ -140,7 +144,7 @@ public class MiscItemData : ItemBase
             {
                 GameObject prefab = handle.Result;
 
-                // Image ÄÄÆ÷³ÍÆ®¿¡¼­ Sprite ÃßÃâ (·çÆ®)
+                // Image ì»´í¬ë„ŒíŠ¸ì—ì„œ Sprite ì¶”ì¶œ (ë£¨íŠ¸)
                 var image = prefab.GetComponent<Image>();
                 if (image != null && image.sprite != null)
                 {
@@ -152,20 +156,55 @@ public class MiscItemData : ItemBase
                 if (image != null && image.sprite != null)
                 {
                     icon = image.sprite;
-                    Debug.Log($"[MiscItemData] ¾ÆÀÌÄÜ ·Îµå ¼º°ø (ÀÚ½Ä): {itemName}");
+                    Debug.Log($"[MiscItemData] ì•„ì´ì½˜ ë¡œë“œ ì„±ê³µ (ìì‹): {itemName}");
                     return;
                 }
 
-                Debug.LogWarning($"[MiscItemData] Prefab¿¡ Image ÄÄÆ÷³ÍÆ®°¡ ¾ø°Å³ª Sprite°¡ ¾øÀ½: {path}");
+                Debug.LogWarning($"[MiscItemData] Prefabì— Image ì»´í¬ë„ŒíŠ¸ê°€ ì—†ê±°ë‚˜ Spriteê°€ ì—†ìŒ: {path}");
             }
             else
             {
-                Debug.LogWarning($"[MiscItemData] ¾ÆÀÌÄÜ ·Îµå ½ÇÆĞ: {path}");
+                Debug.LogWarning($"[MiscItemData] ì•„ì´ì½˜ ë¡œë“œ ì‹¤íŒ¨: {path}");
             }
         }
         catch (System.Exception e)
         {
-            Debug.LogWarning($"[MiscItemData] ¾ÆÀÌÄÜ ·Îµå ¿¹¿Ü: {path}\n{e.Message}");
+            Debug.LogWarning($"[MiscItemData] ì•„ì´ì½˜ ë¡œë“œ ì˜ˆì™¸: {path}\n{e.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Addressableë¡œ ì•„ì´ì½˜ ë¹„ë™ê¸° ë¡œë“œ
+    /// </summary>
+    private async void LoadPrefabAsync()
+    {
+        //string path = Img_Path[entity];
+        string path = Addressable_Key[entity];
+
+        // ê²½ë¡œê°€ ë¹„ì–´ìˆìœ¼ë©´ ê¸°ë³¸ ì•„ì´ì½˜ ì‚¬ìš©
+        if (string.IsNullOrEmpty(path))
+        {
+            path = "Item/Item00"; // ê¸°ë³¸ ê²½ë¡œ
+        }
+
+        try
+        {
+            // GameObject(Prefab)ë¡œ ë¡œë“œ
+            var handle = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<UnityEngine.GameObject>(path);
+            await handle.Task;
+
+            if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+            {
+                itemPrefab = handle.Result;
+            }
+            else
+            {
+                Debug.LogWarning($"[ToolItemData] prefab ë¡œë“œ ì‹¤íŒ¨: {path}");
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"[ToolItemData] prefab ë¡œë“œ ì˜ˆì™¸: {path}\n{e.Message}");
         }
     }
 }

@@ -26,6 +26,7 @@ public class ProtectiveItemData : ItemBase
     private BGField<int> Defense;
     private BGField<float> Insulation;
     private BGField<String> Description;
+    private BGField<String> Addressable_Key;
 
     public GearType gearType;
 
@@ -52,6 +53,8 @@ public class ProtectiveItemData : ItemBase
         Defense = meta.GetField<int>("Defense");
         Insulation = meta.GetField<float>("Insulation");
         Description = meta.GetField<string>("Description");
+        Addressable_Key = meta.GetField<string>("Addressable_Key");
+
 
         itemID = Equip_ID[entity];
         itemName = Equip_Name[entity];
@@ -65,10 +68,12 @@ public class ProtectiveItemData : ItemBase
         canStorage = Convert.ToBoolean(Storageable[entity]);
         description = Description[entity];
         canEquip = true;
-
         gearType = (GearType)Category[entity];
 
+        worldPrefabAddress = Addressable_Key[entity];
+
         LoadIconAsync();
+        LoadPrefabAsync();
     }
 
     /// <summary>
@@ -96,7 +101,7 @@ public class ProtectiveItemData : ItemBase
     {
         float pollutionResist = Pollution_Resist[entity];
 
-        // TODO: player 스탯 remove 
+        UnApply(player);
     }
 
     /// <summary>
@@ -167,6 +172,40 @@ public class ProtectiveItemData : ItemBase
         }
     }
 
+    /// <summary>
+    /// Addressable로 아이콘 비동기 로드
+    /// </summary>
+    private async void LoadPrefabAsync()
+    {
+        //string path = Img_Path[entity];
+        string path = Addressable_Key[entity];
+
+        // 경로가 비어있으면 기본 아이콘 사용
+        if (string.IsNullOrEmpty(path))
+        {
+            path = "Item/Item00"; // 기본 경로
+        }
+
+        try
+        {
+            // GameObject(Prefab)로 로드
+            var handle = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<UnityEngine.GameObject>(path);
+            await handle.Task;
+
+            if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+            {
+                itemPrefab = handle.Result;
+            }
+            else
+            {
+                Debug.LogWarning($"[ToolItemData] prefab 로드 실패: {path}");
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"[ToolItemData] prefab 로드 예외: {path}\n{e.Message}");
+        }
+    }
     public float GetPollutionResist()
     {
         return Pollution_Resist[entity];

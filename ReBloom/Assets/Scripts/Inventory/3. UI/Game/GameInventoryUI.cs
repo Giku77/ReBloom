@@ -33,6 +33,14 @@ public class GameInventoryUI : MonoBehaviour
     [SerializeField] private Button btnMisc;
     [SerializeField] private Button btnImportant;
 
+    [Header("Quickslot Fail Image")]
+    [SerializeField] private GameObject deActiveGameObject;
+
+    [Header("UI 임시정리")]
+    [SerializeField] private GameObject gameEquipIcon;
+    [SerializeField] private GameObject gameQuickSlotRoot;
+    [SerializeField] private GameObject gamePlayerInfoRoot;
+
     private QuestUI questUI;
 
     private List<Transform> emptySlotList;
@@ -82,6 +90,16 @@ public class GameInventoryUI : MonoBehaviour
         inventoryUIRoot.SetActive(false);
     }
 
+    private void Update()
+    {
+        deActiveGameObject.SetActive(false);
+        bool success = ItemIconDragHandler.CurrentContext?.Item.canQuickSlot ?? false;
+        if (!success && ItemIconDragHandler.CurrentContext?.Item != null)
+        {
+            deActiveGameObject.SetActive(true);
+        }
+    }
+
     private void OnEnable()
     {
         EventSystem currentEventSystem = EventSystem.current;
@@ -102,6 +120,16 @@ public class GameInventoryUI : MonoBehaviour
                 return true; // 계속
             });
         }
+        gameQuickSlotRoot?.SetActive(false);
+        gamePlayerInfoRoot?.SetActive(false);
+        gameEquipIcon?.SetActive(false);
+    }
+
+    private void OnDisable()
+    {
+        gameQuickSlotRoot?.SetActive(true);
+        gamePlayerInfoRoot?.SetActive(true);
+        gameEquipIcon?.SetActive(true);
     }
 
     private void OnDestroy()
