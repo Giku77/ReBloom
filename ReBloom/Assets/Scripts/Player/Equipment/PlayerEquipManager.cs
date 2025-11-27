@@ -96,7 +96,7 @@ public class PlayerEquipManager : MonoBehaviour
             return;
         }
 
-        UnEquip(GearType.Tool);
+        //UnEquip(GearType.Tool);
         player.currentToolEquip = item;
         
         // ToolEquipManager를 통해 실제 프리팹 생성
