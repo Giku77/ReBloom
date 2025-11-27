@@ -26,6 +26,7 @@ public class ToolItemData : ItemBase
     private BGField<float> Perform;
     private BGField<string> Img_Path;
     private BGField<string> Description;
+    private BGField<string> Addressable_Key;
 
     #region 도구 전용 속성
     /// <summary>
@@ -68,6 +69,7 @@ public class ToolItemData : ItemBase
         Perform = meta.GetField<float>("Perform");
         Img_Path = meta.GetField<string>("Img_Path");
         Description = meta.GetField<string>("Description");
+        Addressable_Key = meta.GetField<string>("Addressable_Key");
 
         // 기본 정보
         itemID = Tool_ID[entity];
@@ -81,13 +83,15 @@ public class ToolItemData : ItemBase
         canStorage = Convert.ToBoolean(Storageable[entity]);
         description = Description[entity];
         canEquip = true;
+        worldPrefabAddress = Addressable_Key[entity];
 
         // 도구 전용 속성
         toolCategory = (ToolCategory)Category[entity];
         performance = Perform[entity];
 
-        // 아이콘은 Addressable로 비동기 로드
+        // 아이콘/프리팹은 Addressable로 비동기 로드
         LoadIconAsync();
+        LoadPrefabAsync();
     }
 
     /// <summary>
@@ -193,6 +197,40 @@ public class ToolItemData : ItemBase
         catch (System.Exception e)
         {
             Debug.LogWarning($"[ToolItemData] 아이콘 로드 예외: {path}\n{e.Message}");
+        }
+    }
+    /// <summary>
+    /// Addressable로 아이콘 비동기 로드
+    /// </summary>
+    private async void LoadPrefabAsync()
+    {
+        //string path = Img_Path[entity];
+        string path = Addressable_Key[entity];
+
+        // 경로가 비어있으면 기본 아이콘 사용
+        if (string.IsNullOrEmpty(path))
+        {
+            path = "Item/Item00"; // 기본 경로
+        }
+
+        try
+        {
+            // GameObject(Prefab)로 로드
+            var handle = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<UnityEngine.GameObject>(path);
+            await handle.Task;
+
+            if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+            {
+                itemPrefab = handle.Result;
+            }
+            else
+            {
+                Debug.LogWarning($"[ToolItemData] prefab 로드 실패: {path}");
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"[ToolItemData] prefab 로드 예외: {path}\n{e.Message}");
         }
     }
     /// <summary>

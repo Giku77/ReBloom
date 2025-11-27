@@ -9,7 +9,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2543708320689443292}
-  m_Layer: 0
+  - component: {fileID: -5687055502518112316}
+  - component: {fileID: -7929108390314273499}
+  - component: {fileID: -8598846027594859525}
+  - component: {fileID: 3004172059214858994}
+  - component: {fileID: 6646675627266657771}
+  m_Layer: 11
   m_Name: IronFragment
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33,6 +38,104 @@ Transform:
   - {fileID: 8797132261557396320}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &-5687055502518112316
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 429949103750677140}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!65 &-7929108390314273499
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 429949103750677140}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-8598846027594859525
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 429949103750677140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1e1b7fd66b097c43840613e4f2134ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pickupRange: 2
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  inventoryData: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
+--- !u!114 &3004172059214858994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 429949103750677140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bcb90db3cf36fe4d8707b36f1985768, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  lightIntensity: 2
+  backlightRange: 3
+  bodylightRange: 0.05
+  promptCanvas: {fileID: 0}
+  promptText: {fileID: 0}
+  holdPromptUI: {fileID: 0}
+  promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
+  isPermanent: 0
+--- !u!114 &6646675627266657771
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 429949103750677140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 994bdffcbc58aad468df8611de143a46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &9051962931750405259
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -93,6 +196,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -4439940751339330422, guid: fc896da3073cac446985e491853e7fd0, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: -3295300652564244910, guid: fc896da3073cac446985e491853e7fd0, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2.25
@@ -125,6 +232,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: "\u0430\u0440\u043C\u0430\u0442\u0443\u0440\u044B"
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: fc896da3073cac446985e491853e7fd0, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 1425496644796443314, guid: fc896da3073cac446985e491853e7fd0, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 2358232849251904135, guid: fc896da3073cac446985e491853e7fd0, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.91
@@ -153,6 +268,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.y
       value: -14.086
       objectReference: {fileID: 0}
+    - target: {fileID: 6000430046758800301, guid: fc896da3073cac446985e491853e7fd0, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 6826993617215098830, guid: fc896da3073cac446985e491853e7fd0, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.43
@@ -160,6 +279,10 @@ PrefabInstance:
     - target: {fileID: 6826993617215098830, guid: fc896da3073cac446985e491853e7fd0, type: 3}
       propertyPath: m_LocalPosition.z
       value: -2.45
+      objectReference: {fileID: 0}
+    - target: {fileID: 7176157410714768559, guid: fc896da3073cac446985e491853e7fd0, type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -234,6 +357,14 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 8fb3ebaac759ac6479a273791d3d4637, type: 3}
       propertyPath: m_Name
       value: Iron1
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 8fb3ebaac759ac6479a273791d3d4637, type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 8164078558771037576, guid: 8fb3ebaac759ac6479a273791d3d4637, type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

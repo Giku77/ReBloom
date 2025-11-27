@@ -31,6 +31,7 @@ public class ConsumableItemData : ItemBase
     private BGField<float> Duration;
     private BGField<string> ImgPath;
     private BGField<string> Description;
+    private BGField<string> Addressable_Key;
 
     /// <summary>
     /// BG Database Entity로 초기화
@@ -61,6 +62,7 @@ public class ConsumableItemData : ItemBase
         Duration = meta.GetField<float>("Duration");
         ImgPath = meta.GetField<string>("ImgPath");
         Description = meta.GetField<string>("Description");
+        Addressable_Key = meta.GetField<string>("Addressable_Key");
 
         itemID = ConsumeItem_ID[entity];
         itemName = ConsumeItem_Name[entity];
@@ -72,9 +74,11 @@ public class ConsumableItemData : ItemBase
         canStorage = Convert.ToBoolean(Storageable[entity]);
         canUseable = Convert.ToBoolean(Useable[entity]);
         description = Description[entity];
+        worldPrefabAddress = Addressable_Key[entity];
 
         // 아이콘은 Addressable로 비동기 로드
         LoadIconAsync();
+        LoadPrefabAsync();
     }
 
     /// <summary>
@@ -237,7 +241,40 @@ public class ConsumableItemData : ItemBase
             Debug.LogWarning($"[ConsumableItemData] 아이콘 로드 예외: {path}\n{e.Message}");
         }
     }
+    /// <summary>
+    /// Addressable로 아이콘 비동기 로드
+    /// </summary>
+    private async void LoadPrefabAsync()
+    {
+        //string path = Img_Path[entity];
+        string path = Addressable_Key[entity];
 
+        // 경로가 비어있으면 기본 아이콘 사용
+        if (string.IsNullOrEmpty(path))
+        {
+            path = "Item/Item00"; // 기본 경로
+        }
+
+        try
+        {
+            // GameObject(Prefab)로 로드
+            var handle = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<UnityEngine.GameObject>(path);
+            await handle.Task;
+
+            if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+            {
+                itemPrefab = handle.Result;
+            }
+            else
+            {
+                Debug.LogWarning($"[ToolItemData] prefab 로드 실패: {path}");
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning($"[ToolItemData] prefab 로드 예외: {path}\n{e.Message}");
+        }
+    }
     /// <summary>
     /// 사용 효과 재생 (VFX/SFX)
     /// </summary>

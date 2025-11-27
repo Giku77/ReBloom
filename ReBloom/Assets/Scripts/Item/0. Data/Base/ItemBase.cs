@@ -26,6 +26,7 @@ public abstract class ItemBase : ScriptableObject
 
     [Header("비주얼")]
     public Sprite icon;                 // UI 아이콘
+    public GameObject itemPrefab;       // 아이템 Prefab
     public string worldPrefabAddress = "Item/Item00";   // 월드 드롭 프리팹 주소
 
     /// <summary>
