@@ -101,7 +101,7 @@ public class ProtectiveItemData : ItemBase
     {
         float pollutionResist = Pollution_Resist[entity];
 
-        // TODO: player 스탯 remove 
+        UnApply(player);
     }
 
     /// <summary>

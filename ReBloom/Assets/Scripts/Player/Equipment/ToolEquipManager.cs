@@ -104,11 +104,8 @@ public class ToolEquipManager : MonoBehaviour
             case ToolCategory.Shovel:
                 categoryName = "Shovel";
                 break;
-            case ToolCategory.Pickaxe:
+            case ToolCategory.Hammer:
                 categoryName = "Hammer";
-                break;
-            case ToolCategory.Bag:
-                categoryName = "Bag";
                 break;
             default:
                 categoryName = "Tool";

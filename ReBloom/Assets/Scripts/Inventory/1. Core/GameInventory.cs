@@ -32,13 +32,13 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     public void Clear() => inventoryData.Clear();
     public bool HasItem(int itemId, int amount) => inventoryData.HasItem(itemId, amount);
 
-    public bool Consume(int itemId, int amount)
+    public void Consume(int itemId, int amount)
     {
         ItemBase item = ItemDatabase.I.GetItem(itemId);
         if (item == null)
         {
             Debug.LogError("[GameInventory] 아이템을 찾을 수 없습니다.");
-            return false;
+            return;
         }
 
         if (item.canUseable)
@@ -46,7 +46,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
             // 소비 아이템: 사용 후 제거
             bool success = item.Apply(playerController);
             if (success) RemoveItem(itemId, amount);
-            return success;
+            return;
         }
         else if (item.canEquip)
         {
@@ -54,7 +54,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
             if (currentEquippedToolId == itemId)
             {
                 Debug.Log($"[GameInventory] {item.itemName}은(는) 이미 장착 중");
-                return false;
+                return;
             }
 
             // 이전 도구 장착 해제
@@ -71,9 +71,9 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
                 currentEquippedToolId = itemId;
                 // 장비는 인벤토리에서 제거하지 않음
             }
-            return success;
+            return;
         }
-        return false;
+        return;
     }
     #endregion
 
