@@ -44,26 +44,26 @@ public class TemperatureStat : StatBase
 
             Modify(actualRate * Time.deltaTime);
         }
-        else
-        {
-            float baseMultiplier = stageDetector.GetCurrentTemperatureMultiplier();
+        //else
+        //{
+        //    float baseMultiplier = stageDetector.GetCurrentTemperatureMultiplier();
 
-            float equipResist = 0f;
-            if (owner.EquipManager != null)
-                equipResist = owner.EquipManager.GetTotalInsulationResist();
+        //    float equipResist = 0f;
+        //    if (owner.EquipManager != null)
+        //        equipResist = owner.EquipManager.GetTotalInsulationResist();
 
-            if (Value > minTemperature)
-            {
-              actualRate = (baseMultiplier - Value) * (1 - equipResist) / 120f;
-              Modify(actualRate * Time.deltaTime);
+        //    if (Value > minTemperature)
+        //    {
+        //      actualRate = (baseMultiplier - Value) * (1 - equipResist) / 120f;
+        //      Modify(actualRate * Time.deltaTime);
 
-                //임시 확인용
-                if (Keyboard.current.kKey.wasPressedThisFrame)
-                {
-                    Debug.Log($"현재온도 정보: {stageDetector.GetCurrentTemperatureMultiplier()}");
-                    Debug.Log($"[TemperatureStat] 현제 체온: {Value:F2}, 장비 단열력: {equipResist:F2} , 최종 증감률: {actualRate:F4}");
-                }
-            }
-        }
+        //        //임시 확인용
+        //        if (Keyboard.current.kKey.wasPressedThisFrame)
+        //        {
+        //            Debug.Log($"현재온도 정보: {stageDetector.GetCurrentTemperatureMultiplier()}");
+        //            Debug.Log($"[TemperatureStat] 현제 체온: {Value:F2}, 장비 단열력: {equipResist:F2} , 최종 증감률: {actualRate:F4}");
+        //        }
+        //    }
+        //}
     }
 }

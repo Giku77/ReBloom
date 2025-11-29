@@ -1,4 +1,4 @@
-using BansheeGz.BGDatabase;
+﻿using BansheeGz.BGDatabase;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -48,6 +48,8 @@ public class DebuffDB
         data.standardValue = entity.Get<float>("Standard_Value");
         data.hpLoss = entity.Get<float>("Hp_Loss");
         data.speedReduce = entity.Get<float>("Speed_Reduce");
+        data.fieldTemp = entity.Get<float>("Field_Temp");
+        data.tempChangePerSec = entity.Get<float>("Temp_ChangePerSec");
 
         return data;
     }
