@@ -528,7 +528,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.000030517578}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &8787582501505709052
@@ -1922,7 +1922,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8691209751260550698}
   m_HandleRect: {fileID: 3891744344532195843}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -2171,6 +2171,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3952f15b70f177448ae65bd0022c679b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  type: 2
+  layer: 1
+  blocksGameplayInput: 1
+  root: {fileID: 5909086502891220075}
   currentRecipeId: 0
   backgroundImage: {fileID: 8677187102296279250}
   inventory: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
@@ -2179,23 +2183,6 @@ MonoBehaviour:
   recipeDescText: {fileID: 7289302657812158288}
   recipeMaterialsText: {fileID: 3464292795377997197}
   recipeResultText: {fileID: 4520597095733271331}
-  toggleCraftingUIAction:
-    m_Name: Toggle Crafting UI
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 87587f5b-5aa6-45a1-9588-9f8986f21e47
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 
-      m_Id: 975a9318-651d-4002-aa17-62b4a59d9f3b
-      m_Path: <Keyboard>/x
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Toggle Crafting UI
-      m_Flags: 0
-    m_Flags: 0
   slotParent: {fileID: 6773121995959363321}
   slotPrefab: {fileID: 7324161223378419626, guid: 5c6ed0b96546abf4fa13619fe1f4b263, type: 3}
   craftingCountSlider: {fileID: 2370486091649355338}

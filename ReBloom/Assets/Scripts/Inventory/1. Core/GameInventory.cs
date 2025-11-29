@@ -287,7 +287,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     #endregion
 
     #region UI 제어
-    public void OpenInventory() => inventoryUI?.ToggleInventory();
-    public void CloseInventory() => inventoryUI?.ToggleInventory();
+    public void OpenInventory() => inventoryUI.ToggleInventory();
+    public void CloseInventory() => inventoryUI.ToggleInventory();
     #endregion
 }

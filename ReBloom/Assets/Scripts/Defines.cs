@@ -216,5 +216,23 @@ public enum ToolType
 { 
     Shovel = 1,   // 삽
     Hammer = 2,   // 망치
+}
 
+public enum UIType
+{
+    None,
+    Inventory,
+    Crafting,
+    Stats,
+    Quest,
+    Building,
+    Weather,
+    Debug
+}
+
+public enum UILayer
+{
+    HUD,
+    Modal,
+    Overlay
 }

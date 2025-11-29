@@ -11,7 +11,7 @@ using UnityEngine.UI;
 /// 게임 인벤토리 UI (View)
 /// UI 표시만 담당 - 비즈니스 로직은 GameInventory에서 처리
 /// </summary>
-public class GameInventoryUI : MonoBehaviour
+public class GameInventoryUI : UIBase
 {
     [Header("Controller Reference")]
     [SerializeField] private GameInventory gameInventory;
@@ -54,8 +54,9 @@ public class GameInventoryUI : MonoBehaviour
     #endregion
 
     #region Unity 생명주기
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         InitializeTabButtons();
         questUI = FindFirstObjectByType<QuestUI>();
 
@@ -87,7 +88,7 @@ public class GameInventoryUI : MonoBehaviour
         //CreateEmptySlots();
         //RefreshUI();
         // 시작 시 인벤토리 닫기
-        inventoryUIRoot.SetActive(false);
+        //inventoryUIRoot.SetActive(false);
     }
 
     private void Update()
@@ -120,16 +121,16 @@ public class GameInventoryUI : MonoBehaviour
                 return true; // 계속
             });
         }
-        gameQuickSlotRoot?.SetActive(false);
-        gamePlayerInfoRoot?.SetActive(false);
-        gameEquipIcon?.SetActive(false);
+        //gameQuickSlotRoot?.SetActive(false);
+        //gamePlayerInfoRoot?.SetActive(false);
+        //gameEquipIcon?.SetActive(false);
     }
 
     private void OnDisable()
     {
-        gameQuickSlotRoot?.SetActive(true);
-        gamePlayerInfoRoot?.SetActive(true);
-        gameEquipIcon?.SetActive(true);
+        //gameQuickSlotRoot?.SetActive(true);
+        //gamePlayerInfoRoot?.SetActive(true);
+        //gameEquipIcon?.SetActive(true);
     }
 
     private void OnDestroy()
@@ -175,29 +176,34 @@ public class GameInventoryUI : MonoBehaviour
     #region UI 이벤트
     public void ToggleInventory()
     {
-        if (inventoryUIRoot == null) return;
+        //if (inventoryUIRoot == null) return;
 
-        bool isActive = !inventoryUIRoot.activeSelf;
-        inventoryUIRoot.SetActive(isActive);
+        //bool isActive = !inventoryUIRoot.activeSelf;
+        //inventoryUIRoot.SetActive(isActive);
 
-        if (isActive)
-        {
-            RefreshUI();
+        //if (isActive)
+        //{
+        //    RefreshUI();
 
-            // 커서 표시
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-            Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = true;
-        }
-        else
-        {
-            // 게임 중에는 커서 숨김
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
-            Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = false;
-        }
+        //    // 커서 표시
+        //    Cursor.visible = true;
+        //    Cursor.lockState = CursorLockMode.None;
+        //    Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = true;
+        //}
+        //else
+        //{
+        //    // 게임 중에는 커서 숨김
+        //    Cursor.visible = false;
+        //    Cursor.lockState = CursorLockMode.Locked;
+        //    Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = false;
+        //}
+        UIManager.Instance?.ToggleUI(Type);
 
         //Debug.Log($"[게임 인벤토리] {(isActive ? "열림" : "닫힘")}");
+    }
+    protected override void OnShow()
+    {
+       RefreshUI();
     }
 
     private void OnTabClicked(InventorySlotType inventoryType)
