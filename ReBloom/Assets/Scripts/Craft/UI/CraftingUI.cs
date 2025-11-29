@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-public class CraftingUI : MonoBehaviour
+public class CraftingUI : UIBase
 {
     [SerializeField] private int currentRecipeId;
     private CraftingManager crafting;
@@ -19,8 +19,6 @@ public class CraftingUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI recipeDescText;
     [SerializeField] private TextMeshProUGUI recipeMaterialsText;
     [SerializeField] private TextMeshProUGUI recipeResultText;
-
-    [SerializeField] private InputAction toggleCraftingUIAction;
 
 
     [Header("Slot References")]
@@ -37,27 +35,9 @@ public class CraftingUI : MonoBehaviour
     private int maxCraftable = 0;
     private int selectedAmount = 0;
 
-    private void OnEnable()
+    protected override void Awake()
     {
-        Debug.Log("CraftingUI OnEnable");
-        toggleCraftingUIAction.Enable();
-        toggleCraftingUIAction.performed += OnToggleCraftingUI;
-    }
-
-    private void OnDisable()
-    {
-        toggleCraftingUIAction.performed -= OnToggleCraftingUI;
-        toggleCraftingUIAction.Disable();
-    }
-
-    private void OnToggleCraftingUI(InputAction.CallbackContext context)
-    {
-        if (gameObject.activeSelf)
-          Toggle();
-    }
-
-    private void Awake()
-    {
+        base.Awake();
         recipeDb = new CraftRecipeDB();
         recipeDb.LoadFromBG();
         crafting = new CraftingManager(recipeDb, inventory);
@@ -124,7 +104,6 @@ public class CraftingUI : MonoBehaviour
             slot.Init(recipe.Value.recipeId, recipe.Value.productName, this);
         }
         firstslot?.Select();
-        Toggle();
     }
 
     public void OnClickCraftButton()
@@ -216,20 +195,30 @@ public class CraftingUI : MonoBehaviour
 
     public void Toggle()
     {
-        gameObject.SetActive(!gameObject.activeSelf);
-        if (gameObject.activeSelf)
-        {
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-            backgroundImage.gameObject.SetActive(true);
-            Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = true;
-        }
-        else
-        {
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
-            backgroundImage.gameObject.SetActive(false);
-            Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = false;
-        }
+        //gameObject.SetActive(!gameObject.activeSelf);
+        //if (gameObject.activeSelf)
+        //{
+        //    Cursor.visible = true;
+        //    Cursor.lockState = CursorLockMode.None;
+        //    backgroundImage.gameObject.SetActive(true);
+        //    Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = true;
+        //}
+        //else
+        //{
+        //    Cursor.visible = false;
+        //    Cursor.lockState = CursorLockMode.Locked;
+        //    backgroundImage.gameObject.SetActive(false);
+        //    Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = false;
+        //}
+        UIManager.Instance?.ToggleUI(Type);
+    }
+
+    protected override void OnShow()
+    {
+        backgroundImage.gameObject.SetActive(true);
+    }
+    protected override void OnHide()
+    {
+        backgroundImage.gameObject.SetActive(false);
     }
 }

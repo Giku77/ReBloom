@@ -2,7 +2,7 @@
 using TMPro;
 using UnityEngine;
 
-public class BuildUI : MonoBehaviour
+public class BuildUI : UIBase
 {
     [Header("References")]
     [SerializeField] private Transform parentTransform; // ScrollView Content
@@ -51,7 +51,6 @@ public class BuildUI : MonoBehaviour
         }
 
         BuildAll();
-        Toggle();
         UpdateResearchPointDisplay(ResearchManager.I.CurrentProgress);
     }
 
@@ -117,11 +116,12 @@ public class BuildUI : MonoBehaviour
 
     public void Toggle()
     {
-        bool next = !gameObject.activeSelf;
-        gameObject.SetActive(next);
+        //bool next = !gameObject.activeSelf;
+        //gameObject.SetActive(next);
 
-        Cursor.visible = next;
-        Cursor.lockState = next ? CursorLockMode.None : CursorLockMode.Locked;
-        Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = next;
+        //Cursor.visible = next;
+        //Cursor.lockState = next ? CursorLockMode.None : CursorLockMode.Locked;
+        //Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = next;
+        UIManager.Instance?.ToggleUI(Type);
     }
 }

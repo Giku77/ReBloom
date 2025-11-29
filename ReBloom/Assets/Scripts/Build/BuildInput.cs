@@ -63,6 +63,7 @@ public class BuildInput : MonoBehaviour
         Debug.Log("Toggle Build UI Input Received");
         if (buildUI != null)
         {
+            Debug.Log("Toggling Build UI");
             buildUI.Toggle();
         }
     }

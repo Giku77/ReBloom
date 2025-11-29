@@ -273,7 +273,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 10
   m_TargetDisplay: 0
 --- !u!114 &1703045319623034311
 MonoBehaviour:
@@ -292,7 +292,7 @@ MonoBehaviour:
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 800, y: 600}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 1
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -1571,6 +1571,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58510976499feec47a7b8e882dcc7315, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  type: 5
+  layer: 1
+  blocksGameplayInput: 1
+  root: {fileID: 5461208628427969299}
   parentTransform: {fileID: 2765799883238758116}
   buildInfoPrefab: {fileID: 6089401609871091478, guid: 09075b9eee122c34bb52c736dc081f5e, type: 3}
   slotItemPrefab: {fileID: -2707125209089890644, guid: 94584f891d8a0d844b27cac24c6a8293, type: 3}
@@ -2416,8 +2420,8 @@ MonoBehaviour:
     m_Bits: 8
   obstacleLayer:
     serializedVersion: 2
-    m_Bits: 648
-  maxHeightDiff: 0.5
+    m_Bits: 640
+  maxHeightDiff: 3
   maxSlopeAngle: 10
   stageDetector: {fileID: 0}
 --- !u!114 &2862642826964738946
@@ -2466,23 +2470,6 @@ MonoBehaviour:
       m_Action: Toggle Build UI
       m_Flags: 0
     m_Flags: 0
-  debugResearchPointAction:
-    m_Name: Debug Research Point
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: d0fbf1c1-1cf6-44f6-89b5-b242c6d967c8
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 
-      m_Id: 64934771-30bb-44d7-9750-ec42c503836c
-      m_Path: <Keyboard>/f4
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Debug Research Point
-      m_Flags: 0
-    m_Flags: 0
   addMouse:
     m_Name: Add Mouse
     m_Type: 0
@@ -2524,7 +2511,15 @@ MonoBehaviour:
     m_Id: 43eac560-f84d-4c47-90dc-f60adca3f013
     m_Processors: 
     m_Interactions: 
-    m_SingletonActionBindings: []
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: d143bd64-65a5-4765-92be-a676516390b6
+      m_Path: <Keyboard>/f10
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Debug Building Mode
+      m_Flags: 0
     m_Flags: 0
   buildUI: {fileID: 3822635548090404213}
 --- !u!114 &7119969625495685998
