@@ -28,8 +28,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.62, y: 0.62, z: 0.62}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 8084734534745593698}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -234,14 +234,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8960830078643837083}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.9798191, y: 0.052821826, z: -0.1913307, w: -0.02360039}
+  m_LocalRotation: {x: 1, y: 0, z: 0, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 12.5, y: 12.5, z: 12.5}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 10, y: 10, z: 10}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 8084734534745593698}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 181.492, y: 22.182999, z: -6.4639893}
+  m_LocalEulerAnglesHint: {x: 180, y: 0, z: 0}
 --- !u!54 &2637151624322767708
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -285,7 +285,6 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
-  inventoryData: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
 --- !u!114 &7059665337584435503
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -338,5 +337,5 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.03, y: 0.03, z: 0.04}
+  m_Size: {x: 0.03, y: 0.023, z: 0.04}
   m_Center: {x: 0, y: 0, z: 0}
