@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class DebuffData
 {
@@ -9,6 +9,8 @@ public class DebuffData
     public float standardValue;
     public float hpLoss;
     public float speedReduce;
+    public float fieldTemp;
+    public float tempChangePerSec;
     
     public float duration = -1f;
     

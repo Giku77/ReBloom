@@ -14,11 +14,14 @@ public class DebuffManager : MonoBehaviour
     public event Action<IDebuff> OnDebuffRemoved;
     private Dictionary<int, Func<DebuffData, IDebuff>> debuffFactory;
 
+    private StageDetector stageDetector;
+
 
     private void Awake()
     {
         playerStats = GetComponent<PlayerStats>();
         debuffDB = new DebuffDB();
+        stageDetector = GetComponent<StageDetector>();
         
         InitializeFactory();
         LoadDebuffData();
@@ -46,6 +49,18 @@ public class DebuffManager : MonoBehaviour
             {250, (data) => new hypothermiaDebuff(data, playerStats) },
             {260, (data) => new hypothermiaDebuff(data, playerStats) },
             {270, (data) => new hypothermiaDebuff(data, playerStats) },
+
+            //온도
+            {280, (data) => new  TempDebuff(data, playerStats)},
+            {281, (data) => new  TempDebuff(data, playerStats)},
+            {282, (data) => new  TempDebuff(data, playerStats)},
+            {283, (data) => new  TempDebuff(data, playerStats)},
+            {284, (data) => new  TempDebuff(data, playerStats)},
+            {285, (data) => new  TempDebuff(data, playerStats)},
+            {286, (data) => new  TempDebuff(data, playerStats)},
+            {287, (data) => new  TempDebuff(data, playerStats)},
+
+
 
         };
     }
@@ -80,6 +95,7 @@ public class DebuffManager : MonoBehaviour
         CheckThirstThreshold();
         CheckHungerThreshold();
         CheckTemperatureThreshold();
+        CheckFieldTempThreshold();
     }
 
     private void CheckPollutionThreshold()
@@ -194,6 +210,108 @@ public class DebuffManager : MonoBehaviour
             RemoveDebuffByID(260);
             RemoveDebuffByID(250);
             RemoveDebuffByID(240);
+        }
+    }
+
+    private void CheckFieldTempThreshold()
+    {
+        float fieldTemp = stageDetector.GetCurrentTemperatureMultiplier();
+
+        // 추위 4단계: -1°C 미만
+        if (fieldTemp < -1 && !HasDebuff(284))
+        {
+            RemoveDebuffByID(280);
+            RemoveDebuffByID(281);
+            RemoveDebuffByID(282);
+            RemoveDebuffByID(283);
+            RemoveDebuffByID(285);
+            RemoveDebuffByID(286);
+            RemoveDebuffByID(287);
+            ApplyDebuff(284);
+        }
+        // 추위 3단계: -1~5°C
+        else if (fieldTemp >= -1 && fieldTemp < 5 && !HasDebuff(283))
+        {
+            RemoveDebuffByID(280);
+            RemoveDebuffByID(281);
+            RemoveDebuffByID(282);
+            RemoveDebuffByID(284);
+            RemoveDebuffByID(285);
+            RemoveDebuffByID(286);
+            RemoveDebuffByID(287);
+            ApplyDebuff(283);
+        }
+        // 추위 2단계: 5~12°C
+        else if (fieldTemp >= 5 && fieldTemp < 12 && !HasDebuff(282))
+        {
+            RemoveDebuffByID(280);
+            RemoveDebuffByID(281);
+            RemoveDebuffByID(283);
+            RemoveDebuffByID(284);
+            RemoveDebuffByID(285);
+            RemoveDebuffByID(286);
+            RemoveDebuffByID(287);
+            ApplyDebuff(282);
+        }
+        // 추위 1단계: 12~20°C
+        else if (fieldTemp >= 12 && fieldTemp < 20 && !HasDebuff(281))
+        {
+            RemoveDebuffByID(280);
+            RemoveDebuffByID(282);
+            RemoveDebuffByID(283);
+            RemoveDebuffByID(284);
+            RemoveDebuffByID(285);
+            RemoveDebuffByID(286);
+            RemoveDebuffByID(287);
+            ApplyDebuff(281);
+        }
+        // 온화: 20~32.1°C
+        else if (fieldTemp >= 20 && fieldTemp <= 32.1f && !HasDebuff(280))
+        {
+            RemoveDebuffByID(281);
+            RemoveDebuffByID(282);
+            RemoveDebuffByID(283);
+            RemoveDebuffByID(284);
+            RemoveDebuffByID(285);
+            RemoveDebuffByID(286);
+            RemoveDebuffByID(287);
+            ApplyDebuff(280);
+        }
+        // 더위 1단계: 32.1~37°C
+        else if (fieldTemp > 32.1f && fieldTemp < 37 && !HasDebuff(285))
+        {
+            RemoveDebuffByID(280);
+            RemoveDebuffByID(281);
+            RemoveDebuffByID(282);
+            RemoveDebuffByID(283);
+            RemoveDebuffByID(284);
+            RemoveDebuffByID(286);
+            RemoveDebuffByID(287);
+            ApplyDebuff(285);
+        }
+        // 더위 2단계: 37~45°C
+        else if (fieldTemp >= 37 && fieldTemp < 45 && !HasDebuff(286))
+        {
+            RemoveDebuffByID(280);
+            RemoveDebuffByID(281);
+            RemoveDebuffByID(282);
+            RemoveDebuffByID(283);
+            RemoveDebuffByID(284);
+            RemoveDebuffByID(285);
+            RemoveDebuffByID(287);
+            ApplyDebuff(286);
+        }
+        // 더위 3단계: 45°C 이상
+        else if (fieldTemp >= 45 && !HasDebuff(287))
+        {
+            RemoveDebuffByID(280);
+            RemoveDebuffByID(281);
+            RemoveDebuffByID(282);
+            RemoveDebuffByID(283);
+            RemoveDebuffByID(284);
+            RemoveDebuffByID(285);
+            RemoveDebuffByID(286);
+            ApplyDebuff(287);
         }
     }
 

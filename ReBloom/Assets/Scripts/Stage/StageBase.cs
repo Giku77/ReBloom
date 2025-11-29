@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class StageBase : MonoBehaviour
 {
@@ -38,7 +38,7 @@ public class StageBase : MonoBehaviour
         }
     }
     
-    public float CurrentTemp
+    public float CurrentWeatherTemp
     {
         get
         {
