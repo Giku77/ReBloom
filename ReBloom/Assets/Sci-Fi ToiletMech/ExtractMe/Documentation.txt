@@ -1,0 +1,30 @@
+
+1. Package "BuiltIn_to_URP.unitypackage".
+For your convenience, we have created a .unitypackage called "BuiltIn_to_URP". This package automatically changes the shaders of all materials from BuiltIn to URP. To install this package:
+- Open your project in Unity.
+- Go to the Assets menu and open the "URP_Extract_Me" folder.
+- Double click on the "BuiltIn_to_URP" file.
+- Click the "Import" button.
+After .unitypackage makes the changes to the materials it will change the Built-In shader to URP.
+
+2. Installing the Universal Render Pipeline (URP)
+If you prefer to switch from SRP to URP yourself, you can install "Universal RP" through the Package Manager window. Follow these steps:
+- Open your project in Unity.
+- Go to Window > Package Manager.
+- In the list of available packages, find and install "Universal RP".
+
+3- Using the Render Pipeline Converter
+After installing URP, you can use the "Render Pipeline Converter" utility to convert all Built-In shaders to URP. To use this utility:
+- Go to Window > Rendering > Render Pipeline Converter.
+- Select the "Built-In to URP" option
+- Check "Rendering Setting", "Material Upgrade" and other items if necessary.
+- After that, click "Initialize Converters", wait for the operation to complete and click "Convert Assets".
+After this procedure the tool will enable URP in your project and change the shaders on all materials from Built-In to URP.
+
+4. Using Custom Shaders
+If you use custom shaders in your project, you must use the version of the shader that corresponds to the rendering version you are using. That is:
+- If the project uses Built-In, the shaders must be from the BuiltIn_Shaders folder.
+- If the project uses URP, the shaders must be from the URP_Shaders folder.
+You can assign a shader to a material by dragging the shader onto the material itself.
+
+5. Installing the HD Render Pipeline (HDRP)
