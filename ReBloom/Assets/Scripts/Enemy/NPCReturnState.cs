@@ -6,7 +6,6 @@ public class NPCReturnState : NPCState
 
     public override void Enter()
     {
-        Debug.Log("NPC: Entered Return State - Returning to initial position");
         controller.agent.isStopped = false;
         controller.agent.SetDestination(controller.initialPosition);
     }
@@ -31,7 +30,6 @@ public class NPCReturnState : NPCState
         {
             controller.lastHeardPosition = footPos;
             controller.ChangeState(new NPCChaseState(controller));
-            Debug.Log("NPC: Footstep detected while returning - resuming chase");
         }
     }
 }

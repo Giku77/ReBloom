@@ -24,7 +24,7 @@ public class PlayerFootstep : MonoBehaviour
                 stepTimer = 0f;
                 float loudness = playerController.isSlow ? 0.3f : 1.0f;
                 OnFootstep?.Invoke(transform.position, loudness);
-                Debug.Log("발소리 발생: " + transform.position);
+                //Debug.Log("발소리 발생: " + transform.position);
             }
         }
         else

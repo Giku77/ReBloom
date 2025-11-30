@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.AI;
 
 public class NPCController : MonoBehaviour
@@ -17,7 +17,7 @@ public class NPCController : MonoBehaviour
     public Quaternion initialRotation { get; private set; }
     public Animator Animator { get; private set; }
 
-    void Start()
+    private void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         Animator = GetComponentInChildren<Animator>();
@@ -30,14 +30,23 @@ public class NPCController : MonoBehaviour
         ChangeState(new NPCIdleState(this));
     }
 
-    void OnDestroy()
+    private void OnDestroy()
     {
         PlayerFootstep.OnFootstep -= HandleFootstep;
     }
 
-    void Update()
+private void Update()
     {
         currentState?.Update();
+        
+        if (Animator != null && agent != null)
+        {
+            // NavMeshAgent가 실제로 이동 중인지 확인
+            bool isMoving = !agent.isStopped && agent.hasPath && agent.remainingDistance > agent.stoppingDistance;
+            float speed = isMoving ? agent.velocity.magnitude : 0f;
+            
+            Animator.SetFloat("Speed", speed);
+        }
     }
 
     public void ChangeState(NPCState newState)

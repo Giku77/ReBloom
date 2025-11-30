@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
 /// Animator의 Attack State에 붙여서 사용
@@ -7,16 +7,12 @@ using UnityEngine;
 public class NPCAttackBehaviour : StateMachineBehaviour
 {
     [Header("Attack Timing")]
-    [Tooltip("히트박스 활성화 시점 (0~1, normalizedTime)")]
     [Range(0f, 1f)]
     public float hitboxStartTime = 0.3f;
-    
-    [Tooltip("히트박스 비활성화 시점 (0~1, normalizedTime)")]
     [Range(0f, 1f)]
     public float hitboxEndTime = 0.7f;
 
     [Header("Hitbox Reference")]
-    [Tooltip("공격 히트박스가 붙은 오브젝트 (예: 오른손)")]
     public string hitboxObjectName = "RightHand";
 
     private bool hitboxActivated = false;
@@ -27,7 +23,6 @@ public class NPCAttackBehaviour : StateMachineBehaviour
     {
         hitboxActivated = false;
         
-        // 히트박스 찾기 (한 번만 찾음)
         if (hitboxCollider == null)
         {
             npcTransform = animator.transform;
@@ -52,7 +47,6 @@ public class NPCAttackBehaviour : StateMachineBehaviour
             }
         }
         
-        // 초기 상태는 비활성화
         if (hitboxCollider != null)
         {
             hitboxCollider.enabled = false;
@@ -67,7 +61,6 @@ public class NPCAttackBehaviour : StateMachineBehaviour
 
         float normalizedTime = stateInfo.normalizedTime % 1f;
         
-        // 히트박스 활성화 구간
         if (normalizedTime >= hitboxStartTime && normalizedTime <= hitboxEndTime)
         {
             if (!hitboxActivated)
@@ -77,7 +70,6 @@ public class NPCAttackBehaviour : StateMachineBehaviour
                 Debug.Log($"[NPC Attack] 히트박스 활성화 ({normalizedTime:F2})");
             }
         }
-        // 히트박스 비활성화
         else if (hitboxActivated)
         {
             hitboxCollider.enabled = false;
@@ -88,7 +80,6 @@ public class NPCAttackBehaviour : StateMachineBehaviour
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        // 안전하게 비활성화
         if (hitboxCollider != null)
         {
             hitboxCollider.enabled = false;
@@ -97,7 +88,6 @@ public class NPCAttackBehaviour : StateMachineBehaviour
         Debug.Log("[NPC Attack] 공격 애니메이션 종료");
     }
 
-    // 자식 오브젝트를 재귀적으로 찾기
     private Transform FindChildRecursive(Transform parent, string name)
     {
         foreach (Transform child in parent)

@@ -3,9 +3,9 @@
 public class NPCAttackState : NPCState
 {
     private float attackRange = 2f;
-    private float attackCooldown = 2f; // 공격 쿨다운 (애니메이션 길이보다 길게)
+    private float attackCooldown = 5f;
     private float lastAttackTime = -999f;
-    private float attackDuration = 5f; // 공격 상태 유지 시간 (발소리 없으면 복귀)
+    private float attackDuration = 7f;
     private float stateEnterTime;
 
     public NPCAttackState(NPCController controller) : base(controller) { }
@@ -19,14 +19,12 @@ public class NPCAttackState : NPCState
 
     public override void Update()
     {
-        // 일정 시간 발소리 없으면 복귀
         if (Time.time - stateEnterTime > attackDuration)
         {
             controller.ChangeState(new NPCReturnState(controller));
             return;
         }
 
-        // 공격 쿨다운 체크 후 애니메이션 트리거
         if (Time.time - lastAttackTime >= attackCooldown)
         {
             PerformAttack();
@@ -47,10 +45,9 @@ public class NPCAttackState : NPCState
 
         if (distance <= effectiveRange)
         {
-            // 공격 범위 내 발소리면 공격 지속, 멀면 Chase로
             if (distance <= attackRange)
             {
-                stateEnterTime = Time.time; // 공격 시간 연장
+                stateEnterTime = Time.time;
             }
             else
             {
