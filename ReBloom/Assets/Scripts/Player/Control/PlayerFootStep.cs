@@ -3,7 +3,7 @@ using System;
 
 public class PlayerFootstep : MonoBehaviour
 {
-    public static event Action<Vector3> OnFootstep;
+    public static event Action<Vector3, float> OnFootstep;
     [SerializeField] private float stepInterval = 0.5f;
     private float stepTimer = 0f;
 
@@ -22,7 +22,8 @@ public class PlayerFootstep : MonoBehaviour
             if (stepTimer >= stepInterval)
             {
                 stepTimer = 0f;
-                OnFootstep?.Invoke(transform.position);
+                float loudness = playerController.isSlow ? 0.3f : 1.0f;
+                OnFootstep?.Invoke(transform.position, loudness);
                 Debug.Log("발소리 발생: " + transform.position);
             }
         }

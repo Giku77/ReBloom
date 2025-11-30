@@ -1,20 +1,33 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
 
-public enum NPCStateType { Idle, Alert, Chase }
-
 public class NPCController : MonoBehaviour
 {
+    [Header("NPC Settings")]
     public float hearingRange = 5f;
     public Transform player;
-    private NavMeshAgent agent;
-    private NPCStateType currentState = NPCStateType.Idle;
-    private Vector3 lastHeardPosition;
+
+    [Header("References")]
+    public NavMeshAgent agent;
+
+    private NPCState currentState;
+
+    public Vector3 lastHeardPosition { get; set; }
+    public Vector3 initialPosition { get; private set; }
+    public Quaternion initialRotation { get; private set; }
+    public Animator Animator { get; private set; }
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
+        Animator = GetComponentInChildren<Animator>();
+        
+        initialPosition = transform.position;
+        initialRotation = transform.rotation;
+
         PlayerFootstep.OnFootstep += HandleFootstep;
+
+        ChangeState(new NPCIdleState(this));
     }
 
     void OnDestroy()
@@ -24,31 +37,18 @@ public class NPCController : MonoBehaviour
 
     void Update()
     {
-        switch (currentState)
-        {
-            case NPCStateType.Idle:
-                break;
-            case NPCStateType.Alert:
-                agent.SetDestination(lastHeardPosition);
-                if (Vector3.Distance(transform.position, lastHeardPosition) < 0.5f)
-                    currentState = NPCStateType.Idle;
-                break;
-            case NPCStateType.Chase:
-                agent.SetDestination(player.position);
-                break;
-        }
+        currentState?.Update();
     }
 
-    private void HandleFootstep(Vector3 footPos)
+    public void ChangeState(NPCState newState)
     {
-        float distance = Vector3.Distance(transform.position, footPos);
-        if (distance <= hearingRange)
-        {
-            lastHeardPosition = footPos;
-            // 가까우면 바로 추적, 멀면 Alert
-            currentState = (distance < 3f) ? NPCStateType.Chase : NPCStateType.Alert;
-            Debug.Log("NPC가 발소리를 감지했습니다! 상태: " + currentState);
-        }
+        currentState?.Exit();
+        currentState = newState;
+        currentState.Enter();
+    }
+
+    private void HandleFootstep(Vector3 footPos, float loudness)
+    {
+        currentState?.HandleFootstep(footPos, loudness);
     }
 }
-
