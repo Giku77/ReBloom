@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using Cysharp.Threading.Tasks;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -11,6 +12,7 @@ public class CraftingUI : UIBase
     private CraftRecipeDB recipeDb;
 
     [SerializeField] private Image backgroundImage;
+    [SerializeField] private ItemSpawner itemSpawner;
 
     [Header("Info References")]
     [SerializeField] private InventoryItemData inventory;
@@ -34,6 +36,7 @@ public class CraftingUI : UIBase
 
     private int maxCraftable = 0;
     private int selectedAmount = 0;
+    private GameObject player;
 
     protected override void Awake()
     {
@@ -45,6 +48,7 @@ public class CraftingUI : UIBase
         if (craftingCountSlider != null)
             craftingCountSlider.onValueChanged.AddListener(OnSliderValueChanged);
         OnValidate();
+        player = GameObject.FindWithTag("Player");
     }
 
     private void OnSliderValueChanged(float value)
@@ -133,8 +137,18 @@ public class CraftingUI : UIBase
         }
 
         var reason = crafting.Craft(currentRecipeId, selectedAmount);
-        if (reason == CraftFailReason.None)
+        if (reason == CraftFailReason.None || reason == CraftFailReason.NoOutputSpace)
         {
+            if (itemSpawner != null && reason == CraftFailReason.NoOutputSpace)
+            {
+                recipeDb.TryGet(currentRecipeId, out var recipe);
+                if (recipe != null)
+                {
+                    var pos = player.transform.position + Vector3.up * 0.5f;
+                    var itemData = ItemDatabase.I.GetItem(recipe.productId);
+                    itemSpawner.DropItemWithQuantity(itemData, pos, recipe.productCount * selectedAmount).Forget();
+                }
+            }
             setResultText($"제작 성공! x{selectedAmount}");
 
             maxCraftable = crafting.GetMaxCraftable(currentRecipeId);

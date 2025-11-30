@@ -224,6 +224,7 @@ public enum UIType
     Inventory,
     Crafting,
     Stats,
+    Equipment,
     Quest,
     Building,
     Weather,
