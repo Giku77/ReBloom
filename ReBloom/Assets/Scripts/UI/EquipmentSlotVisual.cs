@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class EquipmentSlotVisual : UIBase
+public class EquipmentSlotVisual : MonoBehaviour
 {
     [Header("UI Elements")]
     [SerializeField] private Image clothImage;

@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using TMPro;
 
-public class StatUI : UIBase
+public class StatUI : MonoBehaviour
 {
     [Header("References")]
     
