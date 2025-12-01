@@ -4,7 +4,7 @@ using UnityEngine.AI;
 public class NPCController : MonoBehaviour
 {
     [Header("NPC Settings")]
-    public float hearingRange = 5f;
+    public float hearingRange = 15f;
     public float lastAttackTime = -999f;
     public Transform player;
 
@@ -12,6 +12,11 @@ public class NPCController : MonoBehaviour
     public NavMeshAgent agent;
 
     private NPCState currentState;
+
+    public bool isStunned = false;
+    private float stunEndTime = 0f;
+    public bool isJammed = false;
+    private float jamEndTime;
 
     public Vector3 lastHeardPosition { get; set; }
     public Vector3 initialPosition { get; private set; }
@@ -36,13 +41,20 @@ public class NPCController : MonoBehaviour
         PlayerFootstep.OnFootstep -= HandleFootstep;
     }
 
-private void Update()
+    private void Update()
     {
         currentState?.Update();
-        
+
+        if (isStunned && Time.time >= stunEndTime)
+        {
+            isStunned = false;
+            agent.isStopped = false;
+
+            ChangeState(new NPCReturnState(this));
+        }
+
         if (Animator != null && agent != null)
         {
-            // NavMeshAgent가 실제로 이동 중인지 확인
             bool isMoving = !agent.isStopped && agent.hasPath && agent.remainingDistance > agent.stoppingDistance;
             float speed = isMoving ? agent.velocity.magnitude : 0f;
             
@@ -60,5 +72,16 @@ private void Update()
     private void HandleFootstep(Vector3 footPos, float loudness)
     {
         currentState?.HandleFootstep(footPos, loudness);
+    }
+
+    public void ApplyStun(float duration)
+    {
+        isStunned = true;
+        stunEndTime = Time.time + duration;
+
+        if (agent != null)
+            agent.isStopped = true;
+
+        Animator.SetTrigger("Stunned");
     }
 }

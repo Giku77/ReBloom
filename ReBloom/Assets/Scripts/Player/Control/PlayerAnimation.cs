@@ -11,6 +11,9 @@ public class PlayerAnimation : MonoBehaviour
     public static readonly int PickUp = Animator.StringToHash("PickUp");
     public static readonly int Gather = Animator.StringToHash("Gather");
     public static readonly int ToolType = Animator.StringToHash("ToolType");
+    public static readonly int HitUpperBody = Animator.StringToHash("HitUpperBody");
+    public static readonly int Jamming = Animator.StringToHash("Jamming");
+
 
     [Header("Layer Blending")]
     [SerializeField] private float layerBlendSpeed = 5f;
@@ -95,6 +98,15 @@ public class PlayerAnimation : MonoBehaviour
         animator.SetInteger(ToolType, toolType);
     }
 
+    public void SetHitAnim()
+    {
+        animator.SetTrigger(HitUpperBody);
+    }
+
+    public void SetJammingAnim()
+    {
+        animator.SetTrigger(Jamming);
+    }
 
     public void AnimatorRePosition()
     {

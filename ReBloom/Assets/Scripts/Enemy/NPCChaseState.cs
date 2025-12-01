@@ -2,7 +2,7 @@
 
 public class NPCChaseState : NPCState
 {
-    private float attackRange = 2f;
+    private float attackRange = 3f;
 
     public NPCChaseState(NPCController controller) : base(controller) { }
 
@@ -15,6 +15,8 @@ public class NPCChaseState : NPCState
 
     public override void Update()
     {
+        if (controller.isStunned) return;
+
         float distanceToTarget = Vector3.Distance(controller.transform.position, controller.lastHeardPosition);
         
         if (distanceToTarget <= attackRange)
@@ -34,6 +36,8 @@ public class NPCChaseState : NPCState
 
     public override void HandleFootstep(Vector3 footPos, float loudness)
     {
+        if (controller.isStunned) return;
+
         float effectiveRange = controller.hearingRange * loudness;
         float distance = Vector3.Distance(controller.transform.position, footPos);
 

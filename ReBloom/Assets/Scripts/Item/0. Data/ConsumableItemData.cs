@@ -135,8 +135,20 @@ public class ConsumableItemData : ItemBase
         float duration = Duration[entity];
 
         // 재밍 효과 적용
+        Collider[] hits = Physics.OverlapSphere(player.transform.position, range, LayerMask.GetMask("Enemy"));
+
+        foreach (var hit in hits)
+        {
+            NPCController npc = hit.GetComponent<NPCController>();
+            if (npc != null)
+            {
+                npc.ApplyStun(duration);
+            }
+        }
 
         Debug.Log($"[재밍] 범위:{range}m, 지속:{duration}초");
+        player.Anim.SetJammingAnim();
+
         return true;
     }
 

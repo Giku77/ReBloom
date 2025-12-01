@@ -83,7 +83,7 @@ public class PlayerController : MonoBehaviour
 
     private bool jumpRequested = false;
 
-    private PlayerAnimation anim;
+    public PlayerAnimation Anim { get; private set; }
 
     private bool isAutoRun = false;
     private bool isGround = false;
@@ -128,7 +128,7 @@ public class PlayerController : MonoBehaviour
             Debug.Log("No Camera");
         }
 
-        anim = GetComponent<PlayerAnimation>();
+        Anim = GetComponent<PlayerAnimation>();
         playerStats = GetComponent<PlayerStats>();
         playerEquip = GetComponent<PlayerEquipManager>();
     }
@@ -255,9 +255,9 @@ public class PlayerController : MonoBehaviour
 
         if (wasJumping && isGround)
         {
-            if (anim != null)
+            if (Anim != null)
             {
-                anim.SetSlow(false);
+                Anim.SetSlow(false);
             }
 
             wasJumping = false;
@@ -306,7 +306,7 @@ public class PlayerController : MonoBehaviour
         if (context.canceled)
             isSlow = false;
 
-        anim.SetSlow(isSlow);
+        Anim.SetSlow(isSlow);
     }
 
     public void OnFreeLook(InputAction.CallbackContext context)
@@ -407,7 +407,7 @@ public class PlayerController : MonoBehaviour
 
         //animator.SetFloat(speedAni, animationSpeed);
 
-        anim.SetSpeed(currentSpeed);
+        Anim.SetSpeed(currentSpeed);
 
         Vector3 movement = moveDirection * currentSpeed;
         rb.linearVelocity = new Vector3(movement.x, rb.linearVelocity.y, movement.z);
@@ -421,9 +421,9 @@ public class PlayerController : MonoBehaviour
         velocity.y = jumpForce;
         rb.linearVelocity = velocity;
 
-        if (anim != null)
+        if (Anim != null)
         {
-            anim.PlayJump();
+            Anim.PlayJump();
         }
 
         jumpRequested = false;
@@ -463,16 +463,16 @@ public class PlayerController : MonoBehaviour
         isInteracting = false;
         rb.linearVelocity = Vector3.zero;
 
-        anim.PlayDeath();
-        anim.SetRootMotion(true);
+        Anim.PlayDeath();
+        Anim.SetRootMotion(true);
 
         Debug.Log("Player is Dead!");
 
         await UniTask.Delay(4383);
 
-        anim.SetRootMotion(false);
+        Anim.SetRootMotion(false);
 
-        anim.AnimatorRePosition();
+        Anim.AnimatorRePosition();
 
         transform.position = spawnPoint.position;
 
