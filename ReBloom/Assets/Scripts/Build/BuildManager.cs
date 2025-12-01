@@ -169,6 +169,8 @@ public class BuildManager : MonoBehaviour
         buildRules.Add(new FlatSurfaceRule(buildableLayer, maxHeightDiff, maxSlopeAngle));
         buildRules.Add(new CollisionRule(obstacleLayer));
         buildRules.Add(new LimitRule(this));
+        buildRules.Add(new CorridorAttachRule());
+        buildRules.Add(new CorridorCellRule());
     }
 
     public void ToggleDebugBuildingMode()
@@ -334,8 +336,13 @@ public class BuildManager : MonoBehaviour
         var bInstance = p.GetComponent<BuildingInstance>();
         bInstance.arcId = arc.arcId;
         RegisterBuilding(bInstance);
-        p.TryGetComponent<InteractionHighlight>(out var highlight);
-        if (highlight != null)
+        if (p.TryGetComponent<CorridorNode>(out var corridorNode))
+        {
+            var cell = CorridorGrid.WorldToCell(adjustedPos);
+            corridorNode.Cell = cell;
+            CorridorConnectionManager.I.Register(corridorNode);
+        }
+        if (p.TryGetComponent<InteractionHighlight>(out var highlight))
           highlight.promptFormat = $"상호작용[E] : {arc.name}";
         SetupTemporaryPassThrough(p);
         return true;
@@ -370,6 +377,11 @@ public class BuildManager : MonoBehaviour
 
         // 퀘스트에 "건물 파괴" 같은 조건이 있으면 여기서 Notify 가능
         // QuestManager.I.NotifyBuildingRemoved(inst.ArcId);
+
+        if (inst.TryGetComponent<CorridorNode>(out var node))
+        {
+            CorridorConnectionManager.I.Unregister(node);
+        }
 
         UnregisterBuilding(inst);
         Destroy(inst.gameObject);
