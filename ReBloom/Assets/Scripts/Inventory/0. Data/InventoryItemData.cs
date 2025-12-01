@@ -113,7 +113,7 @@ public class InventoryItemData : ScriptableObject, IItemContainer
             if (_slots.Count >= SlotCount)
             {
                 SendWarningMessage("인벤토리가 가득 찼습니다!", Color.red);
-
+                InventroyEventSystem.InventoryFull();
                 // 일부는 추가됐을 수 있음
                 int addedCount = count - remainingCount;
                 if (addedCount > 0)
@@ -136,7 +136,7 @@ public class InventoryItemData : ScriptableObject, IItemContainer
 
             remainingCount -= toAdd;
         }
-
+        InventroyEventSystem.ItemAcquiredTier(item.tier);
         OnItemAdded?.Invoke(itemID, count);
         SendItemToastMessage(item, count);
         OnInventoryChanged?.Invoke();
