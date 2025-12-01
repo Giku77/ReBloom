@@ -14,14 +14,16 @@ public static class InventroyEventSystem
     // ---- 게임플레이 이벤트 (로봇 펫이 반응) ----
     public static event Action OnInventoryFull;
     public static event Action OnItemDropped;
-    public static event Action<int> OnItemAcquired;  // Tier 정보 포함
+    public static event Action OnItemAcquired;  // Tier 정보 포함
+    public static event Action<int> OnItemAcquiredTier;  // Tier 정보 포함
 
     // ---- 이벤트 호출 메서드 ----
     public static void InventoryOpened() => OnInventoryOpened?.Invoke();
     public static void InventoryClosed() => OnInventoryClosed?.Invoke();
     public static void InventoryFull() => OnInventoryFull?.Invoke();
     public static void ItemDropped() => OnItemDropped?.Invoke();
-    public static void ItemAcquired(int tier) => OnItemAcquired?.Invoke(tier);
+    public static void ItemAcquiredTier(int tier) => OnItemAcquiredTier?.Invoke(tier);
+    public static void ItemAcquired() => OnItemAcquired?.Invoke();
 
     // ---- 이벤트 정리 (씬 전환 시) ----
     public static void ClearAllEvents()
@@ -31,5 +33,6 @@ public static class InventroyEventSystem
         OnInventoryFull = null;
         OnItemDropped = null;
         OnItemAcquired = null;
+        OnItemAcquiredTier = null;
     }
 }

@@ -51,7 +51,7 @@ public class InventoryRobotPet : MonoBehaviour
         // Rigidbody 설정 - 공중에 떠다니기
         rb.isKinematic = false;   // 물리 엔진 사용
         rb.useGravity = false;    // 중력 무시 (떠다니기 위해)
-        rb.linearDamping = 2f;             // 공기 저항 (부드러운 이동)
+        rb.linearDamping = 2f;       // 공기 저항 (부드러운 이동)
         rb.angularDamping = 2f;      // 회전 저항
         rb.constraints = RigidbodyConstraints.FreezeRotation; // 회전은 코드로만 제어
     }
@@ -195,13 +195,15 @@ public class InventoryRobotPet : MonoBehaviour
         //InventroyEventSystem.OnPlayerResting += HandlePlayerResting;
         //InventroyEventSystem.OnPlayerInDanger += HandlePlayerInDanger;
         //InventroyEventSystem.OnPlayerAttacked += HandlePlayerAttacked;
-        //InventroyEventSystem.OnItemAcquired += HandleItemAcquired;
         //InventroyEventSystem.OnPlayerBuilding += HandlePlayerBuilding;
         //InventroyEventSystem.OnPlayerGathering += HandlePlayerGathering;
         //InventroyEventSystem.OnActionSuccess += HandleActionSuccess;
         //InventroyEventSystem.OnActionFailed += HandleActionFailed;
         //InventroyEventSystem.OnQuestCompleted += HandleQuestCompleted;
 
+        //InventroyEventSystem.OnItemAcquired += HandleItemAdded;
+
+        InventroyEventSystem.OnItemAcquiredTier += HandleItemAcquired;
         InventroyEventSystem.OnInventoryOpened += HandleInventoryOpened;
         InventroyEventSystem.OnInventoryClosed += HandleInventoryClosed;
         InventroyEventSystem.OnInventoryFull += HandleInventoryFull;
@@ -213,7 +215,6 @@ public class InventoryRobotPet : MonoBehaviour
         //InventroyEventSystem.OnPlayerResting -= HandlePlayerResting;
         //InventroyEventSystem.OnPlayerInDanger -= HandlePlayerInDanger;
         //InventroyEventSystem.OnPlayerAttacked -= HandlePlayerAttacked;
-        //InventroyEventSystem.OnItemAcquired -= HandleItemAcquired;
         //InventroyEventSystem.OnPlayerBuilding -= HandlePlayerBuilding;
         //InventroyEventSystem.OnPlayerGathering -= HandlePlayerGathering;
         //InventroyEventSystem.OnActionSuccess -= HandleActionSuccess;
@@ -222,6 +223,9 @@ public class InventoryRobotPet : MonoBehaviour
 
         InventroyEventSystem.OnInventoryOpened -= HandleInventoryOpened;
         InventroyEventSystem.OnInventoryClosed -= HandleInventoryClosed;
+        //InventroyEventSystem.OnItemAcquired -= HandleItemAdded;
+        InventroyEventSystem.OnItemAcquiredTier -= HandleItemAcquired;
+
         InventroyEventSystem.OnInventoryFull -= HandleInventoryFull;
         InventroyEventSystem.OnItemDropped -= HandleItemDropped;
     }
@@ -272,7 +276,7 @@ public class InventoryRobotPet : MonoBehaviour
         {
             // 일반 아이템 - 기뻐함
             emotionManager.SetEmotion(RobotEmotion.Happy);
-            animController.PlayAnimation("GetHitLeft");
+            animController.PlayAnimation("Hit");
         }
     }
 
@@ -349,7 +353,7 @@ public class InventoryRobotPet : MonoBehaviour
     }
 
     /// <summary>
-    /// 아이템 버림 - 앞으로 점프
+    /// 아이템 버림 - 앞으로 돌진
     /// </summary>
     private void HandleItemDropped()
     {

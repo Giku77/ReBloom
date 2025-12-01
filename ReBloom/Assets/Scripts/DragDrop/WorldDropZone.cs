@@ -316,7 +316,7 @@ public class WorldDropZone : MonoBehaviour,
         {
             await itemSpawner.DropItemWithQuantity(draggedItem, dropPosition, 1); //TODO: 설정한 수량에 맞게 stack 생성
         }
-
+        InventroyEventSystem.ItemDropped();
         Debug.Log($"[WorldDropZone] {draggedItem.itemName} x{debugSpawnCount}개를 드롭했습니다. (디버그 모드)");
     }
     //#endregion

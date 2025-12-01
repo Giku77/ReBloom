@@ -136,7 +136,7 @@ public class InventoryItemData : ScriptableObject, IItemContainer
 
             remainingCount -= toAdd;
         }
-        InventroyEventSystem.ItemAcquired(item.tier);
+        InventroyEventSystem.ItemAcquiredTier(item.tier);
         OnItemAdded?.Invoke(itemID, count);
         SendItemToastMessage(item, count);
         OnInventoryChanged?.Invoke();
