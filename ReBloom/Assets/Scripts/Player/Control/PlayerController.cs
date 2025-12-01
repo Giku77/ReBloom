@@ -53,7 +53,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 moveDirection;
     private Vector3 oldMoveDirection;
 
-    private bool isSlow = false;
+    public bool isSlow = false;
     private bool isFreeLook = false;
 
     public bool isDead = false;
