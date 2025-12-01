@@ -9,7 +9,6 @@ public class WorldItem : MonoBehaviour, IInteractable
     private int quantity = 1;
 
     [Header("Interaction")]
-    [SerializeField] private float pickupRange = 2f; //상호작용 가능한 범위
     [SerializeField] private LayerMask playerLayer;
 
     //[Header("Inventory Reference")]

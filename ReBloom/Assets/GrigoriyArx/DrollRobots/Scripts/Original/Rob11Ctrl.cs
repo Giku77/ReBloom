@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -20,10 +20,10 @@ public class Rob11Ctrl : MonoBehaviour
 
     [Header("Repeat time for some animations")]
     public int playCount = 1; // Cyclyc Animations repeat time
-    private int currentPlayCount = 0;
+    //private int currentPlayCount = 0;
 
     private int currentNumber = 0; //
-    int N = 2;             
+    //int N = 2;             
 
     private string animationName = "YourAnimationName";
     private bool battleIsActive = false;
@@ -291,7 +291,7 @@ public class Rob11Ctrl : MonoBehaviour
         }
         else
         {
-            Debug.LogError("Target Object íå íàçíà÷åí!");
+            Debug.LogError("Target Object å¼µ å£¯åˆæˆå­¼!");
         }
     }
 

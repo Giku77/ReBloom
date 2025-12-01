@@ -103,6 +103,9 @@ public class GameInventoryUI : UIBase
 
     private void OnEnable()
     {
+        //인벤토리 UI가 열릴 때 정적 이벤트 발생
+        InventroyEventSystem.InventoryOpened();
+
         EventSystem currentEventSystem = EventSystem.current;
         if (currentEventSystem == null)
         {
@@ -116,21 +119,17 @@ public class GameInventoryUI : UIBase
                 {
                     currentEventSystem.SetSelectedGameObject(pair.Key.gameObject);
                     OnTabClicked(currentType);
-                    return false; // 중단
+                    return false;
                 }
-                return true; // 계속
+                return true;
             });
         }
-        //gameQuickSlotRoot?.SetActive(false);
-        //gamePlayerInfoRoot?.SetActive(false);
-        //gameEquipIcon?.SetActive(false);
     }
 
     private void OnDisable()
     {
-        //gameQuickSlotRoot?.SetActive(true);
-        //gamePlayerInfoRoot?.SetActive(true);
-        //gameEquipIcon?.SetActive(true);
+        //인벤토리 UI가 닫힐 때 정적 이벤트 발생
+        InventroyEventSystem.InventoryClosed();
     }
 
     private void OnDestroy()
