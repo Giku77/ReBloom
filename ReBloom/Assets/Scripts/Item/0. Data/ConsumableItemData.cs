@@ -147,6 +147,8 @@ public class ConsumableItemData : ItemBase
         }
 
         Debug.Log($"[재밍] 범위:{range}m, 지속:{duration}초");
+        player.Anim.SetJammingAnim();
+
         return true;
     }
 

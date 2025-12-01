@@ -6,6 +6,8 @@ using UnityEngine.InputSystem;
 public class PlayerStats : MonoBehaviour
 {
     public StatsData data;
+
+    private PlayerAnimation anim;
     public PlayerEquipManager EquipManager { get; private set; }
     public StatBase Health { get; private set; }
     public StatBase Hunger { get; private set; }
@@ -27,6 +29,7 @@ public class PlayerStats : MonoBehaviour
     private void Awake()
     {
         EquipManager = GetComponent<PlayerEquipManager>();
+        anim = GetComponent<PlayerAnimation>();
 
         Health = new HealthStat(this, data.maxHealth);
         
@@ -111,10 +114,10 @@ public class PlayerStats : MonoBehaviour
     }
 
     public void TakeDamage(float damage)
-    { 
+    {
         Health.Modify(-damage);
+        anim.SetHitAnim();
     }
-
     /// <summary>
     /// LSY: DeathBoxHandler를 찾아서 자동 이벤트 등록
     /// </summary>
