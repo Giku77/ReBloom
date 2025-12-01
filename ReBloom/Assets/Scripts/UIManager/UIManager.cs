@@ -35,6 +35,20 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        foreach (var kvp in uiDict)
+        {
+            var ui = kvp.Value;
+            if (ui.Layer == UILayer.HUD)
+            {
+                ui.Show();
+            }
+        }
+
+        UpdateInputLock();
+    }
+
     public void ToggleUI(UIType type)
     {
         Debug.Log($"[UIManager] ToggleUI called: {type}");
@@ -144,6 +158,23 @@ public class UIManager : MonoBehaviour
             {
                 uiBlocking = true;
                 break;
+            }
+        }
+
+        foreach (var kvp in uiDict)
+        {
+            var ui = kvp.Value;
+
+            if (ui.Layer == UILayer.HUD)
+            {
+                if (uiBlocking && ui.IsOpen)
+                {
+                    ui.Hide();  
+                }
+                else if (!uiBlocking && !ui.IsOpen)
+                {
+                    ui.Show(); 
+                }
             }
         }
 

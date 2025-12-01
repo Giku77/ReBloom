@@ -196,41 +196,46 @@ public class DebugInventoryInput : MonoBehaviour
             return;
         }
 
-        isUIOpen = !isUIOpen;
+    //     isUIOpen = !isUIOpen;
 
-        if (isUIOpen)
-        {
-            debugUI.OpenDebugInventory();
-        }
-        else
-        {
-            debugUI.CloseDebugInventory();
-        }
+    //     if (isUIOpen)
+    //     {
+    //         debugUI.OpenDebugInventory();
+    //     }
+    //     else
+    //     {
+    //         debugUI.CloseDebugInventory();
+    //     }
 
-       HandleCursorState(isUIOpen);
-        Debug.Log($"[디버그 인벤토리] {(isUIOpen ? "열림" : "닫힘")}");
+    //    HandleCursorState(isUIOpen);
+    //     Debug.Log($"[디버그 인벤토리] {(isUIOpen ? "열림" : "닫힘")}");
+          debugUI.ToggleUI();
     }
 
     public void OpenDebugUI()
     {
         if (debugUI == null) return;
+        debugUI.ToggleUI();
 
-        isUIOpen = true;
-        debugUI.OpenDebugInventory();
-        HandleCursorState(true);
+        // isUIOpen = true;
+        // debugUI.OpenDebugInventory();
+        // HandleCursorState(true);
 
-        Debug.Log("[디버그 인벤토리] 열림");
+        // Debug.Log("[디버그 인벤토리] 열림");
+        //UIManager.Instance.ShowUI(UIType.Debug);
     }
 
     public void CloseDebugUI()
     {
         if (debugUI == null) return;
+        debugUI.ToggleUI();
 
-        isUIOpen = false;
-        debugUI.CloseDebugInventory();
-        HandleCursorState(false);
+        // isUIOpen = false;
+        // debugUI.CloseDebugInventory();
+        // HandleCursorState(false);
 
-        Debug.Log("[디버그 인벤토리] 닫힘");
+        // Debug.Log("[디버그 인벤토리] 닫힘");
+        //UIManager.Instance.HideUI(UIType.Debug);
     }
 
     private void HandleCursorState(bool show)

@@ -222,12 +222,15 @@ public enum UIType
 {
     None,
     Inventory,
+    InventoryStats,
     Crafting,
     Stats,
+    Equipment,
     Quest,
     Building,
     Weather,
-    Debug
+    Debug,
+    QuickSlot
 }
 
 public enum UILayer

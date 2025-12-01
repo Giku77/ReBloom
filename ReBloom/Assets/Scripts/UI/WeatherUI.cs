@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using TMPro;
 
-public class WeatherUI : MonoBehaviour
+public class WeatherUI : UIBase
 {
     [Header("UI Elements")]
     [SerializeField] private TextMeshProUGUI weatherText;

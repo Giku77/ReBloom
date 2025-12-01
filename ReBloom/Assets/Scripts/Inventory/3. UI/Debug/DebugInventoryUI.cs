@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using TMPro;
@@ -7,11 +7,11 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 /// <summary>
-/// ·±Å¸ÀÓ µğ¹ö±× ÀÎº¥Åä¸® UI
-/// ºôµå ÈÄ¿¡µµ Å×½ºÆ® °¡´É
-/// New Input System »ç¿ë
+/// ëŸ°íƒ€ì„ ë””ë²„ê·¸ ì¸ë²¤í† ë¦¬ UI
+/// ë¹Œë“œ í›„ì—ë„ í…ŒìŠ¤íŠ¸ ê°€ëŠ¥
+/// New Input System ì‚¬ìš©
 /// </summary>
-public class DebugInventoryUI : MonoBehaviour
+public class DebugInventoryUI : UIBase
 {
     [Header("UI References")]
     [SerializeField] public GameObject uiRoot;
@@ -45,7 +45,7 @@ public class DebugInventoryUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI txtItemCount;
     [SerializeField] private TextMeshProUGUI txtFilterInfo;
 
-    #region »óÅÂ º¯¼ö
+    #region ìƒíƒœ ë³€ìˆ˜
     private ItemTableType currentTable = ItemTableType.Consumable;
     private ItemTier selectedTier = ItemTier.Common;
     private bool filterByTier = false;
@@ -57,7 +57,7 @@ public class DebugInventoryUI : MonoBehaviour
     private Dictionary<Button, ItemTableType> tabButtons = new Dictionary<Button, ItemTableType>();
     #endregion
 
-    #region Unity »ı¸íÁÖ±â
+    #region Unity ìƒëª…ì£¼ê¸°
     private void Awake()
     {
         if (gridLayout != null)
@@ -73,19 +73,19 @@ public class DebugInventoryUI : MonoBehaviour
 
     private void Start()
     {
-        // ItemDatabase ÃÊ±âÈ­ ´ë±â
+        // ItemDatabase ì´ˆê¸°í™” ëŒ€ê¸°
         if (ItemDatabase.I != null && ItemDatabase.I.IsInitialized)
         {
             RefreshItemList();
         }
         else
         {
-            Debug.LogWarning("[DebugInventoryUI] ItemDatabase°¡ ¾ÆÁ÷ ÃÊ±âÈ­µÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+            Debug.LogWarning("[DebugInventoryUI] ItemDatabaseê°€ ì•„ì§ ì´ˆê¸°í™”ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
         }
     }
     #endregion
 
-    #region ÃÊ±âÈ­
+    #region ì´ˆê¸°í™”
     private void InitializeTabButtons()
     {
         tabButtons[btnConsumable] = ItemTableType.Consumable;
@@ -103,24 +103,24 @@ public class DebugInventoryUI : MonoBehaviour
 
     private void InitializeFilterUI()
     {
-        // °Ë»ö
+        // ê²€ìƒ‰
         searchInput.onValueChanged.AddListener(OnSearchChanged);
 
-        // Æ¼¾î ÇÊÅÍ
+        // í‹°ì–´ í•„í„°
         toggleTierFilter.onValueChanged.AddListener(OnTierFilterToggled);
         dropdownTier.ClearOptions();
-        dropdownTier.AddOptions(new List<string> { "ÀÏ¹İ", "Èñ±Í", "¿µ¿õ" });
+        dropdownTier.AddOptions(new List<string> { "ì¼ë°˜", "í¬ê·€", "ì˜ì›…" });
         dropdownTier.onValueChanged.AddListener(OnTierChanged);
 
-        // Á¤·Ä
+        // ì •ë ¬
         dropdownSort.ClearOptions();
-        dropdownSort.AddOptions(new List<string> { "ID ¼ø", "ÀÌ¸§ ¼ø", "Æ¼¾î ¼ø", "¼ÒºĞ·ù ¼ø" });
+        dropdownSort.AddOptions(new List<string> { "ID ìˆœ", "ì´ë¦„ ìˆœ", "í‹°ì–´ ìˆœ", "ì†Œë¶„ë¥˜ ìˆœ" });
         dropdownSort.onValueChanged.AddListener(OnSortChanged);
 
         btnSortOrder.onClick.AddListener(OnSortOrderToggled);
         UpdateSortOrderButton();
 
-        // Ç¥½Ã ¿É¼Ç
+        // í‘œì‹œ ì˜µì…˜
         toggleShowDescription.onValueChanged.AddListener(_ => RefreshItemList());
         toggleShowStats.onValueChanged.AddListener(_ => RefreshItemList());
 
@@ -131,21 +131,27 @@ public class DebugInventoryUI : MonoBehaviour
     }
     #endregion
 
-    #region UI ÀÌº¥Æ®
+    #region UI ì´ë²¤íŠ¸
     public void ToggleUI()
     {
-        bool newState = !uiRoot.activeSelf;
-        Debug.Log(newState);
-        uiRoot.SetActive(newState);
+        //bool newState = !uiRoot.activeSelf;
+        //Debug.Log(newState);
+        //uiRoot.SetActive(newState);
 
-        if (newState)
-        {
-            RefreshItemList();
+        //if (newState)
+        //{
+        //    RefreshItemList();
 
-            // Ä¿¼­ Ç¥½Ã (ºôµå¿ë)
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-        }
+        //    // ì»¤ì„œ í‘œì‹œ (ë¹Œë“œìš©)
+        //    Cursor.visible = true;
+        //    Cursor.lockState = CursorLockMode.None;
+        //}
+        UIManager.Instance.ToggleUI(Type);
+    }
+
+    protected override void OnShow()
+    {
+        RefreshItemList();
     }
 
     private void OnTabClicked(ItemTableType tableType)
@@ -153,7 +159,7 @@ public class DebugInventoryUI : MonoBehaviour
         if (currentTable == tableType) return;
 
         currentTable = tableType;
-        searchInput.text = ""; // ÅÇ º¯°æ ½Ã °Ë»ö ÃÊ±âÈ­
+        searchInput.text = ""; // íƒ­ ë³€ê²½ ì‹œ ê²€ìƒ‰ ì´ˆê¸°í™”
 
         UpdateTabVisuals();
         RefreshItemList();
@@ -195,37 +201,37 @@ public class DebugInventoryUI : MonoBehaviour
     {
         if (gridLayout != null)
         {
-            // Cell Size¸¸ Á¶Á¤ - SlotÀº ÀÚµ¿À¸·Î µû¶ó°¨
+            // Cell Sizeë§Œ ì¡°ì • - Slotì€ ìë™ìœ¼ë¡œ ë”°ë¼ê°
             gridLayout.cellSize = new Vector2(sliderValue, sliderValue);
         }
     }
     #endregion
 
-    #region ¾ÆÀÌÅÛ ¸ñ·Ï °»½Å
+    #region ì•„ì´í…œ ëª©ë¡ ê°±ì‹ 
     /// <summary>
-    /// ÇÊÅÍ¸µ ¹× Á¤·ÄÇÏ¿© ¾ÆÀÌÅÛ ¸ñ·Ï »õ·Î°íÄ§
+    /// í•„í„°ë§ ë° ì •ë ¬í•˜ì—¬ ì•„ì´í…œ ëª©ë¡ ìƒˆë¡œê³ ì¹¨
     /// </summary>
     public void RefreshItemList()
     {
         if (ItemDatabase.I == null || !ItemDatabase.I.IsInitialized)
         {
-            Debug.LogWarning("[DebugInventoryUI] ItemDatabase°¡ ÃÊ±âÈ­µÇÁö ¾ÊÀ½");
+            Debug.LogWarning("[DebugInventoryUI] ItemDatabaseê°€ ì´ˆê¸°í™”ë˜ì§€ ì•ŠìŒ");
             return;
         }
 
-        // ±âÁ¸ ½½·Ô Á¦°Å
+        // ê¸°ì¡´ ìŠ¬ë¡¯ ì œê±°
         ClearSlots();
 
-        // ÇÊÅÍ¸µ & Á¤·Ä
+        // í•„í„°ë§ & ì •ë ¬
         var items = GetFilteredAndSortedItems();
 
-        // ½½·Ô »ı¼º
+        // ìŠ¬ë¡¯ ìƒì„±
         foreach (var item in items)
         {
             CreateItemSlot(item);
         }
 
-        // Á¤º¸ ¾÷µ¥ÀÌÆ®
+        // ì •ë³´ ì—…ë°ì´íŠ¸
         UpdateInfoPanel(items.Count);
     }
 
@@ -276,25 +282,25 @@ public class DebugInventoryUI : MonoBehaviour
     }
     #endregion
 
-    #region ÇÊÅÍ¸µ & Á¤·Ä
+    #region í•„í„°ë§ & ì •ë ¬
     private List<ItemBase> GetFilteredAndSortedItems()
     {
         var allItems = ItemDatabase.I.GetAllItems();
 
-        // 1. Å×ÀÌºí ÇÊÅÍ
+        // 1. í…Œì´ë¸” í•„í„°
         var filtered = allItems.Where(item =>
         {
             var tableType = ItemIDParser.GetTableType(item.itemID);
             return tableType == currentTable;
         }).ToList();
 
-        // 2. Æ¼¾î ÇÊÅÍ
+        // 2. í‹°ì–´ í•„í„°
         if (filterByTier)
         {
             filtered = filtered.Where(item => item.tier == (int)selectedTier).ToList();
         }
 
-        // 3. °Ë»ö ÇÊÅÍ
+        // 3. ê²€ìƒ‰ í•„í„°
         if (!string.IsNullOrEmpty(searchText))
         {
             string search = searchText.ToLower();
@@ -304,7 +310,7 @@ public class DebugInventoryUI : MonoBehaviour
             ).ToList();
         }
 
-        // 4. Á¤·Ä
+        // 4. ì •ë ¬
         filtered = SortItems(filtered);
 
         return filtered;
@@ -345,7 +351,7 @@ public class DebugInventoryUI : MonoBehaviour
     }
     #endregion
 
-    #region UI ¾÷µ¥ÀÌÆ®
+    #region UI ì—…ë°ì´íŠ¸
     private void UpdateTabVisuals()
     {
         foreach (var pair in tabButtons)
@@ -357,7 +363,7 @@ public class DebugInventoryUI : MonoBehaviour
             colors.normalColor = (type == currentTable) ? new UnityEngine.Color(0.3f, 0.6f, 1f) : UnityEngine.Color.white;
             btn.colors = colors;
 
-            // ¹öÆ° ÅØ½ºÆ® ¾÷µ¥ÀÌÆ®
+            // ë²„íŠ¼ í…ìŠ¤íŠ¸ ì—…ë°ì´íŠ¸
             TextMeshProUGUI btnText = btn.GetComponentInChildren<TextMeshProUGUI>();
             if (btnText != null)
             {
@@ -371,7 +377,7 @@ public class DebugInventoryUI : MonoBehaviour
         TextMeshProUGUI btnText = btnSortOrder.GetComponentInChildren<TextMeshProUGUI>();
         if (btnText != null)
         {
-            btnText.text = sortAscending ? "¡ã" : "¡å";
+            btnText.text = sortAscending ? "â–²" : "â–¼";
         }
     }
 
@@ -379,21 +385,21 @@ public class DebugInventoryUI : MonoBehaviour
     {
         if (txtItemCount != null)
         {
-            txtItemCount.text = $"¾ÆÀÌÅÛ: {count}°³";
+            txtItemCount.text = $"ì•„ì´í…œ: {count}ê°œ";
         }
 
         if (txtFilterInfo != null)
         {
-            string info = $"Å×ÀÌºí: {GetTableName(currentTable)}";
+            string info = $"í…Œì´ë¸”: {GetTableName(currentTable)}";
 
             if (filterByTier)
             {
-                info += $" Æ¼¾î: {selectedTier}";
+                info += $" í‹°ì–´: {selectedTier}";
             }
 
             if (!string.IsNullOrEmpty(searchText))
             {
-                info += $" °Ë»ö: \"{searchText}\"";
+                info += $" ê²€ìƒ‰: \"{searchText}\"";
             }
 
             txtFilterInfo.text = info;
@@ -401,23 +407,23 @@ public class DebugInventoryUI : MonoBehaviour
     }
     #endregion
 
-    #region ÇïÆÛ
+    #region í—¬í¼
     private string GetTableName(ItemTableType type)
     {
         return type switch
         {
-            ItemTableType.Consumable => "¼Òºñ",
-            ItemTableType.Protective => "º¸È£±¸",
-            ItemTableType.Tool => "µµ±¸",
-            ItemTableType.Misc => "±âÅ¸",
-            _ => "¾Ë ¼ö ¾øÀ½"
+            ItemTableType.Consumable => "ì†Œë¹„",
+            ItemTableType.Protective => "ë³´í˜¸êµ¬",
+            ItemTableType.Tool => "ë„êµ¬",
+            ItemTableType.Misc => "ê¸°íƒ€",
+            _ => "ì•Œ ìˆ˜ ì—†ìŒ"
         };
     }
     #endregion
 
-    #region µğ¹ö±× ¸í·É¾î
+    #region ë””ë²„ê·¸ ëª…ë ¹ì–´
     /// <summary>
-    /// ÄÜ¼Ö ¸í·É¾î·Î ¿­±â (ºôµå¿¡¼­µµ »ç¿ë °¡´É)
+    /// ì½˜ì†” ëª…ë ¹ì–´ë¡œ ì—´ê¸° (ë¹Œë“œì—ì„œë„ ì‚¬ìš© ê°€ëŠ¥)
     /// </summary>
     [ContextMenu("Open Debug Inventory")]
     public void OpenDebugInventory()

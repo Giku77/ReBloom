@@ -85,11 +85,11 @@ public class CraftingManager
             return result;
         }
 
-        if (_inventory.Items.Count >= _inventory.SlotCount)
-        {
-            result.failReason = CraftFailReason.NoOutputSpace;
-            return result;
-        }
+        //if (_inventory.Items.Count >= _inventory.SlotCount)
+        //{
+        //    result.failReason = CraftFailReason.NoOutputSpace;
+        //    return result;
+        //}
 
         result.canCraft = true;
         return result;
@@ -113,7 +113,10 @@ public class CraftingManager
             _inventory.RemoveItem(mat.itemId, mat.count * amount);
         }
 
-        _inventory.AddItem(recipe.productId, recipe.productCount * amount);
+        if (!_inventory.AddItem(recipe.productId, recipe.productCount * amount))
+        {
+            return CraftFailReason.NoOutputSpace;
+        }
 
         return CraftFailReason.None;
     }
