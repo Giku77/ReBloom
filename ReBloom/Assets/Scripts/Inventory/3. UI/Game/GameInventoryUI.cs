@@ -83,8 +83,8 @@ public class GameInventoryUI : UIBase
         // 이벤트 구독
         inventoryData.OnInventoryChanged += RefreshUI;
 
-        //// 초기화
-        inventoryData.Initialize();
+        ////// 초기화
+        //inventoryData.Initialize();
         //CreateEmptySlots();
         //RefreshUI();
         // 시작 시 인벤토리 닫기
