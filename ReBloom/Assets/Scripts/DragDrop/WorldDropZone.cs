@@ -295,6 +295,7 @@ public class WorldDropZone : MonoBehaviour,
         if (itemSpawner != null)
         {
             await itemSpawner.DropItemWithQuantity(draggedItem, dropPosition, quantity);
+            InventroyEventSystem.ItemDropped();
             Debug.Log($"[WorldDropZone] {draggedItem.itemName} x{quantity}개를 월드에 Stack 드롭했습니다.");
         }
         else
