@@ -16,6 +16,12 @@ public class CollisionRule : IBuildRule
     public bool Validate(ArcContext ctx, out string errorCode)
     {
         var fp = ctx.FootPrint;
+        // const float margin = 0.02f;
+        // Vector3 halfExtents = new Vector3(
+        //     fp.sizeX / 2f - margin,
+        //     2f,
+        //     fp.sizeZ / 2f - margin
+        // );
         Vector3 halfExtents = new Vector3(fp.sizeX / 2f, 2f, fp.sizeZ / 2f); // 높이는 대충 2~3m 여유
 
         DrawWireBox(ctx.Position + Vector3.up * halfExtents.y, halfExtents, ctx.Rotation, Color.red, 1f);
@@ -28,12 +34,45 @@ public class CollisionRule : IBuildRule
             obstacleLayers
         );
 
-        if (hits.Length > 0)
+        bool isCorridor = ctx.ArcPrefab != null &&
+                    ctx.ArcPrefab.GetComponent<CorridorNode>() != null;
+        Vector2Int candidateCell = default;
+        if (isCorridor)
         {
-            // 여기서 태그로 자기 프리뷰/무시 대상 제외 로직 넣어도 됨
+            candidateCell = CorridorGrid.WorldToCell(ctx.Position);
+        }
+
+        foreach (var col in hits)
+        {
+            // 자기 프리뷰나 특정 태그/레이어는 여기서도 걸러줄 수 있음
+            // if (col.CompareTag("BuildPreview")) continue;
+            if (isCorridor)
+            {
+                var otherNode = col.GetComponentInParent<CorridorNode>();
+                if (otherNode != null)
+                {
+                    // 같은 셀에 이미 통로가 있으면 막기
+                    if (otherNode.Cell == candidateCell)
+                    {
+                        errorCode = "COLLISION";
+                        return false;
+                    }
+
+                    continue;
+                }
+            }
+
             errorCode = "COLLISION";
             return false;
         }
+
+
+        // if (hits.Length > 0)
+        // {
+        //     // 여기서 태그로 자기 프리뷰/무시 대상 제외 로직 넣어도 됨
+        //     errorCode = "COLLISION";
+        //     return false;
+        // }
 
         errorCode = null;
         return true;

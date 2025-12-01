@@ -55,7 +55,7 @@ public class FlatSurfaceRule : IBuildRule
             maxY = Mathf.Max(maxY, hit.point.y);
         }
 
-        Debug.Log($"M : {maxY - minY}");
+        //Debug.Log($"M : {maxY - minY}");
 
         if (maxY - minY > maxHeightDiff)
         {

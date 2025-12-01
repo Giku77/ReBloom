@@ -230,7 +230,8 @@ public enum UIType
     Building,
     Weather,
     Debug,
-    QuickSlot
+    QuickSlot,
+    Dialogue
 }
 
 public enum UILayer

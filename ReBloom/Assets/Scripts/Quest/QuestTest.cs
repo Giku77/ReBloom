@@ -13,6 +13,10 @@ public class QuestTest : MonoBehaviour
     {
         var db = new QuestDB();
         db.LoadFromBG();
+        var tutorialDB = new TutorialDB();
+        tutorialDB.LoadFromBG();
+        var cutSceneDB = new CutSceneDB();
+        cutSceneDB.LoadFromBG();
         var inventory = FindFirstObjectByType<GameInventory>();
         var stageDetector = GameObject.FindGameObjectWithTag("Player").GetComponent<StageDetector>();
 
