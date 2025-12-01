@@ -4,7 +4,6 @@ public class NPCAttackState : NPCState
 {
     private float attackRange = 2f;
     private float attackCooldown = 5f;
-    private float lastAttackTime = -999f;
     private float attackDuration = 7f;
     private float stateEnterTime;
 
@@ -12,24 +11,33 @@ public class NPCAttackState : NPCState
 
     public override void Enter()
     {
-        Debug.Log("NPC: Entered Attack State");
+        Debug.Log("NPC: 공격 스테이트 진입");
+
+        //controller.Animator.ResetTrigger("Attack");
+
         controller.agent.isStopped = true;
-        stateEnterTime = Time.time;
+        //stateEnterTime = Time.time;
+
+        controller.Animator.ResetTrigger("Attack");
+
+        controller.Animator.SetTrigger("Attack");
     }
 
     public override void Update()
     {
-        if (Time.time - stateEnterTime > attackDuration)
-        {
-            controller.ChangeState(new NPCReturnState(controller));
-            return;
-        }
+        //if (Time.time - stateEnterTime > attackDuration)
+        //{
+        //    controller.ChangeState(new NPCReturnState(controller));
+        //    return;
+        //}
 
-        if (Time.time - lastAttackTime >= attackCooldown)
-        {
-            PerformAttack();
-            lastAttackTime = Time.time;
-        }
+        //if (Time.time - controller.lastAttackTime >= attackCooldown)
+        //{
+        //    PerformAttack();
+        //    controller.lastAttackTime = Time.time;
+
+        //    return;
+        //}
     }
 
     private void PerformAttack()
@@ -38,22 +46,27 @@ public class NPCAttackState : NPCState
         controller.Animator.SetTrigger("Attack");
     }
 
-    public override void HandleFootstep(Vector3 footPos, float loudness)
+    public override void Exit()
     {
-        float effectiveRange = controller.hearingRange * loudness;
-        float distance = Vector3.Distance(controller.transform.position, footPos);
-
-        if (distance <= effectiveRange)
-        {
-            if (distance <= attackRange)
-            {
-                stateEnterTime = Time.time;
-            }
-            else
-            {
-                controller.lastHeardPosition = footPos;
-                controller.ChangeState(new NPCChaseState(controller));
-            }
-        }
+        controller.Animator.ResetTrigger("Attack");
     }
+
+    //public override void HandleFootstep(Vector3 footPos, float loudness)
+    //{
+    //    float effectiveRange = controller.hearingRange * loudness;
+    //    float distance = Vector3.Distance(controller.transform.position, footPos);
+
+    //    if (distance <= effectiveRange)
+    //    {
+    //        if (distance <= attackRange)
+    //        {
+    //            stateEnterTime = Time.time;
+    //        }
+    //        else
+    //        {
+    //            controller.lastHeardPosition = footPos;
+    //            controller.ChangeState(new NPCChaseState(controller));
+    //        }
+    //    }
+    //}
 }

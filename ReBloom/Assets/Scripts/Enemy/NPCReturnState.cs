@@ -6,6 +6,7 @@ public class NPCReturnState : NPCState
 
     public override void Enter()
     {
+        Debug.Log("NPC: 리턴 스테이트 진입");
         controller.agent.isStopped = false;
         controller.agent.SetDestination(controller.initialPosition);
     }

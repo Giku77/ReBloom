@@ -9,7 +9,7 @@ public class NPCIdleState : NPCState
 
     public override void Enter()
     {
-        Debug.Log("적대 NPC Idle상태전환");
+        Debug.Log("NPC: Idle 상태 진입");
         controller.agent.isStopped = true;
         
         float angleDifference = Quaternion.Angle(controller.transform.rotation, controller.initialRotation);
@@ -26,7 +26,7 @@ public class NPCIdleState : NPCState
             {
                 controller.transform.rotation = controller.initialRotation;
                 isRotating = false;
-                Debug.Log("NPC: Rotation complete");
+                Debug.Log("NPC: 기존 위치 이동완료");
             }
         }
     }

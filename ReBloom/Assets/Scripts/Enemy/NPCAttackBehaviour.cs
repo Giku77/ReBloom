@@ -1,9 +1,5 @@
 ﻿using UnityEngine;
 
-/// <summary>
-/// Animator의 Attack State에 붙여서 사용
-/// 애니메이션 타이밍에 맞춰 히트박스 활성화/비활성화
-/// </summary>
 public class NPCAttackBehaviour : StateMachineBehaviour
 {
     [Header("Attack Timing")]
@@ -86,6 +82,12 @@ public class NPCAttackBehaviour : StateMachineBehaviour
         }
         
         Debug.Log("[NPC Attack] 공격 애니메이션 종료");
+
+        NPCController npc = animator.GetComponentInParent<NPCController>();
+        if (npc != null)
+        {
+            npc.ChangeState(new NPCReturnState(npc));
+        }
     }
 
     private Transform FindChildRecursive(Transform parent, string name)

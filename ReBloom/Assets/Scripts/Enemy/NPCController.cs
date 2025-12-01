@@ -1,10 +1,11 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.AI;
 
 public class NPCController : MonoBehaviour
 {
     [Header("NPC Settings")]
     public float hearingRange = 5f;
+    public float lastAttackTime = -999f;
     public Transform player;
 
     [Header("References")]
