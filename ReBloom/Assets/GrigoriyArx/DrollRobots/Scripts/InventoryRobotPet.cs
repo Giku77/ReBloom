@@ -205,7 +205,7 @@ public class InventoryRobotPet : MonoBehaviour
 
         InventroyEventSystem.OnItemAcquiredTier += HandleItemAcquired;
         InventroyEventSystem.OnInventoryOpened += HandleInventoryOpened;
-        InventroyEventSystem.OnInventoryClosed += HandleInventoryClosed;
+        //InventroyEventSystem.OnInventoryClosed += HandleInventoryClosed;
         InventroyEventSystem.OnInventoryFull += HandleInventoryFull;
         InventroyEventSystem.OnItemDropped += HandleItemDropped;
     }
@@ -222,7 +222,7 @@ public class InventoryRobotPet : MonoBehaviour
         //InventroyEventSystem.OnQuestCompleted -= HandleQuestCompleted;
 
         InventroyEventSystem.OnInventoryOpened -= HandleInventoryOpened;
-        InventroyEventSystem.OnInventoryClosed -= HandleInventoryClosed;
+        //InventroyEventSystem.OnInventoryClosed -= HandleInventoryClosed;
         //InventroyEventSystem.OnItemAcquired -= HandleItemAdded;
         InventroyEventSystem.OnItemAcquiredTier -= HandleItemAcquired;
 
@@ -338,10 +338,10 @@ public class InventoryRobotPet : MonoBehaviour
     /// <summary>
     /// 인벤토리 닫힘 - 점프로 반응
     /// </summary>
-    private void HandleInventoryClosed()
-    {
-        animController.PlayAnimation("Jump");
-    }
+    //private void HandleInventoryClosed()
+    //{
+    //    animController.PlayAnimation("Jump");
+    //}
 
     /// <summary>
     /// 인벤토리 가득참 - 거부 제스처

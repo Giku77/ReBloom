@@ -26,11 +26,11 @@ public class RobotAnimationController : MonoBehaviour
         // 애니메이션 트리거
         animator.SetBool(animName, true);
 
-        // 자동 리셋
-        if (autoReset)
-        {
-            StartCoroutine(ResetAnimationAfterDelay(animName, animationResetDelay));
-        }
+        //// 자동 리셋
+        //if (autoReset)
+        //{
+        //    StartCoroutine(ResetAnimationAfterDelay(animName, animationResetDelay));
+        //}
     }
 
     /// <summary>
@@ -60,15 +60,15 @@ public class RobotAnimationController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 일정 시간 후 애니메이션 리셋
-    /// </summary>
-    private IEnumerator ResetAnimationAfterDelay(string animName, float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        animator.SetBool(animName, false);
-        animator.SetBool("reset", true);
-        yield return new WaitForSeconds(0.1f);
-        animator.SetBool("reset", false);
-    }
+    ///// <summary>
+    ///// 일정 시간 후 애니메이션 리셋
+    ///// </summary>
+    //private IEnumerator ResetAnimationAfterDelay(string animName, float delay)
+    //{
+    //    yield return new WaitForSeconds(delay);
+    //    animator.SetBool(animName, false);
+    //    animator.SetBool("reset", true);
+    //    yield return new WaitForSeconds(0.1f);
+    //    animator.SetBool("reset", false);
+    //}
 }
