@@ -2,7 +2,7 @@
 
 public class NPCChaseState : NPCState
 {
-    private float attackRange = 2f;
+    private float attackRange = 3f;
 
     public NPCChaseState(NPCController controller) : base(controller) { }
 
