@@ -56,7 +56,7 @@ public class TutorialManager : MonoBehaviour
         if (!isRunning) return;
         if (Keyboard.current == null) return;
 
-        if (Keyboard.current.f5Key.wasPressedThisFrame)
+        if (Keyboard.current.f9Key.wasPressedThisFrame)
         {
             SkipTutorial();
         }

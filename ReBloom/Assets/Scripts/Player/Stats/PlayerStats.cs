@@ -52,7 +52,7 @@ public class PlayerStats : MonoBehaviour
         AssignmentDebugKeys();
 
         if (DebugMode || StatDebugMode)
-        return;
+            return;
 
         Hunger.Tick();
         Thirst.Tick();              
@@ -62,7 +62,6 @@ public class PlayerStats : MonoBehaviour
         if (Health.Value <= 0 && !isDead && !isDebug)
         {
             isDead = true;
-
             OnDeath?.Invoke();
         }
     }
