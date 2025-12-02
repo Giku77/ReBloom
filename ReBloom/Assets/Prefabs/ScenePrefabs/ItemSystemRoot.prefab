@@ -2930,7 +2930,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -59, y: -15}
+  m_AnchoredPosition: {x: 7.0999756, y: -15}
   m_SizeDelta: {x: 100, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &613684328907140736
@@ -4142,7 +4142,7 @@ MonoBehaviour:
   playerController: {fileID: 0}
   hpBar: {fileID: 5022706916767622243}
   hpText: {fileID: 389956518393066894}
-  pollutionBar: {fileID: 0}
+  pollutionBar: {fileID: 5747336804891583091}
   hungerBar: {fileID: 1517962177450072888}
   thirstBar: {fileID: 1240130089164344928}
   tempBar: {fileID: 9167475133504342485}
@@ -9752,7 +9752,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 0}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -11915,7 +11915,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0.000061035156}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &4967979166074866537
@@ -13963,9 +13963,9 @@ MonoBehaviour:
   shoesSlotObject: {fileID: 5783397336848809259}
   toolSlotObject: {fileID: 7756373775007980871}
   slotUIPrefab: {fileID: -4735977370139949596, guid: 46ff528a990be8a4bbc84b5440c6dcb1, type: 3}
-  pollutionResText: {fileID: 0}
-  heightResText: {fileID: 0}
-  moveResText: {fileID: 0}
+  pollutionResText: {fileID: 7798553601333088457}
+  heightResText: {fileID: 1445627686860414952}
+  moveResText: {fileID: 1918347590224800531}
   playerController: {fileID: 0}
 --- !u!1 &3083315307604694981
 GameObject:
@@ -26962,7 +26962,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 7.5, y: -7.5}
+  m_AnchoredPosition: {x: 6.5, y: -7.5}
   m_SizeDelta: {x: 3, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1445066466405324902
@@ -30584,8 +30584,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a5259eaf3dde8c4eb914a129dabf484, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clothImage: {fileID: 0}
-  shoesImage: {fileID: 0}
+  clothImage: {fileID: 4607859069834480946}
+  shoesImage: {fileID: 875022628637158409}
   equipManager: {fileID: 0}
   equipData: {fileID: 0}
   equippedColor: {r: 1, g: 1, b: 1, a: 1}
@@ -39198,6 +39198,22 @@ PrefabInstance:
     - target: {fileID: 3790076886564128108, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
       propertyPath: m_AngularDrag
       value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 4333611954315479635, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
+      propertyPath: runSpeed
+      value: 14
+      objectReference: {fileID: 0}
+    - target: {fileID: 4333611954315479635, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
+      propertyPath: walkSpeed
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 4333611954315479635, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
+      propertyPath: followHeight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4333611954315479635, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
+      propertyPath: idleDistance
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6183543377561156633, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
       propertyPath: m_LocalPosition.x
