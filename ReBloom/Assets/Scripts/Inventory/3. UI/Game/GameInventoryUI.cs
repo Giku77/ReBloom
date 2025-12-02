@@ -197,7 +197,7 @@ public class GameInventoryUI : UIBase
         //    Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = false;
         //}
         UIManager.Instance?.ToggleUI(Type);
-        //UIManager.Instance?.ToggleUI(UIType.InventoryStats);
+        //UIManager.I?.ToggleUI(UIType.InventoryStats);
 
         //Debug.Log($"[게임 인벤토리] {(isActive ? "열림" : "닫힘")}");
     }

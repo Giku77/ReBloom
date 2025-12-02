@@ -172,18 +172,6 @@ public enum SortOption
     BySubCategory   // 하위 분류 정렬
 }
 
-/// <summary>
-/// 드래그 출발지 타입
-/// </summary>
-public enum DragSourceType
-{
-    Inventory,
-    QuickSlot,
-    Equipment,
-    Storage,
-    Debug
-}
-
 // ==================== 날씨 타입 ====================
 public enum WeatherType
 {
