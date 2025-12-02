@@ -6,7 +6,6 @@ public class RemovePopUp : MonoBehaviour
     [Header("Reference")]
     [SerializeField] private RemovePopUPUI removePopUPUI;
     [SerializeField] private InventoryItemData inventoryData;
-    [SerializeField] private WorldDropZone worldDropZone;
     [SerializeField] private GameInventory gameInventory;
     [SerializeField] private GameInventoryUI gameInventoryUI;
 
@@ -57,9 +56,9 @@ public class RemovePopUp : MonoBehaviour
             return;
         }
 
-        if (worldDropZone != null)
+        if (DragDropManager.I != null)
         {
-            worldDropZone.DropItemFromPopup(selectedItem, settingQuantity);
+            DragDropManager.I.DropItemFromPopup(selectedItem, settingQuantity);
             Debug.Log($"[RemovePopUp] {selectedItem.itemName} x{settingQuantity} 드롭 요청");
         }
         else
