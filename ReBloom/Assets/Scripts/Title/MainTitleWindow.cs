@@ -6,6 +6,6 @@ public class MainTitleWindow : Window
 {
     public void OnGameStartButtonClicked()
     {
-        SceneManager.LoadSceneAsync("MainScene");
+        SceneManager.LoadScene("LoadingScene");
     }
 }
