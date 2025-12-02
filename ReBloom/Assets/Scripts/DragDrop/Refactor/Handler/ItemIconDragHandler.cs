@@ -1,1 +1,138 @@
-﻿using UnityEngine; using UnityEngine.EventSystems; using UnityEngine.UI;  /// <summary> /// 아이템 아이콘 드래그 핸들러 /// DragDropManager와 연동 /// </summary> public class ItemIconDragHandler : MonoBehaviour,     IBeginDragHandler, IDragHandler, IEndDragHandler {     [Header("References")]     [SerializeField] private Image iconImage;      private Canvas canvas;     private ItemBase itemData;     private RectTransform rectTransform;     private CanvasGroup canvasGroup;      // 원래 위치 정보     private Vector2 originalPosition;     private Transform originalParent;     private int originalSiblingIndex;      private IDragSource dragSource;      #region 유니티 생명주기     private void Awake()     {         rectTransform = GetComponent<RectTransform>();         canvas = GetComponentInParent<Canvas>();          canvasGroup = GetComponent<CanvasGroup>();         if (canvasGroup == null)         {             canvasGroup = gameObject.AddComponent<CanvasGroup>();         }     }     #endregion      #region 데이터 설정     public void SetItemData(ItemBase data)     {         itemData = data;         if (iconImage != null && data != null)         {             iconImage.sprite = data.icon;         }     }     #endregion      #region 드래그앤드롭 구현     public void OnBeginDrag(PointerEventData eventData)     {         if (itemData == null) return;          // 출발지 인터페이스 찾기         dragSource = GetComponentInParent<IDragSource>();         if (dragSource == null)         {             Debug.LogError("[ItemIconDragHandler] IDragSource를 찾을 수 없습니다!");             return;         }          // 컨텍스트 생성         DragContext context = dragSource.CreateDragContext(itemData);          // Manager에게 드래그 시작 알림         if (DragDropManager.I != null)         {             DragDropManager.I.BeginDrag(context);         }         else         {             Debug.LogError("[ItemIconDragHandler] DragDropManager를 찾을 수 없습니다!");             return;         }          // 드래그 비주얼 설정         SaveOriginalState();         SetupDragVisual();     }      public void OnDrag(PointerEventData eventData)     {         if (itemData == null) return;          // 마우스 따라 이동         rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;          // 호버 알림 (비주얼 피드백)         DragDropManager.I?.NotifyHover(eventData);     }      public void OnEndDrag(PointerEventData eventData)     {         // Manager에게 드래그 종료 알림         if (DragDropManager.I != null)         {             DragDropManager.I.EndDrag(eventData);         }          // 비주얼 복원         ResetDragVisual();         RestoreOriginalState();     }     #endregion      #region 드래그 비주얼     private void SaveOriginalState()     {         originalPosition = rectTransform.anchoredPosition;         originalParent = transform.parent;         originalSiblingIndex = transform.GetSiblingIndex();     }      private void RestoreOriginalState()     {         transform.SetParent(originalParent, true);         transform.SetSiblingIndex(originalSiblingIndex);         rectTransform.anchoredPosition = originalPosition;     }      private void SetupDragVisual()     {         transform.SetParent(canvas.transform, true);         canvasGroup.blocksRaycasts = false;         canvasGroup.alpha = 0.6f;         rectTransform.SetAsLastSibling();     }      private void ResetDragVisual()     {         canvasGroup.blocksRaycasts = true;         canvasGroup.alpha = 1f;     }     #endregion }
+﻿using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
+/// <summary>
+/// 아이템 아이콘 드래그 핸들러
+/// DragDropManager와 연동
+/// </summary>
+public class ItemIconDragHandler : MonoBehaviour,
+    IBeginDragHandler, IDragHandler, IEndDragHandler
+{
+    [Header("References")]
+    [SerializeField] private Image iconImage;
+
+    private Canvas canvas;
+    private ItemBase itemData;
+    private RectTransform rectTransform;
+    private CanvasGroup canvasGroup;
+
+    // 원래 위치 정보
+    private Vector2 originalPosition;
+    private Transform originalParent;
+    private int originalSiblingIndex;
+
+    private IDragSource dragSource;
+
+    #region 유니티 생명주기
+    private void Awake()
+    {
+        rectTransform = GetComponent<RectTransform>();
+        canvas = GetComponentInParent<Canvas>();
+
+        canvasGroup = GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+        {
+            canvasGroup = gameObject.AddComponent<CanvasGroup>();
+        }
+    }
+    #endregion
+
+    #region 데이터 설정
+    public void SetItemData(ItemBase data)
+    {
+        itemData = data;
+        if (iconImage != null && data != null)
+        {
+            iconImage.sprite = data.icon;
+        }
+    }
+    #endregion
+
+    #region 드래그앤드롭 구현
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        if (itemData == null) return;
+
+        // 출발지 인터페이스 찾기
+        dragSource = GetComponentInParent<IDragSource>();
+        if (dragSource == null)
+        {
+            Debug.LogError("[ItemIconDragHandler] IDragSource를 찾을 수 없습니다!");
+            return;
+        }
+
+        // 컨텍스트 생성
+        DragContext context = dragSource.CreateDragContext(itemData);
+
+        // Manager에게 드래그 시작 알림
+        if (DragDropManager.I != null)
+        {
+            DragDropManager.I.BeginDrag(context);
+        }
+        else
+        {
+            Debug.LogError("[ItemIconDragHandler] DragDropManager를 찾을 수 없습니다!");
+            return;
+        }
+
+        // 드래그 비주얼 설정
+        SaveOriginalState();
+        SetupDragVisual();
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (itemData == null) return;
+
+        // 마우스 따라 이동
+        rectTransform.anchoredPosition += eventData.delta / canvas.scaleFactor;
+
+        // 호버 알림 (비주얼 피드백)
+        DragDropManager.I?.NotifyHover(eventData);
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        // Manager에게 드래그 종료 알림
+        if (DragDropManager.I != null)
+        {
+            DragDropManager.I.EndDrag(eventData);
+        }
+
+        // 비주얼 복원
+        ResetDragVisual();
+        RestoreOriginalState();
+    }
+    #endregion
+
+    #region 드래그 비주얼
+    private void SaveOriginalState()
+    {
+        originalPosition = rectTransform.anchoredPosition;
+        originalParent = transform.parent;
+        originalSiblingIndex = transform.GetSiblingIndex();
+    }
+
+    private void RestoreOriginalState()
+    {
+        transform.SetParent(originalParent, true);
+        transform.SetSiblingIndex(originalSiblingIndex);
+        rectTransform.anchoredPosition = originalPosition;
+    }
+
+    private void SetupDragVisual()
+    {
+        transform.SetParent(canvas.transform, true);
+        canvasGroup.blocksRaycasts = false;
+        canvasGroup.alpha = 0.6f;
+        rectTransform.SetAsLastSibling();
+    }
+
+    private void ResetDragVisual()
+    {
+        canvasGroup.blocksRaycasts = true;
+        canvasGroup.alpha = 1f;
+    }
+    #endregion
+}

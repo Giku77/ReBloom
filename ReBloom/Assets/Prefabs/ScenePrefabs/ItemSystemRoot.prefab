@@ -14220,7 +14220,6 @@ GameObject:
   - component: {fileID: 5481289276835473355}
   - component: {fileID: 338809338023425222}
   - component: {fileID: 8697081606692543622}
-  - component: {fileID: 4014058848294646488}
   m_Layer: 5
   m_Name: BackgroundFrame
   m_TagString: Untagged
@@ -14289,25 +14288,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &4014058848294646488
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3434384185217494393}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b72a0911137e1eb4e9c6d8b1325ff67b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  zoneType: 2
-  slotIndex: -1
-  priority: 50
-  background: {fileID: 8697081606692543622}
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  hoverColor: {r: 0.8, g: 1, b: 0.8, a: 1}
-  invalidColor: {r: 1, g: 0.8, b: 0.8, a: 1}
 --- !u!1 &3440058120794685047
 GameObject:
   m_ObjectHideFlags: 0
@@ -26582,11 +26562,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f648e323d9ad53f47991d75e1b79094c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerInventory: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
-  slotParent: {fileID: 4279467218445377409}
+  inventoryData: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
+  slotContainer: {fileID: 4279467218445377409}
   emptySlotPrefab: {fileID: 8328624586715774487, guid: 501c178298f71cc4e84654c0ae1f7110, type: 3}
   storageSlotPrefab: {fileID: 7666204019609520304, guid: a736893307b418f49a7ddf8d3099f77d, type: 3}
-  maxSlots: 20
+  storageUIRoot: {fileID: 6604047112960878302}
 --- !u!1 &6608770738088886623
 GameObject:
   m_ObjectHideFlags: 0
