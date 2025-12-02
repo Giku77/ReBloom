@@ -77,6 +77,7 @@ public class WorldItem : MonoBehaviour, IInteractable
         {
             Destroy(gameObject);
         }
+        TutorialEventBus.RaiseAction((int)TutorialActionId.PickupItem);
         return true;
     }
 

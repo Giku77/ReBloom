@@ -123,6 +123,9 @@ public class QuestManager : MonoBehaviour
         //    return;
         //}
 
+        int completedQuestId = _current.questId;
+        TutorialEventBus.RaiseTarget(completedQuestId);
+
         var nextId = FindNextByFormer(_current.questId);
         if (nextId == 0)
         {
