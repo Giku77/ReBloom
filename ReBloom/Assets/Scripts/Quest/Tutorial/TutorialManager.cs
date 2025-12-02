@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class TutorialManager : MonoBehaviour
 {
@@ -9,10 +10,12 @@ public class TutorialManager : MonoBehaviour
 
     [SerializeField] private DialogueUI dialogueUI;
     [SerializeField] private PlayerController playerController;
-    //[SerializeField] private CameraController cutsceneCamera; // 카메라 튜토리얼 필요하면 나중에 추가
     [SerializeField] private int introTutorialId = 1101001;
 
     private TutorialDB tutorialDb;
+
+    private CancellationTokenSource tutorialCts;
+    private bool isRunning;
 
     private void Awake()
     {
@@ -24,32 +27,64 @@ public class TutorialManager : MonoBehaviour
 
     private async void Start()
     {
+        var destroyToken = this.GetCancellationTokenOnDestroy();
+        tutorialCts = CancellationTokenSource.CreateLinkedTokenSource(destroyToken);
+
         try
         {
-            await RunTutorialChainAsync(introTutorialId);
+            isRunning = true;
+            await RunTutorialChainAsync(introTutorialId, tutorialCts.Token);
         }
         catch (OperationCanceledException)
         {
-            Debug.Log("[TutorialManager] Tutorial cancelled (scene unload or play stop).");
+            Debug.Log("[TutorialManager] Tutorial cancelled (scene unload, play stop, or skip).");
+        }
+        finally
+        {
+            isRunning = false;
+
+            dialogueUI.Hide();
+            playerController.SetBlocked(false);
+
+            tutorialCts.Dispose();
+            tutorialCts = null;
         }
     }
 
-    public async UniTask RunTutorialChainAsync(int startTutorialId)
+    private void Update()
     {
-        var token = this.GetCancellationTokenOnDestroy();
+        if (!isRunning) return;
+        if (Keyboard.current == null) return;
+
+        if (Keyboard.current.f5Key.wasPressedThisFrame)
+        {
+            SkipTutorial();
+        }
+    }
+
+    public void SkipTutorial()
+    {
+        if (tutorialCts != null && !tutorialCts.IsCancellationRequested)
+        {
+            Debug.Log("[TutorialManager] SkipTutorial called.");
+            tutorialCts.Cancel();
+        }
+    }
+
+    public async UniTask RunTutorialChainAsync(int startTutorialId, CancellationToken token)
+    {
         int currentId = startTutorialId;
 
-        while (currentId != 0 && tutorialDb.TryGetTutorial(currentId, out var node))
+        while (currentId != 0 &&
+               !token.IsCancellationRequested &&
+               tutorialDb.TryGetTutorial(currentId, out var node))
         {
             playerController.SetBlocked(!node.IsControllable);
 
             string text = Localize(node.TutorialTextID);
-            
+
             bool showCharacterImg = node.TextType == TutorialTextType.DialogueAndImg;
-
-            bool waitForNextInput =
-                node.Condition == TutorialConditionType.NextImmediately;
-
+            bool waitForNextInput = node.Condition == TutorialConditionType.NextImmediately;
             bool showNextHint = waitForNextInput;
 
             await dialogueUI.ShowLineAsync(
@@ -57,6 +92,9 @@ public class TutorialManager : MonoBehaviour
                 showCharacterImg,
                 waitForNextInput,
                 showNextHint);
+
+            if (token.IsCancellationRequested)
+                break;
 
             switch (node.Condition)
             {
@@ -74,9 +112,6 @@ public class TutorialManager : MonoBehaviour
 
             currentId = node.NextTutorialID;
         }
-
-        dialogueUI.Hide();
-        playerController.SetBlocked(false);
     }
 
     private async UniTask WaitForActionAsync(int actionId, CancellationToken token)
@@ -96,10 +131,10 @@ public class TutorialManager : MonoBehaviour
         TutorialEventBus.OnActionConditionSatisfied += Handler;
 
         using (token.Register(() =>
-            {
-                TutorialEventBus.OnActionConditionSatisfied -= Handler;
-                tcs.TrySetCanceled();
-            }))
+        {
+            TutorialEventBus.OnActionConditionSatisfied -= Handler;
+            tcs.TrySetCanceled();
+        }))
         {
             await tcs.Task;
         }
