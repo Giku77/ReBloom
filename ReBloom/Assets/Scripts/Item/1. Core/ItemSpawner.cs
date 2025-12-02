@@ -235,7 +235,7 @@ public class ItemSpawner : MonoBehaviour
         // 통계 초기화
         Statistics.RegisterPool(itemID, itemData.itemName);
 
-        Debug.Log($"[ItemSpawner] 오브젝트 풀 생성 완료: {itemData.itemName} (ID: {itemID})");
+        //Debug.Log($"[ItemSpawner] 오브젝트 풀 생성 완료: {itemData.itemName} (ID: {itemID})");
         return true;
     }
 
@@ -417,7 +417,7 @@ public class ItemSpawner : MonoBehaviour
             if (prefab != null)
             {
                 prefabCache[itemID] = prefab;
-                Debug.Log($"[ItemSpawner] 프리팹 로드 완료: {itemData.itemName}");
+                //Debug.Log($"[ItemSpawner] 프리팹 로드 완료: {itemData.itemName}");
                 return prefab;
             }
         }
@@ -474,7 +474,7 @@ public class ItemSpawner : MonoBehaviour
             pool.Release(obj);
         }
 
-        Debug.Log($"[ItemSpawner] 프리로드 완료: {itemData.itemName} (ID: {itemID}), {count}개");
+        //Debug.Log($"[ItemSpawner] 프리로드 완료: {itemData.itemName} (ID: {itemID}), {count}개");
     }
 
     /// <summary>
