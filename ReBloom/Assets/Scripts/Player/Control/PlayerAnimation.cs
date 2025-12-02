@@ -13,7 +13,7 @@ public class PlayerAnimation : MonoBehaviour
     public static readonly int ToolType = Animator.StringToHash("ToolType");
     public static readonly int HitUpperBody = Animator.StringToHash("HitUpperBody");
     public static readonly int Jamming = Animator.StringToHash("Jamming");
-
+    public static readonly int WakeUp = Animator.StringToHash("WakeUp");
 
     [Header("Layer Blending")]
     [SerializeField] private float layerBlendSpeed = 5f;
@@ -106,6 +106,11 @@ public class PlayerAnimation : MonoBehaviour
     public void SetJammingAnim()
     {
         animator.SetTrigger(Jamming);
+    }
+
+    public void PlayerWakeUp()
+    {
+        animator.SetTrigger(WakeUp);
     }
 
     public void AnimatorRePosition()
