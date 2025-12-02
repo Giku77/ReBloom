@@ -1,6 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
+using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -26,6 +27,10 @@ public class PlayerController : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private EquipmentUI equipmentUI;
+    [SerializeField] private ThirdPersonCamera thirdPersonCamera;
+    [SerializeField] private CinemachineBrain cinemachineBrain;
+
+    public event Action onPassOut;
 
     public float currentSpeed = 0f;
 
@@ -469,6 +474,24 @@ public class PlayerController : MonoBehaviour
         Debug.Log("[PlayerController] 플레이어 기절!");
 
         await UniTask.Delay(4383);
+
+        onPassOut?.Invoke();
+
+        if (thirdPersonCamera != null)
+            thirdPersonCamera.enabled = false;
+
+        if (cinemachineBrain != null)
+            cinemachineBrain.enabled = true;
+
+        await UniTask.Delay(5000);
+
+        if (cinemachineBrain != null)
+            cinemachineBrain.enabled = false;
+
+        if (thirdPersonCamera != null)
+            thirdPersonCamera.enabled = true;
+
+        Anim.PlayerWakeUp();
 
         Anim.SetRootMotion(false);
 

@@ -85,7 +85,10 @@ public class StatUI : MonoBehaviour
         UpdateThirstBarColor();
         UpdateTemperatureBarColor();
 
-        damageImage.canvasRenderer.SetAlpha(0f);
+        if (damageImage != null)
+        {
+            damageImage.canvasRenderer.SetAlpha(0f);
+        }
     }
 
     private void HandleStatChanged(StatBase stat, float oldValue, float newValue)
@@ -308,10 +311,15 @@ public class StatUI : MonoBehaviour
 
     public async UniTask PlayHitEffect()
     {
-        damageImage.canvasRenderer.SetAlpha(lowHealthAlphaMax);
+
+            damageImage.canvasRenderer.SetAlpha(lowHealthAlphaMax);
+        
 
         await UniTask.Delay((int)(flashDuration * 1000));
-        damageImage.canvasRenderer.SetAlpha(0f);
+
+
+            damageImage.canvasRenderer.SetAlpha(0f);
+        
     }
 
     private async UniTask StartLowHealthPulse()
@@ -327,16 +335,23 @@ public class StatUI : MonoBehaviour
                 float alpha = Mathf.Lerp(lowHealthAlphaMin, lowHealthAlphaMax,
                     (Mathf.Sin(Time.time * flashSpeed) + 1f) / 2f);
 
-                damageImage.canvasRenderer.SetAlpha(alpha);
-
+                if (damageImage != null)
+                {
+                    damageImage.canvasRenderer.SetAlpha(alpha);
+                }
                 await UniTask.Yield(token);
             }
-
-            damageImage.canvasRenderer.SetAlpha(0f);
+            if (damageImage != null)
+            {
+                damageImage.canvasRenderer.SetAlpha(0f);
+            }
         }
         catch (OperationCanceledException)
         {
-            damageImage.canvasRenderer.SetAlpha(0f);
+            if (damageImage != null)
+            {
+                damageImage.canvasRenderer.SetAlpha(0f);
+            }
         }
     }
 }
