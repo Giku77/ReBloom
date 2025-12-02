@@ -466,7 +466,7 @@ public class PlayerController : MonoBehaviour
         Anim.PlayDeath();
         Anim.SetRootMotion(true);
 
-        Debug.Log("Player is Dead!");
+        Debug.Log("[PlayerController] 플레이어 기절!");
 
         await UniTask.Delay(4383);
 

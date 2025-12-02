@@ -1,11 +1,13 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
+﻿using Cysharp.Threading.Tasks;
+using System;
+using System.Threading;
 using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class StatUI : MonoBehaviour
 {
     [Header("References")]
-    
     [SerializeField] private DebuffManager debuffManager;
     [SerializeField] private PlayerStats playerStats;
     [SerializeField] private PlayerController playerController;
@@ -27,6 +29,14 @@ public class StatUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI hungerText;
     [SerializeField] private TextMeshProUGUI thirstText;
 
+    [Header("플레이어 데미지")]
+    [SerializeField] private Image damageImage;
+    [SerializeField] private float flashDuration = 0.1f;
+    [SerializeField] private float flashSpeed = 1.0f;
+    [SerializeField] private float lowHealthAlphaMin = 0.1f;
+    [SerializeField] private float lowHealthAlphaMax = 0.5f;
+
+    private CancellationTokenSource lowHealthCTS;
 
     private void Start()
     {
@@ -58,6 +68,9 @@ public class StatUI : MonoBehaviour
             debuffManager.OnDebuffApplied -= HandleDebuffApplied;
             debuffManager.OnDebuffRemoved -= HandleDebuffRemoved;
         }
+
+        lowHealthCTS?.Cancel();
+        lowHealthCTS?.Dispose();
     }
 
     private void InitializeUI()
@@ -71,6 +84,8 @@ public class StatUI : MonoBehaviour
         UpdateHungerBarColor();
         UpdateThirstBarColor();
         UpdateTemperatureBarColor();
+
+        damageImage.canvasRenderer.SetAlpha(0f);
     }
 
     private void HandleStatChanged(StatBase stat, float oldValue, float newValue)
@@ -78,6 +93,15 @@ public class StatUI : MonoBehaviour
         if (stat == playerStats.Health)
         {
             UpdateHealthUI(newValue, stat.MaxValue);
+
+            if (oldValue - newValue >= 50)
+            PlayHitEffect().Forget();
+
+            if (newValue / stat.MaxValue <= 0.2f)
+                StartLowHealthPulse().Forget();
+            else
+                lowHealthCTS?.Cancel();
+
         }
         else if (stat == playerStats.Pollution)
         {
@@ -279,6 +303,40 @@ public class StatUI : MonoBehaviour
         if (tempText != null)
         {
             tempText.text = $"{value:F1}";
+        }
+    }
+
+    public async UniTask PlayHitEffect()
+    {
+        damageImage.canvasRenderer.SetAlpha(lowHealthAlphaMax);
+
+        await UniTask.Delay((int)(flashDuration * 1000));
+        damageImage.canvasRenderer.SetAlpha(0f);
+    }
+
+    private async UniTask StartLowHealthPulse()
+    {
+        lowHealthCTS?.Cancel();
+        lowHealthCTS = new CancellationTokenSource();
+        CancellationToken token = lowHealthCTS.Token;
+
+        try
+        {
+            while (playerStats.Health.Value / playerStats.Health.MaxValue <= 0.2f)
+            {
+                float alpha = Mathf.Lerp(lowHealthAlphaMin, lowHealthAlphaMax,
+                    (Mathf.Sin(Time.time * flashSpeed) + 1f) / 2f);
+
+                damageImage.canvasRenderer.SetAlpha(alpha);
+
+                await UniTask.Yield(token);
+            }
+
+            damageImage.canvasRenderer.SetAlpha(0f);
+        }
+        catch (OperationCanceledException)
+        {
+            damageImage.canvasRenderer.SetAlpha(0f);
         }
     }
 }
