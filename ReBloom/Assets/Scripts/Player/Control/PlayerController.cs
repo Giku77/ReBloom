@@ -63,6 +63,10 @@ public class PlayerController : MonoBehaviour
 
     public bool isDead = false;
 
+    private bool isInputBlocked = false;
+
+    private bool IsMovementLocked => isDead || isInteracting || isInputBlocked;
+
     [Header("Camera")]
     [SerializeField] private Transform cameraTransform;
 
@@ -344,7 +348,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        if (!isGround || isInteracting || isDead) return;
+        if (!isGround || IsMovementLocked) return;
 
         Vector2 finalMoveInput = moveInput;
 
@@ -420,6 +424,7 @@ public class PlayerController : MonoBehaviour
 
     private void JumpPlayer()
     {
+        if (IsMovementLocked) { jumpRequested = false; return; }
         if (!jumpRequested) return;
 
         Vector3 velocity = rb.linearVelocity;
@@ -537,6 +542,32 @@ public class PlayerController : MonoBehaviour
                 ApplyLandingSlow().Forget();
                 Debug.Log($"낙하 높이: {fallHeight:F2}m, 데미지: {damage:F2}");
             }
+        }
+    }
+
+    public void SetBlocked(bool blocked)
+    {
+        if (isInputBlocked == blocked) return;
+
+        isInputBlocked = blocked;
+
+        if (blocked)
+        {
+            // 입력/속도 초기화
+            moveInput = Vector2.zero;
+            targetSpeed = 0f;
+            currentSpeed = 0f;
+            isSprinting = false;
+            isAutoRun  = false;
+            jumpRequested = false;
+
+            if (rb != null)
+            {
+                var v = rb.linearVelocity;
+                rb.linearVelocity = new Vector3(0f, v.y, 0f); // 수평 속도만 멈춤
+            }
+
+            Anim?.SetSpeed(0f);
         }
     }
 

@@ -1,3 +1,5 @@
+using System;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -6,73 +8,131 @@ public class TutorialManager : MonoBehaviour
     public static TutorialManager I { get; private set; }
 
     [SerializeField] private DialogueUI dialogueUI;
-    [SerializeField] private TutorialSequence introSequence;
-    [SerializeField] private CameraController cutsceneCamera; // 아래에서 설명
+    [SerializeField] private PlayerController playerController;
+    //[SerializeField] private CameraController cutsceneCamera; // 카메라 튜토리얼 필요하면 나중에 추가
+    [SerializeField] private int introTutorialId = 1101001;
+
+    private TutorialDB tutorialDb;
 
     private void Awake()
     {
         I = this;
+
+        tutorialDb = new TutorialDB();
+        tutorialDb.LoadFromBG();
     }
 
-    public async UniTask RunIntroAsync()
+    private async void Start()
     {
-        await RunSequence(introSequence);
+        try
+        {
+            await RunTutorialChainAsync(introTutorialId);
+        }
+        catch (OperationCanceledException)
+        {
+            Debug.Log("[TutorialManager] Tutorial cancelled (scene unload or play stop).");
+        }
     }
 
-    public async UniTask RunSequence(TutorialSequence seq)
+    public async UniTask RunTutorialChainAsync(int startTutorialId)
     {
         var token = this.GetCancellationTokenOnDestroy();
+        int currentId = startTutorialId;
 
-        // 플레이어 조작 잠금
-        //PlayerInputBlocker.I.SetBlocked(true);
-
-        foreach (var step in seq.steps)
+        while (currentId != 0 && tutorialDb.TryGetTutorial(currentId, out var node))
         {
-            switch (step.type)
+            playerController.SetBlocked(!node.IsControllable);
+
+            string text = Localize(node.TutorialTextID);
+            
+            bool showCharacterImg = node.TextType == TutorialTextType.DialogueAndImg;
+
+            bool waitForNextInput =
+                node.Condition == TutorialConditionType.NextImmediately;
+
+            bool showNextHint = waitForNextInput;
+
+            await dialogueUI.ShowLineAsync(
+                text,
+                showCharacterImg,
+                waitForNextInput,
+                showNextHint);
+
+            switch (node.Condition)
             {
-                case TutorialStepType.ShowDialogue:
-                {
-                    string text = Localize(step.stringKey); // StringTable에서 꺼내기
-                    await dialogueUI.ShowLineAsync(text);
-                    break;
-                }
-
-                case TutorialStepType.WaitSeconds:
-                    await UniTask.Delay((int)(step.duration * 1000), cancellationToken: token);
+                case TutorialConditionType.NextImmediately:
                     break;
 
-                case TutorialStepType.MoveCamera:
-                    await cutsceneCamera.MoveToTargetAsync(step.cameraTarget, step.cameraOffset, step.duration);
+                case TutorialConditionType.WaitExternal:
+                    await WaitForActionAsync(node.ConditionObjectID, token);
                     break;
 
-                case TutorialStepType.PlayAnimation:
-                    if (step.targetAnimator != null && !string.IsNullOrEmpty(step.animStateName))
-                        step.targetAnimator.Play(step.animStateName);
+                case TutorialConditionType.WaitObjectEvent:
+                    await WaitForTargetAsync(node.ConditionObjectID, token);
                     break;
+            }
 
-                case TutorialStepType.WaitGameEvent:
-                    await WaitForGameEvent(step.gameEventId, token);
-                    break;
+            currentId = node.NextTutorialID;
+        }
 
-                // WaitKey는 DialogueUI에서 처리해도 되고, 따로 만들고 싶으면 추가
+        dialogueUI.Hide();
+        playerController.SetBlocked(false);
+    }
+
+    private async UniTask WaitForActionAsync(int actionId, CancellationToken token)
+    {
+        var actionIdType = (TutorialActionId)actionId;
+        var tcs = new UniTaskCompletionSource();
+
+        void Handler(int fired)
+        {
+            if (actionIdType == TutorialActionId.None || fired == (int)actionIdType)
+            {
+                TutorialEventBus.OnActionConditionSatisfied -= Handler;
+                tcs.TrySetResult();
             }
         }
 
-        //PlayerInputBlocker.I.SetBlocked(false);
-        dialogueUI.Hide();   // 마지막에 닫기
+        TutorialEventBus.OnActionConditionSatisfied += Handler;
+
+        using (token.Register(() =>
+            {
+                TutorialEventBus.OnActionConditionSatisfied -= Handler;
+                tcs.TrySetCanceled();
+            }))
+        {
+            await tcs.Task;
+        }
     }
 
-    // 임시 예시 – 실제론 이벤트 시스템 연결
-    private async UniTask WaitForGameEvent(string eventId, System.Threading.CancellationToken token)
+    private async UniTask WaitForTargetAsync(int targetId, CancellationToken token)
     {
-        // await UniTask.WaitUntil(
-        //     () => GameEventBus.HasFired(eventId),
-        //     cancellationToken: token);
+        var tcs = new UniTaskCompletionSource();
+
+        void Handler(int firedId)
+        {
+            if (firedId == targetId)
+            {
+                TutorialEventBus.OnTargetConditionSatisfied -= Handler;
+                tcs.TrySetResult();
+            }
+        }
+
+        TutorialEventBus.OnTargetConditionSatisfied += Handler;
+
+        using (token.Register(() =>
+        {
+            TutorialEventBus.OnTargetConditionSatisfied -= Handler;
+            tcs.TrySetCanceled();
+        }))
+        {
+            await tcs.Task;
+        }
     }
 
-    private string Localize(string key)
+    private string Localize(int textId)
     {
-        // 네가 쓰는 Localization 시스템에 맞게 구현
-        return key; // 임시
+        tutorialDb.TryGetString(textId, out var localizedText);
+        return localizedText != null ? localizedText.TextKR : "-";
     }
 }

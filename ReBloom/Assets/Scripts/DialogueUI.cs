@@ -2,23 +2,33 @@ using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class DialogueUI : UIBase  
 {
     [SerializeField] private TextMeshProUGUI messageText;
+    [SerializeField] private Image characterImage;
     [SerializeField] private float typeSpeed = 40f; // 글자/초
 
     private bool nextRequested;
 
     public void OnNextInput(InputAction.CallbackContext ctx)
     {
-        if (!ctx.started) return;
+        //if (!ctx.started) return;
+        //Debug.Log("DialogueUI: OnNextInput received");
         nextRequested = true;
     }
 
-    public async UniTask ShowLineAsync(string localizedText)
+    public async UniTask ShowLineAsync(
+        string localizedText,
+        bool showCharacterImage = false,
+        bool waitForNextInput = true,
+        bool showNextHint = true)
     {
         Show();
+
+        if (characterImage != null)
+            characterImage.gameObject.SetActive(showCharacterImage);
 
         var token = this.GetCancellationTokenOnDestroy();
 
@@ -29,21 +39,30 @@ public class DialogueUI : UIBase
         {
             messageText.text += c;
 
-            if (nextRequested) 
+            if (nextRequested)
                 break;
 
             await UniTask.Delay(
-                (int)(1000f / typeSpeed), 
+                (int)(1000f / typeSpeed),
                 cancellationToken: token);
         }
 
         messageText.text = localizedText;
 
-        // 다음 키 입력 기다리기
-        nextRequested = false;
-        await UniTask.WaitUntil(() => nextRequested, cancellationToken: token);
+        if (!waitForNextInput)
+        {
+            nextRequested = false;
+            return;
+        }
+
+        if (showNextHint)
+        {
+            messageText.text = localizedText +
+                               " <color=#FFA500>[G] 다음</color>";
+        }
 
         nextRequested = false;
-        // 여기서 Hide()는 밖에서 컨트롤해도 되고, 마지막 대사 끝에서만 닫아도 됨
+        await UniTask.WaitUntil(() => nextRequested, cancellationToken: token);
+        nextRequested = false;
     }
 }

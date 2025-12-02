@@ -1,7 +1,17 @@
 public enum TutorialTextType 
 {
-    Dialogue = 1,   // 중앙 대화박스 (예시)
-    System = 2      // 상단/하단 안내문
+    Dialogue = 1,   // 일반 대화창
+    DialogueAndImg = 2      // 일반 대화창과 캐릭터 이미지
+}
+
+public enum TutorialActionId
+{
+    None = 0,
+    MoveOnce = 1,       // WASD로 한 번이라도 이동
+    PickupItem = 2,     // 아이템 하나 주움
+    OpenInventory = 3,  // I키로 인벤토리 열기
+    OpenBuildMode = 4,  // B키로 건축 모드 열기
+    // 필요하면 계속 추가
 }
 
 public enum TutorialConditionType 
