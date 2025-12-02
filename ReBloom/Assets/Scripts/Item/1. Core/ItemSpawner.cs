@@ -14,7 +14,7 @@ public class ItemSpawner : MonoBehaviour
     [SerializeField] private Transform itemParent;
 
     [Header("Object Pool Settings")]
-    [SerializeField] private int defaultPoolSize = 20;
+    [SerializeField] private int defaultPoolSize = 10;
     [SerializeField] private int maxPoolSize = 200; // 디버그용 대량 생성 고려
     [SerializeField] private bool collectionCheck = true;
 
@@ -196,7 +196,50 @@ public class ItemSpawner : MonoBehaviour
     }
     #endregion
 
-    #region 오브젝트 풀 관리 (기존 코드)
+    #region 오브젝트 풀 관리 (비동기 추가)
+
+    /// <summary>
+    /// 비동기로 아이템 풀 생성 (프리팹 로드 후)
+    /// </summary>
+    private async UniTask<bool> CreatePoolForItemAsync(ItemBase itemData, CancellationToken ctx)
+    {
+        int itemID = itemData.itemID;
+
+        // 이미 풀이 있으면 스킵
+        if (itemPools.ContainsKey(itemID))
+        {
+            return true;
+        }
+
+        // 프리팹 비동기 로드
+        GameObject prefab = await LoadItemPrefabAsync(itemData, ctx);
+        if (prefab == null)
+        {
+            Debug.LogError($"[ItemSpawner] 프리팹 로드 실패로 풀 생성 불가: {itemData.itemName}");
+            return false;
+        }
+
+        // 풀 생성
+        ObjectPool<GameObject> pool = new ObjectPool<GameObject>(
+            createFunc: () => CreatePooledItem(prefab, itemID),
+            actionOnGet: OnGetFromPool,
+            actionOnRelease: OnReleaseToPool,
+            actionOnDestroy: OnDestroyPoolObject,
+            collectionCheck: collectionCheck,
+            defaultCapacity: defaultPoolSize,
+            maxSize: maxPoolSize
+        );
+
+        itemPools[itemID] = pool;
+
+        // 통계 초기화
+        Statistics.RegisterPool(itemID, itemData.itemName);
+
+        Debug.Log($"[ItemSpawner] 오브젝트 풀 생성 완료: {itemData.itemName} (ID: {itemID})");
+        return true;
+    }
+
+    // 기존 동기 버전은 유지 (fallback용)
     private void CreatePoolForItem(ItemBase itemData)
     {
         int itemID = itemData.itemID;
@@ -219,8 +262,6 @@ public class ItemSpawner : MonoBehaviour
         );
 
         itemPools[itemID] = pool;
-
-        // 통계 초기화
         Statistics.RegisterPool(itemID, itemData.itemName);
 
         Debug.Log($"[ItemSpawner] 오브젝트 풀 생성: {itemData.itemName} (ID: {itemID})");
@@ -317,7 +358,7 @@ public class ItemSpawner : MonoBehaviour
     }
     #endregion
 
-    #region 프리팹 로딩 (기존 코드)
+    #region 프리팹 로딩
     private GameObject LoadOrGetCachedPrefab(ItemBase itemData)
     {
         int itemID = itemData.itemID;
@@ -327,7 +368,8 @@ public class ItemSpawner : MonoBehaviour
             return prefabCache[itemID];
         }
 
-        GameObject prefab = LoadItemPrefab(itemData);
+        // 캐시에 없으면 동기 로드 시도 (이미 로드된 경우만)
+        GameObject prefab = itemData.itemPrefab;
         if (prefab != null)
         {
             prefabCache[itemID] = prefab;
@@ -336,23 +378,88 @@ public class ItemSpawner : MonoBehaviour
         return prefab;
     }
 
-    private GameObject LoadItemPrefab(ItemBase itemData)
+    /// <summary>
+    /// Addressable로 프리팹을 비동기 로드
+    /// </summary>
+    private async UniTask<GameObject> LoadItemPrefabAsync(ItemBase itemData, CancellationToken ctx)
     {
-        return itemData.itemPrefab;
+        int itemID = itemData.itemID;
+
+        // 이미 캐시에 있으면 반환
+        if (prefabCache.ContainsKey(itemID))
+        {
+            return prefabCache[itemID];
+        }
+
+        // Addressable 경로가 있는지 확인
+        string addressPath = itemData.worldPrefabAddress; // ItemBase에 이 필드가 있다고 가정
+
+        if (string.IsNullOrEmpty(addressPath))
+        {
+            // 경로가 없으면 직접 참조 사용
+            GameObject prefab = itemData.itemPrefab;
+            if (prefab != null)
+            {
+                prefabCache[itemID] = prefab;
+                return prefab;
+            }
+
+            Debug.LogError($"[ItemSpawner] 프리팹 경로와 직접 참조 둘 다 없음: {itemData.itemName}");
+            return null;
+        }
+
+        try
+        {
+            // Addressable로 비동기 로드
+            var handle = Addressables.LoadAssetAsync<GameObject>(addressPath);
+            GameObject prefab = await handle.WithCancellation(ctx);
+
+            if (prefab != null)
+            {
+                prefabCache[itemID] = prefab;
+                Debug.Log($"[ItemSpawner] 프리팹 로드 완료: {itemData.itemName}");
+                return prefab;
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            Debug.Log($"[ItemSpawner] 프리팹 로드 취소됨: {itemData.itemName}");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[ItemSpawner] 프리팹 로드 실패: {itemData.itemName}, {e.Message}");
+        }
+
+        return null;
     }
     #endregion
 
-    #region 유틸리티
-    public void PreloadItemPool(int itemID, int count = 10) //TODO: defaultPoolSize로 변경 고려 및 최대치 검토, 적용 여부 확인
+    #region 유틸리티 (비동기)
+
+    /// <summary>
+    /// 아이템 풀을 미리 로드하고 생성 (비동기)
+    /// </summary>
+    public async UniTask PreloadItemPoolAsync(int itemID, int count, CancellationToken ctx)
     {
         ItemBase itemData = ItemDatabase.I.GetItem(itemID);
-        if (itemData == null) return;
-
-        if (!itemPools.ContainsKey(itemID))
+        if (itemData == null)
         {
-            CreatePoolForItem(itemData);
+            Debug.LogWarning($"[ItemSpawner] 존재하지 않는 아이템 ID: {itemID}");
+            return;
         }
 
+        // 풀이 없으면 비동기로 생성
+        if (!itemPools.ContainsKey(itemID))
+        {
+            bool success = await CreatePoolForItemAsync(itemData, ctx);
+            if (!success)
+            {
+                Debug.LogError($"[ItemSpawner] 풀 생성 실패: {itemData.itemName}");
+                return;
+            }
+        }
+
+        // 풀에서 오브젝트 미리 생성
         ObjectPool<GameObject> pool = itemPools[itemID];
         List<GameObject> preloadedObjects = new List<GameObject>();
 
@@ -361,12 +468,33 @@ public class ItemSpawner : MonoBehaviour
             preloadedObjects.Add(pool.Get());
         }
 
+        // 다시 풀로 반환
         foreach (var obj in preloadedObjects)
         {
             pool.Release(obj);
         }
 
-        Debug.Log($"[ItemSpawner] 아이템 프리로드 완료: ID {itemID}, {count}개");
+        Debug.Log($"[ItemSpawner] 프리로드 완료: {itemData.itemName} (ID: {itemID}), {count}개");
+    }
+
+    /// <summary>
+    /// 모든 아이템 프리로드 (씬 시작 시)
+    /// </summary>
+    public async UniTask PreloadAllItemsAsync(CancellationToken ctx)
+    {
+        var allItems = ItemDatabase.I.GetAllItems();
+
+        Debug.Log($"[ItemSpawner] 전체 아이템 프리로드 시작: {allItems.Count}개");
+
+        foreach (var item in allItems)
+        {
+            await PreloadItemPoolAsync(item.itemID, defaultPoolSize, ctx);
+
+            // 프레임 양보 (한 번에 너무 많이 로드하면 프레임 드랍)
+            await UniTask.Yield();
+        }
+
+        Debug.Log($"[ItemSpawner] 전체 아이템 프리로드 완료!");
     }
 
     public void ClearAllPools()
@@ -380,6 +508,7 @@ public class ItemSpawner : MonoBehaviour
         prefabCache.Clear();
     }
     #endregion
+
 
     #region 디버그 기능
     /// <summary>
@@ -445,9 +574,35 @@ public class ItemSpawner : MonoBehaviour
     #endregion
 
     #region Unity 생명주기
+    private async void Start()
+    {
+        try
+        {
+            await PreloadAllItemsAsync(this.GetCancellationTokenOnDestroy());
+            Debug.Log("[ItemSpawner] 초기화 완료 - 게임 시작 가능");
+        }
+        catch (OperationCanceledException)
+        {
+            Debug.Log("[ItemSpawner] 프리로드 취소됨");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[ItemSpawner] 프리로드 중 오류: {e.Message}");
+        }
+    }
+
     private void OnDestroy()
     {
         ClearAllPools();
+
+        // Addressable 핸들 정리
+        foreach (var kvp in prefabCache)
+        {
+            if (kvp.Value != null)
+            {
+                Addressables.Release(kvp.Value);
+            }
+        }
     }
     #endregion
 
