@@ -41,7 +41,7 @@ public class ItemDropCalculator : MonoBehaviour
                 dropPosition = groundPosition + Vector3.up * dropHeight;
             }
         }
-
+        Debug.Log($"[ItemDropCalculator]{dropPosition}");
         return dropPosition;
     }
 

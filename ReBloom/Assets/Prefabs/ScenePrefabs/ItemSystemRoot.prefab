@@ -6807,58 +6807,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0.000025807676}
   m_SizeDelta: {x: 180, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &1351222390701019075
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1086376161517407500}
-  - component: {fileID: 3592002441631328431}
-  m_Layer: 0
-  m_Name: ItemDropPosition
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1086376161517407500
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1351222390701019075}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1072746049201301388}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3592002441631328431
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1351222390701019075}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0b189a2535931e842b641a73344c9f26, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dropDistance: 2
-  dropHeight: 1.5
-  dropOffset: {x: 0, y: 0, z: 0}
-  useGroundDetection: 1
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 8
-  groundRaycastDistance: 10
 --- !u!1 &1361369930509284112
 GameObject:
   m_ObjectHideFlags: 0
@@ -22562,7 +22510,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 773867449937303183}
-  - {fileID: 1086376161517407500}
   m_Father: {fileID: 3128165876576750687}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5624846479654992102
@@ -27447,7 +27394,7 @@ MonoBehaviour:
   inventoryData: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
   itemSpawner: {fileID: 7009767323442998483}
   removePopUp: {fileID: 6211454781984416980}
-  itemDropCalculator: {fileID: 3592002441631328431}
+  itemDropCalculator: {fileID: 6106407099200730023}
   equipManager: {fileID: 0}
   debugSpawnCount: 1
   showDebugLogs: 1
@@ -35775,30 +35722,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1072746049201301388}
     m_Modifications:
-    - target: {fileID: 3790076886564128108, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
-      propertyPath: m_Drag
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 3790076886564128108, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
-      propertyPath: m_AngularDrag
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 4333611954315479635, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
-      propertyPath: runSpeed
-      value: 14
-      objectReference: {fileID: 0}
-    - target: {fileID: 4333611954315479635, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
-      propertyPath: walkSpeed
-      value: 12
-      objectReference: {fileID: 0}
-    - target: {fileID: 4333611954315479635, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
-      propertyPath: followHeight
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4333611954315479635, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
-      propertyPath: idleDistance
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 6183543377561156633, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -35843,14 +35766,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: InventRobot
       objectReference: {fileID: 0}
-    - target: {fileID: 9142656489697227612, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
-      propertyPath: isBattle
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9142656489697227612, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
-      propertyPath: isRainbowCycles
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -35861,3 +35776,14 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6183543377561156633, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
   m_PrefabInstance: {fileID: 6876169423783226006}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &6106407099200730023 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 852129549587585329, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
+  m_PrefabInstance: {fileID: 6876169423783226006}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b189a2535931e842b641a73344c9f26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
