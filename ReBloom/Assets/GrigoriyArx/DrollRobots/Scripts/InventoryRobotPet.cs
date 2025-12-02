@@ -101,25 +101,82 @@ public class InventoryRobotPet : MonoBehaviour
     /// <summary>
     /// 플레이어를 향해 둥둥 떠다니며 이동
     /// </summary>
+    // private void FollowPlayer()
+    // {
+    //     if (player == null || rb == null) return;
+
+    //     // 플레이어와의 수평 거리 계산 (높이 무시)
+    //     Vector3 playerPos = player.position;
+    //     Vector3 currentPos = transform.position;
+    //     Vector3 horizontalDirection = new Vector3(playerPos.x - currentPos.x, 0, playerPos.z - currentPos.z);
+    //     float distanceToPlayer = horizontalDirection.magnitude;
+
+    //     // 목표 위치 계산 (플레이어 위 일정 높이)
+    //     Vector3 targetPosition = playerPos + Vector3.up * followHeight;
+
+    //     // 둥둥 떠다니는 효과 추가 (사인파)
+    //     floatTimer += Time.fixedDeltaTime * floatFrequency;
+    //     float floatOffset = Mathf.Sin(floatTimer) * floatAmplitude;
+    //     targetPosition.y += floatOffset;
+
+    //     // 거리에 따른 상태 및 속도 결정
+    //     float currentSpeed = 0f;
+
+    //     if (distanceToPlayer <= idleDistance)
+    //     {
+    //         ChangeMovementState(RobotMovementState.Idle);
+    //         currentSpeed = 0f;
+    //     }
+    //     else if (distanceToPlayer > idleDistance && distanceToPlayer <= runDistance)
+    //     {
+    //         ChangeMovementState(RobotMovementState.Walk);
+    //         currentSpeed = walkSpeed;
+    //     }
+    //     else
+    //     {
+    //         ChangeMovementState(RobotMovementState.Run);
+    //         currentSpeed = runSpeed;
+    //     }
+
+    //     // 이동 (Rigidbody 사용)
+    //     if (currentSpeed > 0f)
+    //     {
+    //         Vector3 direction = (targetPosition - currentPos).normalized;
+    //         Vector3 targetVelocity = direction * currentSpeed;
+
+    //         // 부드러운 이동 (Lerp)
+    //         rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, targetVelocity, Time.fixedDeltaTime * 5f);
+
+    //         // 플레이어 방향으로 회전 (부드럽게)
+    //         if (horizontalDirection != Vector3.zero)
+    //         {
+    //             Quaternion targetRotation = Quaternion.LookRotation(horizontalDirection);
+    //             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.fixedDeltaTime * rotationSpeed);
+    //         }
+    //     }
+    //     else
+    //     {
+    //         // Idle 상태에서는 속도를 천천히 줄임
+    //         rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, Vector3.zero, Time.fixedDeltaTime * 3f);
+    //     }
+    // }
     private void FollowPlayer()
     {
         if (player == null || rb == null) return;
 
-        // 플레이어와의 수평 거리 계산 (높이 무시)
         Vector3 playerPos = player.position;
         Vector3 currentPos = transform.position;
-        Vector3 horizontalDirection = new Vector3(playerPos.x - currentPos.x, 0, playerPos.z - currentPos.z);
-        float distanceToPlayer = horizontalDirection.magnitude;
 
-        // 목표 위치 계산 (플레이어 위 일정 높이)
+        // 목표 위치 (플레이어 위 + 떠다니기)
         Vector3 targetPosition = playerPos + Vector3.up * followHeight;
 
-        // 둥둥 떠다니는 효과 추가 (사인파)
         floatTimer += Time.fixedDeltaTime * floatFrequency;
         float floatOffset = Mathf.Sin(floatTimer) * floatAmplitude;
         targetPosition.y += floatOffset;
 
-        // 거리에 따른 상태 및 속도 결정
+        Vector3 toTarget = targetPosition - currentPos;
+        float distanceToPlayer = toTarget.magnitude;
+
         float currentSpeed = 0f;
 
         if (distanceToPlayer <= idleDistance)
@@ -127,7 +184,7 @@ public class InventoryRobotPet : MonoBehaviour
             ChangeMovementState(RobotMovementState.Idle);
             currentSpeed = 0f;
         }
-        else if (distanceToPlayer > idleDistance && distanceToPlayer <= runDistance)
+        else if (distanceToPlayer <= runDistance)
         {
             ChangeMovementState(RobotMovementState.Walk);
             currentSpeed = walkSpeed;
@@ -138,25 +195,23 @@ public class InventoryRobotPet : MonoBehaviour
             currentSpeed = runSpeed;
         }
 
-        // 이동 (Rigidbody 사용)
         if (currentSpeed > 0f)
         {
-            Vector3 direction = (targetPosition - currentPos).normalized;
+            Vector3 direction = toTarget.normalized;
             Vector3 targetVelocity = direction * currentSpeed;
 
-            // 부드러운 이동 (Lerp)
             rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, targetVelocity, Time.fixedDeltaTime * 5f);
 
-            // 플레이어 방향으로 회전 (부드럽게)
-            if (horizontalDirection != Vector3.zero)
+            // 수평 방향만 회전에 사용
+            Vector3 horizontalDir = new Vector3(toTarget.x, 0, toTarget.z);
+            if (horizontalDir != Vector3.zero)
             {
-                Quaternion targetRotation = Quaternion.LookRotation(horizontalDirection);
+                Quaternion targetRotation = Quaternion.LookRotation(horizontalDir);
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.fixedDeltaTime * rotationSpeed);
             }
         }
         else
         {
-            // Idle 상태에서는 속도를 천천히 줄임
             rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, Vector3.zero, Time.fixedDeltaTime * 3f);
         }
     }
