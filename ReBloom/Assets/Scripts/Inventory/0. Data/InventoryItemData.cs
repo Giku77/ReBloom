@@ -144,6 +144,46 @@ public class InventoryItemData : ScriptableObject, IItemContainer
     }
 
     /// <summary>
+    /// 두 슬롯의 위치를 교환
+    /// </summary>
+    public bool SwapSlots(int fromIndex, int toIndex) //TODO: 빈슬롯 이동 미구현
+    {
+        // 유효성 검사
+        if (fromIndex < 0 || fromIndex >= _slots.Count)
+        {
+            Debug.LogError($"[InventoryData] 유효하지 않은 출발 인덱스: {fromIndex} (슬롯 개수: {_slots.Count})");
+            return false;
+        }
+
+        if (toIndex < 0 || toIndex >= _slots.Count)
+        {
+            Debug.LogError($"[InventoryData] 유효하지 않은 도착 인덱스: {toIndex} (슬롯 개수: {_slots.Count})");
+            return false;
+        }
+
+        if (fromIndex == toIndex)
+        {
+          //  Debug.LogWarning("[InventoryData] 같은 슬롯입니다.");
+            return false;
+        }
+
+        // 스왑
+        ItemSlotData temp = _slots[fromIndex];
+        _slots[fromIndex] = _slots[toIndex];
+        _slots[toIndex] = temp;
+
+        // 디버그 로그
+        var fromItem = ItemDatabase.I.GetItem(_slots[toIndex].itemID); // 스왑 후이므로 반대
+        var toItem = ItemDatabase.I.GetItem(_slots[fromIndex].itemID);
+        // Debug.Log($"[InventoryData] 슬롯 스왑: [{fromIndex}] {toItem?.itemName} ({_slots[fromIndex].count}개) <-> " + $"[{toIndex}] {fromItem?.itemName} ({_slots[toIndex].count}개)");
+
+        // 변경 이벤트 발생 (UI 갱신)
+        OnInventoryChanged?.Invoke();
+
+        return true;
+    }
+
+    /// <summary>
     /// 아이템 제거
     /// </summary>
     public bool RemoveItem(int itemID, int count)

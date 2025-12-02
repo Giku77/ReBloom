@@ -1,9 +1,9 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.InputSystem;
 
 /// <summary>
-/// µğ¹ö±× ÀÎº¥Åä¸® ÀÔ·Â Ã³¸®
-/// ÀÚÃ¼ InputActions ÀÎ½ºÅÏ½º »ı¼º ¹× °ü¸®
+/// ë””ë²„ê·¸ ì¸ë²¤í† ë¦¬ ì…ë ¥ ì²˜ë¦¬
+/// ìì²´ InputActions ì¸ìŠ¤í„´ìŠ¤ ìƒì„± ë° ê´€ë¦¬
 /// </summary>
 public class DebugInventoryInput : MonoBehaviour
 {
@@ -18,7 +18,7 @@ public class DebugInventoryInput : MonoBehaviour
 
     private void Awake()
     {
-        // ¸±¸®Áî ºôµå¿¡¼­ ºñÈ°¼ºÈ­
+        // ë¦´ë¦¬ì¦ˆ ë¹Œë“œì—ì„œ ë¹„í™œì„±í™”
 #if !UNITY_EDITOR && !DEVELOPMENT_BUILD
         if (!enableInReleaseBuild)
         {
@@ -27,18 +27,18 @@ public class DebugInventoryInput : MonoBehaviour
         }
 #endif
 
-        // DebugInventoryUI À¯È¿¼º °Ë»ç
+        // DebugInventoryUI ìœ íš¨ì„± ê²€ì‚¬
         if (debugUI == null)
         {
-            Debug.LogError("[DebugInventoryInput] DebugInventoryUI°¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù!");
+            Debug.LogError("[DebugInventoryInput] DebugInventoryUIê°€ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
             enabled = false;
             return;
         }
 
-        // InputActions ÀÎ½ºÅÏ½º »ı¼º (Áß¿ä!)
+        // InputActions ì¸ìŠ¤í„´ìŠ¤ ìƒì„± (ì¤‘ìš”!)
         inputActions = new InputSystem_Actions();
 
-        Debug.Log("[DebugInventoryInput] ÃÊ±âÈ­ ¿Ï·á");
+        Debug.Log("[DebugInventoryInput] ì´ˆê¸°í™” ì™„ë£Œ");
     }
 
     private void Start()
@@ -50,10 +50,10 @@ public class DebugInventoryInput : MonoBehaviour
     {
         if (inputActions == null) return;
 
-        // Action Map È°¼ºÈ­
+        // Action Map í™œì„±í™”
         inputActions.DebugInventory.Enable();
 
-        // ÀÌº¥Æ® ±¸µ¶
+        // ì´ë²¤íŠ¸ êµ¬ë…
         SubscribeInputActions();
     }
 
@@ -61,16 +61,16 @@ public class DebugInventoryInput : MonoBehaviour
     {
         if (inputActions == null) return;
 
-        // ÀÌº¥Æ® ±¸µ¶ ÇØÁ¦
+        // ì´ë²¤íŠ¸ êµ¬ë… í•´ì œ
         UnsubscribeInputActions();
 
-        // Action Map ºñÈ°¼ºÈ­
+        // Action Map ë¹„í™œì„±í™”
         inputActions.DebugInventory.Disable();
     }
 
     private void OnDestroy()
     {
-        // InputActions Á¤¸®
+        // InputActions ì •ë¦¬
         if (inputActions != null)
         {
             inputActions.Dispose();
@@ -78,7 +78,7 @@ public class DebugInventoryInput : MonoBehaviour
         }
     }
 
-    #region Input Actions ÀÌº¥Æ® ±¸µ¶
+    #region Input Actions ì´ë²¤íŠ¸ êµ¬ë…
     private void SubscribeInputActions()
     {
         if (inputActions == null) return;
@@ -95,7 +95,7 @@ public class DebugInventoryInput : MonoBehaviour
         debugMap.SwitchTable3.performed += OnSwitchTable3;
         debugMap.SwitchTable4.performed += OnSwitchTable4;
 
-        Debug.Log("[DebugInventoryInput] ÀÔ·Â ÀÌº¥Æ® ±¸µ¶ ¿Ï·á");
+        Debug.Log("[DebugInventoryInput] ì…ë ¥ ì´ë²¤íŠ¸ êµ¬ë… ì™„ë£Œ");
     }
 
     private void UnsubscribeInputActions()
@@ -187,12 +187,12 @@ public class DebugInventoryInput : MonoBehaviour
     }
     #endregion
 
-    #region UI Á¦¾î
+    #region UI ì œì–´
     public void ToggleDebugUI()
     {
         if (debugUI == null)
         {
-            Debug.LogError("[DebugInventoryInput] DebugInventoryUI°¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù!");
+            Debug.LogError("[DebugInventoryInput] DebugInventoryUIê°€ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
             return;
         }
 
@@ -208,7 +208,7 @@ public class DebugInventoryInput : MonoBehaviour
     //     }
 
     //    HandleCursorState(isUIOpen);
-    //     Debug.Log($"[µğ¹ö±× ÀÎº¥Åä¸®] {(isUIOpen ? "¿­¸²" : "´İÈû")}");
+    //     Debug.Log($"[ë””ë²„ê·¸ ì¸ë²¤í† ë¦¬] {(isUIOpen ? "ì—´ë¦¼" : "ë‹«í˜")}");
           debugUI.ToggleUI();
     }
 
@@ -221,8 +221,8 @@ public class DebugInventoryInput : MonoBehaviour
         // debugUI.OpenDebugInventory();
         // HandleCursorState(true);
 
-        // Debug.Log("[µğ¹ö±× ÀÎº¥Åä¸®] ¿­¸²");
-        //UIManager.Instance.ShowUI(UIType.Debug);
+        // Debug.Log("[ë””ë²„ê·¸ ì¸ë²¤í† ë¦¬] ì—´ë¦¼");
+        //UIManager.I.ShowUI(UIType.Debug);
     }
 
     public void CloseDebugUI()
@@ -234,8 +234,8 @@ public class DebugInventoryInput : MonoBehaviour
         // debugUI.CloseDebugInventory();
         // HandleCursorState(false);
 
-        // Debug.Log("[µğ¹ö±× ÀÎº¥Åä¸®] ´İÈû");
-        //UIManager.Instance.HideUI(UIType.Debug);
+        // Debug.Log("[ë””ë²„ê·¸ ì¸ë²¤í† ë¦¬] ë‹«í˜");
+        //UIManager.I.HideUI(UIType.Debug);
     }
 
     private void HandleCursorState(bool show)
@@ -245,27 +245,27 @@ public class DebugInventoryInput : MonoBehaviour
     }
     #endregion
 
-    #region µğ¹ö±× Ä¿¸Çµå ±¸Çö
+    #region ë””ë²„ê·¸ ì»¤ë§¨ë“œ êµ¬í˜„
     private void RefreshItemList()
     {
         if (debugUI != null)
         {
             debugUI.RefreshItemList();
-            Debug.Log("[µğ¹ö±× ÀÎº¥Åä¸®] »õ·Î°íÄ§µÊ");
+            Debug.Log("[ë””ë²„ê·¸ ì¸ë²¤í† ë¦¬] ìƒˆë¡œê³ ì¹¨ë¨");
         }
     }
 
     private void FocusSearchField()
     {
-        // TODO: DebugInventoryUI¿¡ FocusSearch() ¸Ş¼­µå Ãß°¡ ÇÊ¿ä
-        Debug.Log("[µğ¹ö±× ÀÎº¥Åä¸®] °Ë»öÃ¢ Æ÷Ä¿½º (¹Ì±¸Çö)");
+        // TODO: DebugInventoryUIì— FocusSearch() ë©”ì„œë“œ ì¶”ê°€ í•„ìš”
+        Debug.Log("[ë””ë²„ê·¸ ì¸ë²¤í† ë¦¬] ê²€ìƒ‰ì°½ í¬ì»¤ìŠ¤ (ë¯¸êµ¬í˜„)");
     }
 
     private void SwitchToTable(ItemTableType tableType)
     {
         if (debugUI == null) return;
 
-        // ¹öÆ° Å¬¸¯À¸·Î Å×ÀÌºí ÀüÈ¯ ½Ã¹Ä·¹ÀÌ¼Ç
+        // ë²„íŠ¼ í´ë¦­ìœ¼ë¡œ í…Œì´ë¸” ì „í™˜ ì‹œë®¬ë ˆì´ì…˜
         switch (tableType)
         {
             case ItemTableType.Consumable:
@@ -282,21 +282,21 @@ public class DebugInventoryInput : MonoBehaviour
                 break;
         }
 
-        Debug.Log($"[µğ¹ö±× ÀÎº¥Åä¸®] {tableType} Å×ÀÌºí·Î ÀüÈ¯");
+        Debug.Log($"[ë””ë²„ê·¸ ì¸ë²¤í† ë¦¬] {tableType} í…Œì´ë¸”ë¡œ ì „í™˜");
     }
 
     private void ResetFilters()
     {
         if (debugUI != null)
         {
-            // TODO: ÇÊÅÍ ¸®¼Â ·ÎÁ÷ ±¸Çö
+            // TODO: í•„í„° ë¦¬ì…‹ ë¡œì§ êµ¬í˜„
             debugUI.RefreshItemList();
-            Debug.Log("[µğ¹ö±× ÀÎº¥Åä¸®] ÇÊÅÍ ¸®¼ÂµÊ");
+            Debug.Log("[ë””ë²„ê·¸ ì¸ë²¤í† ë¦¬] í•„í„° ë¦¬ì…‹ë¨");
         }
     }
     #endregion
 
-    #region ÄÜ¼Ö ¸í·É¾î
+    #region ì½˜ì†” ëª…ë ¹ì–´
     [ContextMenu("Debug/Open Inventory")]
     public void CMD_OpenInventory()
     {
@@ -318,23 +318,23 @@ public class DebugInventoryInput : MonoBehaviour
     [ContextMenu("Debug/Print Hotkeys")]
     public void CMD_PrintHotkeys()
     {
-        Debug.Log("=== µğ¹ö±× ÀÎº¥Åä¸® ´ÜÃàÅ° ===");
-        Debug.Log("¿­±â/´İ±â: F1");
-        Debug.Log("´İ±â: ESC");
-        Debug.Log("»õ·Î°íÄ§: F5");
-        Debug.Log("°Ë»ö: Ctrl + F");
-        Debug.Log("Å×ÀÌºí ÀüÈ¯: 1~4");
-        Debug.Log("ÇÊÅÍ ¸®¼Â: Ctrl + R");
+        Debug.Log("=== ë””ë²„ê·¸ ì¸ë²¤í† ë¦¬ ë‹¨ì¶•í‚¤ ===");
+        Debug.Log("ì—´ê¸°/ë‹«ê¸°: F1");
+        Debug.Log("ë‹«ê¸°: ESC");
+        Debug.Log("ìƒˆë¡œê³ ì¹¨: F5");
+        Debug.Log("ê²€ìƒ‰: Ctrl + F");
+        Debug.Log("í…Œì´ë¸” ì „í™˜: 1~4");
+        Debug.Log("í•„í„° ë¦¬ì…‹: Ctrl + R");
     }
 
     [ContextMenu("Debug/Print Input Status")]
     public void CMD_PrintInputStatus()
     {
         bool actionsEnabled = inputActions?.DebugInventory.enabled ?? false;
-        Debug.Log($"InputActions »ı¼ºµÊ: {inputActions != null}");
-        Debug.Log($"DebugInventory Map È°¼ºÈ­: {actionsEnabled}");
-        Debug.Log($"UI ¿­¸² »óÅÂ: {isUIOpen}");
-        Debug.Log($"DebugUI ÂüÁ¶: {(debugUI != null ? "OK" : "NULL")}");
+        Debug.Log($"InputActions ìƒì„±ë¨: {inputActions != null}");
+        Debug.Log($"DebugInventory Map í™œì„±í™”: {actionsEnabled}");
+        Debug.Log($"UI ì—´ë¦¼ ìƒíƒœ: {isUIOpen}");
+        Debug.Log($"DebugUI ì°¸ì¡°: {(debugUI != null ? "OK" : "NULL")}");
     }
     #endregion
 }

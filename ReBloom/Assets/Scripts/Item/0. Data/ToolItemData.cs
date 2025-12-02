@@ -237,8 +237,8 @@ public class ToolItemData : ItemBase
     private void PlayEquipEffect(Vector3 position)
     {
         // TODO: TA 작업 - VFX/SFX 시스템과 연동
-        // VFXManager.Instance.Play("ToolEquip_" + toolCategory, position);
-        // SFXManager.Instance.Play("Tool_Equip_Sound");
+        // VFXManager.I.Play("ToolEquip_" + toolCategory, position);
+        // SFXManager.I.Play("Tool_Equip_Sound");
     }
 
     public float GetToolPerform()

@@ -6,13 +6,13 @@ public class RemovePopUp : MonoBehaviour
     [Header("Reference")]
     [SerializeField] private RemovePopUPUI removePopUPUI;
     [SerializeField] private InventoryItemData inventoryData;
-    [SerializeField] private WorldDropZone worldDropZone;
     [SerializeField] private GameInventory gameInventory;
     [SerializeField] private GameInventoryUI gameInventoryUI;
 
     private ItemBase selectedItem;
     private int currentItemQuantity;
     private int settingQuantity;
+    private DragSourceType sourceType; // 드래그 소스 타입 추가
 
     public event Action<ItemBase, int, Vector3> OnItemDropRequested;
 
@@ -57,27 +57,101 @@ public class RemovePopUp : MonoBehaviour
             return;
         }
 
-        if (worldDropZone != null)
+        // 소스 타입에 따라 다른 처리
+        if (sourceType == DragSourceType.Storage)
         {
-            worldDropZone.DropItemFromPopup(selectedItem, settingQuantity);
-            Debug.Log($"[RemovePopUp] {selectedItem.itemName} x{settingQuantity} 드롭 요청");
+            HandleStorageRemove();
         }
-        else
+        else // Inventory
         {
-            Debug.LogError("[RemovePopUp] WorldDropZone이 할당되지 않았습니다!");
-        }
-
-        if (gameInventory != null)
-        {
-            gameInventory.RemoveItem(selectedItem.itemID, settingQuantity);
+            HandleInventoryRemove();
         }
 
         OnClose();
     }
+
+    /// <summary>
+    /// 인벤토리에서 제거 후 드롭
+    /// </summary>
+    private void HandleInventoryRemove()
+    {
+        // 1. 인벤토리에서 제거
+        if (gameInventory != null)
+        {
+            gameInventory.RemoveItem(selectedItem.itemID, settingQuantity);
+            Debug.Log($"[RemovePopUp] 인벤토리에서 {selectedItem.itemName} x{settingQuantity} 제거");
+        }
+
+        // 2. 월드에 드롭 요청
+        if (DragDropManager.I != null)
+        {
+            DragDropManager.I.DropItemFromPopup(selectedItem, settingQuantity);
+            Debug.Log($"[RemovePopUp] {selectedItem.itemName} x{settingQuantity} 드롭 요청");
+        }
+        else
+        {
+            Debug.LogError("[RemovePopUp] DragDropManager를 찾을 수 없습니다!");
+        }
+    }
+
+    /// <summary>
+    /// 스토리지에서 제거 후 드롭
+    /// </summary>
+    private void HandleStorageRemove()
+    {
+        // 1. 현재 스토리지 가져오기
+        var currentStorage = DragDropManager.I?.GetCurrentStorage();
+        if (currentStorage == null)
+        {
+            Debug.LogError("[RemovePopUp] 현재 스토리지를 찾을 수 없습니다!");
+            return;
+        }
+
+        var storageData = currentStorage.GetStorageData();
+        if (storageData == null)
+        {
+            Debug.LogError("[RemovePopUp] StorageData를 찾을 수 없습니다!");
+            return;
+        }
+
+        // 2. 스토리지에서 제거
+        bool removed = storageData.RemoveItem(selectedItem.itemID, settingQuantity);
+
+        if (removed)
+        {
+            Debug.Log($"[RemovePopUp] 스토리지에서 {selectedItem.itemName} x{settingQuantity} 제거");
+
+            // 3. 월드에 드롭 요청
+            if (DragDropManager.I != null)
+            {
+                DragDropManager.I.DropItemFromPopup(selectedItem, settingQuantity);
+                Debug.Log($"[RemovePopUp] {selectedItem.itemName} x{settingQuantity} 드롭 요청");
+            }
+            else
+            {
+                Debug.LogError("[RemovePopUp] DragDropManager를 찾을 수 없습니다!");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"[RemovePopUp] 스토리지에서 제거 실패: {selectedItem.itemName}");
+        }
+    }
     #endregion
 
     #region 초기화 및 UI 제어
+    /// <summary>
+    /// 팝업 열기 (인벤토리용 - 기존 호환성 유지)
+    /// </summary>
     public void OnOpen(ItemBase item)
+    {
+        OnOpen(item, DragSourceType.Inventory);
+    }
+
+    /// <summary>
+    /// 팝업 열기 (소스 타입 지정)
+    /// </summary>
+    public void OnOpen(ItemBase item, DragSourceType source)
     {
         if (item == null)
         {
@@ -86,20 +160,49 @@ public class RemovePopUp : MonoBehaviour
         }
 
         selectedItem = item;
+        sourceType = source;
 
-        if (inventoryData == null)
+        // 소스에 따라 다른 수량 가져오기
+        if (sourceType == DragSourceType.Storage)
         {
-            Debug.LogError("[RemovePopUp] InventoryData가 null입니다!");
-            return;
+            // 스토리지 수량
+            var currentStorage = DragDropManager.I?.GetCurrentStorage();
+            if (currentStorage == null)
+            {
+                Debug.LogError("[RemovePopUp] 현재 스토리지를 찾을 수 없습니다!");
+                return;
+            }
+
+            var storageData = currentStorage.GetStorageData();
+            currentItemQuantity = storageData.GetItemCount(selectedItem.itemID);
+
+            if (currentItemQuantity <= 0)
+            {
+                Debug.LogWarning($"[RemovePopUp] {selectedItem.itemName}이(가) 스토리지에 없거나 수량이 0입니다!");
+                OnClose();
+                return;
+            }
+
+            Debug.Log($"[RemovePopUp] 스토리지 팝업 열림: {selectedItem.itemName} (수량: {currentItemQuantity})");
         }
-
-        currentItemQuantity = inventoryData.GetItemCount(selectedItem.itemID);
-
-        if (currentItemQuantity <= 0)
+        else // Inventory
         {
-            Debug.LogWarning($"[RemovePopUp] {selectedItem.itemName}이(가) 인벤토리에 없거나 수량이 0입니다!");
-            OnClose();
-            return;
+            if (inventoryData == null)
+            {
+                Debug.LogError("[RemovePopUp] InventoryData가 null입니다!");
+                return;
+            }
+
+            currentItemQuantity = inventoryData.GetItemCount(selectedItem.itemID);
+
+            if (currentItemQuantity <= 0)
+            {
+                Debug.LogWarning($"[RemovePopUp] {selectedItem.itemName}이(가) 인벤토리에 없거나 수량이 0입니다!");
+                OnClose();
+                return;
+            }
+
+            Debug.Log($"[RemovePopUp] 인벤토리 팝업 열림: {selectedItem.itemName} (수량: {currentItemQuantity})");
         }
 
         // UI 초기화
@@ -114,12 +217,6 @@ public class RemovePopUp : MonoBehaviour
         }
 
         removePopUPUI.gameObject.SetActive(true);
-
-        //// 설정 수량 초기화
-        //settingQuantity = 1;
-        //removePopUPUI.UpdateQuantityUI(settingQuantity);
-
-        Debug.Log($"[RemovePopUp] 팝업 열림: {selectedItem.itemName} (수량: {currentItemQuantity})");
     }
 
     public void OnClose()
@@ -128,7 +225,9 @@ public class RemovePopUp : MonoBehaviour
         selectedItem = null;
         currentItemQuantity = 0;
         settingQuantity = 1;
+        sourceType = DragSourceType.Inventory; // 기본값으로 리셋
 
+        // 인벤토리 UI만 갱신 (스토리지는 이벤트로 자동 갱신됨)
         if (gameInventoryUI != null)
         {
             gameInventoryUI.RefreshUI();

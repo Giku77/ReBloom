@@ -21,7 +21,10 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     {
         playerController = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
         //// 초기화
-        inventoryData.Initialize();
+    }
+    private void Start()
+    {
+        inventoryData.Initialize(); 
     }
 
     private void OnEnable()

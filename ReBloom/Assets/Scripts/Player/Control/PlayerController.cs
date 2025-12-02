@@ -168,7 +168,7 @@ public class PlayerController : MonoBehaviour
             //Debug.Log($"[PlayerController] {inventoryItemData} 인벤토리 Tier {targetTier}로 확장 완료! (현재 {newSlots}칸)");
 
             // TODO: 토스트 메시지 표시
-            // ToastManager.Instance?.Show($"{slotType} 인벤토리 Tier {targetTier} 확장!");
+            // ToastManager.I?.Show($"{slotType} 인벤토리 Tier {targetTier} 확장!");
         }
 
         return success;

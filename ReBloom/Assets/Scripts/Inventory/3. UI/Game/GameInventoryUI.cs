@@ -82,23 +82,13 @@ public class GameInventoryUI : UIBase
 
         // 이벤트 구독
         inventoryData.OnInventoryChanged += RefreshUI;
-
+        DragDropManager.OnDragFeedback += HandleDragFeedback;
         ////// 초기화
         //inventoryData.Initialize();
         //CreateEmptySlots();
         //RefreshUI();
         // 시작 시 인벤토리 닫기
         //inventoryUIRoot.SetActive(false);
-    }
-
-    private void Update()
-    {
-        deActiveGameObject.SetActive(false);
-        bool success = ItemIconDragHandler.CurrentContext?.Item.canQuickSlot ?? false;
-        if (!success && ItemIconDragHandler.CurrentContext?.Item != null)
-        {
-            deActiveGameObject.SetActive(true);
-        }
     }
 
     private void OnEnable()
@@ -138,6 +128,7 @@ public class GameInventoryUI : UIBase
         {
             inventoryData.OnInventoryChanged -= RefreshUI;
         }
+        DragDropManager.OnDragFeedback -= HandleDragFeedback;
     }
     #endregion
 
@@ -197,7 +188,7 @@ public class GameInventoryUI : UIBase
         //    Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = false;
         //}
         UIManager.Instance?.ToggleUI(Type);
-        //UIManager.Instance?.ToggleUI(UIType.InventoryStats);
+        //UIManager.I?.ToggleUI(UIType.InventoryStats);
 
         //Debug.Log($"[게임 인벤토리] {(isActive ? "열림" : "닫힘")}");
     }
@@ -270,6 +261,17 @@ public class GameInventoryUI : UIBase
                 slotInstance.transform.localScale = Vector3.one;
                 slotInstance.name = $"EmptySlot_{globalIndex}";
 
+                var dropZoneMarker = slotInstance.GetComponent<DropZoneMarker>();
+                if (dropZoneMarker != null)
+                {
+                    dropZoneMarker.SetZoneType(DropZoneType.Inventory);
+                    dropZoneMarker.SetSlotIndex(globalIndex); // 동적 인덱스 설정
+                    dropZoneMarker.SetPriority(50);
+                }
+                else
+                {
+                    Debug.LogWarning($"[GameInventoryUI] EmptySlot_{globalIndex}에 DropZoneMarker가 없습니다!");
+                }
                 // 마커 비활성화 (기본 슬롯)
                 var deactivateMarker = slotInstance.GetComponentInChildren<DeactivateSlotMarker>(true);
                 var lockMarker = slotInstance.GetComponentInChildren<LockImageMarker>(true);
@@ -278,7 +280,7 @@ public class GameInventoryUI : UIBase
                 if (lockMarker != null) lockMarker.gameObject.SetActive(false);
 
                 emptySlotList.Add(slotInstance.transform);
-                Debug.Log($"[GameInventoryUI] 기본 슬롯 생성 (인덱스: {globalIndex})");
+                //Debug.Log($"[GameInventoryUI] 기본 슬롯 생성 (인덱스: {globalIndex})");
             }
         }
 
@@ -295,6 +297,15 @@ public class GameInventoryUI : UIBase
                 slotInstance.transform.SetParent(contentContainer, false);
                 slotInstance.transform.localScale = Vector3.one;
                 slotInstance.name = $"LockSlot_{i}";
+
+                var dropZoneMarker = slotInstance.GetComponent<DropZoneMarker>();
+                if (dropZoneMarker != null)
+                {
+                    // 잠금 슬롯은 드롭존 비활성화 또는 우선순위 낮게
+                    dropZoneMarker.SetZoneType(DropZoneType.Inventory);
+                    dropZoneMarker.SetSlotIndex(globalIndex);
+                    dropZoneMarker.SetPriority(-1); // 드롭 불가
+                }
 
                 var deactivateMarker = slotInstance.GetComponentInChildren<DeactivateSlotMarker>(true);
                 var lockMarker = slotInstance.GetComponentInChildren<LockImageMarker>(true);
@@ -366,7 +377,7 @@ public class GameInventoryUI : UIBase
         questUI?.Refresh();
         QuestManager.I?.PlayQuestCompleteAnimation();
 
-        Debug.Log($"[GameInventoryUI] UI 갱신 완료 - Tier {inventoryData.InventoryTier}, 슬롯: {emptySlotList.Count}, 아이템: {slotIndex}");
+        //Debug.Log($"[GameInventoryUI] UI 갱신 완료 - Tier {inventoryData.InventoryTier}, 슬롯: {emptySlotList.Count}, 아이템: {slotIndex}");
     }
 
     private void ClearSlots()
@@ -416,6 +427,34 @@ public class GameInventoryUI : UIBase
         }
 
         dragHandler.SetItemData(item);
+    }
+    #endregion
+
+    #region 드래그 피드백
+    /// <summary>
+    /// 드래그 중 전역 피드백 처리
+    /// </summary>
+    private void HandleDragFeedback(DragContext context, bool canDrop)
+    {
+        if (deActiveGameObject == null) return;
+
+        // 드래그 중이 아니면 숨김
+        if (context == null)
+        {
+            deActiveGameObject.SetActive(false);
+            return;
+        }
+
+        // 퀵슬롯에 배치할 수 없는 아이템인 경우에만 경고 표시
+        bool shouldShowWarning = !context.Item.canQuickSlot;
+
+        deActiveGameObject.SetActive(shouldShowWarning);
+
+        // 디버깅용 로그 (선택사항)
+        //if (shouldShowWarning)
+        //{
+        //    Debug.Log($"[GameInventoryUI] 퀵슬롯 불가 경고: {context.Item.itemName}");
+        //}
     }
     #endregion
 

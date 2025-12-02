@@ -321,7 +321,7 @@ public class ConsumableItemData : ItemBase
     private void PlayUseEffect(Vector3 position)
     {
         // TODO: TA 작업 - VFX/SFX 시스템과 연동
-        // VFXManager.Instance.Play("ItemUse_" + itemName, position);
-        // SFXManager.Instance.Play("ItemUse_Sound");
+        // VFXManager.I.Play("ItemUse_" + itemName, position);
+        // SFXManager.I.Play("ItemUse_Sound");
     }
 }

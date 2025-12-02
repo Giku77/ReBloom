@@ -28,7 +28,9 @@ public class StorageSlot : MonoBehaviour,
 
     #region IDragSource 구현
     public DragSourceType SourceType => DragSourceType.Storage;
-    public int SlotIndex => transform.GetSiblingIndex();
+
+    // 부모 EmptySlot의 인덱스 사용
+    public int SlotIndex => transform.parent.GetSiblingIndex();
 
     public DragContext CreateDragContext(ItemBase item)
     {
@@ -110,15 +112,15 @@ public class StorageSlot : MonoBehaviour,
             }
         }
 
-        if(quantityFrame != null )
+        if (quantityFrame != null)
         {
             quantityFrame.enabled = hasItem && quantity > 1;
         }
 
-        if (quantityText != null )
+        if (quantityText != null)
         {
             quantityText.enabled = hasItem && quantity > 1;
-          
+
             if (hasItem)
             {
                 quantityText.text = quantity.ToString();
@@ -146,8 +148,6 @@ public class StorageSlot : MonoBehaviour,
     #region 더블클릭
     public void OnPointerClick(PointerEventData eventData)
     {
-        Debug.Log($"[StorageSlot] OnPointerClick 호출됨 - itemData: {itemData?.itemName ?? "null"}");
-
         if (itemData == null)
         {
             Debug.LogWarning("[StorageSlot] 아이템이 없어서 클릭 무시");
@@ -155,28 +155,21 @@ public class StorageSlot : MonoBehaviour,
         }
 
         float timeSinceLastClick = Time.time - lastClickTime;
-        Debug.Log($"[StorageSlot] 클릭 간격: {timeSinceLastClick:F3}초 (기준: {doubleClickDelay}초)");
 
         if (timeSinceLastClick <= doubleClickDelay)
         {
-            Debug.Log($"[StorageSlot] 더블클릭 인식");
             OnDoubleClick();
             lastClickTime = 0f;
         }
         else
         {
-            Debug.Log($"[StorageSlot] 첫 번째 클릭");
             lastClickTime = Time.time;
         }
     }
 
     private void OnDoubleClick()
     {
-        if (itemData == null)
-        {
-            Debug.LogWarning("[StorageSlot] OnDoubleClick - itemData가 null입니다!");
-            return;
-        }
+        if (itemData == null) return;
 
         Debug.Log($"[StorageSlot] 더블클릭: {itemData.itemName} 인벤토리로 회수");
 
@@ -201,8 +194,6 @@ public class StorageSlot : MonoBehaviour,
             {
                 background.color = hoverColor;
             }
-
-            Debug.Log($"[StorageSlot] 툴팁: {itemData.itemName}");
         }
     }
 

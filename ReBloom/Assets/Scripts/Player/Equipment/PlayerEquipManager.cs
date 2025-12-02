@@ -136,14 +136,21 @@ public class PlayerEquipManager : MonoBehaviour
         }
         
         ProtectiveItemData itemData = itemBase as ProtectiveItemData;
-        if (itemData == null)
+        ToolItemData toolData = itemBase as ToolItemData;
+        if(itemData == null && toolData == null)
         {
-            Debug.LogError($"[PlayerEquipManager] 아이템 ID {itemId}는 보호구 아이템이 아닙니다.");
+            Debug.LogError($"[PlayerEquipManager] 아이템 ID {itemId}는 보호구 or 도구 아이템이 아닙니다.");
             return;
         }
+        else if (itemData != null)
+        {
+            Apply(itemData);
+        }
+        else if(toolData != null)
+        {
+            Apply(toolData);
+        }
 
-        Apply(itemData);
-        
         if (equipmentUI != null)
         {
             equipmentUI.RefreshAllSlots();
