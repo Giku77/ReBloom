@@ -70,7 +70,7 @@ public class QuickSlotUI : MonoBehaviour, IItemSlot, IDragSource
     public void OnDragSuccess()
     {
         // 퀵슬롯은 매니저가 처리하므로 여기선 로그만
-        Debug.Log($"[QuickSlotUI] 슬롯 {SlotIndex} 드래그 성공, 빈 함수, 리팩토링 필요");
+        Debug.Log($"[QuickSlotUI] 슬롯 {SlotIndex} 드래그 성공");
     }
 
     public void OnDragCancelled()

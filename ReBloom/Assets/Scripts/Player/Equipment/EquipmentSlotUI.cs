@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class EquipmentSlotUI : MonoBehaviour, IPointerClickHandler
+public class EquipmentSlotUI : MonoBehaviour, IPointerClickHandler, IDragSource
 {
     [Header("UI References")]
     [SerializeField] private Image slotIcon;
@@ -19,6 +19,22 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerClickHandler
 
     private PlayerEquipManager equipManager;
     private GearType slotType;
+
+    #region IDragSource 구현
+    public DragSourceType SourceType => DragSourceType.Storage;
+    public int SlotIndex => transform.GetSiblingIndex();
+
+    public DragContext CreateDragContext(ItemBase item)
+    {
+        return new DragContext
+        {
+            Item = item,
+            SourceType = SourceType,
+            SourceSlotIndex = SlotIndex,
+            Source = this
+        };
+    }
+    #endregion
 
     public void Initialize(PlayerEquipManager manager, GearType type)
     {
@@ -119,5 +135,15 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerClickHandler
         if (equipManager == null) return;
 
         equipManager.UnEquip(slotType); 
+    }
+
+    public void OnDragSuccess()
+    {
+        Debug.Log("[EquipmentSlotUI] 드래그 성공");
+    }
+
+    public void OnDragCancelled()
+    {
+        
     }
 }
