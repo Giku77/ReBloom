@@ -46,7 +46,7 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerClickHandler, IDragSource
     {
         if (itemData == null)
         {
-            Debug.Log("[EquipmentSlotUI] 아이템데이터가 없습니다.");
+            //Debug.Log("[EquipmentSlotUI] 아이템데이터가 없습니다.");
             ClearSlot();
             return;
         }

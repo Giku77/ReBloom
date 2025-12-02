@@ -280,7 +280,7 @@ public class GameInventoryUI : UIBase
                 if (lockMarker != null) lockMarker.gameObject.SetActive(false);
 
                 emptySlotList.Add(slotInstance.transform);
-                Debug.Log($"[GameInventoryUI] 기본 슬롯 생성 (인덱스: {globalIndex})");
+                //Debug.Log($"[GameInventoryUI] 기본 슬롯 생성 (인덱스: {globalIndex})");
             }
         }
 
@@ -377,7 +377,7 @@ public class GameInventoryUI : UIBase
         questUI?.Refresh();
         QuestManager.I?.PlayQuestCompleteAnimation();
 
-        Debug.Log($"[GameInventoryUI] UI 갱신 완료 - Tier {inventoryData.InventoryTier}, 슬롯: {emptySlotList.Count}, 아이템: {slotIndex}");
+        //Debug.Log($"[GameInventoryUI] UI 갱신 완료 - Tier {inventoryData.InventoryTier}, 슬롯: {emptySlotList.Count}, 아이템: {slotIndex}");
     }
 
     private void ClearSlots()

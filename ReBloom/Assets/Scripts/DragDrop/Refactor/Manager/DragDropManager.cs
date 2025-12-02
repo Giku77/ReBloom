@@ -199,14 +199,14 @@ public class DragDropManager : MonoBehaviour
         DropZoneMarker bestZone = null;
         int highestPriority = -1;
 
-        Debug.Log($"[DragDropManager] RaycastResult 개수: {results.Count}"); // ✅ 추가
+        //Debug.Log($"[DragDropManager] RaycastResult 개수: {results.Count}"); //
 
         foreach (var result in results)
         {
             var zone = result.gameObject.GetComponent<DropZoneMarker>();
             if (zone != null)
             {
-                Debug.Log($"[DragDropManager] 발견된 DropZone: {zone.name}, Type: {zone.ZoneType}, Priority: {zone.Priority}");
+                //Debug.Log($"[DragDropManager] 발견된 DropZone: {zone.name}, Type: {zone.ZoneType}, Priority: {zone.Priority}");
 
                 if (zone.Priority > highestPriority)
                 {
@@ -218,7 +218,7 @@ public class DragDropManager : MonoBehaviour
 
         if (bestZone != null)
         {
-            Debug.Log($"[DragDropManager] 선택된 DropZone: {bestZone.name}, Type: {bestZone.ZoneType}, Priority: {bestZone.Priority}");
+           // Debug.Log($"[DragDropManager] 선택된 DropZone: {bestZone.name}, Type: {bestZone.ZoneType}, Priority: {bestZone.Priority}");
         }
         else
         {
