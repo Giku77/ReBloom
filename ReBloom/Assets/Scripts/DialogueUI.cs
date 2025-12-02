@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -26,7 +26,7 @@ public class DialogueUI : UIBase
         bool showNextHint = true)
     {
         Show();
-
+        Debug.Log("DialogueUI: ShowLineAsync called with text: " + localizedText);
         if (characterImage != null)
             characterImage.gameObject.SetActive(showCharacterImage);
 
