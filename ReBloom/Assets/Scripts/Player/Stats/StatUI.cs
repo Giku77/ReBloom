@@ -311,15 +311,17 @@ public class StatUI : MonoBehaviour
 
     public async UniTask PlayHitEffect()
     {
-
+        if (damageImage != null)
+        {
             damageImage.canvasRenderer.SetAlpha(lowHealthAlphaMax);
-        
+        }
 
         await UniTask.Delay((int)(flashDuration * 1000));
 
-
+        if (damageImage != null)
+        {
             damageImage.canvasRenderer.SetAlpha(0f);
-        
+        }
     }
 
     private async UniTask StartLowHealthPulse()
