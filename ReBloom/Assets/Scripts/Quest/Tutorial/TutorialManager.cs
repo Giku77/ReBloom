@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -43,7 +43,11 @@ public class TutorialManager : MonoBehaviour
         {
             isRunning = false;
 
-            dialogueUI.Hide();
+            //유니티 플레이 후 비활성화 되는 문제로 인하여 If문 추가
+            if (this != null && gameObject.scene.isLoaded)
+            {
+                dialogueUI.Hide();
+            }
             playerController.SetBlocked(false);
 
             tutorialCts.Dispose();

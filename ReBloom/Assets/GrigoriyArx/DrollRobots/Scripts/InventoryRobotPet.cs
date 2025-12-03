@@ -30,6 +30,11 @@ public class InventoryRobotPet : MonoBehaviour
     [SerializeField] private RobotEmotionManager emotionManager;
     [SerializeField] private Rob11ColorManager colorManager;
 
+    private bool isOrbiting = false;
+    private float orbitAngle = 0f;
+    private float orbitRadius = 2f;
+    private float orbitSpeed = 90f;
+
     // 내부 상태
     private Rigidbody rb;
     private Animator animator;
@@ -164,6 +169,12 @@ public class InventoryRobotPet : MonoBehaviour
     {
         if (player == null || rb == null) return;
 
+        if (isOrbiting)
+        {
+            OrbitAroundPlayer();
+            return;
+        }
+
         Vector3 playerPos = player.position;
         Vector3 currentPos = transform.position;
 
@@ -213,6 +224,67 @@ public class InventoryRobotPet : MonoBehaviour
         else
         {
             rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, Vector3.zero, Time.fixedDeltaTime * 3f);
+        }
+    }
+
+    public void StartOrbitingPlayer(float radius = 2f, float speed = 90f)
+    {
+        isOrbiting = true;
+        orbitRadius = radius;
+        orbitSpeed = speed;
+
+        // 현재 각도 계산 (플레이어 기준)
+        if (player != null)
+        {
+            Vector3 offset = transform.position - player.position;
+            orbitAngle = Mathf.Atan2(offset.x, offset.z) * Mathf.Rad2Deg;
+        }
+
+        ChangeMovementState(RobotMovementState.Walk);
+        emotionManager.SetEmotion(RobotEmotion.Wonder);
+    }
+
+    public void StopOrbitingPlayer()
+    {
+        isOrbiting = false;
+        ChangeMovementState(RobotMovementState.Idle);
+    }
+
+    private void OrbitAroundPlayer()
+    {
+        if (player == null) return;
+
+        // 각도 업데이트
+        orbitAngle += orbitSpeed * Time.fixedDeltaTime;
+        if (orbitAngle >= 360f) orbitAngle -= 360f;
+
+        // 목표 위치 계산 (원형 궤도)
+        float radians = orbitAngle * Mathf.Deg2Rad;
+        Vector3 offset = new Vector3(
+            Mathf.Sin(radians) * orbitRadius,
+            followHeight,
+            Mathf.Cos(radians) * orbitRadius
+        );
+
+        Vector3 targetPosition = player.position + offset;
+
+        // 둥둥 떠다니는 효과
+        floatTimer += Time.fixedDeltaTime * floatFrequency;
+        float floatOffset = Mathf.Sin(floatTimer) * floatAmplitude;
+        targetPosition.y += floatOffset;
+
+        // 부드럽게 이동
+        Vector3 direction = (targetPosition - transform.position).normalized;
+        Vector3 targetVelocity = direction * walkSpeed;
+        rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, targetVelocity, Time.fixedDeltaTime * 5f);
+
+        // 플레이어를 바라보도록 회전
+        Vector3 lookDirection = player.position - transform.position;
+        lookDirection.y = 0;
+        if (lookDirection != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.fixedDeltaTime * rotationSpeed);
         }
     }
 
