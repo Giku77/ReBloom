@@ -1,0 +1,32 @@
+.toolTagTopicTitle{
+    display: grid;
+    grid-template-columns: auto 32px;
+    width: 100%;
+    text-align: left;
+    font-size: 24px;
+    font-weight: bolder;
+    margin-top: 18px;
+    margin-bottom: 18px;
+}
+.toolTagTopicSeparator{
+    display: inline;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+.toolTagTopicSeparator img{
+    width: 14px;
+    height: 14px;
+    opacity: 0.3;
+}
+.toolTagTopicTitle a:nth-child(2){
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #0048ff00;
+    width: 32px;
+    text-align: right;
+    transition: all 100ms;
+}
+.toolTagTopicTitle:hover a:nth-child(2){
+    color: #003a9d;
+}
