@@ -6,9 +6,14 @@ public class GameStartSequence : MonoBehaviour
     [Header("References")]
     [SerializeField] private PlayerController playerController;
     [SerializeField] private TutorialManager tutorialManager;
+    [SerializeField] private ThirdPersonCamera thirdPersonCamera;
 
-    [Header("Settings")]
-    [SerializeField] private float initialDelay = 1f;
+
+    private float startZoomDistance = 15f;
+    private float targetZoomDistance = 3.2f;
+    private float zoomDuration = 3f;
+
+    private float initialDelay = 3f;
 
     private void Awake()
     {
@@ -25,18 +30,35 @@ public class GameStartSequence : MonoBehaviour
 
     public async UniTask PlaySequence()
     {
+        playerController.Anim.PlaySleep();
+
         if (playerController != null)
         {
             playerController.SetBlocked(true);
         }
 
-        playerController.Anim.PlaySleep();
+        if (thirdPersonCamera != null)
+        {
+            thirdPersonCamera.isSequenceLocked = true;
+            SetCameraDistance(startZoomDistance);
+            thirdPersonCamera.SetCameraAngle(180f, 40f);
+        }
 
-        await UniTask.Delay(5000);
+        await UniTask.Delay((int)(initialDelay * 1000));
+
+        if (thirdPersonCamera != null)
+        {
+            await ZoomInCamera();
+        }
 
         playerController.Anim.PlayStandUp();
 
-        await UniTask.Delay((int)(initialDelay * 1000));
+        await UniTask.Delay(7000);    
+
+        if (thirdPersonCamera != null)
+        {
+            thirdPersonCamera.isSequenceLocked = false;
+        }
 
         if (tutorialManager != null)
         {
@@ -48,6 +70,35 @@ public class GameStartSequence : MonoBehaviour
             {
                 playerController.SetBlocked(false);
             }
+        }
+    }
+
+    private async UniTask ZoomInCamera()
+    {
+        float elapsed = 0f;
+        float startDistance = startZoomDistance;
+
+        while (elapsed < zoomDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / zoomDuration;
+
+            t = Mathf.SmoothStep(0, 1, t);
+
+            float currentDistance = Mathf.Lerp(startDistance, targetZoomDistance, t);
+            SetCameraDistance(currentDistance);
+
+            await UniTask.Yield();
+        }
+
+        SetCameraDistance(targetZoomDistance);
+    }
+
+    private void SetCameraDistance(float distance)
+    {
+        if (thirdPersonCamera != null)
+        {
+            thirdPersonCamera.SetDistance(distance);
         }
     }
 }

@@ -27,6 +27,8 @@ public class DialogueUI : UIBase
     {
         Show();
         Debug.Log("DialogueUI: ShowLineAsync called with text: " + localizedText);
+        await UniTask.DelayFrame(1);
+
         if (characterImage != null)
             characterImage.gameObject.SetActive(showCharacterImage);
 

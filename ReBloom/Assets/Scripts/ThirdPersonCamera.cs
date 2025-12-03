@@ -12,11 +12,11 @@ public class ThirdPersonCamera : MonoBehaviour
     [SerializeField] private float minVerticalAngle = -30f;
     [SerializeField] private float maxVerticalAngle = 60f;
     [SerializeField] private float zoomSpeed = 0.5f;
+    public bool isZoomLocked = false;
+    public bool isSequenceLocked = false;
 
     private float maxZoomOutDistance = 20f;
     private float maxZoominDistance = 1f;
-
-    public bool isZoomLocked = false;
 
     [SerializeField] private LayerMask collisionMask;
 
@@ -29,8 +29,11 @@ public class ThirdPersonCamera : MonoBehaviour
     private void LateUpdate()
     {
         Look();
-        if (!isZoomLocked)
-          HandleZoom();
+
+        if (!isZoomLocked || !isSequenceLocked)
+        {
+            HandleZoom();
+        }
     }
 
     //인풋시스템 콜바이함수 룩
@@ -93,9 +96,12 @@ public class ThirdPersonCamera : MonoBehaviour
             }
         }
 
-        yaw += lookInput.x * mouseSensitivity * Time.deltaTime;
-        pitch -= lookInput.y * mouseSensitivity * Time.deltaTime;
-        pitch = Mathf.Clamp(pitch, minVerticalAngle, maxVerticalAngle);
+        if (!isSequenceLocked)
+        {
+            yaw += lookInput.x * mouseSensitivity * Time.deltaTime;
+            pitch -= lookInput.y * mouseSensitivity * Time.deltaTime;
+            pitch = Mathf.Clamp(pitch, minVerticalAngle, maxVerticalAngle);
+        }
 
         Quaternion rotation = Quaternion.Euler(pitch, yaw, 0f);
 
@@ -117,5 +123,16 @@ public class ThirdPersonCamera : MonoBehaviour
         }
 
         transform.LookAt(playerEye);
+    }
+
+    public void SetDistance(float newDistance)
+    {
+        distance = Mathf.Clamp(newDistance, maxZoominDistance, maxZoomOutDistance);
+    }
+
+    public void SetCameraAngle(float newYaw, float newPitch)
+    {
+        yaw = newYaw;
+        pitch = Mathf.Clamp(newPitch, minVerticalAngle, maxVerticalAngle);
     }
 }
