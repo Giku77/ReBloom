@@ -99,7 +99,7 @@ public class GameInventoryUI : UIBase
     {
         //인벤토리 UI가 열릴 때 정적 이벤트 발생
         InventroyEventSystem.InventoryOpened();
-
+        removeGradientGameObject.SetActive(false);
         EventSystem currentEventSystem = EventSystem.current;
         if (currentEventSystem == null)
         {
