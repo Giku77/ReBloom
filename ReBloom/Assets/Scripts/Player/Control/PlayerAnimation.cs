@@ -14,6 +14,9 @@ public class PlayerAnimation : MonoBehaviour
     public static readonly int HitUpperBody = Animator.StringToHash("HitUpperBody");
     public static readonly int Jamming = Animator.StringToHash("Jamming");
     public static readonly int WakeUp = Animator.StringToHash("WakeUp");
+    public static readonly int Sleep = Animator.StringToHash("Start");
+    public static readonly int StandUp = Animator.StringToHash("StandUp");
+
 
     [Header("Layer Blending")]
     [SerializeField] private float layerBlendSpeed = 5f;
@@ -86,6 +89,16 @@ public class PlayerAnimation : MonoBehaviour
     public void PlayPickUp()
     {
         animator.SetTrigger(PickUp);
+    }
+
+    public void PlaySleep()
+    {
+        animator.SetTrigger(Sleep);
+    }
+
+    public void PlayStandUp()
+    {
+        animator.SetTrigger(StandUp);
     }
 
     public void SetGathering(bool value)
