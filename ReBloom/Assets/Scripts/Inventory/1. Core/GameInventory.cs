@@ -171,7 +171,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
         if (item == null || !item.canEquip)
             return false;
 
-        // 🔹 타입별로 분기
+        // 타입별로 분기
         if (item is ToolItemData)
         {
             HandleToolEquip(item, itemId);
