@@ -276,7 +276,7 @@ public class DragDropManager : MonoBehaviour
 	/// </summary>
 	private void HandleDrop(DropZoneMarker zone, DragContext context)
 	{
-        Debug.Log($"[DragDropManager] HandleDrop 진입 - ZoneType: {zone.ZoneType}, Item: {context.Item.itemName}");
+        //Debug.Log($"[DragDropManager] HandleDrop 진입 - ZoneType: {zone.ZoneType}, Item: {context.Item.itemName}");
         switch (zone.ZoneType)
 		{
 			case DropZoneType.QuickSlot:
@@ -436,11 +436,11 @@ public class DragDropManager : MonoBehaviour
 
             if (success)
             {
-                Debug.Log($"[DragDropManager] 인벤토리 스왑 완료: {context.SourceSlotIndex} <-> {targetSlot}");
+                //Debug.Log($"[DragDropManager] 인벤토리 스왑 완료: {context.SourceSlotIndex} <-> {targetSlot}");
             }
             else
             {
-                Debug.LogWarning($"[DragDropManager] 인벤토리 스왑 실패: {context.SourceSlotIndex} <-> {targetSlot}");
+                //Debug.LogWarning($"[DragDropManager] 인벤토리 스왑 실패: {context.SourceSlotIndex} <-> {targetSlot}");
             }
         }
         // 스토리지 -> 인벤토리: 전체 수량 이동

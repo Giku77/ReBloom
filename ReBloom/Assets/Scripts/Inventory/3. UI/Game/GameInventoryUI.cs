@@ -227,13 +227,12 @@ public class GameInventoryUI : UIBase
         int lockSlots = (inventoryData.InventoryTier < 3) ? 5 : 0;
         int totalRequiredSlots = baseSlots + lockSlots;
 
-        Debug.Log($"[GameInventoryUI] 슬롯 체크 - Tier: {inventoryData.InventoryTier}, " +
-                  $"기본: {baseSlots}, 잠금: {lockSlots}, 총: {totalRequiredSlots}");
+        //Debug.Log($"[GameInventoryUI] 슬롯 체크 - Tier: {inventoryData.InventoryTier}, " + $"기본: {baseSlots}, 잠금: {lockSlots}, 총: {totalRequiredSlots}");
 
         // ===== 2단계: 티어가 변경되었으면 잠금 슬롯 제거 =====
         if (lastTier != inventoryData.InventoryTier && lockSlotList.Count > 0)
         {
-            Debug.Log($"[GameInventoryUI] 티어 변경 감지 ({lastTier} -> {inventoryData.InventoryTier}), 기존 잠금 슬롯 제거");
+            //Debug.Log($"[GameInventoryUI] 티어 변경 감지 ({lastTier} -> {inventoryData.InventoryTier}), 기존 잠금 슬롯 제거");
 
             foreach (var lockSlot in lockSlotList)
             {
@@ -343,7 +342,7 @@ public class GameInventoryUI : UIBase
             }
         }
 
-        Debug.Log($"[GameInventoryUI] 슬롯 생성 완료 - 기본: {baseSlots}개, 잠금: {lockSlotList.Count}개, 총: {emptySlotList.Count}개");
+       // Debug.Log($"[GameInventoryUI] 슬롯 생성 완료 - 기본: {baseSlots}개, 잠금: {lockSlotList.Count}개, 총: {emptySlotList.Count}개");
     }
 
     /// <summary>
@@ -351,30 +350,21 @@ public class GameInventoryUI : UIBase
     /// </summary>
     public void RefreshUI()
     {
-        if (gameInventory == null || ItemDatabase.I == null)
-        {
-            Debug.LogWarning("[GameInventoryUI] GameInventory 또는 ItemDatabase가 없습니다.");
-            return;
-        }
-
-        // 슬롯 개수 업데이트
         CreateEmptySlots();
-
-        // 기존 아이템 슬롯 제거
         ClearSlots();
 
-        // 슬롯 리스트를 직접 가져오기
-        var slots = gameInventory.GetAllSlots();
+        var slots = inventoryData.GetAllSlots(); // Tier에 맞는 슬롯만
 
-        // 아이템 슬롯 생성
-        int slotIndex = 0;
-        foreach (var slot in slots)
+        // 인덱스 기반 배치
+        for (int i = 0; i < slots.Length; i++)
         {
-            ItemBase item = ItemDatabase.I.GetItem(slot.itemID);
-            if (item != null)
+            if (slots[i] != null && slots[i].itemID > 0)
             {
-                CreateItemSlot(item, slot.count, slotIndex);
-                slotIndex++;
+                ItemBase item = ItemDatabase.I.GetItem(slots[i].itemID);
+                if (item != null)
+                {
+                    CreateItemSlot(item, slots[i].count, i);
+                }
             }
         }
 
@@ -401,10 +391,9 @@ public class GameInventoryUI : UIBase
 
     private void CreateItemSlot(ItemBase item, int quantity, int slotIndex)
     {
-        if (itemSlotPrefab == null || emptySlotList == null || slotIndex >= emptySlotList.Count)
+        if (slotIndex >= emptySlotList.Count)
         {
-            Debug.LogError($"{itemSlotPrefab}:itemSlotPrefab / {emptySlotList}:emptySlotList / {slotIndex >= emptySlotList.Count}:slotIndex >= emptySlotList.Count ");
-            Debug.LogError("[GameInventoryUI] itemSlotPrefab 또는 emptySlotList가 없거나 슬롯 인덱스 초과!");
+            Debug.LogError($"[GameInventoryUI] 슬롯 인덱스 초과: {slotIndex}");
             return;
         }
 
@@ -482,7 +471,7 @@ public class GameInventoryUI : UIBase
         if(zone != null)
         {
             bool shouldShowTrash = zone.ZoneType == DropZoneType.TrashBin;
-            Debug.Log($"[GameInventroyUI] {removeGradientGameObject}");
+            //Debug.Log($"[GameInventroyUI] {removeGradientGameObject}");
             removeGradientGameObject.SetActive(shouldShowTrash);
         }
     }

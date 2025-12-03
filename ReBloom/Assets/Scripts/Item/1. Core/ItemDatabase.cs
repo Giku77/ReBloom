@@ -140,7 +140,7 @@ public class ItemDatabase : MonoBehaviour
         {
             statusMsg += $", {duplicateCount}개 중복";
         }
-        Debug.Log(statusMsg);
+       // Debug.Log(statusMsg);
     }
 
     #region 아이템 조회 메서드

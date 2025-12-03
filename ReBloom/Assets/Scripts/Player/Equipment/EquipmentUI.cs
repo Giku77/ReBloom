@@ -87,19 +87,19 @@ private void InitializeSlotUIs()
         if (clothSlotObject != null)
         {
             clothSlotUI = CreateSlotUI(clothSlotObject.transform, GearType.Clothing);
-            Debug.Log("[EquipmentUI] ClothSlot UI 생성 완료");
+            //Debug.Log("[EquipmentUI] ClothSlot UI 생성 완료");
         }
 
         if (shoesSlotObject != null)
         {
             shoesSlotUI = CreateSlotUI(shoesSlotObject.transform, GearType.Shoes);
-            Debug.Log("[EquipmentUI] ShoesSlot UI 생성 완료");
+            //Debug.Log("[EquipmentUI] ShoesSlot UI 생성 완료");
         }
 
         if (toolSlotObject != null)
         {
             toolSlotUI = CreateSlotUI(toolSlotObject.transform, GearType.Tool);
-            Debug.Log("[EquipmentUI] ToolSlot UI 생성 완료");
+            //Debug.Log("[EquipmentUI] ToolSlot UI 생성 완료");
         }
     }
 
