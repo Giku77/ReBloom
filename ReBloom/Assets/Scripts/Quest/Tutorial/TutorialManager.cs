@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,6 +12,9 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private DialogueUI dialogueUI;
     [SerializeField] private PlayerController playerController;
     [SerializeField] private int introTutorialId = 1101001;
+
+    [SerializeField] private GameObject tutorialPanel;
+    [SerializeField] private TextMeshProUGUI tutorialText;
 
     private TutorialDB tutorialDb;
 
@@ -23,6 +27,22 @@ public class TutorialManager : MonoBehaviour
 
         tutorialDb = new TutorialDB();
         tutorialDb.LoadFromBG();
+    }
+
+    private void ShowTutorialText(string text)
+    {
+        if (tutorialText == null || tutorialPanel == null) return;
+
+        tutorialPanel.SetActive(true);
+        tutorialText.text = text;
+    }
+
+    private void ClearTutorialText()
+    {
+        if (tutorialText == null || tutorialPanel == null) return;
+
+        tutorialText.text = string.Empty;
+        tutorialPanel.SetActive(false);
     }
 
     private async void Start()
@@ -47,6 +67,7 @@ public class TutorialManager : MonoBehaviour
             if (this != null && gameObject.scene.isLoaded)
             {
                 dialogueUI.Hide();
+                ClearTutorialText();
             }
             playerController.SetBlocked(false);
 
@@ -91,11 +112,27 @@ public class TutorialManager : MonoBehaviour
             bool waitForNextInput = node.Condition == TutorialConditionType.NextImmediately;
             bool showNextHint = waitForNextInput;
 
-            await dialogueUI.ShowLineAsync(
-                text,
-                showCharacterImg,
-                waitForNextInput,
-                showNextHint);
+            //await dialogueUI.ShowLineAsync(
+            //    text,
+            //    showCharacterImg,
+            //    waitForNextInput,
+            //    showNextHint);
+
+            if (showNextHint)
+            {
+                ClearTutorialText();
+
+                await dialogueUI.ShowLineAsync(
+                    text,
+                    showCharacterImg,
+                    waitForNextInput,
+                    showNextHint);
+            }
+            else 
+            {
+                dialogueUI.Hide();
+                ShowTutorialText(text);
+            }
 
             if (token.IsCancellationRequested)
                 break;

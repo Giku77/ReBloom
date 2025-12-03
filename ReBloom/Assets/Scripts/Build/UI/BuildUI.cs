@@ -124,4 +124,9 @@ public class BuildUI : UIBase
         //Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = next;
         UIManager.Instance?.ToggleUI(Type);
     }
+
+    protected override void OnShow()
+    {
+        BuildPlacementController.I?.CancelPlacement();
+    }
 }
