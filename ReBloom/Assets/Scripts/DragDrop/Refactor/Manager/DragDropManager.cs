@@ -34,7 +34,7 @@ public class DragDropManager : MonoBehaviour
 	/// 드래그 중 전역 피드백 이벤트
 	/// (예: 퀵슬롯 불가능 아이템 경고)
 	/// </summary>
-	public static event System.Action<DragContext, bool> OnDragFeedback;
+	public static event System.Action<DragContext, DropZoneMarker, bool> OnDragFeedback;
 	#endregion
 
 	#region Singleton
@@ -76,7 +76,7 @@ public class DragDropManager : MonoBehaviour
 		}
 
 		currentDrag = context;
-		OnDragFeedback?.Invoke(context, true);
+		OnDragFeedback?.Invoke(context, null, true);
 
 		Debug.Log($"드래그 시작: {context.Item.itemName} from {context.SourceType}");
 	}
@@ -112,7 +112,7 @@ public class DragDropManager : MonoBehaviour
 		  //  Debug.Log("드롭 실패 - 원위치 복원");
 		}
 
-		OnDragFeedback?.Invoke(null, false);
+		OnDragFeedback?.Invoke(null, bestZone, false);
 
 		// 비주얼 초기화
 		if (currentHoveredZone != null)
@@ -149,7 +149,7 @@ public class DragDropManager : MonoBehaviour
         //Debug.Log($"[DragDropManager] CanDrop 결과: {canDrop}");
 
         // 전역 피드백 이벤트 발생
-        OnDragFeedback?.Invoke(currentDrag, canDrop);
+        OnDragFeedback?.Invoke(currentDrag, hoveredZone, canDrop);
 
 		// 새 호버 표시
 		if (hoveredZone != null)
@@ -250,7 +250,10 @@ public class DragDropManager : MonoBehaviour
 			case DropZoneType.Equipment:
 				return true;
 
-			default:
+			case DropZoneType.TrashBin:
+                return context.IsFromInventory;
+
+            default:
 				return false;
 		}
 	}
@@ -294,13 +297,24 @@ public class DragDropManager : MonoBehaviour
 			case DropZoneType.Equipment:
 				HandleEquipmentDrop(context);
 				break;
+			case DropZoneType.TrashBin:
+                HandleTrashDrop(context);
+				break;
 		}
 	}
 
-	/// <summary>
-	/// 퀵슬롯 드롭 처리
-	/// </summary>
-	private void HandleQuickSlotDrop(int targetSlot, DragContext context)
+    /// <summary>
+    /// 휴지통 드롭 처리
+    /// </summary>
+    private void HandleTrashDrop(DragContext context)
+    {
+        removePopUp?.OnOpen(context.Item, DragSourceType.Inventory);
+    }
+
+    /// <summary>
+    /// 퀵슬롯 드롭 처리
+    /// </summary>
+    private void HandleQuickSlotDrop(int targetSlot, DragContext context)
 	{
 		if (context.IsFromQuickSlot)
 		{
@@ -384,16 +398,17 @@ public class DragDropManager : MonoBehaviour
 			// TODO: 장비슬롯에서 바깥으로 빼면 장비 해제
 		}
 		else if (context.IsFromStorage)
-		{
-			// 스토리지 -> 월드: 수량 선택 팝업
-			Debug.Log($"[DragDropManager] 스토리지에서 월드로 드롭: {context.Item.itemName} (팝업)");
+        {
+            // (context.IsFromStorage)
+            // 스토리지 -> 월드: 수량 선택 팝업
+            Debug.Log($"[DragDropManager] 스토리지에서 월드로 드롭: {context.Item.itemName} (팝업)");
 			removePopUp?.OnOpen(context.Item, DragSourceType.Storage);
 		}
-		else
-		{
-			// 인벤토리 -> 월드: 수량 선택 팝업
-			removePopUp?.OnOpen(context.Item, DragSourceType.Inventory);
-		}
+		//else
+		//{
+		//	// 인벤토리 -> 월드: 수량 선택 팝업
+		//	removePopUp?.OnOpen(context.Item, DragSourceType.Inventory);
+		//}
 	}
 
     /// <summary>
