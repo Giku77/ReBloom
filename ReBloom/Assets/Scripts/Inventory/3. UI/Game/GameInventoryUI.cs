@@ -36,6 +36,9 @@ public class GameInventoryUI : UIBase
     [Header("Quickslot Fail Image")]
     [SerializeField] private GameObject deActiveGameObject;
 
+    [Header("TrashBin Image")]
+    [SerializeField] private GameObject removeGradientGameObject;
+
     [Header("UI 임시정리")]
     [SerializeField] private GameObject gameEquipIcon;
     [SerializeField] private GameObject gameQuickSlotRoot;
@@ -83,6 +86,7 @@ public class GameInventoryUI : UIBase
         // 이벤트 구독
         inventoryData.OnInventoryChanged += RefreshUI;
         DragDropManager.OnDragFeedback += HandleDragFeedback;
+        DragDropManager.OnDragFeedback += HandleTrashFeedback;
         ////// 초기화
         //inventoryData.Initialize();
         //CreateEmptySlots();
@@ -95,7 +99,7 @@ public class GameInventoryUI : UIBase
     {
         //인벤토리 UI가 열릴 때 정적 이벤트 발생
         InventroyEventSystem.InventoryOpened();
-
+        removeGradientGameObject.SetActive(false);
         EventSystem currentEventSystem = EventSystem.current;
         if (currentEventSystem == null)
         {
@@ -129,6 +133,7 @@ public class GameInventoryUI : UIBase
             inventoryData.OnInventoryChanged -= RefreshUI;
         }
         DragDropManager.OnDragFeedback -= HandleDragFeedback;
+        DragDropManager.OnDragFeedback -= HandleTrashFeedback;
     }
     #endregion
 
@@ -434,7 +439,7 @@ public class GameInventoryUI : UIBase
     /// <summary>
     /// 드래그 중 전역 피드백 처리
     /// </summary>
-    private void HandleDragFeedback(DragContext context, bool canDrop)
+    private void HandleDragFeedback(DragContext context, DropZoneMarker zone, bool canDrop)
     {
         if (deActiveGameObject == null) return;
 
@@ -455,6 +460,31 @@ public class GameInventoryUI : UIBase
         //{
         //    Debug.Log($"[GameInventoryUI] 퀵슬롯 불가 경고: {context.Item.itemName}");
         //}
+    }
+
+    /// <summary>
+    /// 드래그 중 전역 피드백 처리
+    /// </summary>
+    private void HandleTrashFeedback(DragContext context, DropZoneMarker zone, bool canDrop)
+    {
+        if (removeGradientGameObject == null) return;
+
+        // 드래그 중이 아니면 숨김
+        if (context == null)
+        {
+            removeGradientGameObject.SetActive(false);
+            return;
+        }
+
+        if (zone == null) { return; }
+
+        // trashbinzone인 경우에만 패널 표시
+        if(zone != null)
+        {
+            bool shouldShowTrash = zone.ZoneType == DropZoneType.TrashBin;
+            Debug.Log($"[GameInventroyUI] {removeGradientGameObject}");
+            removeGradientGameObject.SetActive(shouldShowTrash);
+        }
     }
     #endregion
 
