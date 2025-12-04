@@ -31,7 +31,12 @@ public class DayNightCycle : MonoBehaviour
     [SerializeField] private float nightCloudAlpha = 0.1f;
     [SerializeField] private float cloudLerpSpeed = 0.1f;
 
-    
+    private Color nightSkyboxTint = new Color(0f, 0f, 0f);
+    private float skyboxLerpSpeed = 0.5f;
+
+    private Material skyboxMaterial;
+    private Material originalSkyboxMaterial;
+    private Color originalSkyboxTint;
 
     private float yEast = 90f;
     private float yWest = -90f;
@@ -68,6 +73,31 @@ public class DayNightCycle : MonoBehaviour
             InitializeSunCurve();
 
         originalEmissionColor = cloudRenderer.material.GetColor("_EmissionColor");
+
+        originalSkyboxMaterial = RenderSettings.skybox;
+        if (originalSkyboxMaterial != null)
+        {
+            skyboxMaterial = new Material(originalSkyboxMaterial);
+            RenderSettings.skybox = skyboxMaterial;
+
+            if (skyboxMaterial.HasProperty("_Tint"))
+            {
+                originalSkyboxTint = skyboxMaterial.GetColor("_Tint");
+            }
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (originalSkyboxMaterial != null)
+        {
+            RenderSettings.skybox = originalSkyboxMaterial;
+        }
+
+        if (skyboxMaterial != null)
+        {
+            Destroy(skyboxMaterial);
+        }
     }
 
     private void Update()
@@ -85,6 +115,7 @@ public class DayNightCycle : MonoBehaviour
         UpdateSun();
         UpdateMoon();
         UpdateCloudAlpha();
+        UpdateSkybox();
 
         if (Keyboard.current.kKey.wasPressedThisFrame)
         {
@@ -253,6 +284,37 @@ public class DayNightCycle : MonoBehaviour
         Color newEmission = Color.Lerp(currentEmission, originalEmissionColor * targetIntensity, cloudLerpSpeed * Time.deltaTime);
 
         cloudRenderer.material.SetColor("_EmissionColor", newEmission);
+    }
+
+    private void UpdateSkybox()
+    {
+        if (skyboxMaterial == null) return;
+
+        float t = currentTime / dayLengthInSeconds;
+
+        float nightFactor = 0f;
+
+        if (t < 0.0926f)
+        {
+            nightFactor = Mathf.Lerp(1f, 0f, t / 0.0926f);
+        }
+        else if (t >= 0.0926f && t < 0.556f)
+        {
+            nightFactor = 0f;
+        }
+        else if (t >= 0.556f && t < 0.648f)
+        {
+            nightFactor = Mathf.Lerp(0f, 1f, (t - 0.556f) / 0.092f);
+        }
+        else
+        {
+            nightFactor = 1f;
+        }
+
+        Color targetTint = Color.Lerp(originalSkyboxTint, nightSkyboxTint, nightFactor);
+        Color currentTint = skyboxMaterial.GetColor("_Tint");
+        Color newTint = Color.Lerp(currentTint, targetTint, skyboxLerpSpeed * Time.deltaTime);
+        skyboxMaterial.SetColor("_Tint", newTint);
     }
 }
 
