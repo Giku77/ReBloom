@@ -1109,6 +1109,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   stageID: 400
+--- !u!1 &1433704052794969743
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4624229470320211568}
+  m_Layer: 6
+  m_Name: ItemSpawnPoint8
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4624229470320211568
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1433704052794969743}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -393.7, y: 132.21, z: -18.49}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6548899365035737916}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1572284606810957042
 GameObject:
   m_ObjectHideFlags: 0
@@ -5180,6 +5211,37 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
+--- !u!1 &4998994921209713911
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 299056001739007131}
+  m_Layer: 6
+  m_Name: ItemSpawnPoint9
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &299056001739007131
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4998994921209713911}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -389.31, y: 131.19, z: -26.71}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6548899365035737916}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5071017747958434804
 GameObject:
   m_ObjectHideFlags: 0
@@ -5906,6 +5968,8 @@ Transform:
   - {fileID: 1461384510274777174}
   - {fileID: 4066387405141774231}
   - {fileID: 8481274534500812502}
+  - {fileID: 4624229470320211568}
+  - {fileID: 299056001739007131}
   m_Father: {fileID: 6559053850508522312}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5369215029333524122
@@ -9108,6 +9172,12 @@ MonoBehaviour:
     quantity: 10
   - itemID: 4102004
     spawnTransform: {fileID: 8481274534500812502}
+    quantity: 1
+  - itemID: 4102007
+    spawnTransform: {fileID: 4624229470320211568}
+    quantity: 1
+  - itemID: 4102009
+    spawnTransform: {fileID: 299056001739007131}
     quantity: 1
   useRandomSpawn: 0
   randomSpawnPoints: []
