@@ -219,7 +219,8 @@ public enum UIType
     Weather,
     Debug,
     QuickSlot,
-    Dialogue
+    Dialogue,
+    PlayerEffect,
 }
 
 public enum UILayer

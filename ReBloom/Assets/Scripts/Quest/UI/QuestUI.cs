@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using TMPro;
 using UnityEngine;
 
@@ -33,12 +33,12 @@ public class QuestUI : MonoBehaviour
         var qm = QuestManager.I;
         if (qm == null || qm.Current == null)
         {
-            title.text = "Äù½ºÆ® ¾øÀ½";
+            //title.text = "í€˜ìŠ¤íŠ¸ ì—†ìŒ";
             description.text = "-";
         }
         else
         {
-            title.text = $"Äù½ºÆ® {qm.Current.questId}";
+            //title.text = $"í€˜ìŠ¤íŠ¸ {qm.Current.questId}";
             description.text = qm.Current.questName;
             if (qm.Current.goals != null)
             {
@@ -65,7 +65,7 @@ public class QuestUI : MonoBehaviour
                     }
                     else if (goal.type == QuestGoalType.Enter && !isShowPathGuide)
                     {
-                        //description.text += $"\n - À§Ä¡¿¡ µµ´ŞÇÏ±â";
+                        //description.text += $"\n - ìœ„ì¹˜ì— ë„ë‹¬í•˜ê¸°";
                         //pathGuide.SetTarget(pathGuide.Target[TargetIndex], TargetIndex);
                         pathGuide.SetTarget(pathGuide.Target[FindEntranceIndex(goal.objectId)], FindEntranceIndex(goal.objectId));
                         SetShowPathGuide(true);

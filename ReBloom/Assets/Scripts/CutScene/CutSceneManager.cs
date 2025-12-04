@@ -1,7 +1,10 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
 
 public class CutSceneManager : MonoBehaviour
@@ -9,20 +12,23 @@ public class CutSceneManager : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private DialogueUI dialogueUI;
 
-    [SerializeField] private Image cutSceneImage;      
-    [SerializeField] private Image backgroundImage;    
-    [SerializeField] private CanvasGroup cutSceneGroup; 
+    [SerializeField] private Image cutSceneImage;
+    [SerializeField] private Image backgroundImage;
+    [SerializeField] private CanvasGroup cutSceneGroup;
 
     [Header("Settings")]
-    [SerializeField] private int introCutSceneId = 1;          
+    [SerializeField] private int introCutSceneId = 1;
     [SerializeField] private string seenKeyPrefix = "CutScene_";
-    [SerializeField] private float fadeDuration = 0.5f;        
+    [SerializeField] private float fadeDuration = 0.5f;
 
     [Header("Defaults")]
-    [SerializeField] private Sprite defaultCutSceneSprite;     
-    [SerializeField] private Sprite defaultBackgroundSprite;   
+    [SerializeField] private Sprite defaultCutSceneSprite;
+    [SerializeField] private Sprite defaultBackgroundSprite;
 
     private CutSceneDB cutSceneDb;
+    private CancellationTokenSource cutSceneCts;
+    private bool isPlaying;
+    public bool IsPlaying => isPlaying;
 
     private void Awake()
     {
@@ -38,99 +44,131 @@ public class CutSceneManager : MonoBehaviour
 
     private async void Start()
     {
-        // if (!HasSeen(introCutSceneId))
-        // {
-        //     await PlayCutSceneSequenceAsync(introCutSceneId);
-        //     MarkSeen(introCutSceneId);
-        // }
-        //await PlayCutSceneSequenceAsync(introCutSceneId);
-
+        // await PlayCutSceneSequenceAsync(introCutSceneId);
     }
 
-    // private bool HasSeen(int cutSceneId)
-    // {
-    //     return PlayerPrefs.GetInt(seenKeyPrefix + cutSceneId, 0) == 1;
-    // }
+    public void SkipCutScene()
+    {
+        if (!isPlaying || cutSceneCts == null || cutSceneCts.IsCancellationRequested)
+            return;
 
-    // private void MarkSeen(int cutSceneId)
-    // {
-    //     PlayerPrefs.SetInt(seenKeyPrefix + cutSceneId, 1);
-    //     PlayerPrefs.Save();
-    // }
+        Debug.Log("[CutScene] Skip requested.");
+        cutSceneCts.Cancel();
+    }
 
     public async UniTask PlayCutSceneSequenceAsync(int startCutSceneId)
     {
+        if (isPlaying)
+        {
+            Debug.LogWarning("[CutScene] 이미 컷씬이 재생 중입니다.");
+            return;
+        }
+
         if (!cutSceneDb.TryGet(startCutSceneId, out var firstData))
             return;
 
-        var token = this.GetCancellationTokenOnDestroy();
+        isPlaying = true;
 
-        if (cutSceneGroup != null)
+        var destroyToken = this.GetCancellationTokenOnDestroy();
+        cutSceneCts = CancellationTokenSource.CreateLinkedTokenSource(destroyToken);
+        var token = cutSceneCts.Token;
+
+        try
         {
-            cutSceneGroup.gameObject.SetActive(true);
-            cutSceneGroup.alpha = 0f;
+            if (cutSceneGroup != null)
+            {
+                cutSceneGroup.gameObject.SetActive(true);
+                //cutSceneGroup.alpha = 0f;
+            }
+
+            await ApplyCutSceneVisualAsync(firstData);
+
+            if (cutSceneGroup != null)
+                await FadeCanvasGroupAsync(cutSceneGroup, 1f, fadeDuration, token);
+
+            int currentId = startCutSceneId;
+
+            while (!token.IsCancellationRequested &&
+                   cutSceneDb.TryGet(currentId, out var data))
+            {
+                await ApplyCutSceneVisualAsync(data);
+
+                await dialogueUI.ShowLineAsync(data.TextKR);
+
+                if (token.IsCancellationRequested)
+                    break;
+
+                if (data.NextCutSceneID <= 0)
+                    break;
+
+                currentId = data.NextCutSceneID;
+            }
         }
-
-        ApplyCutSceneVisual(firstData);
-
-        if (cutSceneGroup != null)
-            await FadeCanvasGroupAsync(cutSceneGroup, 1f, fadeDuration, token);
-
-        int currentId = startCutSceneId;
-
-        while (cutSceneDb.TryGet(currentId, out var data))
+        catch (OperationCanceledException)
         {
-            ApplyCutSceneVisual(data);
-
-            await dialogueUI.ShowLineAsync(data.TextKR);
-
-            if (data.NextCutSceneID <= 0)
-                break;
-
-            currentId = data.NextCutSceneID;
+            Debug.Log("[CutScene] 컷씬이 취소되었습니다 (스킵 또는 오브젝트 파괴).");
         }
-
-        if (cutSceneGroup != null)
+        finally
         {
-            await FadeCanvasGroupAsync(cutSceneGroup, 0f, fadeDuration, token);
-            cutSceneGroup.gameObject.SetActive(false);
-        }
 
-        // 마지막 컷신에서 UI 닫고 싶으면 여기에서
-        // dialogueUI.Hide();
+            if (cutSceneImage != null)
+                cutSceneImage.gameObject.SetActive(false);
+
+            if (backgroundImage != null)
+                backgroundImage.gameObject.SetActive(false);
+
+            // if (cutSceneGroup != null)
+            // {
+            //     cutSceneGroup.alpha = 0f;
+            //     cutSceneGroup.gameObject.SetActive(false);
+            // }
+
+            if (dialogueUI != null)
+                dialogueUI.Hide();
+
+            isPlaying = false;
+
+            cutSceneCts?.Dispose();
+            cutSceneCts = null;
+        }
     }
 
-    /// <summary>
-    /// 컷신 데이터 기반으로 이미지/배경 세팅
-    /// </summary>
-    private void ApplyCutSceneVisual(CutSceneData data)
+    private async UniTask ApplyCutSceneVisualAsync(CutSceneData data)
     {
-        // cutSceneImage
         if (cutSceneImage != null)
         {
-            Sprite sprite = LoadSpriteSafe(data.ImageName);
+            Sprite sprite = await LoadSpriteSafeAsync(data.ImageName);
             cutSceneImage.sprite = sprite != null ? sprite : defaultCutSceneSprite;
+            cutSceneImage.gameObject.SetActive(true);
         }
 
-        // 배경은 필요하다면 CutSceneData에 필드를 추가해서 쓰거나,
-        // 지금은 기본 배경만 깔아도 됨
         if (backgroundImage != null)
         {
-          if (backgroundImage.sprite == null)
-              backgroundImage.sprite = defaultBackgroundSprite;
-          backgroundImage.gameObject.SetActive(true);
+            if (backgroundImage.sprite == null)
+                backgroundImage.sprite = defaultBackgroundSprite;
+
+            backgroundImage.gameObject.SetActive(true);
         }
     }
 
-    /// <summary>
-    /// Resources / Addressables / SpriteAtlas 등 원하는 방식으로 교체해서 쓰면 됨
-    /// </summary>
-    private Sprite LoadSpriteSafe(string imageName)
+    private async UniTask<Sprite> LoadSpriteSafeAsync(string imageName)
     {
         if (string.IsNullOrEmpty(imageName))
             return null;
 
-        return Resources.Load<Sprite>($"CutScenes/{imageName}");
+        string key = $"CutScenes/{imageName}";
+        AsyncOperationHandle<Sprite> handle = Addressables.LoadAssetAsync<Sprite>(key);
+
+        try
+        {
+            var sprite = await handle.Task;
+            return sprite;
+        }
+        catch
+        {
+            Debug.LogWarning($"[CutScene] Addressables Sprite 로드 실패: {key}");
+            return null;
+        }
     }
 
     private async UniTask FadeCanvasGroupAsync(
@@ -151,6 +189,8 @@ public class CutSceneManager : MonoBehaviour
 
         while (time < duration)
         {
+            token.ThrowIfCancellationRequested();
+
             time += Time.deltaTime;
             float t = Mathf.Clamp01(time / duration);
             group.alpha = Mathf.Lerp(startAlpha, targetAlpha, t);
