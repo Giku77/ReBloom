@@ -8,6 +8,7 @@ public class GameStartSequence : MonoBehaviour
     [SerializeField] private TutorialManager tutorialManager;
     [SerializeField] private ThirdPersonCamera thirdPersonCamera;
     [SerializeField] private InventoryRobotPet robotPet;
+    [SerializeField] private CutSceneManager cutSceneManager;
 
     private float startZoomDistance = 15f;
     private float targetZoomDistance = 3.2f;
@@ -31,7 +32,7 @@ public class GameStartSequence : MonoBehaviour
     public async UniTask PlaySequence()
     {
         playerController.Anim.PlaySleep();
-
+        
         if (playerController != null)
         {
             playerController.SetBlocked(true);
@@ -43,6 +44,8 @@ public class GameStartSequence : MonoBehaviour
             SetCameraDistance(startZoomDistance);
             thirdPersonCamera.SetCameraAngle(180f, 40f);
         }
+
+        if (cutSceneManager != null) await cutSceneManager.PlayCutSceneSequenceAsync(1301001);
 
         if (robotPet != null)
         {

@@ -11,6 +11,13 @@ public class DialogueUI : UIBase
     [SerializeField] private float typeSpeed = 40f; // 글자/초
 
     private bool nextRequested;
+    private CanvasGroup canvasGroup;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        canvasGroup = GetComponentInParent<CanvasGroup>();
+    }
 
     public void OnNextInput(InputAction.CallbackContext ctx)
     {
@@ -19,12 +26,19 @@ public class DialogueUI : UIBase
         nextRequested = true;
     }
 
+    public override void Show()
+    {
+        base.Show();
+        if (canvasGroup != null) canvasGroup.alpha = 1f;
+    }
+
     public async UniTask ShowLineAsync(
         string localizedText,
         bool showCharacterImage = false,
         bool waitForNextInput = true,
         bool showNextHint = true)
     {
+        messageText.text = "";
         Show();
         Debug.Log("DialogueUI: ShowLineAsync called with text: " + localizedText);
         await UniTask.DelayFrame(1);
@@ -35,7 +49,6 @@ public class DialogueUI : UIBase
         var token = this.GetCancellationTokenOnDestroy();
 
         nextRequested = false;
-        messageText.text = "";
 
         foreach (char c in localizedText)
         {
