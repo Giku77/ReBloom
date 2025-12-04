@@ -96,7 +96,7 @@ public class PlayerEquipManager : MonoBehaviour
             return;
         }
 
-        //UnEquip(GearType.Tool);
+        UnEquip(GearType.Tool);
         player.currentToolEquip = item;
         
         // ToolEquipManager를 통해 실제 프리팹 생성
@@ -136,7 +136,7 @@ public class PlayerEquipManager : MonoBehaviour
         if (isEquipped)
         {
             // 장착 해제
-            if (itemBase is ToolItemData)
+            if (itemBase is ToolItemData tool)
                 UnEquip(GearType.Tool);
             else if (itemBase is ProtectiveItemData protective)
                 UnEquip(protective.gearType);
