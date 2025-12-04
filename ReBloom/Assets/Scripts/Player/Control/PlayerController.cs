@@ -150,7 +150,7 @@ public class PlayerController : MonoBehaviour
         if (playerStats != null)
             playerStats.OnDeath += HandleDeath;
 
-        SoundManager.I.PlayMainBGM();
+        SoundManager.I?.PlayMainBGM();
     }
 
     /// <summary>
