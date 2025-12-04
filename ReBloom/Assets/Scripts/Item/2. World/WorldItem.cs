@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.InputSystem;
 
@@ -6,7 +6,9 @@ public class WorldItem : MonoBehaviour, IInteractable
 {
     [Header("Item Data")]
     private ItemBase itemData;
-    private int quantity = 1;
+    
+    private bool isPersistent = false; // 영구 아이템 플래그
+private int quantity = 1;
 
     [Header("Interaction")]
     [SerializeField] private LayerMask playerLayer;
@@ -30,10 +32,17 @@ public class WorldItem : MonoBehaviour, IInteractable
     /// <summary>
     /// 아이템 수량 설정 (스택 아이템용)
     /// </summary>
-    public void SetQuantity(int amount)
+public void SetQuantity(int amount)
     {
-        //풀에 돌아갈때 1로 초기화 필요
         quantity = Mathf.Max(1, amount);
+    }
+
+    /// <summary>
+    /// 영구 아이템으로 설정 (시간 지나도 안 사라짐)
+    /// </summary>
+    public void SetPersistent(bool persistent)
+    {
+        isPersistent = persistent;
     }
 
     private void Update()
@@ -86,10 +95,10 @@ public class WorldItem : MonoBehaviour, IInteractable
         PickupItem(player);
     }
 
-    private void OnEnable()
+private void OnEnable()
     {
-        // 일정 시간 후 자동 회수
-        if (pooledItem != null)
+        // 영구 아이템이 아닐 때만 자동 회수
+        if (pooledItem != null && !isPersistent)
         {
             pooledItem.ReturnToPoolAfterDelay(600f); // 10분
         }
@@ -100,9 +109,10 @@ public class WorldItem : MonoBehaviour, IInteractable
         return true;
     }
     
-    public void ResetItem()
+public void ResetItem()
     {
         itemData = null;
         quantity = 1;
+        isPersistent = false; // 리셋 시 플래그도 초기화
     }
 }

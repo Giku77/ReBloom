@@ -1,12 +1,12 @@
-using Cysharp.Threading.Tasks;
+ï»¿using Cysharp.Threading.Tasks;
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class GameBoot : MonoBehaviour
 {
-    //[SerializeField] private string[] baseScenes;   // ÇÊ¼ö ¾À
-    //[SerializeField] private string[] optionalScenes; // ¼±ÅÃ ¾À
+    //[SerializeField] private string[] baseScenes;   // ï¿½Ê¼ï¿½ ï¿½ï¿½
+    //[SerializeField] private string[] optionalScenes; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 
     public GameObject player;
 
@@ -20,7 +20,7 @@ public class GameBoot : MonoBehaviour
         SceneLoader.onAllScenesLoaded += OnAllScenesLoaded;
         SceneLoader.LoadAll();
     }
-
+        
     private void OnAllScenesLoaded()
     {
         BindPlayerAfterLoad().Forget();
@@ -36,7 +36,7 @@ public class GameBoot : MonoBehaviour
         }
         catch (TimeoutException)
         {
-            Debug.LogError("Player¸¦ Ã£Áö ¸øÇß½À´Ï´Ù.");
+            Debug.LogError("Playerï¿½ï¿½ Ã£ï¿½ï¿½ ï¿½ï¿½ï¿½ß½ï¿½ï¿½Ï´ï¿½.");
             return;
         }
 
@@ -45,14 +45,14 @@ public class GameBoot : MonoBehaviour
         var playerInput = player.GetComponent<PlayerInput>();
         if (playerInput == null)
         {
-            Debug.LogError("Player¿¡ PlayerInput ÄÄÆ÷³ÍÆ®°¡ ¾ø½À´Ï´Ù.");
+            Debug.LogError("Playerï¿½ï¿½ PlayerInput ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
             return;
         }
 
         camCtrl = Camera.main.GetComponent<ThirdPersonCamera>();
         if (camCtrl == null)
         {
-            Debug.LogError("¸ÞÀÎ Ä«¸Þ¶ó¿¡ ThirdPersonCamera ÄÄÆ÷³ÍÆ®°¡ ¾ø½À´Ï´Ù.");
+            Debug.LogError("ï¿½ï¿½ï¿½ï¿½ Ä«ï¿½Þ¶ï¿½ ThirdPersonCamera ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½.");
             return;
         }
 
@@ -63,7 +63,7 @@ public class GameBoot : MonoBehaviour
         lookAction.canceled += camCtrl.OnLook;
 
         playerInput.camera = Camera.main;
-        Debug.Log("PlayerInput°ú Ä«¸Þ¶ó ¹ÙÀÎµù ¿Ï·á");
+        Debug.Log("PlayerInputï¿½ï¿½ Ä«ï¿½Þ¶ï¿½ ï¿½ï¿½ï¿½Îµï¿½ ï¿½Ï·ï¿½");
     }
 
     private void OnDestroy()
