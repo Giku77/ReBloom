@@ -13,13 +13,18 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
 
     [Header("Player")]
     [SerializeField] private PlayerController playerController;
+    [SerializeField] private PlayerEquipManager playerEquipmanager;
 
-    private int currentEquippedToolId = -1;        // 도구
-    private int currentEquippedClothingId = -1;    // 옷
-    private int currentEquippedShoesId = -1;       // 신발
+    public IItemContainer Container => inventoryData;
+
+    //private int currentEquippedToolId = -1;        // 도구
+    //private int currentEquippedClothingId = -1;    // 옷
+    //private int currentEquippedShoesId = -1;       // 신발
     private void Awake()
     {
-        playerController = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
+        var player = GameObject.FindWithTag("Player");
+        playerController = player.GetComponent<PlayerController>();
+        playerEquipmanager = player.GetComponent<PlayerEquipManager>();
         //// 초기화
     }
     private void Start()
@@ -38,152 +43,127 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     public void RemoveItem(int itemId, int amount) => inventoryData.RemoveItem(itemId, amount);
     public void Clear() => inventoryData.Clear();
     public bool HasItem(int itemId, int amount) => inventoryData.HasItem(itemId, amount);
-
+    public bool TransferTo(IItemContainer container, int itemId, int amount) => inventoryData.TransferTo(container, itemId, amount);
+    public bool SwapSlots(int fromIndex, int toIndex) => inventoryData.SwapSlots(fromIndex, toIndex);
     public void Consume(int itemId, int amount)
     {
         ItemBase item = ItemDatabase.I.GetItem(itemId);
-        if (item == null)
-        {
-            Debug.LogError("[GameInventory] 아이템을 찾을 수 없습니다.");
-            return;
-        }
+        if (item == null) return;
 
         if (item.canUseable)
         {
-            // 소비 아이템: 사용 후 제거
             bool success = item.Apply(playerController);
             if (success) RemoveItem(itemId, amount);
-            return;
         }
         else if (item.canEquip)
         {
-            // 타입별로 분기 처리
-            if (item is ToolItemData)
-            {
-                HandleToolEquip(item, itemId);
-            }
-            else if (item is ProtectiveItemData protective)
-            {
-                HandleProtectiveEquip(protective, itemId);
-            }
-            return;
+            // PlayerEquipManager에게 위임
+            playerEquipmanager.ToggleEquip(itemId);  // 토글 처리도 위임
         }
     }
     #endregion
 
-    // 도구 장착 처리
-    private void HandleToolEquip(ItemBase item, int itemId)
-    {
-        // 같은 도구 클릭 = 토글
-        if (currentEquippedToolId == itemId)
-        {
-            item.UnApply(playerController);
-            currentEquippedToolId = -1;
-            Debug.Log($"[GameInventory] {item.itemName} 장착 해제");
-            return;
-        }
+    //// 도구 장착 처리
+    //private void HandleToolEquip(ToolItemData item, int itemId)
+    //{
+    //    // 같은 도구 클릭 = 토글
+    //    if (currentEquippedToolId == itemId)
+    //    {
+    //        item.UnApply(playerController);
+    //        AddItem(item.itemID, 1); // 임의로 추가
+    //        currentEquippedToolId = -1;
+    //        Debug.Log($"[GameInventory] {item.itemName} 장착 해제");
+    //        return;
+    //    }
 
-        // 다른 도구로 교체
-        if (currentEquippedToolId != -1)
-        {
-            ItemBase previousTool = ItemDatabase.I.GetItem(currentEquippedToolId);
-            previousTool?.UnApply(playerController);
-        }
+    //    // 다른 도구로 교체
+    //    if (currentEquippedToolId != -1)
+    //    {
+    //        ItemBase previousTool = ItemDatabase.I.GetItem(currentEquippedToolId);
+    //        previousTool?.UnApply(playerController);
+    //    }
 
-        // 새 도구 장착
-        bool success = item.Apply(playerController);
-        if (success)
-        {
-            currentEquippedToolId = itemId;
-            Debug.Log($"[GameInventory] {item.itemName} 장착");
-        }
-    }
+    //    // 새 도구 장착
+    //    bool success = item.Apply(playerController);
+    //    if (success)
+    //    {
+    //        currentEquippedToolId = itemId;
+    //        Debug.Log($"[GameInventory] {item.itemName} 장착");
+    //    }
+    //}
 
-    // 보호구 장착 처리
-    private void HandleProtectiveEquip(ProtectiveItemData item, int itemId)
-    {
-        switch (item.gearType)
-        {
-            case GearType.Clothing:
-                // 같은 옷 클릭 = 토글
-                if (currentEquippedClothingId == itemId)
-                {
-                    item.UnApply(playerController);
-                    currentEquippedClothingId = -1;
-                    Debug.Log($"[GameInventory] {item.itemName} 장착 해제");
-                    return;
-                }
+    //// 보호구 장착 처리
+    //private void HandleProtectiveEquip(ProtectiveItemData item, int itemId)
+    //{
+    //    switch (item.gearType)
+    //    {
+    //        case GearType.Clothing:
+    //            // 같은 옷 클릭 = 토글 // 12.04 수정사항: 인벤토리에서 빠지면서 같은 옷 클릭 안됨
+    //            if (currentEquippedClothingId == itemId)
+    //            {
+    //                item.UnApply(playerController);
+    //                AddItem(item.itemID, 1); // 임의로 추가
+    //                currentEquippedClothingId = -1;
+    //                Debug.Log($"[GameInventory] {item.itemName} 장착 해제");
+    //                return;
+    //            }
 
-                // 다른 옷으로 교체
-                if (currentEquippedClothingId != -1)
-                {
-                    ItemBase previousCloth = ItemDatabase.I.GetItem(currentEquippedClothingId);
-                    previousCloth?.UnApply(playerController);
-                }
+    //            // 다른 옷으로 교체
+    //            if (currentEquippedClothingId != -1)
+    //            {
+    //                ItemBase previousCloth = ItemDatabase.I.GetItem(currentEquippedClothingId);
+    //                previousCloth?.UnApply(playerController);
+    //            }
 
-                // 새 옷 장착
-                bool clothSuccess = item.Apply(playerController);
-                if (clothSuccess)
-                {
-                    currentEquippedClothingId = itemId;
-                    Debug.Log($"[GameInventory] {item.itemName} 장착");
-                }
-                break;
+    //            // 새 옷 장착, 장착한 아이템은 이 함수 바깥에서 인벤토리 슬롯 제거
+    //            bool clothSuccess = item.Apply(playerController);
+    //            if (clothSuccess)
+    //            {
+    //                currentEquippedClothingId = itemId;
+    //                Debug.Log($"[GameInventory] {item.itemName} 장착");
+    //            }
+    //            break;
 
-            case GearType.Shoes:
-                // 같은 신발 클릭 = 토글
-                if (currentEquippedShoesId == itemId)
-                {
-                    item.UnApply(playerController);
-                    currentEquippedShoesId = -1;
-                    Debug.Log($"[GameInventory] {item.itemName} 장착 해제");
-                    return;
-                }
+    //        case GearType.Shoes:
+    //            // 같은 신발 클릭 = 토글
+    //            if (currentEquippedShoesId == itemId)
+    //            {
+    //                item.UnApply(playerController);
+    //                AddItem(item.itemID, 1); // 임의로 추가
+    //                currentEquippedShoesId = -1;
+    //                Debug.Log($"[GameInventory] {item.itemName} 장착 해제");
+    //                return;
+    //            }
 
-                // 다른 신발로 교체
-                if (currentEquippedShoesId != -1)
-                {
-                    ItemBase previousShoes = ItemDatabase.I.GetItem(currentEquippedShoesId);
-                    previousShoes?.UnApply(playerController);
-                }
+    //            // 다른 신발로 교체
+    //            if (currentEquippedShoesId != -1)
+    //            {
+    //                ItemBase previousShoes = ItemDatabase.I.GetItem(currentEquippedShoesId);
+    //                previousShoes?.UnApply(playerController);
+    //            }
 
-                // 새 신발 장착
-                bool shoesSuccess = item.Apply(playerController);
-                if (shoesSuccess)
-                {
-                    currentEquippedShoesId = itemId;
-                    Debug.Log($"[GameInventory] {item.itemName} 장착");
-                }
-                break;
+    //            // 새 신발 장착
+    //            bool shoesSuccess = item.Apply(playerController);
+    //            if (shoesSuccess)
+    //            {
+    //                currentEquippedShoesId = itemId;
+    //                Debug.Log($"[GameInventory] {item.itemName} 장착");
+    //            }
+    //            break;
 
-            default:
-                Debug.LogWarning($"[GameInventory] 알 수 없는 보호구 타입: {item.gearType}");
-                break;
-        }
-    }
+    //        default:
+    //            Debug.LogWarning($"[GameInventory] 알 수 없는 보호구 타입: {item.gearType}");
+    //            break;
+    //    }
+    //}
 
     /// <summary>
     /// 도구 장착/해제 토글 (외부 호출용)
     /// </summary>
     public bool ToggleEquip(int itemId)
     {
-        ItemBase item = ItemDatabase.I.GetItem(itemId);
-        if (item == null || !item.canEquip)
-            return false;
-
-        // 타입별로 분기
-        if (item is ToolItemData)
-        {
-            HandleToolEquip(item, itemId);
-            return true;
-        }
-        else if (item is ProtectiveItemData protective)
-        {
-            HandleProtectiveEquip(protective, itemId);
-            return true;
-        }
-
-        return false;
+        //equipmanager가 처리
+        return playerEquipmanager.ToggleEquip(itemId);
     }
 
     #region 아이템 & 카테고리 분류

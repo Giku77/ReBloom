@@ -124,7 +124,7 @@ public class ToolItemData : ItemBase
         }
 
         // 장착 VFX/SFX
-        player.playerEquip.Apply(this);
+        //player.playerEquip.Apply(this);
 
         // PlayEquipEffect(player.transform.position);
 
@@ -139,7 +139,7 @@ public class ToolItemData : ItemBase
     {
         if (player == null) return;
 
-        player.playerEquip.UnEquip(GearType.Tool);
+        //player.playerEquip.UnEquip(GearType.Tool);
         Debug.Log($"[도구 해제] {itemName}");
     }
 

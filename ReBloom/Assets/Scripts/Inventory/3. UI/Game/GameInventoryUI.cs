@@ -171,31 +171,7 @@ public class GameInventoryUI : UIBase
     #region UI 이벤트
     public void ToggleInventory()
     {
-        //if (inventoryUIRoot == null) return;
-
-        //bool isActive = !inventoryUIRoot.activeSelf;
-        //inventoryUIRoot.SetActive(isActive);
-
-        //if (isActive)
-        //{
-        //    RefreshUI();
-
-        //    // 커서 표시
-        //    Cursor.visible = true;
-        //    Cursor.lockState = CursorLockMode.None;
-        //    Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = true;
-        //}
-        //else
-        //{
-        //    // 게임 중에는 커서 숨김
-        //    Cursor.visible = false;
-        //    Cursor.lockState = CursorLockMode.Locked;
-        //    Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = false;
-        //}
         UIManager.Instance?.ToggleUI(Type);
-        //UIManager.I?.ToggleUI(UIType.InventoryStats);
-
-        //Debug.Log($"[게임 인벤토리] {(isActive ? "열림" : "닫힘")}");
     }
     protected override void OnShow()
     {

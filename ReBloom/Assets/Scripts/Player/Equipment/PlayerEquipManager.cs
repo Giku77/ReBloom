@@ -10,7 +10,7 @@ public class PlayerEquipManager : MonoBehaviour
     private PlayerEquipData player;
     private ToolEquipManager toolEquipManager;
 
-    [SerializeField] private InventoryItemData inventoryItemData;
+    [SerializeField] private GameInventory inventoryItemData;
 
     private PlayerAnimation anim;
 
@@ -96,7 +96,7 @@ public class PlayerEquipManager : MonoBehaviour
             return;
         }
 
-        //UnEquip(GearType.Tool);
+        UnEquip(GearType.Tool);
         player.currentToolEquip = item;
         
         // ToolEquipManager를 통해 실제 프리팹 생성
@@ -125,39 +125,79 @@ public class PlayerEquipManager : MonoBehaviour
            //Debug.LogWarning("[EquipManager] equipmentUI가 null입니다!");
         }
     }
-
-    public void EquipItem(int itemId)
+    public bool ToggleEquip(int itemId)
     {
         ItemBase itemBase = ItemDatabase.I.GetItem(itemId);
-        if (itemBase == null)
+        if (itemBase == null) return false;
+
+        // 이미 장착중인지 확인
+        bool isEquipped = IsItemEquipped(itemId);
+
+        if (isEquipped)
         {
-            Debug.LogError($"[PlayerEquipManager] 아이템 ID {itemId}를 찾을 수 없습니다.");
-            return;
+            // 장착 해제
+            if (itemBase is ToolItemData tool)
+                UnEquip(GearType.Tool);
+            else if (itemBase is ProtectiveItemData protective)
+                UnEquip(protective.gearType);
+            return true;
         }
-        
-        ProtectiveItemData itemData = itemBase as ProtectiveItemData;
-        ToolItemData toolData = itemBase as ToolItemData;
-        if(itemData == null && toolData == null)
+        else
         {
-            Debug.LogError($"[PlayerEquipManager] 아이템 ID {itemId}는 보호구 or 도구 아이템이 아닙니다.");
-            return;
+            // 새로 장착
+            return EquipItem(itemId);
         }
-        else if (itemData != null)
+    }
+   
+    public bool EquipItem(int itemId)
+    {
+        ItemBase itemBase = ItemDatabase.I.GetItem(itemId);
+        if (itemBase == null) return false;
+
+        bool success = false;
+
+        if (itemBase is ProtectiveItemData protective)
         {
-            Apply(itemData);
+            // 같은 타입 기존 장비 해제
+            if (protective.gearType == GearType.Clothing && player.currentClothEquip != null)
+            {
+               // inventoryItemData.AddItem(player.currentClothEquip.itemID, 1);
+            }
+            else if (protective.gearType == GearType.Shoes && player.currentShoesEquip != null)
+            {
+              //  inventoryItemData.AddItem(player.currentShoesEquip.itemID, 1);
+            }
+
+            Apply(protective);
+            success = true;
         }
-        else if(toolData != null)
+        else if (itemBase is ToolItemData tool)
         {
-            Apply(toolData);
+            // 기존 도구 해제
+            if (player.currentToolEquip != null)
+            {
+              //  inventoryItemData.AddItem(player.currentToolEquip.itemID, 1);
+            }
+
+            Apply(tool);
+            success = true;
         }
 
+        // 성공 시 인벤토리에서 제거
+        if (success && inventoryItemData != null)
+        {
+            inventoryItemData.RemoveItem(itemId, 1);
+        }
+
+        // UI 갱신
         if (equipmentUI != null)
         {
             equipmentUI.RefreshAllSlots();
             equipmentUI.UpdateResistText();
         }
-    }
 
+        return success;
+    }
 
     public void UnEquip(GearType gearType)
     {
@@ -167,7 +207,7 @@ public class PlayerEquipManager : MonoBehaviour
                 if (!player.currentClothEquip)
                     return;
 
-               // inventoryItemData.AddItem(player.currentClothEquip.itemID, 1);
+                inventoryItemData.AddItem(player.currentClothEquip.itemID, 1);
                 player.currentClothEquip = null;
                 break;
 
@@ -175,7 +215,7 @@ public class PlayerEquipManager : MonoBehaviour
                 if (!player.currentShoesEquip)
                     return;
 
-               // inventoryItemData.AddItem(player.currentShoesEquip.itemID, 1);
+                inventoryItemData.AddItem(player.currentShoesEquip.itemID, 1);
                 player.currentShoesEquip = null;
                 break;
                 
@@ -183,7 +223,7 @@ public class PlayerEquipManager : MonoBehaviour
                 if (!player.currentToolEquip)
                     return;
 
-               // inventoryItemData.AddItem(player.currentToolEquip.itemID, 1);
+                inventoryItemData.AddItem(player.currentToolEquip.itemID, 1);
                 player.currentToolEquip = null;
                 anim.HandLayerChange();
                 
@@ -206,6 +246,15 @@ public class PlayerEquipManager : MonoBehaviour
             equipmentUI.RefreshAllSlots();
             equipmentUI.UpdateResistText();
         }
+    }
+
+    // 장착 여부 확인 헬퍼 메서드
+    private bool IsItemEquipped(int itemId)
+    {
+        if (player.currentToolEquip?.itemID == itemId) return true;
+        if (player.currentClothEquip?.itemID == itemId) return true;
+        if (player.currentShoesEquip?.itemID == itemId) return true;
+        return false;
     }
 
     public float GetTotalPollutionResist()
