@@ -10,7 +10,8 @@ public class WorldStorage : WorldItemContainerBase
 
     protected override IItemContainer Container => storageData;
     public override bool CanInteract() => storageData != null;
-
+     
+    public void TrasnferTo(IItemContainer target, int itemID, int count) => Container.TransferTo(target,itemID,count);
     protected override void Awake()
     {
         base.Awake();

@@ -126,29 +126,28 @@ public class PlayerEquipManager : MonoBehaviour
         }
     }
 
-    public void EquipItem(int itemId)
+    public bool EquipItem(int itemId)
     {
         ItemBase itemBase = ItemDatabase.I.GetItem(itemId);
-        if (itemBase == null)
+        if (itemBase == null) return false;
+
+        bool success = false;
+
+        if (itemBase is ProtectiveItemData protective)
         {
-            Debug.LogError($"[PlayerEquipManager] 아이템 ID {itemId}를 찾을 수 없습니다.");
-            return;
+            Apply(protective);
+            success = true;
         }
-        
-        ProtectiveItemData itemData = itemBase as ProtectiveItemData;
-        ToolItemData toolData = itemBase as ToolItemData;
-        if(itemData == null && toolData == null)
+        else if (itemBase is ToolItemData tool)
         {
-            Debug.LogError($"[PlayerEquipManager] 아이템 ID {itemId}는 보호구 or 도구 아이템이 아닙니다.");
-            return;
+            Apply(tool);
+            success = true;
         }
-        else if (itemData != null)
+
+        // 성공 시 인벤토리에서 제거
+        if (success && inventoryItemData != null)
         {
-            Apply(itemData);
-        }
-        else if(toolData != null)
-        {
-            Apply(toolData);
+            inventoryItemData.RemoveItem(itemId, 1);
         }
 
         if (equipmentUI != null)
@@ -156,6 +155,8 @@ public class PlayerEquipManager : MonoBehaviour
             equipmentUI.RefreshAllSlots();
             equipmentUI.UpdateResistText();
         }
+
+        return success;
     }
 
 
@@ -167,7 +168,7 @@ public class PlayerEquipManager : MonoBehaviour
                 if (!player.currentClothEquip)
                     return;
 
-               // inventoryItemData.AddItem(player.currentClothEquip.itemID, 1);
+                inventoryItemData.AddItem(player.currentClothEquip.itemID, 1);
                 player.currentClothEquip = null;
                 break;
 
@@ -175,7 +176,7 @@ public class PlayerEquipManager : MonoBehaviour
                 if (!player.currentShoesEquip)
                     return;
 
-               // inventoryItemData.AddItem(player.currentShoesEquip.itemID, 1);
+                inventoryItemData.AddItem(player.currentShoesEquip.itemID, 1);
                 player.currentShoesEquip = null;
                 break;
                 
@@ -183,7 +184,7 @@ public class PlayerEquipManager : MonoBehaviour
                 if (!player.currentToolEquip)
                     return;
 
-               // inventoryItemData.AddItem(player.currentToolEquip.itemID, 1);
+                inventoryItemData.AddItem(player.currentToolEquip.itemID, 1);
                 player.currentToolEquip = null;
                 anim.HandLayerChange();
                 

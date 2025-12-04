@@ -14,7 +14,7 @@ public class DragDropManager : MonoBehaviour
 
 	[Header("System References")]
 	[SerializeField] private QuickSlot quickSlotManager;
-	[SerializeField] private InventoryItemData inventoryData;
+	[SerializeField] private GameInventory inventoryData;
 	[SerializeField] private ItemSpawner itemSpawner;
 	[SerializeField] private RemovePopUp removePopUp;
 	[SerializeField] private ItemDropCalculator itemDropCalculator;
@@ -463,7 +463,7 @@ public class DragDropManager : MonoBehaviour
             int quantity = storageData.GetItemCount(context.Item.itemID);
 
             // TransferTo 사용 (Storage → Inventory)
-            bool success = storageData.TransferTo(inventoryData, context.Item.itemID, quantity);
+            bool success = storageData.TransferTo(inventoryData.Container, context.Item.itemID, quantity);
 
             if (success)
             {

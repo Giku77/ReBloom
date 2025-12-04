@@ -13,13 +13,17 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
 
     [Header("Player")]
     [SerializeField] private PlayerController playerController;
+    [SerializeField] private PlayerEquipManager playerEquipmanager;
 
+    public IItemContainer Container => inventoryData;
     private int currentEquippedToolId = -1;        // 도구
     private int currentEquippedClothingId = -1;    // 옷
     private int currentEquippedShoesId = -1;       // 신발
     private void Awake()
     {
-        playerController = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
+        var player = GameObject.FindWithTag("Player");
+        playerController = player.GetComponent<PlayerController>();
+        playerEquipmanager = player.GetComponent<PlayerEquipManager>();
         //// 초기화
     }
     private void Start()
@@ -38,7 +42,8 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     public void RemoveItem(int itemId, int amount) => inventoryData.RemoveItem(itemId, amount);
     public void Clear() => inventoryData.Clear();
     public bool HasItem(int itemId, int amount) => inventoryData.HasItem(itemId, amount);
-
+    public bool TransferTo(IItemContainer container, int itemId, int amount) => inventoryData.TransferTo(container, itemId, amount);
+    public bool SwapSlots(int fromIndex, int toIndex) => inventoryData.SwapSlots(fromIndex, toIndex);
     public void Consume(int itemId, int amount)
     {
         ItemBase item = ItemDatabase.I.GetItem(itemId);
@@ -58,13 +63,15 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
         else if (item.canEquip)
         {
             // 타입별로 분기 처리
-            if (item is ToolItemData)
+            if (item is ToolItemData tool)
             {
-                HandleToolEquip(item, itemId);
+                //HandleToolEquip(tool, itemId);
+                playerEquipmanager.EquipItem(itemId);
             }
             else if (item is ProtectiveItemData protective)
             {
-                HandleProtectiveEquip(protective, itemId);
+                //HandleProtectiveEquip(protective, itemId);
+                playerEquipmanager.EquipItem(itemId);
             }
             return;
         }
@@ -72,12 +79,13 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     #endregion
 
     // 도구 장착 처리
-    private void HandleToolEquip(ItemBase item, int itemId)
+    private void HandleToolEquip(ToolItemData item, int itemId)
     {
         // 같은 도구 클릭 = 토글
         if (currentEquippedToolId == itemId)
         {
             item.UnApply(playerController);
+            AddItem(item.itemID, 1); // 임의로 추가
             currentEquippedToolId = -1;
             Debug.Log($"[GameInventory] {item.itemName} 장착 해제");
             return;
@@ -105,10 +113,11 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
         switch (item.gearType)
         {
             case GearType.Clothing:
-                // 같은 옷 클릭 = 토글
+                // 같은 옷 클릭 = 토글 // 12.04 수정사항: 인벤토리에서 빠지면서 같은 옷 클릭 안됨
                 if (currentEquippedClothingId == itemId)
                 {
                     item.UnApply(playerController);
+                    AddItem(item.itemID, 1); // 임의로 추가
                     currentEquippedClothingId = -1;
                     Debug.Log($"[GameInventory] {item.itemName} 장착 해제");
                     return;
@@ -121,7 +130,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
                     previousCloth?.UnApply(playerController);
                 }
 
-                // 새 옷 장착
+                // 새 옷 장착, 장착한 아이템은 이 함수 바깥에서 인벤토리 슬롯 제거
                 bool clothSuccess = item.Apply(playerController);
                 if (clothSuccess)
                 {
@@ -135,6 +144,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
                 if (currentEquippedShoesId == itemId)
                 {
                     item.UnApply(playerController);
+                    AddItem(item.itemID, 1); // 임의로 추가
                     currentEquippedShoesId = -1;
                     Debug.Log($"[GameInventory] {item.itemName} 장착 해제");
                     return;
@@ -172,9 +182,9 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
             return false;
 
         // 타입별로 분기
-        if (item is ToolItemData)
+        if (item is ToolItemData tool)
         {
-            HandleToolEquip(item, itemId);
+            HandleToolEquip(tool, itemId);
             return true;
         }
         else if (item is ProtectiveItemData protective)
