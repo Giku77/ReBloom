@@ -16,6 +16,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     [SerializeField] private PlayerEquipManager playerEquipmanager;
 
     public IItemContainer Container => inventoryData;
+
     private int currentEquippedToolId = -1;        // 도구
     private int currentEquippedClothingId = -1;    // 옷
     private int currentEquippedShoesId = -1;       // 신발
