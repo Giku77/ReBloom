@@ -36,7 +36,7 @@ public class ThirdPersonCamera : MonoBehaviour
     {
         Look();
 
-        if (!isZoomLocked || !isSequenceLocked)
+        if (!isZoomLocked && !isSequenceLocked)
         {
             HandleZoom();
         }
