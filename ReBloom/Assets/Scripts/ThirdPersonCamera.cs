@@ -26,6 +26,12 @@ public class ThirdPersonCamera : MonoBehaviour
 
     private Quaternion oldRotation;
 
+    private void Start()
+    {
+        var cam = Camera.main;
+        cam.farClipPlane = 150f;
+    }
+
     private void LateUpdate()
     {
         Look();
