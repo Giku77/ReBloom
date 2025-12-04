@@ -15,6 +15,10 @@ public class InventoryRobotPet : MonoBehaviour
     [SerializeField] private float idleDistance = 2.0f;          // Idle 전환 거리
     [SerializeField] private float runDistance = 5.0f;           // Run 전환 거리
     [SerializeField] private float followHeight = 1.5f;          // 플레이어 위 얼마나 높이 떠있을지
+    [SerializeField] private float teleportDistance = 15f;   // 이 거리 이상 떨어지면 텔레포트
+    [SerializeField] private float teleportCooldown = 1.0f;  // 텔포 최소 간격
+
+    private float lastTeleportTime = -999f;
 
     [Header("이동 속도")]
     [SerializeField] private float walkSpeed = 2.0f;             // 걷기 속도
@@ -97,6 +101,32 @@ public class InventoryRobotPet : MonoBehaviour
         if (isPerformingAction) return;
 
         FollowPlayer();
+    }
+
+    private void TeleportToPlayer()
+    {
+        if (player == null) return;
+
+        // 플레이어 기준 뒤쪽 + 위쪽 위치
+        Vector3 playerPos = player.position;
+        Vector3 backOffset = -player.forward * 2f; // 뒤로 2m
+        Vector3 upOffset = Vector3.up * followHeight;
+
+        Vector3 targetPos = playerPos + backOffset + upOffset;
+
+        // 순간이동
+        rb.position = targetPos;
+        transform.position = targetPos;  
+
+        // 속도/플로팅 타이머 리셋
+        rb.linearVelocity = Vector3.zero;
+        floatTimer = 0f;
+
+        // 상태도 정리
+        isOrbiting = false;
+        ChangeMovementState(RobotMovementState.Idle);
+
+        lastTeleportTime = Time.time;
     }
 
     #endregion
@@ -187,6 +217,13 @@ public class InventoryRobotPet : MonoBehaviour
 
         Vector3 toTarget = targetPosition - currentPos;
         float distanceToPlayer = toTarget.magnitude;
+
+        if (distanceToPlayer > teleportDistance && Time.time - lastTeleportTime > teleportCooldown)
+        {
+            animController.PlayAnimation("JumpForward");
+            TeleportToPlayer();
+            return;
+        }
 
         float currentSpeed = 0f;
 
