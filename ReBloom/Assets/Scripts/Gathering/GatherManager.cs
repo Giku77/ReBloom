@@ -1,5 +1,11 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections.Generic;
+
+public class DropResult
+{
+    public ItemBase item;
+    public int amount;
+}
 
 
 public class GatherManager : MonoBehaviour
@@ -26,27 +32,40 @@ public class GatherManager : MonoBehaviour
         }
     }
 
-    public ItemBase GetDropResult(int gatherObjectId)
+    public DropResult GetDropResult(int gatherObjectId)
     {
-        Debug.Log($"[GatherManager] ¿äÃ»µÈ ID: {gatherObjectId}, DB¿¡ ÀÖ´Â Å°µé: {string.Join(", ", gatherObjectDB.GetAll().Keys)}");
+        Debug.Log($"[GatherManager] ìš”ì²­ëœ ID: {gatherObjectId}, DBì— ìˆëŠ” í‚¤ë“¤: {string.Join(", ", gatherObjectDB.GetAll().Keys)}");
 
         if (!gatherObjectDB.TryGet(gatherObjectId, out GatherObjectData objectData))
         {
-            Debug.Log("[GatherManager] gatherObjectId ¾øÀ½");
+            Debug.Log("[GatherManager] gatherObjectId ì—†ìŒ");
             return null;
         }
 
         if (!gatherDB.TryGet(objectData.gatherId, out GatherData data))
         {
-            Debug.Log("[GatherManager] gatherId ¾øÀ½");
+            Debug.Log("[GatherManager] gatherId ì—†ìŒ");
             return null;
         }
 
         if (Random.Range(0, 100) < data.item1Probability)
-            return ItemDatabase.I.GetItem(data.getItem1);
-        else if(data.getItem2 != 0 && Random.Range(0, 100) < data.item2Probability)
-            return ItemDatabase.I.GetItem(data.getItem2);
-
+        {
+            int amount = Random.Range(data.item1MinAmount, data.item1MaxAmount + 1);
+            return new DropResult
+            {
+                item = ItemDatabase.I.GetItem(data.getItem1),
+                amount = amount
+            };
+        }
+        else if (data.getItem2 != 0 && Random.Range(0, 100) < data.item2Probability)
+        {
+            int amount = Random.Range(data.item2MinAmount, data.item2MaxAmount + 1);
+            return new DropResult
+            {
+                item = ItemDatabase.I.GetItem(data.getItem2),
+                amount = amount
+            };
+        }
 
         return null;
     }

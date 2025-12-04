@@ -51,27 +51,23 @@ public class GatherObject : MonoBehaviour, IInteractable
     {
         if (player == null)
             return;
-
         if (!isAvailable)
             return;
 
-
         Debug.Log($"[GatherObject] 상호작용 시작 - gatherObjectID: {gatherObjectID}");
-
         var drops = gatherManager.GetDropResult(gatherObjectID);
 
-        if (drops == null)
+        if (drops == null || drops.item == null)
         {
             Debug.Log("[GatherObject] 보관 아이템이 null입니다.");
             return;
         }
 
-        inventoryItemData.AddItem(drops.itemID, 1);
-        Debug.Log($"[GatherObject] {drops.itemName} 획득");
+        inventoryItemData.AddItem(drops.item.itemID, drops.amount);
+        Debug.Log($"[GatherObject] {drops.item.itemName} {drops.amount}개 획득");
 
         isAvailable = false;
         timer = 0;
-
         if (highlight != null)
         {
             highlight.isPermanent = false;

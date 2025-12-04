@@ -9,7 +9,7 @@ public class LoadingSceneManager : MonoBehaviour
 
     private async void Start()
     {
-        await UniTask.Delay(300);
+        //await UniTask.Delay(300);
 
         await LoadSceneAsync("MainScene");
     }

@@ -8,10 +8,12 @@ public class PlayerFootstep : MonoBehaviour
     private float stepTimer = 0f;
 
     private PlayerController playerController;
+    private StageDetector stageDetector;
 
     private void Awake()
     {
         playerController = GetComponent<PlayerController>();
+        stageDetector = GetComponent<StageDetector>();
     }
 
     private void Update()
@@ -19,7 +21,7 @@ public class PlayerFootstep : MonoBehaviour
         if (playerController.currentSpeed > 0.1f) // 움직일 때만
         {
             stepTimer += Time.deltaTime;
-            if (stepTimer >= stepInterval)
+            if (stepTimer >= stepInterval && stageDetector.CurrentStage.stageID != 400)
             {
                 stepTimer = 0f;
                 float loudness = playerController.isSlow ? 0.3f : 1.0f;
