@@ -4038,7 +4038,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   equipInventory: {fileID: 8977423618338897426}
   equipmentUI: {fileID: 0}
-  inventoryItemData: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
+  inventoryItemData: {fileID: 0}
 --- !u!114 &1316351588427264917
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4139,6 +4139,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfbc115185f315a42a7e44af8749d387, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  type: 12
+  layer: 1
+  blocksGameplayInput: 1
+  root: {fileID: 2601172063703646645}
   blurrObject: {fileID: 7151317024778641728}
   passOutLoadingScreen: {fileID: 2601172063703646645}
   loadingImage: {fileID: 4455705235193148203}
@@ -8051,7 +8055,7 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -8831,7 +8835,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3776917015823859202, guid: 74e0eb503b795be4fa39e26f8fc20fd9, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4215766783707909036, guid: 74e0eb503b795be4fa39e26f8fc20fd9, type: 3}
       propertyPath: m_BaseOffset
@@ -8985,7 +8989,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3776917015823859202, guid: 74e0eb503b795be4fa39e26f8fc20fd9, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4215766783707909036, guid: 74e0eb503b795be4fa39e26f8fc20fd9, type: 3}
       propertyPath: m_BaseOffset
@@ -9927,6 +9931,10 @@ PrefabInstance:
     - target: {fileID: 3776917015823859202, guid: 74e0eb503b795be4fa39e26f8fc20fd9, type: 3}
       propertyPath: m_Layer
       value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 3776917015823859202, guid: 74e0eb503b795be4fa39e26f8fc20fd9, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4215766783707909036, guid: 74e0eb503b795be4fa39e26f8fc20fd9, type: 3}
       propertyPath: m_BaseOffset
