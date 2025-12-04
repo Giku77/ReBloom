@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-public class PlayerEffectUI : MonoBehaviour
+public class PlayerEffectUI : UIBase
 {
     private PlayerController player;
 
@@ -11,8 +11,9 @@ public class PlayerEffectUI : MonoBehaviour
     [SerializeField] private GameObject passOutLoadingScreen;
     [SerializeField] private RectTransform loadingImage;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         player = GetComponent<PlayerController>();
     }
 
@@ -20,7 +21,7 @@ public class PlayerEffectUI : MonoBehaviour
     private void Start()
     {
         blurrObject.SetActive(false);
-        passOutLoadingScreen.SetActive(false);
+        //passOutLoadingScreen.SetActive(false);
     }
 
     private void OnEnable()
@@ -46,11 +47,14 @@ public class PlayerEffectUI : MonoBehaviour
 
         blurrObject.SetActive(false);
 
-        passOutLoadingScreen.SetActive(true);
+        //passOutLoadingScreen.SetActive(true);
+        UIManager.Instance.ToggleUI(UIType.PlayerEffect);
 
         await MoveLoadingImage();
 
-        passOutLoadingScreen?.SetActive(false);
+        UIManager.Instance.ToggleUI(UIType.PlayerEffect);
+
+        //passOutLoadingScreen?.SetActive(false);
     }
 
     private async UniTask MoveLoadingImage()

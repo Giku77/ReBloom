@@ -9,7 +9,7 @@ public class LoadingSceneManager : MonoBehaviour
 
     private async void Start()
     {
-        //await UniTask.Delay(300);
+        await UniTask.Delay(100);
 
         await LoadSceneAsync("MainScene");
     }
@@ -52,7 +52,7 @@ public class LoadingSceneManager : MonoBehaviour
         }
 
         loadingBar.value = 1f;
-        await UniTask.Delay(300);
+        //await UniTask.Delay(300);
         asyncLoad.allowSceneActivation = true;
     }
 }
