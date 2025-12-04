@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.InputSystem;
 
@@ -18,6 +19,7 @@ public class InventoryRobotPet : MonoBehaviour
     [SerializeField] private float teleportDistance = 15f;   // 이 거리 이상 떨어지면 텔레포트
     [SerializeField] private float teleportCooldown = 1.0f;  // 텔포 최소 간격
 
+    public bool IsNearPlayer;
     private float lastTeleportTime = -999f;
 
     [Header("이동 속도")]
@@ -103,9 +105,13 @@ public class InventoryRobotPet : MonoBehaviour
         FollowPlayer();
     }
 
-    private void TeleportToPlayer()
+    #region DeathBoxHandler 전용 외부 호출 함수
+    public void TelePortTo() => TeleportToPlayer();
+    #endregion
+
+    private Vector3 CalCulateTelePortPosition()
     {
-        if (player == null) return;
+        if (player == null) return new Vector3(0,0,0);
 
         // 플레이어 기준 뒤쪽 + 위쪽 위치
         Vector3 playerPos = player.position;
@@ -114,9 +120,14 @@ public class InventoryRobotPet : MonoBehaviour
 
         Vector3 targetPos = playerPos + backOffset + upOffset;
 
+        return targetPos;
+    }
+    private void TeleportToPlayer()
+    {
+        var targetPos = CalCulateTelePortPosition();
         // 순간이동
         rb.position = targetPos;
-        transform.position = targetPos;  
+        transform.position = targetPos;
 
         // 속도/플로팅 타이머 리셋
         rb.linearVelocity = Vector3.zero;
@@ -210,6 +221,7 @@ public class InventoryRobotPet : MonoBehaviour
 
         // 목표 위치 (플레이어 위 + 떠다니기)
         Vector3 targetPosition = playerPos + Vector3.up * followHeight;
+        IsNearPlayer = true;
 
         floatTimer += Time.fixedDeltaTime * floatFrequency;
         float floatOffset = Mathf.Sin(floatTimer) * floatAmplitude;
@@ -220,6 +232,7 @@ public class InventoryRobotPet : MonoBehaviour
 
         if (distanceToPlayer > teleportDistance && Time.time - lastTeleportTime > teleportCooldown)
         {
+            IsNearPlayer = false;
             animController.PlayAnimation("JumpForward");
             TeleportToPlayer();
             return;

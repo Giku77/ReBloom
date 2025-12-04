@@ -1,4 +1,5 @@
 ﻿using BansheeGz.BGDatabase;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -336,4 +337,78 @@ public class PlayerEquipManager : MonoBehaviour
 
         return  1f - perform;
     }
+
+    #region 장착 아이템 확인, 시체박스 이전용 메서드
+
+    /// <summary>
+    /// 현재 장착 중인 아이템 ID 목록 반환
+    /// </summary>
+    public List<int> GetEquippedItems()
+    {
+        var equippedItems = new List<int>();
+
+        if (player.currentToolEquip != null)
+        {
+            equippedItems.Add(player.currentToolEquip.itemID);
+        }
+
+        if (player.currentClothEquip != null)
+        {
+            equippedItems.Add(player.currentClothEquip.itemID);
+        }
+
+        if (player.currentShoesEquip != null)
+        {
+            equippedItems.Add(player.currentShoesEquip.itemID);
+        }
+
+        Debug.Log($"[PlayerEquipManager] 장착 아이템 {equippedItems.Count}개 확인");
+        return equippedItems;
+    }
+
+    /// <summary>
+    /// 모든 장착 데이터 초기화 (물리적 제거 포함)
+    /// </summary>
+    public void ClearAllEquipData()
+    {
+        int clearedCount = 0;
+
+        // 도구 해제
+        if (player.currentToolEquip != null)
+        {
+            player.currentToolEquip = null;
+            anim.HandLayerChange();
+
+            if (toolEquipManager != null)
+            {
+                toolEquipManager.UnequipTool();
+            }
+            clearedCount++;
+        }
+
+        // 옷 해제
+        if (player.currentClothEquip != null)
+        {
+            player.currentClothEquip = null;
+            clearedCount++;
+        }
+
+        // 신발 해제
+        if (player.currentShoesEquip != null)
+        {
+            player.currentShoesEquip = null;
+            clearedCount++;
+        }
+
+        Debug.Log($"[PlayerEquipManager] 장착 데이터 {clearedCount}개 초기화 완료");
+
+        // UI 갱신
+        if (equipmentUI != null)
+        {
+            equipmentUI.RefreshAllSlots();
+            equipmentUI.UpdateResistText();
+        }
+    }
+
+    #endregion
 }

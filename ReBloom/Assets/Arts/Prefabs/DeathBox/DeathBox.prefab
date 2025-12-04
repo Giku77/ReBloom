@@ -12,11 +12,11 @@ GameObject:
   - component: {fileID: 799127975828646694}
   - component: {fileID: 8526913737511623835}
   - component: {fileID: 7663784908409085688}
-  - component: {fileID: 8341572973501676185}
   - component: {fileID: 6371331922214902971}
   - component: {fileID: 444278690439659124}
   - component: {fileID: 7453235896717468326}
-  m_Layer: 7
+  - component: {fileID: 8912817212757541873}
+  m_Layer: 11
   m_Name: DeathBox
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33,7 +33,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 149.58405, y: 562.95337, z: 0}
-  m_LocalScale: {x: 0.5, y: 1.07, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -50,8 +50,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac9bc1a3bba4422418234727b9ec6b3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerInventory: {fileID: 0}
-  deathBoxDataRef: {fileID: 11400000, guid: f872e127e49f22b40b2337e99c34af17, type: 2}
+  playerInventory: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
+  deathBoxDataRef: {fileID: 11400000, guid: 1be75d495fab89e42ad93ee9644d57de, type: 2}
 --- !u!33 &8526913737511623835
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -105,27 +105,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &8341572973501676185
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9090317877191146253}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &6371331922214902971
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -144,6 +123,7 @@ MonoBehaviour:
   bodylightRange: 0.05
   promptCanvas: {fileID: 0}
   promptText: {fileID: 0}
+  holdPromptUI: {fileID: 0}
   promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
   isPermanent: 0
 --- !u!114 &444278690439659124
@@ -182,8 +162,29 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 0
+  m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!65 &8912817212757541873
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9090317877191146253}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}

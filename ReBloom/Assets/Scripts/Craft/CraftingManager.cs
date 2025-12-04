@@ -113,9 +113,23 @@ public class CraftingManager
             _inventory.RemoveItem(mat.itemId, mat.count * amount);
         }
 
-        if (!_inventory.AddItem(recipe.productId, recipe.productCount * amount))
+        //if (!_inventory.AddItem(recipe.productId, recipe.productCount * amount))
+        //{
+        //    return CraftFailReason.NoOutputSpace;
+        //}
+
+        int totalProductCount = recipe.productCount * amount;
+        int addedCount = _inventory.AddItem(recipe.productId, totalProductCount);
+
+        if (addedCount < totalProductCount)
         {
-            return CraftFailReason.NoOutputSpace;
+            // 일부만 인벤토리에 들어감
+            int failedCount = totalProductCount - addedCount;
+
+            // TODO: 나머지는 플레이어 발 밑에 드랍 (ItemSpawner 사용)
+            // await itemSpawner.DropItemWithQuantity(item, playerPos, failedCount);
+
+            return CraftFailReason.NoOutputSpace; // 부분 실패
         }
 
         return CraftFailReason.None;

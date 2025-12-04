@@ -14,8 +14,11 @@ public interface IItemContainer
     // 이벤트
     event Action OnContainerChanged;
 
-    // 핵심 기능
-    bool AddItem(int itemID, int count);
+    /// <summary>
+    /// AddItem: 아이템 추가
+    /// </summary>
+    /// <returns>실제 추가된 수량 (0 = 실패, count = 전부 성공, 중간값 = 일부 성공)</returns>
+    int AddItem(int itemID, int count);
     bool RemoveItem(int itemID, int count);
     int GetItemCount(int itemID);
     void Clear();

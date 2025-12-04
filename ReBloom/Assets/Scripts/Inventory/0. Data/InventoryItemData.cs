@@ -91,11 +91,12 @@ public class InventoryItemData : ScriptableObject, IItemContainer
     /// <summary>
     /// 아이템 추가 (스택 처리 포함)
     /// </summary>
-    public bool AddItem(int itemID, int count)
+    public int AddItem(int itemID, int count)
     {
         var item = ItemDatabase.I.GetItem(itemID);
-        if (item == null) return false;
+        if (item == null) return 0;
 
+        int originalCount = count;
         int remainingCount = count;
         int maxStack = item.maxCount;
 
@@ -114,10 +115,11 @@ public class InventoryItemData : ScriptableObject, IItemContainer
 
                         if (remainingCount <= 0)
                         {
-                            OnItemAdded?.Invoke(itemID, count);
-                            SendItemToastMessage(item, count);
+                            int addedAmount = originalCount;
+                            OnItemAdded?.Invoke(itemID, addedAmount);
+                            SendItemToastMessage(item, addedAmount);
                             OnInventoryChanged?.Invoke();
-                            return true;
+                            return addedAmount;
                         }
                     }
                 }
@@ -130,17 +132,23 @@ public class InventoryItemData : ScriptableObject, IItemContainer
             int emptyIndex = FindFirstEmptySlot();
             if (emptyIndex == -1)
             {
-                SendWarningMessage("인벤토리가 가득 찼습니다!", Color.red);
-                InventroyEventSystem.InventoryFull();
+                // 일부만 추가됨
+                int addedCount = originalCount - remainingCount;
 
-                int addedCount = count - remainingCount;
                 if (addedCount > 0)
                 {
                     OnItemAdded?.Invoke(itemID, addedCount);
                     SendItemToastMessage(item, addedCount);
-                    OnInventoryChanged?.Invoke();
+                    SendWarningMessage($"인벤토리 공간 부족! {addedCount}/{originalCount}개만 습득", Color.yellow);
                 }
-                return false;
+                else
+                {
+                    SendWarningMessage("인벤토리가 가득 찼습니다!", Color.red);
+                }
+
+                InventroyEventSystem.InventoryFull();
+                OnInventoryChanged?.Invoke();
+                return addedCount; // 실제 추가된 수량 반환
             }
 
             int toAdd = Mathf.Min(remainingCount, maxStack);
@@ -153,10 +161,10 @@ public class InventoryItemData : ScriptableObject, IItemContainer
         }
 
         InventroyEventSystem.ItemAcquiredTier(item.tier);
-        OnItemAdded?.Invoke(itemID, count);
-        SendItemToastMessage(item, count);
+        OnItemAdded?.Invoke(itemID, originalCount);
+        SendItemToastMessage(item, originalCount);
         OnInventoryChanged?.Invoke();
-        return true;
+        return originalCount;
     }
 
     /// <summary>
@@ -367,6 +375,10 @@ public class InventoryItemData : ScriptableObject, IItemContainer
 
     public void Clear()
     {
+        for (int i = 0; i < slots.Length; i++)
+        {
+            slots[i] = null;
+        }
         OnInventoryChanged?.Invoke();
     }
 
@@ -380,31 +392,90 @@ public class InventoryItemData : ScriptableObject, IItemContainer
 
         return slots[index];
     }
+
+    /// <summary>
+    /// 특정 아이템을 다른 컨테이너로 전송 (부분 성공 지원)
+    /// </summary>
     public bool TransferTo(IItemContainer target, int itemID, int count)
     {
         if (target == null || GetItemCount(itemID) < count)
             return false;
 
-        if (!target.AddItem(itemID, count))
-            return false;
+        // 추가 시도
+        int addedCount = target.AddItem(itemID, count);
 
-        RemoveItem(itemID, count);
-        return true;
+        if (addedCount > 0)
+        {
+            // 실제로 추가된 만큼만 제거
+            RemoveItem(itemID, addedCount);
+
+            // 전부 성공했는지 여부 반환
+            return addedCount == count;
+        }
+
+        return false;
     }
 
+    //public bool TransferAllTo(IItemContainer target)
+    //{
+    //    if (target == null || !HasItems)
+    //    {
+    //        Debug.Log("[InventoryItemData] Transfer 실패: target null 또는 아이템 없음");
+    //        return false;
+    //    }
+
+    //    var itemsCopy = Items;
+    //    int totalTransferred = 0;
+
+    //    foreach (var slot in itemsCopy)
+    //    {
+    //        if (slot != null && slot.itemID > 0)
+    //        {
+    //            target.AddItem(slot.itemID, slot.count);
+    //            totalTransferred++;
+    //        }
+    //    }
+
+    //    Debug.Log($"[InventoryItemData] {totalTransferred}개 아이템 전송 완료");
+    //    Clear();
+    //    return true;
+    //}
+
+    /// <summary>
+    /// 모든 아이템을 다른 컨테이너로 전송 (부분 성공 지원)
+    /// </summary>
     public bool TransferAllTo(IItemContainer target)
     {
         if (target == null || !HasItems)
-            return false;
-
-        var slotsCopy = Items;
-        foreach (var slot in slotsCopy)
         {
-            target.AddItem(slot.itemID, slot.count);
+            Debug.Log("[InventoryItemData] Transfer 실패: target null 또는 아이템 없음");
+            return false;
         }
 
-        Clear();
-        return true;
+        var itemsCopy = Items.ToList();
+        bool allTransferred = true;
+
+        foreach (var slot in itemsCopy)
+        {
+            if (slot != null && slot.itemID > 0)
+            {
+                int addedCount = target.AddItem(slot.itemID, slot.count);
+
+                if (addedCount > 0)
+                {
+                    RemoveItem(slot.itemID, addedCount);
+                }
+
+                if (addedCount < slot.count)
+                {
+                    allTransferred = false;
+                    Debug.LogWarning($"[InventoryItemData] {slot.itemID}: {addedCount}/{slot.count}개만 전송됨");
+                }
+            }
+        }
+
+        Debug.Log($"[InventoryItemData] 아이템 전송 완료 (전부 성공: {allTransferred})");
+        return allTransferred;
     }
 
     // ---- Tier 확장 ----
