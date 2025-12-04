@@ -56,11 +56,10 @@ public abstract class WorldItemContainerBase : MonoBehaviour, IInteractable
         }
 
         // IItemContainer 인터페이스로 통일된 방식
-        Container.TransferAllTo(playerInventory);
+        bool success = Container.TransferAllTo(playerInventory);
 
         Debug.Log($"[{GetType().Name}] 모든 아이템을 회수했습니다!");
-
-        OnTransferComplete();
+        if(success) OnTransferComplete();
     }
 
     // 자식이 오버라이드: 회수 후 동작

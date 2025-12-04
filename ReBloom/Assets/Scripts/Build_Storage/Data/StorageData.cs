@@ -26,19 +26,19 @@ public class StorageData : ItemContainerBase
     #region ItemContainerBase 오버라이드
 
     /// <summary>
-    /// 아이템 추가 시 이벤트 발생
+    /// 아이템 추가 시 이벤트 발생 TODO: 부분 추가 처리 필요
     /// </summary>
-    public override bool AddItem(int itemID, int count)
+    public override int AddItem(int itemID, int count)
     {
-        bool success = base.AddItem(itemID, count);
+        int remaingAmount = base.AddItem(itemID, count);
 
-        if (success)
+        if (remaingAmount == 0)
         {
             OnStorageChanged?.Invoke();
-            Debug.Log($"[StorageData] 아이템 추가: ID={itemID}, Count={count}");
+            Debug.Log($"[StorageData] 아이템 추가: ID={itemID}, Count={remaingAmount}");
         }
 
-        return success;
+        return remaingAmount;
     }
 
     /// <summary>

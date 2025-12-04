@@ -5,6 +5,7 @@ public class DeathBoxHandler : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private GameInventory playerInventory;
+    [SerializeField] private PlayerEquipManager playerEquipManager;
     [SerializeField] private DeathBoxData deathBoxDataTemplate;
 
     [Header("POPPI Reference")]
@@ -17,6 +18,7 @@ public class DeathBoxHandler : MonoBehaviour
     [Header("Options")]
     [SerializeField] private bool autoSpawnDeathBox = true;
     [SerializeField] private bool clearInventoryOnDeath = true;
+    [SerializeField] private bool unequipAllOnDeath = true;
 
     private List<GameObject> activeDeathBoxes = new List<GameObject>();
     private Transform playerTransform;
@@ -33,6 +35,11 @@ public class DeathBoxHandler : MonoBehaviour
         if (player != null)
         {
             playerTransform = player.transform;
+
+            if (playerEquipManager == null)
+            {
+                playerEquipManager = player.GetComponent<PlayerEquipManager>();
+            }
         }
 
         // 강아지
@@ -44,26 +51,30 @@ public class DeathBoxHandler : MonoBehaviour
 
     public void OnCreateDeathBox()
     {
-        if (playerTransform == null || playerInventory == null || deathBoxDataTemplate == null)
-        {
-            Debug.LogError("[DeathBoxHandler] 필수 레퍼런스가 없습니다!");
-            return;
-        }
-
         // 1. 스폰 위치 계산
         Vector3 spawnPosition = CalculateSpawnPosition();
 
         // 2. 새 DeathBoxData 인스턴스 생성
         DeathBoxData newDeathBoxData = Instantiate(deathBoxDataTemplate);
+
+        // 3. 인벤토리 → 시체박스 이전
         newDeathBoxData.CreateFromInventory(playerInventory.Container, spawnPosition);
 
-        // 3. 인벤토리 클리어
-        if (clearInventoryOnDeath)
+        // 4. 장착 아이템 → 시체박스 직접 추가 (인벤토리 우회)
+        if (playerEquipManager != null)
         {
-            playerInventory.Clear();
+            AddEquippedItemsToDeathBox(newDeathBoxData);
         }
 
-        // 4. 시체박스 스폰
+        // 5. 인벤토리 클리어
+        if (clearInventoryOnDeath)
+        {
+            Debug.Log("[DeathBoxHandler] 인벤토리 클리어 시작");
+            playerInventory.Clear();
+            Debug.Log($"[DeathBoxHandler] 남은 아이템 수: {playerInventory.Container.Items.Count}");
+        }
+
+        // 6. 시체박스 스폰
         if (autoSpawnDeathBox && deathBoxPrefab != null)
         {
             SpawnDeathBox(spawnPosition, newDeathBoxData);
@@ -71,7 +82,38 @@ public class DeathBoxHandler : MonoBehaviour
 
         Debug.Log($"[DeathBoxHandler] 시체박스 생성. 위치: {spawnPosition}, 총: {activeDeathBoxes.Count}개");
     }
+    /// <summary>
+    /// 장착 아이템을 시체박스에 직접 추가 (인벤토리 우회)
+    /// </summary>
+    private void AddEquippedItemsToDeathBox(DeathBoxData deathBoxData)
+    {
+        var equippedItems = playerEquipManager.GetEquippedItems();
+        int totalAdded = 0;
 
+        foreach (var itemId in equippedItems)
+        {
+            if (itemId > 0)
+            {
+                // AddItem은 인벤토리에 추가 성공한 수량을 반환함
+                int addedCount = deathBoxData.AddItem(itemId, 1);
+
+                if (addedCount > 0)
+                {
+                    totalAdded++;
+                    Debug.Log($"[DeathBoxHandler] 장착 아이템 추가 성공: {itemId}");
+                }
+                else
+                {
+                    Debug.LogWarning($"[DeathBoxHandler] 시체박스 슬롯 부족! 아이템 추가 실패: {itemId}");
+                }
+            }
+        }
+
+        // 장착 정보 초기화
+        playerEquipManager.ClearAllEquipData();
+
+        Debug.Log($"[DeathBoxHandler] 장착 아이템 {totalAdded}/{equippedItems.Count}개 시체박스에 추가 완료");
+    }
     /// <summary>
     /// 스폰 위치 계산 - 강아지 위치 기반
     /// </summary>
