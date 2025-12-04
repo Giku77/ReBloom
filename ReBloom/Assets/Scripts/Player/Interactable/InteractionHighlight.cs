@@ -33,6 +33,8 @@ public class InteractionHighlight : MonoBehaviour
         highlightLight.enabled = false;
 
         highlightRend = GetComponent<Renderer>();
+        if (highlightRend == null)
+            highlightRend = GetComponentInChildren<Renderer>();
 
         // 처음에는 프롬프트 숨기기
         if (promptCanvas != null)
