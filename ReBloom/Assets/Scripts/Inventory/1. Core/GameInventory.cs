@@ -29,7 +29,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     }
     private void Start()
     {
-        inventoryData.Initialize(); 
+        inventoryData.Initialize();
     }
 
     private void OnEnable()

@@ -367,6 +367,7 @@ public class InventoryItemData : ScriptableObject, IItemContainer
 
     public void Clear()
     {
+        slots.ToList().Clear();
         OnInventoryChanged?.Invoke();
     }
 

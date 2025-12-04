@@ -26,14 +26,17 @@ public class WorldDeathBox : WorldItemContainerBase
     /// <summary>
     /// 외부에서 초기화 (PlayerDeathHandler에서 호출)
     /// </summary>
-    public void Initialize(DeathBoxData data, InventoryItemData inventory)
+    public void Initialize(DeathBoxData data, IItemContainer currentPlayerInventory)
     {
-        if (deathBoxData == null && data != null)
-        {
-            deathBoxData = Instantiate(data);
-        }
-        if (playerInventory == null) playerInventory = inventory;
+        deathBoxData = data;
 
+        // playerInventory 설정
+        if (currentPlayerInventory is InventoryItemData inventory)
+        {
+            playerInventory = inventory;
+        }
+
+        // 플레이어 찾기
         FindPlayer();
     }
 

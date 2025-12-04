@@ -4,11 +4,11 @@ using UnityEngine;
 public class DeathBoxHandler : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private InventoryItemData playerInventory;
+    [SerializeField] private GameInventory playerInventory;
     [SerializeField] private DeathBoxData deathBoxDataTemplate;
 
-    [Header("Dog Reference")]
-    [SerializeField] private DogFollower dog; // DogFollower 직접 참조
+    [Header("POPPI Reference")]
+    [SerializeField] private InventoryRobotPet poppi; // DogFollower 직접 참조
 
     [Header("Death Box Settings")]
     [SerializeField] private GameObject deathBoxPrefab;
@@ -36,9 +36,9 @@ public class DeathBoxHandler : MonoBehaviour
         }
 
         // 강아지
-        if (dog == null)
+        if (poppi == null)
         {
-            dog = Object.FindFirstObjectByType<DogFollower>();
+            poppi = Object.FindFirstObjectByType<InventoryRobotPet>();
         }
     }
 
@@ -55,7 +55,7 @@ public class DeathBoxHandler : MonoBehaviour
 
         // 2. 새 DeathBoxData 인스턴스 생성
         DeathBoxData newDeathBoxData = Instantiate(deathBoxDataTemplate);
-        newDeathBoxData.CreateFromInventory(playerInventory, spawnPosition);
+        newDeathBoxData.CreateFromInventory(playerInventory.Container, spawnPosition);
 
         // 3. 인벤토리 클리어
         if (clearInventoryOnDeath)
@@ -78,27 +78,27 @@ public class DeathBoxHandler : MonoBehaviour
     private Vector3 CalculateSpawnPosition()
     {
         // 강아지가 없으면 플레이어 위치
-        if (dog == null)
+        if (poppi == null)
         {
             Debug.LogWarning("[DeathBoxHandler] 강아지가 없어 플레이어 위치에 스폰");
             return playerTransform.position + dropOffset;
         }
 
         // 강아지가 가까우면 강아지 위치
-        if (dog.IsNearPlayer)
+        if (poppi.IsNearPlayer)
         {
-            Debug.Log($"[DeathBoxHandler] 강아지 위치에 스폰 (거리: {dog.DistanceToPlayer:F1}m)");
-            return dog.transform.position + dropOffset;
+            //Debug.Log($"[DeathBoxHandler] 강아지 위치에 스폰 (거리: {poppi.DistanceToPlayer:F1}m)");
+            return poppi.transform.position + dropOffset;
         }
 
-        // 강아지가 멀면: 텔포 위치 계산 -> 강아지 텔포 -> 해당 위치에 스폰
-        Vector3 teleportPosition = dog.GetTeleportPosition();
+        //// 강아지가 멀면: 텔포 위치 계산 -> 강아지 텔포 -> 해당 위치에 스폰
+        //Vector3 teleportPosition = poppi.GetTeleportPosition();
 
         // 강아지 텔포 시도
-        dog.TeleportTo(teleportPosition);
+        poppi.TelePortTo();
 
-        Debug.Log($"[DeathBoxHandler] 강아지 텔포 후 스폰 (거리: {dog.DistanceToPlayer:F1}m)");
-        return teleportPosition + dropOffset;
+       // Debug.Log($"[DeathBoxHandler] 강아지 텔포 후 스폰 (거리: {poppi.DistanceToPlayer:F1}m)");
+        return poppi.transform.position + dropOffset;
     }
 
     private void SpawnDeathBox(Vector3 position, DeathBoxData deathBoxData)
@@ -108,7 +108,7 @@ public class DeathBoxHandler : MonoBehaviour
         var deathBoxInteract = newDeathBox.GetComponent<WorldDeathBox>();
         if (deathBoxInteract != null)
         {
-            deathBoxInteract.Initialize(deathBoxData, playerInventory);
+            deathBoxInteract.Initialize(deathBoxData, playerInventory.Container);
         }
 
         activeDeathBoxes.Add(newDeathBox);
