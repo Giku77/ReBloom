@@ -6,19 +6,20 @@ public class WorldItem : MonoBehaviour, IInteractable
 {
     [Header("Item Data")]
     private ItemBase itemData;
-    
+
+    [Header("Item Type")]
     private bool isPersistent = false; // 영구 아이템 플래그
-private int quantity = 1;
+    private int quantity = 1;
 
     [Header("Interaction")]
     [SerializeField] private LayerMask playerLayer;
 
-    [Header("Item Type")]
-    [SerializeField] private bool isPlacedItem = false;
-
     private PooledItem pooledItem;
     public float HoldTime => 0f;
-
+    public void SetPersistent(bool persistent)
+    {
+        isPersistent = persistent;
+    }
     private void Awake()
     {
         pooledItem = GetComponent<PooledItem>();
@@ -27,7 +28,7 @@ private int quantity = 1;
     {
         itemData = item;
         quantity = 1;
-        isPlacedItem = !isDropped;// 드랍된 아이템이 아니면 배치 아이템
+        isPersistent = !isDropped;// 드랍된 아이템이 아니면 배치 아이템
 
         // 드랍 아이템이면 타이머 시작
         if (isDropped && pooledItem != null)
@@ -39,7 +40,7 @@ private int quantity = 1;
     /// <summary>
     /// 아이템 수량 설정 (스택 아이템용)
     /// </summary>
-public void SetQuantity(int amount)
+    public void SetQuantity(int amount)
     {
         quantity = Mathf.Max(1, amount);
     }
@@ -77,7 +78,7 @@ public void SetQuantity(int amount)
             return false;
         }
 
- // 부분 습득 지원
+        // 부분 습득 지원
         int addedCount = inventoryData.AddItem(itemData.itemID, quantity);
 
         if (addedCount <= 0)
@@ -93,9 +94,9 @@ public void SetQuantity(int amount)
             Debug.Log($"{itemData.itemName} {addedCount}/{quantity + addedCount}개 획득! (남은 수량: {quantity})");
 
             // 맵 배치 아이템이었다면 드랍 아이템으로 전환
-            if (isPlacedItem)
+            if (isPersistent)
             {
-                isPlacedItem = false;
+                isPersistent = false;
                 if (pooledItem != null)
                 {
                     pooledItem.ReturnToPoolAfterDelay(600f); // 10분 타이머 시작
@@ -130,10 +131,10 @@ public void SetQuantity(int amount)
         return true;
     }
     
-public void ResetItem()
+    public void ResetItem()
     {
         itemData = null;
         quantity = 1;
-        isPlacedItem = false;
+        isPersistent = false;
     }
 }
