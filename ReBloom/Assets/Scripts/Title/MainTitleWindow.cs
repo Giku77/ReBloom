@@ -23,6 +23,8 @@ public class MainTitleWindow : Window
     private void Start()
     {
         toastMessage.gameObject.SetActive(false);
+
+        SoundManager.I.PlayTitleBGM();
     }
 
     public void OnGameStartButtonClicked()
