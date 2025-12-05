@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 /// <summary>
@@ -92,6 +92,15 @@ public class InitialItemSpawner : MonoBehaviour
                 Debug.LogWarning($"[InitialItemSpawner] 아이템 ID {spawnInfo.itemID}를 찾을 수 없습니다!");
                 continue;
             }
+
+            Debug.Log(
+           $"[InitialItemSpawner] 스폰 시도 - " +
+           $"itemID={spawnInfo.itemID}, " +
+           $"dbID={itemData.itemID}, " +
+           $"name={itemData.itemName}, " +
+           $"address='{itemData.worldPrefabAddress}', " +
+           $"prefab={(itemData.itemPrefab != null ? itemData.itemPrefab.name : "null")}"
+       );
 
             Vector3 spawnPosition = spawnInfo.Position;
 

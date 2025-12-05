@@ -349,7 +349,7 @@ public class PlayerController : MonoBehaviour
             rb.linearVelocity = fly * debugSpeed;
             return;
         }
-
+  
         if (!isGround || IsMovementLocked) return;
 
         Vector2 finalMoveInput = moveInput;

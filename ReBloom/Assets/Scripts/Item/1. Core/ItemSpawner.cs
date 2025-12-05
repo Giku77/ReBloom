@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Pool;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using static BansheeGz.BGDatabase.BGJsonRepoModel;
 
 public class ItemSpawner : MonoBehaviour
@@ -33,6 +34,44 @@ public class ItemSpawner : MonoBehaviour
 
     #region 단일 아이템 스폰
 
+    //public async UniTask<GameObject> SpawnItemInWorld(ItemBase itemData, Vector3 position, CancellationToken ctx)
+    //{
+    //    if (itemData == null)
+    //    {
+    //        Debug.LogError($"[ItemSpawner] 아이템 데이터가 null입니다!");
+    //        return null;
+    //    }
+
+    //    int itemID = itemData.itemID;
+
+    //    // 풀이 없으면 생성 시도
+    //    if (!itemPools.ContainsKey(itemID))
+    //    {
+    //        CreatePoolForItem(itemData);
+
+    //        // 생성 후에도 없으면 기본 프리팹 사용
+    //        if (!itemPools.ContainsKey(itemID))
+    //        {
+    //            Debug.LogError($"[ItemSpawner] Pool 생성 실패: {itemData.itemName}");
+    //            return await SpawnDefaultItem(position);  // 기본 아이템 스폰
+    //        }
+    //    }
+
+    //    // 안전하게 가져오기
+    //    if (itemPools.TryGetValue(itemID, out ObjectPool<GameObject> pool))
+    //    {
+    //        GameObject itemObj = pool.Get();
+    //        itemObj.transform.position = position;
+    //        itemObj.transform.rotation = Quaternion.identity;
+
+    //        var worldItem = itemObj.GetComponent<WorldItem>();
+    //        worldItem?.Initialize(itemData);
+
+    //        return itemObj;
+    //    }
+
+    //    return null;
+    //}
     public async UniTask<GameObject> SpawnItemInWorld(ItemBase itemData, Vector3 position, CancellationToken ctx)
     {
         if (itemData == null)
@@ -43,20 +82,17 @@ public class ItemSpawner : MonoBehaviour
 
         int itemID = itemData.itemID;
 
-        // 풀이 없으면 생성 시도
         if (!itemPools.ContainsKey(itemID))
         {
-            CreatePoolForItem(itemData);
+            bool success = await CreatePoolForItemAsync(itemData, ctx);
 
-            // 생성 후에도 없으면 기본 프리팹 사용
-            if (!itemPools.ContainsKey(itemID))
+            if (!success || !itemPools.ContainsKey(itemID))
             {
                 Debug.LogError($"[ItemSpawner] Pool 생성 실패: {itemData.itemName}");
-                return await SpawnDefaultItem(position);  // 기본 아이템 스폰
+                return await SpawnDefaultItem(position);  // 여전히 폴백은 유지
             }
         }
 
-        // 안전하게 가져오기
         if (itemPools.TryGetValue(itemID, out ObjectPool<GameObject> pool))
         {
             GameObject itemObj = pool.Get();
@@ -71,6 +107,7 @@ public class ItemSpawner : MonoBehaviour
 
         return null;
     }
+
 
     // 기본 아이템 스폰 (폴백)
     private async UniTask<GameObject> SpawnDefaultItem(Vector3 position)
@@ -391,7 +428,6 @@ public class ItemSpawner : MonoBehaviour
             return prefabCache[itemID];
         }
 
-        // Addressable 경로가 있는지 확인
         string addressPath = itemData.worldPrefabAddress; // ItemBase에 이 필드가 있다고 가정
 
         if (string.IsNullOrEmpty(addressPath))
@@ -400,38 +436,105 @@ public class ItemSpawner : MonoBehaviour
             GameObject prefab = itemData.itemPrefab;
             if (prefab != null)
             {
+                Debug.LogWarning($"[ItemSpawner] Address 없음, 직접 참조 사용: id={itemID}, name={itemData.itemName}, prefab={prefab.name}");
                 prefabCache[itemID] = prefab;
                 return prefab;
             }
 
-            Debug.LogError($"[ItemSpawner] 프리팹 경로와 직접 참조 둘 다 없음: {itemData.itemName}");
+            Debug.LogError($"[ItemSpawner] 프리팹 경로와 직접 참조 둘 다 없음: id={itemID}, name={itemData.itemName}");
             return null;
         }
 
+        Debug.Log($"[ItemSpawner] LoadItemPrefabAsync 시작: id={itemID}, name={itemData.itemName}, address='{addressPath}'");
+
+        AsyncOperationHandle<GameObject> handle = default;
+
         try
         {
-            // Addressable로 비동기 로드
-            var handle = Addressables.LoadAssetAsync<GameObject>(addressPath);
+            handle = Addressables.LoadAssetAsync<GameObject>(addressPath);
             GameObject prefab = await handle.WithCancellation(ctx);
 
-            if (prefab != null)
+            if (handle.Status != AsyncOperationStatus.Succeeded || prefab == null)
             {
-                prefabCache[itemID] = prefab;
-                //Debug.Log($"[ItemSpawner] 프리팹 로드 완료: {itemData.itemName}");
-                return prefab;
+                Debug.LogError(
+                    $"[ItemSpawner] 프리팹 로드 실패\n" +
+                    $"  id={itemID}, name={itemData.itemName}\n" +
+                    $"  address='{addressPath}'\n" +
+                    $"  status={handle.Status}, exception={handle.OperationException}"
+                );
+                return null;
             }
+
+            Debug.Log($"[ItemSpawner] 프리팹 로드 성공: id={itemID}, name={itemData.itemName}, prefab={prefab.name}, address='{addressPath}'");
+            prefabCache[itemID] = prefab;
+            return prefab;
         }
         catch (OperationCanceledException)
         {
-            Debug.Log($"[ItemSpawner] 프리팹 로드 취소됨: {itemData.itemName}");
+            Debug.Log($"[ItemSpawner] 프리팹 로드 취소됨: id={itemID}, name={itemData.itemName}, address='{addressPath}'");
         }
         catch (Exception e)
         {
-            Debug.LogError($"[ItemSpawner] 프리팹 로드 실패: {itemData.itemName}, {e.Message}");
+            Debug.LogError(
+                $"[ItemSpawner] 예외로 인한 프리팹 로드 실패\n" +
+                $"  id={itemID}, name={itemData.itemName}\n" +
+                $"  address='{addressPath}'\n" +
+                $"  exception={e}"
+            );
         }
 
         return null;
     }
+    //{
+    //    int itemID = itemData.itemID;
+
+    //    // 이미 캐시에 있으면 반환
+    //    if (prefabCache.ContainsKey(itemID))
+    //    {
+    //        return prefabCache[itemID];
+    //    }
+
+    //    // Addressable 경로가 있는지 확인
+    //    string addressPath = itemData.worldPrefabAddress; // ItemBase에 이 필드가 있다고 가정
+
+    //    if (string.IsNullOrEmpty(addressPath))
+    //    {
+    //        // 경로가 없으면 직접 참조 사용
+    //        GameObject prefab = itemData.itemPrefab;
+    //        if (prefab != null)
+    //        {
+    //            prefabCache[itemID] = prefab;
+    //            return prefab;
+    //        }
+
+    //        Debug.LogError($"[ItemSpawner] 프리팹 경로와 직접 참조 둘 다 없음: {itemData.itemName}");
+    //        return null;
+    //    }
+
+    //    try
+    //    {
+    //        // Addressable로 비동기 로드
+    //        var handle = Addressables.LoadAssetAsync<GameObject>(addressPath);
+    //        GameObject prefab = await handle.WithCancellation(ctx);
+
+    //        if (prefab != null)
+    //        {
+    //            prefabCache[itemID] = prefab;
+    //            //Debug.Log($"[ItemSpawner] 프리팹 로드 완료: {itemData.itemName}");
+    //            return prefab;
+    //        }
+    //    }
+    //    catch (OperationCanceledException)
+    //    {
+    //        Debug.Log($"[ItemSpawner] 프리팹 로드 취소됨: {itemData.itemName}");
+    //    }
+    //    catch (Exception e)
+    //    {
+    //        Debug.LogError($"[ItemSpawner] 프리팹 로드 실패: {itemData.itemName}, {e.Message}");
+    //    }
+
+    //    return null;
+    //}
     #endregion
 
     #region 유틸리티 (비동기)

@@ -30,11 +30,12 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     private void Start()
     {
         inventoryData.Initialize();
+        quickSlot?.SyncInventoryQuickSlots();
     }
 
     private void OnEnable()
     {
-        quickSlot?.SyncInventoryQuickSlots();
+        //quickSlot?.SyncInventoryQuickSlots();
     }
 
     #region IInventoryProvider 구현
