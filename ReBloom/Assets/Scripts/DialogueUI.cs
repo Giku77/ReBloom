@@ -8,15 +8,23 @@ public class DialogueUI : UIBase
 {
     [SerializeField] private TextMeshProUGUI messageText;
     [SerializeField] private Image characterImage;
+    [SerializeField] private Image backgroundImage;
     [SerializeField] private float typeSpeed = 40f; // 글자/초
 
     private bool nextRequested;
     private CanvasGroup canvasGroup;
 
+
+    private Color originalBgColor;
+
     protected override void Awake()
     {
         base.Awake();
         canvasGroup = GetComponentInParent<CanvasGroup>();
+        if (backgroundImage != null)
+        {
+            originalBgColor = backgroundImage.color;
+        }
     }
 
     public void OnNextInput(InputAction.CallbackContext ctx)
@@ -36,10 +44,24 @@ public class DialogueUI : UIBase
         string localizedText,
         bool showCharacterImage = false,
         bool waitForNextInput = true,
-        bool showNextHint = true)
+        bool showNextHint = true,
+        Color textColor = new Color(),
+        int alpha = 98)
     {
+        if (textColor == new Color())
+            textColor = Color.white;
+        if (backgroundImage != null)
+        {
+            var c = originalBgColor;
+            c.a = Mathf.Clamp01(alpha / 255f);
+            backgroundImage.color = c;
+        }
+
         messageText.text = "";
         Show();
+
+        messageText.color = textColor;
+
         Debug.Log("DialogueUI: ShowLineAsync called with text: " + localizedText);
         await UniTask.DelayFrame(1);
 
