@@ -30,6 +30,14 @@ public class WorldItem : MonoBehaviour, IInteractable
         quantity = 1;
         isPersistent = !isDropped;// 드랍된 아이템이 아니면 배치 아이템
 
+        var highlight = GetComponent<InteractionHighlight>();
+        if (highlight != null)
+        {
+            highlight.promptFormat = $"{item.itemName} 줍기 [E]";
+            highlight.isPermanent = true;
+            highlight.ShowHighlightOnly(); // 항시 불빛
+        }
+
         // 드랍 아이템이면 타이머 시작
         if (isDropped && pooledItem != null)
         {
@@ -136,5 +144,12 @@ public class WorldItem : MonoBehaviour, IInteractable
         itemData = null;
         quantity = 1;
         isPersistent = false;
+
+        var highlight = GetComponent<InteractionHighlight>();
+        if (highlight != null)
+        {
+            highlight.Hide();
+            highlight.isPermanent = false;
+        }
     }
 }
