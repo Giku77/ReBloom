@@ -242,8 +242,6 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        isGround = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
-
         if (Keyboard.current.f3Key.wasPressedThisFrame)
         {
             debugMode = !debugMode;
@@ -257,6 +255,26 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        bool previousGround = isGround;
+        isGround = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
+
+        if (wasJumping && rb.linearVelocity.y > 0.1f)
+        {
+            isGround = false;
+        }
+
+        if (wasJumping && isGround)
+        {
+            Debug.Log("착지! Jump = false");
+            if (Anim != null)
+            {
+                Anim.SetSlow(false);
+                Anim.SetJumping(false);
+            }
+
+            wasJumping = false;
+        }
+
 
         DropPlayer();
         MovePlayer();
@@ -264,16 +282,7 @@ public class PlayerController : MonoBehaviour
         RotatePlayer();
         JumpPlayer();
 
-        if (wasJumping && isGround)
-        {
-            if (Anim != null)
-            {
-                Anim.SetSlow(false);
-            }
-
-            wasJumping = false;
-        }
-        wasGround = isGround;
+        wasGround = previousGround;
     }
 
     private void OnDestroy()
@@ -316,8 +325,6 @@ public class PlayerController : MonoBehaviour
 
         if (context.canceled)
             isSlow = false;
-
-        Anim.SetSlow(isSlow);
     }
 
     public void OnFreeLook(InputAction.CallbackContext context)
@@ -384,6 +391,8 @@ public class PlayerController : MonoBehaviour
         {
             targetSpeed = 0f;
             targetDirection = Vector3.zero;
+
+            Anim.SetSlow(false);
         }
         else
         {
@@ -395,10 +404,13 @@ public class PlayerController : MonoBehaviour
                     targetSpeed = sprintSpeed;
                 else
                     targetSpeed = moveSpeed;
+
+                Anim.SetSlow(false);
             }
             else
             {
                 targetSpeed = slowSpeed;
+                Anim.SetSlow(true);
             }
         }
 
@@ -433,10 +445,8 @@ public class PlayerController : MonoBehaviour
         velocity.y = jumpForce;
         rb.linearVelocity = velocity;
 
-        if (Anim != null)
-        {
-            Anim.PlayJump();
-        }
+        Debug.Log("점프 실행! Jump = true");
+        Anim.SetJumping(true);
 
         jumpRequested = false;
         wasJumping = true;
@@ -575,12 +585,20 @@ public class PlayerController : MonoBehaviour
 
     private async UniTask ApplyLandingSlow()
     {
-        float originalSpeed = moveSpeed;
+        //float originalSpeed = moveSpeed;
 
-        moveSpeed *= 0.5f;
+        //moveSpeed *= 0.5f;
 
-        await UniTask.Delay((int)(landingSlow + 1000f));
+        //await UniTask.Delay((int)(landingSlow + 1000f));
 
-        moveSpeed = originalSpeed;
+        //moveSpeed = originalSpeed;
+
+        object landingKey = new object();
+
+        AddSpeedMultiplier(landingKey, 0.5f);
+
+        await UniTask.Delay((int)(landingSlow * 1000f));
+
+        RemoveSpeedMultiplier(landingKey);
     }
 }

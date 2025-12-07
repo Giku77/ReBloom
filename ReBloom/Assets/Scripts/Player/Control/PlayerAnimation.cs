@@ -71,9 +71,9 @@ public class PlayerAnimation : MonoBehaviour
         animator.SetBool(Slow, value);
     }
 
-    public void PlayJump()
+    public void SetJumping(bool value)
     {
-        animator.SetTrigger(Jump);
+        animator.SetBool(Jump, value);
     }
 
     public void PlayDeath()
