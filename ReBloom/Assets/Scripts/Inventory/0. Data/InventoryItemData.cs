@@ -535,11 +535,11 @@ public class InventoryItemData : ScriptableObject, IItemContainer
         int maxSlots = 40; // 최대 Tier 슬롯 수
         slots = new ItemSlotData[maxSlots];
         // 테스트 아이템
-        AddItemAtFirstEmpty(4102001, 5);
-        AddItemAtFirstEmpty(4102031, 3);
-        AddItemAtFirstEmpty(4102007, 5);
-        AddItemAtFirstEmpty(4102008, 5);
-        AddItemAtFirstEmpty(4102009, 10);
+        //AddItemAtFirstEmpty(4102001, 5);
+        //AddItemAtFirstEmpty(4102031, 3);
+        //AddItemAtFirstEmpty(4102007, 5);
+        //AddItemAtFirstEmpty(4102008, 5);
+        //AddItemAtFirstEmpty(4102009, 10);
 
         //AddItem(4102001, 5);
         //AddItem(4102031, 3);

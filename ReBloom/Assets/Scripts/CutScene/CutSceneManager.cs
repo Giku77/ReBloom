@@ -1,6 +1,6 @@
+﻿using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
-using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -93,7 +93,7 @@ public class CutSceneManager : MonoBehaviour
             {
                 await ApplyCutSceneVisualAsync(data);
 
-                await dialogueUI.ShowLineAsync(data.TextKR);
+                await dialogueUI.ShowLineAsync(data.TextKR, textColor: Color.yellow, alpha: 255);
 
                 if (token.IsCancellationRequested)
                     break;
