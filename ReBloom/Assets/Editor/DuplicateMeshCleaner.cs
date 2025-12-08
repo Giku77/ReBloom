@@ -20,9 +20,19 @@ public static class DuplicateMeshCleaner
         int checkCount = 0;
         int removedCount = 0;
 
-        foreach (var mf in root.GetComponentsInChildren<MeshFilter>(true))
+        var meshFilters = root.GetComponentsInChildren<MeshFilter>(true);
+
+        foreach (var mf in meshFilters)
         {
+            // 🔹 Destroy된 MeshFilter는 여기서 걸러줌
+            if (mf == null)
+                continue;
+
+            if (mf.sharedMesh == null)
+                continue;
+
             var t = mf.transform;
+
             var key = (t.position, t.rotation, t.lossyScale, mf.sharedMesh);
             checkCount++;
 
