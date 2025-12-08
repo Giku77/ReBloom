@@ -33,6 +33,21 @@ public class PlayerEquipManager : MonoBehaviour
         {
             equipInventory.SetActive(false);
         }
+
+        ItemBase defaultCloth = ItemDatabase.I.GetItem(4301001);
+        ItemBase defaultShoes = ItemDatabase.I.GetItem(4302001);
+
+        if (defaultCloth is ProtectiveItemData cloth)
+        {
+            Apply(cloth);
+            Debug.Log($"[PlayerEquipManager] 기본 옷 장착: {cloth.itemName}");
+        }
+
+        if (defaultShoes is ProtectiveItemData shoes)
+        {
+            Apply(shoes);
+            Debug.Log($"[PlayerEquipManager] 기본 신발 장착: {shoes.itemName}");
+        }
     }
 
     //private void Update()

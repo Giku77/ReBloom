@@ -1,5 +1,6 @@
 ﻿using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class InteractionHighlight : MonoBehaviour
 {
@@ -35,6 +36,16 @@ public class InteractionHighlight : MonoBehaviour
         highlightRend = GetComponent<Renderer>();
         if (highlightRend == null)
             highlightRend = GetComponentInChildren<Renderer>();
+
+        if (promptCanvas == null && InteractionCanvasManager.Instance != null)
+        {
+            promptCanvas = InteractionCanvasManager.Instance.GetCanvas();
+            promptText = InteractionCanvasManager.Instance.GetText();
+        }
+        else if (InteractionCanvasManager.Instance == null)
+        {
+            Debug.Log("InteractionCanvasManager.Instance가 null!");
+        }
 
         // 처음에는 프롬프트 숨기기
         if (promptCanvas != null)

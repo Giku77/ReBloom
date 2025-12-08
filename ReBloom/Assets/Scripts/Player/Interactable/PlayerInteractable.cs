@@ -72,7 +72,7 @@ public class PlayerInteractable : MonoBehaviour
                     float distance = toTarget.magnitude;
                     float dot = Vector3.Dot(transform.forward, toTarget.normalized);
 
-                    if (dot > 0.5f && distance < closestDistance)
+                    if (dot > 0.3f && distance < closestDistance)
                     {
                         closestDistance = distance;
                         closestInteractable = interactable;
@@ -177,7 +177,7 @@ public class PlayerInteractable : MonoBehaviour
                 float distance = toTarget.magnitude;
                 float dot = Vector3.Dot(transform.forward, toTarget.normalized);
 
-                if (dot > 0.5f && distance < closestDistance)
+                if (dot > 0.3f && distance < closestDistance)
                 {
                     closestDistance = distance;
                     closestHighlight = highlight;
@@ -189,7 +189,8 @@ public class PlayerInteractable : MonoBehaviour
         {
             if (currentHighlight != null)
             {
-                if (currentHighlight.TryGetComponent<GatherObject>(out _))
+                if (currentHighlight.TryGetComponent<GatherObject>(out _) || currentHighlight.TryGetComponent<WorldItem>(out _))
+
                     currentHighlight.HidePrompt();
                 else
                     currentHighlight.Hide();
@@ -199,7 +200,7 @@ public class PlayerInteractable : MonoBehaviour
 
             if (currentHighlight != null)
             {
-                if (currentHighlight.TryGetComponent<GatherObject>(out _))
+                if (currentHighlight.TryGetComponent<GatherObject>(out _) || currentHighlight.TryGetComponent<WorldItem>(out _))
                     currentHighlight.ShowPrompt();
                 else
                     currentHighlight.Show(); 

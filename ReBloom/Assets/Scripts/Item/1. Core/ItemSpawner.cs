@@ -317,6 +317,12 @@ public class ItemSpawner : MonoBehaviour
         }
         pooledItem.Initialize(this, itemID);
 
+        //하이라이트 추가 하기 위해서 생성 될 때 컴포넌트 추가
+        if (obj.GetComponent<InteractionHighlight>() == null)
+        {
+            obj.AddComponent<InteractionHighlight>();
+        }
+
         // 통계 업데이트
         Statistics.IncrementCreated(itemID);
 

@@ -32,7 +32,8 @@ public class GameStartSequence : MonoBehaviour
     public async UniTask PlaySequence()
     {
         playerController.Anim.PlaySleep();
-        
+        playerController.Anim.SetRootMotion(true);
+
         if (playerController != null)
         {
             playerController.SetBlocked(true);
@@ -61,7 +62,11 @@ public class GameStartSequence : MonoBehaviour
 
         playerController.Anim.PlayStandUp();
 
-        await UniTask.Delay(7000);    
+        await UniTask.Delay(5800);
+
+        playerController.Anim.SetRootMotion(false);
+
+        await UniTask.Delay(1200);    
 
         if (thirdPersonCamera != null)
         {
