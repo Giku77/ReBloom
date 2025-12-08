@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.AI;
 
 public class MechNPCController : BaseNPCController
@@ -12,7 +12,7 @@ public class MechNPCController : BaseNPCController
 
     protected override void InitializeState()
     {
-        ChangeState(new NPCIdleState(this));
+        ChangeState(new MechNPCIdleState(this));
     }
 
     protected override void Update()
@@ -23,7 +23,17 @@ public class MechNPCController : BaseNPCController
         {
             isStunned = false;
             agent.isStopped = false;
-            ChangeState(new NPCReturnState(this));
+            ChangeState(new MechNPCReturnState(this));
+        }
+    }
+
+    protected override void UpdateAnimation()
+    {
+        if (animator != null && agent != null)
+        {
+            bool isMoving = !agent.isStopped && agent.hasPath && agent.remainingDistance > agent.stoppingDistance;
+            float speed = isMoving ? agent.velocity.magnitude : 0f;
+            animator.SetFloat("Speed", speed);
         }
     }
 

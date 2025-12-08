@@ -1,30 +1,39 @@
-using UnityEngine;
+﻿using UnityEngine;
 
-public class NPCReturnState : NPCState
+public class MechNPCChaseState : NPCState
 {
     private MechNPCController mechController;
-    public NPCReturnState(BaseNPCController controller) : base(controller)
+    private float attackRange = 3f;
+
+    public MechNPCChaseState(BaseNPCController controller) : base(controller)
     {
         mechController = controller as MechNPCController;
     }
 
     public override void Enter()
     {
-        Debug.Log("NPC: 리턴 스테이트 진입");
+        Debug.Log("적대 NPC 플레이어 추적 시작");
         controller.agent.isStopped = false;
-        controller.agent.SetDestination(controller.initialPosition);
+        controller.agent.SetDestination(controller.lastHeardPosition);
     }
 
     public override void Update()
     {
-        //if (mechController != null && mechController.isStunned) return;
+        if (mechController != null && mechController.isStunned) return;
 
+        float distanceToTarget = Vector3.Distance(controller.transform.position, controller.lastHeardPosition);
+        
+        if (distanceToTarget <= attackRange)
+        {
+            controller.ChangeState(new MechNPCAttackState(controller));
+            return;
+        }
 
         if (!controller.agent.pathPending && controller.agent.remainingDistance <= controller.agent.stoppingDistance)
         {
             if (controller.agent.hasPath || controller.agent.velocity.sqrMagnitude == 0f)
             {
-                controller.ChangeState(new NPCIdleState(controller));
+                controller.ChangeState(new MechNPCReturnState(controller));
             }
         }
     }
@@ -39,7 +48,7 @@ public class NPCReturnState : NPCState
         if (distance <= effectiveRange)
         {
             controller.lastHeardPosition = footPos;
-            controller.ChangeState(new NPCChaseState(controller));
+            controller.agent.SetDestination(controller.lastHeardPosition);
         }
     }
 }

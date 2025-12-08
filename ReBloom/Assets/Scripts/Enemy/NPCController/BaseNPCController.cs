@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.AI;
 
 public abstract class BaseNPCController : MonoBehaviour
@@ -6,7 +6,10 @@ public abstract class BaseNPCController : MonoBehaviour
     [Header("Base Settings")]
     public NavMeshAgent agent;
     public Animator animator;
+
+    public PlayerController playerController;
     public Transform player;
+
     public float hearingRange = 15f;
 
     protected NPCState currentState;
@@ -18,12 +21,27 @@ public abstract class BaseNPCController : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponentInChildren<Animator>();
-        
+
+        // PlayerController 참조 세팅
+        if (playerController == null)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
+            {
+                playerController = playerObj.GetComponent<PlayerController>();
+            }
+        }
+
+        if (playerController != null)
+            player = playerController.transform;
+        else
+            Debug.LogError("[NPC] 플레이어컨트롤러를 찾을 수 없습니다.");
+
         initialPosition = transform.position;
         initialRotation = transform.rotation;
-        
+
         PlayerFootstep.OnFootstep += HandleFootstep;
-        
+
         InitializeState();
     }
 
@@ -35,15 +53,7 @@ public abstract class BaseNPCController : MonoBehaviour
         UpdateAnimation();
     }
 
-    protected virtual void UpdateAnimation()
-    {
-        if (animator != null && agent != null)
-        {
-            bool isMoving = !agent.isStopped && agent.hasPath && agent.remainingDistance > agent.stoppingDistance;
-            float speed = isMoving ? agent.velocity.magnitude : 0f;
-            animator.SetFloat("Speed", speed);
-        }
-    }
+    protected virtual void UpdateAnimation() { }
 
     public virtual void ChangeState(NPCState newState)
     {

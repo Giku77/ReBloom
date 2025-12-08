@@ -86,7 +86,7 @@ public class NPCAttackBehaviour : StateMachineBehaviour
         MechNPCController npc = animator.GetComponentInParent<MechNPCController>();
         if (npc != null)
         {
-            npc.ChangeState(new NPCReturnState(npc));
+            npc.ChangeState(new MechNPCReturnState(npc));
         }
     }
 

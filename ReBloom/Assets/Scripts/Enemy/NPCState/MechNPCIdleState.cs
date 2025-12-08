@@ -1,11 +1,11 @@
-using UnityEngine;
+﻿using UnityEngine;
 
-public class NPCIdleState : NPCState
+public class MechNPCIdleState : NPCState
 {
     private bool isRotating = false;
     private float rotationSpeed = 3f;
 
-    public NPCIdleState(BaseNPCController controller) : base(controller) { }
+    public MechNPCIdleState(BaseNPCController controller) : base(controller) { }
 
     public override void Enter()
     {
@@ -39,7 +39,7 @@ public class NPCIdleState : NPCState
         if (distance <= effectiveRange)
         {
             controller.lastHeardPosition = footPos;
-            controller.ChangeState(new NPCChaseState(controller));
+            controller.ChangeState(new MechNPCChaseState(controller));
         }
     }
 }

@@ -1,13 +1,8 @@
-using UnityEngine;
+﻿using UnityEngine;
 
-public class NPCAttackState : NPCState
+public class MechNPCAttackState : NPCState
 {
-    private float attackRange = 2f;
-    private float attackCooldown = 5f;
-    private float attackDuration = 7f;
-    private float stateEnterTime;
-
-    public NPCAttackState(BaseNPCController controller) : base(controller) { }
+    public MechNPCAttackState(BaseNPCController controller) : base(controller) { }
 
     public override void Enter()
     {

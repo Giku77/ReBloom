@@ -2,139 +2,100 @@
 
 public class DroneNPCController : BaseNPCController
 {
-    [Header("Drone Specific")]
+    [Header("Drone Settings")]
     public Transform[] patrolPoints;
     public bool usePatrol = true;
-
-    [SerializeField] private float flyHeight = 2f;
+    public float flyHeight = 2f;
 
     [Header("Detection")]
     public float detectionRange = 10f;
     public float detectionAngle = 90f;
 
     [Header("Attack")]
-    public float attackRange = 1.5f;
+    public float attackRange = 3f;
+    public float laserLength = 3.5f;
     public float attackDamage = 35f;
     public float attackCooldown = 3f;
     public float lastAttackTime = -999f;
+    [SerializeField] private Transform laserOrigin;
 
     [Header("Chase")]
     public float maxChaseTime = 7f;
-    public float recheckCooldown = 30f;
 
-    private float chaseStartTime = 0f;
-    private float lastRecheckTime = 0f;
+    [Header("Rest")]
+    public float restTime = 30f;
+    public bool isResting = false;
+
+    [HideInInspector] public LaserRendererHandler laser;
 
     protected override void Start()
     {
         base.Start();
+        laser = GetComponent<LaserRendererHandler>();
     }
 
     protected override void InitializeState()
     {
-        if (usePatrol && patrolPoints != null && patrolPoints.Length > 0)
-        {
+        if (usePatrol)
             ChangeState(new DronePatrolState(this));
-        }
         else
-        {
-            ChangeState(new DroneIdleState(this));
-        }
+            ChangeState(new DroneRestState(this));
     }
 
     protected override void Update()
     {
+        if (isResting) return;
+
         base.Update();
 
         if (currentState is DronePatrolState || currentState is DroneChaseState)
-        {
-            CheckVisionDetection();
-        }
+            CheckVision();
     }
 
-    private void CheckVisionDetection()
+    private void CheckVision()
     {
         if (player == null) return;
 
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+        float dist = Vector3.Distance(transform.position, player.position);
+        if (dist > detectionRange) return;
 
-        if (distanceToPlayer <= detectionRange)
+        Vector3 dir = (player.position - transform.position).normalized;
+        float angle = Vector3.Angle(transform.forward, dir);
+        if (angle > detectionAngle * 0.5f) return;
+
+        if (Physics.Raycast(transform.position, dir, out RaycastHit hit, detectionRange))
         {
-            Vector3 directionToPlayer = (player.position - transform.position).normalized;
-            float angle = Vector3.Angle(transform.forward, directionToPlayer);
-
-            if (angle <= detectionAngle / 2f)
-            {
-                if (Physics.Raycast(transform.position, directionToPlayer, out RaycastHit hit, detectionRange))
-                {
-                    if (hit.transform == player)
-                    {
-                        OnPlayerDetected();
-                    }
-                }
-            }
+            if (hit.transform == player)
+                OnPlayerDetected();
         }
     }
 
-    private void OnPlayerDetected()
+    public void OnPlayerDetected()
     {
-        if (currentState is DroneIdleState)
-        {
-            if (Time.time - lastRecheckTime >= recheckCooldown)
-            {
-                lastHeardPosition = player.position;
-                ChangeState(new DroneChaseState(this));
-                lastRecheckTime = Time.time;
-            }
-        }
-        else if (currentState is DroneChaseState)
-        {
-            lastHeardPosition = player.position;
-        }
+        if (isResting) return;
+
+        if (!(currentState is DroneChaseState))
+            ChangeState(new DroneChaseState(this));
     }
 
-    public void StartChase()
+    public void AttackNow()
     {
-        chaseStartTime = Time.time;
+        //if (Time.time - lastAttackTime < attackCooldown) return;
+
+        var stats = player.GetComponent<PlayerStats>();
+        if (stats != null)
+            stats.TakeDamage(attackDamage);
+
+        lastAttackTime = Time.time;
+
+        laser.FireLaser(laserOrigin.position, laserOrigin.forward, laserLength);
+
+        Debug.Log("드론 레이저 공격!");
     }
 
-    public bool IsChaseTimeout()
+    public void StartRest()
     {
-        return Time.time - chaseStartTime >= maxChaseTime;
-    }
-
-    public void PerformLaserAttack()
-    {
-        if (Time.time - lastAttackTime < attackCooldown)
-            return;
-
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
-
-        if (distanceToPlayer <= attackRange)
-        {
-            var playerStats = player.GetComponent<PlayerStats>();
-            if (playerStats != null)
-            {
-                playerStats.TakeDamage(attackDamage);
-            }
-
-            lastAttackTime = Time.time;
-
-            if (animator != null)
-            {
-                animator.SetTrigger("Attack");
-            }
-
-            Debug.Log($"드론 레이저 공격! 데미지: {attackDamage}");
-        }
-    }
-
-    protected override void UpdateAnimation()
-    {
-        if (animator != null)
-        {
-            bool isChasing = currentState is DroneChaseState;
-            animator.SetBool("IsChasing", isChasing);
-        }
+        isResting = true;
+        ChangeState(new DroneRestState(this));
     }
 }
