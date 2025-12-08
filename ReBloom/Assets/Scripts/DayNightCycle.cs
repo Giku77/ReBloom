@@ -74,17 +74,17 @@ public class DayNightCycle : MonoBehaviour
 
         originalEmissionColor = cloudRenderer.material.GetColor("_EmissionColor");
 
-        originalSkyboxMaterial = RenderSettings.skybox;
-        if (originalSkyboxMaterial != null)
-        {
-            skyboxMaterial = new Material(originalSkyboxMaterial);
-            RenderSettings.skybox = skyboxMaterial;
+        //originalSkyboxMaterial = RenderSettings.skybox;
+        //if (originalSkyboxMaterial != null)
+        //{
+        //    skyboxMaterial = new Material(originalSkyboxMaterial);
+        //    RenderSettings.skybox = skyboxMaterial;
 
-            if (skyboxMaterial.HasProperty("_Tint"))
-            {
-                originalSkyboxTint = skyboxMaterial.GetColor("_Tint");
-            }
-        }
+        //    if (skyboxMaterial.HasProperty("_Tint"))
+        //    {
+        //        originalSkyboxTint = skyboxMaterial.GetColor("_Tint");
+        //    }
+        //}
     }
 
     private void OnDestroy()
@@ -115,7 +115,9 @@ public class DayNightCycle : MonoBehaviour
         UpdateSun();
         UpdateMoon();
         UpdateCloudAlpha();
-        UpdateSkybox();
+
+        //아포칼립스 스카이박스일때만 적용
+        //UpdateSkybox();
 
         if (Keyboard.current.kKey.wasPressedThisFrame)
         {
@@ -286,35 +288,35 @@ public class DayNightCycle : MonoBehaviour
         cloudRenderer.material.SetColor("_EmissionColor", newEmission);
     }
 
-    private void UpdateSkybox()
-    {
-        if (skyboxMaterial == null) return;
+    //private void UpdateSkybox()
+    //{
+    //    if (skyboxMaterial == null) return;
 
-        float t = currentTime / dayLengthInSeconds;
+    //    float t = currentTime / dayLengthInSeconds;
 
-        float nightFactor = 0f;
+    //    float nightFactor = 0f;
 
-        if (t < 0.0926f)
-        {
-            nightFactor = Mathf.Lerp(1f, 0f, t / 0.0926f);
-        }
-        else if (t >= 0.0926f && t < 0.556f)
-        {
-            nightFactor = 0f;
-        }
-        else if (t >= 0.556f && t < 0.648f)
-        {
-            nightFactor = Mathf.Lerp(0f, 1f, (t - 0.556f) / 0.092f);
-        }
-        else
-        {
-            nightFactor = 1f;
-        }
+    //    if (t < 0.0926f)
+    //    {
+    //        nightFactor = Mathf.Lerp(1f, 0f, t / 0.0926f);
+    //    }
+    //    else if (t >= 0.0926f && t < 0.556f)
+    //    {
+    //        nightFactor = 0f;
+    //    }
+    //    else if (t >= 0.556f && t < 0.648f)
+    //    {
+    //        nightFactor = Mathf.Lerp(0f, 1f, (t - 0.556f) / 0.092f);
+    //    }
+    //    else
+    //    {
+    //        nightFactor = 1f;
+    //    }
 
-        Color targetTint = Color.Lerp(originalSkyboxTint, nightSkyboxTint, nightFactor);
-        Color currentTint = skyboxMaterial.GetColor("_Tint");
-        Color newTint = Color.Lerp(currentTint, targetTint, skyboxLerpSpeed * Time.deltaTime);
-        skyboxMaterial.SetColor("_Tint", newTint);
-    }
+    //    Color targetTint = Color.Lerp(originalSkyboxTint, nightSkyboxTint, nightFactor);
+    //    Color currentTint = skyboxMaterial.GetColor("_Tint");
+    //    Color newTint = Color.Lerp(currentTint, targetTint, skyboxLerpSpeed * Time.deltaTime);
+    //    skyboxMaterial.SetColor("_Tint", newTint);
+    //}
 }
 

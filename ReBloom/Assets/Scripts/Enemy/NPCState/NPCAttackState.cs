@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class NPCAttackState : NPCState
 {
@@ -7,7 +7,7 @@ public class NPCAttackState : NPCState
     private float attackDuration = 7f;
     private float stateEnterTime;
 
-    public NPCAttackState(NPCController controller) : base(controller) { }
+    public NPCAttackState(BaseNPCController controller) : base(controller) { }
 
     public override void Enter()
     {
@@ -18,9 +18,9 @@ public class NPCAttackState : NPCState
         controller.agent.isStopped = true;
         //stateEnterTime = Time.time;
 
-        controller.Animator.ResetTrigger("Attack");
+        controller.animator.ResetTrigger("Attack");
 
-        controller.Animator.SetTrigger("Attack");
+        controller.animator.SetTrigger("Attack");
     }
 
     public override void Update()
@@ -43,12 +43,12 @@ public class NPCAttackState : NPCState
     private void PerformAttack()
     {
         Debug.Log("NPC: 공격 애니메이션 트리거");
-        controller.Animator.SetTrigger("Attack");
+        controller.animator.SetTrigger("Attack");
     }
 
     public override void Exit()
     {
-        controller.Animator.ResetTrigger("Attack");
+        controller.animator.ResetTrigger("Attack");
     }
 
     //public override void HandleFootstep(Vector3 footPos, float loudness)

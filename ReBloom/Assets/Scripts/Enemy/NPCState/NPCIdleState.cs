@@ -1,11 +1,11 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class NPCIdleState : NPCState
 {
     private bool isRotating = false;
     private float rotationSpeed = 3f;
 
-    public NPCIdleState(NPCController controller) : base(controller) { }
+    public NPCIdleState(BaseNPCController controller) : base(controller) { }
 
     public override void Enter()
     {

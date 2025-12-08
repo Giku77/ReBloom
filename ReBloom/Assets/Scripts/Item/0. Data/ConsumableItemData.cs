@@ -139,7 +139,7 @@ public class ConsumableItemData : ItemBase
 
         foreach (var hit in hits)
         {
-            NPCController npc = hit.GetComponent<NPCController>();
+            MechNPCController npc = hit.GetComponent<MechNPCController>();
             if (npc != null)
             {
                 npc.ApplyStun(duration);

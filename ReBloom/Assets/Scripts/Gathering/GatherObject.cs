@@ -21,6 +21,9 @@ public class GatherObject : MonoBehaviour, IInteractable
 
     private PlayerEquipManager playerEquipManager;
 
+    private string gatherAvailableText = $"채집 시작 [E]";
+    private string gatherNotAvailableText = "채집 불가";
+
     public float HoldTime => gatherObjectData.searchTime * playerEquipManager.GetToolPerform();
 
     private void Awake()
@@ -29,7 +32,6 @@ public class GatherObject : MonoBehaviour, IInteractable
 
         playerEquipManager = FindFirstObjectByType<PlayerEquipManager>();
     }
-
 
     private void Update()
     {
@@ -42,7 +44,11 @@ public class GatherObject : MonoBehaviour, IInteractable
                 timer = respawnTime;
 
                 if (highlight != null)
+                {
                     highlight.ShowHighlightOnly();
+                    highlight.promptFormat = gatherAvailableText;
+                }
+
             }
         }
     }
@@ -72,6 +78,7 @@ public class GatherObject : MonoBehaviour, IInteractable
         {
             highlight.isPermanent = false;
             highlight.Hide();
+            highlight.promptFormat = gatherNotAvailableText;
         }
     }
 
@@ -88,7 +95,11 @@ public class GatherObject : MonoBehaviour, IInteractable
             Debug.Log($"채집 오브젝트 초기화 {gatherObjectData.objectNameId}");
 
             if (highlight != null)
+            {
                 highlight.ShowHighlightOnly();
+                highlight.promptFormat = gatherAvailableText;
+            }
+
         }
     }
 

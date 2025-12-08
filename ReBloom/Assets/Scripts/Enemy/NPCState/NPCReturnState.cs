@@ -1,8 +1,12 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class NPCReturnState : NPCState
 {
-    public NPCReturnState(NPCController controller) : base(controller) { }
+    private MechNPCController mechController;
+    public NPCReturnState(BaseNPCController controller) : base(controller)
+    {
+        mechController = controller as MechNPCController;
+    }
 
     public override void Enter()
     {
@@ -13,7 +17,7 @@ public class NPCReturnState : NPCState
 
     public override void Update()
     {
-        //if (controller.isStunned) return;
+        //if (mechController != null && mechController.isStunned) return;
 
 
         if (!controller.agent.pathPending && controller.agent.remainingDistance <= controller.agent.stoppingDistance)
@@ -27,7 +31,7 @@ public class NPCReturnState : NPCState
 
     public override void HandleFootstep(Vector3 footPos, float loudness)
     {
-        if (controller.isStunned) return;
+        if (mechController != null && mechController.isStunned) return;
 
         float effectiveRange = controller.hearingRange * loudness;
         float distance = Vector3.Distance(controller.transform.position, footPos);
