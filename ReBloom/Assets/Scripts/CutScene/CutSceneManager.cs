@@ -93,7 +93,7 @@ public class CutSceneManager : MonoBehaviour
             {
                 await ApplyCutSceneVisualAsync(data);
 
-                await dialogueUI.ShowLineAsync(data.TextKR, textColor: Color.yellow, alpha: 255);
+                await dialogueUI.ShowLineAsync(data.TextKR, textColor: Color.yellow);
 
                 if (token.IsCancellationRequested)
                     break;

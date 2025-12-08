@@ -46,7 +46,7 @@ public class DialogueUI : UIBase
         bool waitForNextInput = true,
         bool showNextHint = true,
         Color textColor = new Color(),
-        int alpha = 98)
+        int alpha = 155)
     {
         if (textColor == new Color())
             textColor = Color.white;
