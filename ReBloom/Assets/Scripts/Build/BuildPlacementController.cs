@@ -15,6 +15,7 @@ public class BuildPlacementController : MonoBehaviour
     private GameObject previewInstance;
     private BuildPreviewVisual previewVisual;
     private bool isPlacing = false;
+    public bool IsPlacing => isPlacing;
 
     private Vector3 lastValidPos;
     private Quaternion lastRot;

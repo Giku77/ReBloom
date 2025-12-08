@@ -11,7 +11,7 @@ public class GameStartSequence : MonoBehaviour
     [SerializeField] private CutSceneManager cutSceneManager;
 
     private float startZoomDistance = 15f;
-    private float targetZoomDistance = 3.2f;
+    private float targetZoomDistance = 2.5f;
     private float zoomDuration = 3f;
 
     private float initialDelay = 3f;
@@ -66,7 +66,9 @@ public class GameStartSequence : MonoBehaviour
 
         playerController.Anim.SetRootMotion(false);
 
-        await UniTask.Delay(1200);    
+        await LerpCameraAngle(40f, 10f, 1f);
+
+        await UniTask.Delay(200);    
 
         if (thirdPersonCamera != null)
         {
@@ -118,5 +120,24 @@ public class GameStartSequence : MonoBehaviour
         {
             thirdPersonCamera.SetDistance(distance);
         }
+    }
+
+    private async UniTask LerpCameraAngle(float startPitch, float targetPitch, float duration)
+    {
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / duration;
+            t = Mathf.SmoothStep(0, 1, t);
+
+            float currentPitch = Mathf.Lerp(startPitch, targetPitch, t);
+            thirdPersonCamera.SetCameraAngle(180f, currentPitch);
+
+            await UniTask.Yield();
+        }
+
+        thirdPersonCamera.SetCameraAngle(180f, targetPitch);
     }
 }

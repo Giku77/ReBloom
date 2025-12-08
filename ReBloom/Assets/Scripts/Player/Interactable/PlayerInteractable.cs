@@ -72,7 +72,9 @@ public class PlayerInteractable : MonoBehaviour
                     float distance = toTarget.magnitude;
                     float dot = Vector3.Dot(transform.forward, toTarget.normalized);
 
-                    if (dot > 0.3f && distance < closestDistance)
+                    bool isInRange = (distance < 0.5f) || (dot > 0.3f && distance < closestDistance);
+
+                    if (isInRange && distance < closestDistance)
                     {
                         closestDistance = distance;
                         closestInteractable = interactable;
@@ -177,7 +179,9 @@ public class PlayerInteractable : MonoBehaviour
                 float distance = toTarget.magnitude;
                 float dot = Vector3.Dot(transform.forward, toTarget.normalized);
 
-                if (dot > 0.3f && distance < closestDistance)
+                bool isInRange = (distance < 0.5f) || (dot > 0.3f && distance < closestDistance);
+
+                if (isInRange && distance < closestDistance)
                 {
                     closestDistance = distance;
                     closestHighlight = highlight;
