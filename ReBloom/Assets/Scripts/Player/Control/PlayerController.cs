@@ -112,16 +112,45 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private CraftingUI craftingUI;
     [SerializeField] private StorageUI storageUI;
+    [SerializeField] private float storageCloseDistance = 5f;
 
     public void OpenCraftingUI()
     {
         if (craftingUI != null)
             craftingUI.Toggle();
     }
+
+    public StorageInteractable CurrentOpenedStorage { get; private set; }
     public void OpenStorageUI()
     {
         if (storageUI != null)
             storageUI.Toggle();
+
+        if (storageUI != null && !storageUI.gameObject.activeSelf && CurrentOpenedStorage != null)
+        {
+            CurrentOpenedStorage = null;
+        }
+    }
+
+    public void OpenStorage(StorageInteractable storage)
+    {
+        CurrentOpenedStorage = storage;
+        OpenStorageUI();
+    }
+
+    private void CheckStorageDistance()
+    {
+        if (CurrentOpenedStorage == null) return;
+
+        float dist = Vector3.Distance(
+            transform.position,
+            CurrentOpenedStorage.transform.position
+        );
+
+        if (dist > storageCloseDistance)
+        {
+            OpenStorageUI();
+        }
     }
 
     private void Awake()
@@ -250,7 +279,7 @@ public class PlayerController : MonoBehaviour
                 playerStats.DebugMode = debugMode;
             Debug.Log("디버그 모드 온오프");
         }
-
+        CheckStorageDistance();
     }
 
     private void FixedUpdate()
