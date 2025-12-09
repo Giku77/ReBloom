@@ -133,6 +133,19 @@ public class CutSceneManager : MonoBehaviour
         }
     }
 
+    //디버그 모드에서 컷신 스킵하기 위하여 추가
+    public void isDebugModeSkipCutScene()
+    {
+        if (cutSceneImage != null)
+            cutSceneImage.gameObject.SetActive(false);
+
+        if (backgroundImage != null)
+            backgroundImage.gameObject.SetActive(false);
+
+        if (dialogueUI != null)
+            dialogueUI.Hide();
+    }
+
     private async UniTask ApplyCutSceneVisualAsync(CutSceneData data)
     {
         if (cutSceneImage != null)

@@ -16,6 +16,9 @@ public class GameStartSequence : MonoBehaviour
 
     private float initialDelay = 3f;
 
+    [Header("디버그 모드")]
+    [SerializeField] private bool isDebug = false;
+
     private void Awake()
     {
         if (tutorialManager != null)
@@ -26,6 +29,12 @@ public class GameStartSequence : MonoBehaviour
 
     private async void Start()
     {
+        if (isDebug)
+        {
+            cutSceneManager?.isDebugModeSkipCutScene();
+            return;
+        }
+
         await PlaySequence();
     }
 
