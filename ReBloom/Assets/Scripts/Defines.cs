@@ -58,6 +58,7 @@ public enum UIType
     QuickSlot,
     Dialogue,
     PlayerEffect,
+    EditBuild,
 }
 
 public enum UILayer

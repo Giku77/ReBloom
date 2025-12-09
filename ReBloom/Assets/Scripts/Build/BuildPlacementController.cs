@@ -9,6 +9,7 @@ public class BuildPlacementController : MonoBehaviour
     [SerializeField] private Transform playerTransform;
     [SerializeField] private Camera playerCamera;
     [SerializeField] private float placeDistance = 3f;
+    [SerializeField] private float editPickDistance = 10f;
     [SerializeField] private LayerMask groundMask;
     [SerializeField] private LayerMask buildingMask;
 
@@ -31,6 +32,18 @@ public class BuildPlacementController : MonoBehaviour
     private string moveError;
     private bool moveCanBuild;
 
+    public bool IsEditMode => isEditMode;
+    public BuildingInstance CurrentEditingTarget
+    {
+        get
+        {
+            if (!isEditMode) return null;
+            if (isMovingExisting && movingBuilding != null)
+                return movingBuilding;
+            return hoveredBuilding;
+        }
+    }
+
     private void Awake()
     {
         I = this;
@@ -41,6 +54,13 @@ public class BuildPlacementController : MonoBehaviour
         int previewLayer = LayerMask.NameToLayer("BuildingPreview");
         foreach (var tr in preview.GetComponentsInChildren<Transform>(true))
             tr.gameObject.layer = previewLayer;
+    }
+
+    private void SetupBuilding(GameObject obj)
+    {         
+        int buildingLayer = LayerMask.NameToLayer("Building");
+        foreach (var tr in obj.GetComponentsInChildren<Transform>(true))
+            tr.gameObject.layer = buildingLayer;
     }
 
     public void StartPlacement(ArcData arc, ArcRecipe arcRecipe, GameObject previewPrefab)
@@ -83,7 +103,8 @@ public class BuildPlacementController : MonoBehaviour
         if (keyboard != null && keyboard.cKey.wasPressedThisFrame && !isPlacing)
         {
             // C로 편집 모드 토글 (설치 프리뷰 중일 땐 토글 안 함)
-            UIManager.Instance?.HideUI(UIType.Building);
+            //UIManager.Instance?.HideUI(UIType.Building);
+            UIManager.Instance?.ToggleUI(UIType.EditBuild);
             isEditMode = !isEditMode;
 
             if (!isEditMode)
@@ -128,7 +149,7 @@ public class BuildPlacementController : MonoBehaviour
             Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
             hoveredBuilding = null;
 
-            if (Physics.Raycast(ray, out var hit, placeDistance, buildingMask))
+            if (Physics.Raycast(ray, out var hit, editPickDistance, buildingMask))
             {
                 hoveredBuilding = hit.collider.GetComponentInParent<BuildingInstance>();
                 if (hoveredBuilding == null)
@@ -136,7 +157,8 @@ public class BuildPlacementController : MonoBehaviour
                     hoveredBuilding = hit.collider.GetComponent<BuildingInstance>();
                 }
             }
-
+            //Debug.Log($"Hovered Building: {hoveredBuilding}");
+            previewVisual?.ResetColor();
             previewVisual = hoveredBuilding?.gameObject.GetComponent<BuildPreviewVisual>();
 
             if (previewVisual != null)
@@ -149,6 +171,7 @@ public class BuildPlacementController : MonoBehaviour
             // 왼쪽 클릭 → 이동 모드 시작
             if (hoveredBuilding != null && mouse.leftButton.wasPressedThisFrame)
             {
+                SetupPreview(hoveredBuilding.gameObject);
                 StartMoveExisting(hoveredBuilding);
             }
 
@@ -172,9 +195,11 @@ public class BuildPlacementController : MonoBehaviour
         if (isMovingExisting && movingBuilding != null)
         {
             // 편집 모드 끌 때 이동 중이었으면 원위치로
+            SetupBuilding(movingBuilding.gameObject);
             movingBuilding.transform.SetPositionAndRotation(moveStartPos, moveStartRot);
         }
 
+        previewVisual?.ResetColor();
         isMovingExisting = false;
         movingBuilding = null;
         hoveredBuilding = null;
@@ -183,6 +208,7 @@ public class BuildPlacementController : MonoBehaviour
         currentArc = null;
 
         // 하이라이트 끄기 등 추가 정리
+        //previewVisual.ResetColor();
     }
 
 
@@ -230,8 +256,15 @@ public class BuildPlacementController : MonoBehaviour
         {
             if (moveCanBuild)
             {
-                // 위치는 이미 SetPositionAndRotation 되어 있으니 DB/카운트만 유지
-                FinishMoveExisting();
+                if (BuildManager.I.TryMoveBuilding(movingBuilding, pos, rot, out moveError))
+                {
+                    SetupBuilding(movingBuilding.gameObject);
+                    FinishMoveExisting();
+                }
+                else
+                {
+                    ToastMessageUI.Instance?.Show($"이동 실패: {moveError}");
+                }
             }
             else
             {
@@ -244,6 +277,7 @@ public class BuildPlacementController : MonoBehaviour
             (keyboard != null && keyboard.escapeKey.wasPressedThisFrame))
         {
             movingBuilding.transform.SetPositionAndRotation(moveStartPos, moveStartRot);
+            SetupBuilding(movingBuilding.gameObject);
             FinishMoveExisting();
         }
     }
@@ -252,6 +286,7 @@ public class BuildPlacementController : MonoBehaviour
     {
         isMovingExisting = false;
         movingBuilding = null;
+        previewVisual.ResetColor();
         previewInstance = null;
         previewVisual = null;
         currentArc = null;

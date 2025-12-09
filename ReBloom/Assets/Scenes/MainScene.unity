@@ -1489,6 +1489,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cfbc115185f315a42a7e44af8749d387, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1019900380 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 9093831795186262520, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
+  m_PrefabInstance: {fileID: 1979078237}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1068744568
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2619,6 +2624,7 @@ MonoBehaviour:
   - {fileID: 45214279}
   - {fileID: 3071402431937619816}
   - {fileID: 903014006}
+  - {fileID: 1979078241}
 --- !u!4 &1943603726
 Transform:
   m_ObjectHideFlags: 0
@@ -2820,7 +2826,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 9093831795186262520, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1979078241}
   m_SourcePrefab: {fileID: 100100000, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
 --- !u!114 &1979078238 stripped
 MonoBehaviour:
@@ -2833,6 +2842,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58510976499feec47a7b8e882dcc7315, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1979078239 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8426144385251307906, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
+  m_PrefabInstance: {fileID: 1979078237}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1979078241
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1019900380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffc7fab72f8b0dd44bfb78d01c424908, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 13
+  layer: 1
+  blocksGameplayInput: 0
+  root: {fileID: 1019900380}
+  selectBuildingName: {fileID: 1979078239}
 --- !u!1 &1981463045
 GameObject:
   m_ObjectHideFlags: 0
