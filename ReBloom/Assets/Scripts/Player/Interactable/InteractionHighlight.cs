@@ -10,10 +10,10 @@ public class InteractionHighlight : MonoBehaviour
     [SerializeField] private float backlightRange = 3f;
     [SerializeField] private float bodylightRange = 0.05f;
 
-    [Header("Prompt UI")]
-    [SerializeField] private Canvas promptCanvas;              
-    [SerializeField] private TextMeshProUGUI promptText;
-    [SerializeField] private HoldInteractionUI holdPromptUI;
+    //[Header("Prompt UI")]
+    private Canvas promptCanvas;              
+    private TextMeshProUGUI promptText;
+    private HoldInteractionUI holdPromptUI;
 
     public HoldInteractionUI HoldPromptUI => holdPromptUI;
     public string promptFormat = "상호작용 [E]";
