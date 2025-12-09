@@ -196,6 +196,30 @@ public class ToolItemData : ItemBase
             Debug.LogWarning($"[ToolItemData] 아이콘 로드 예외: {path}\n{e.Message}");
         }
     }
+
+    /// <summary>
+    /// UI 표시용 스탯 정보 가져오기
+    /// </summary>
+    public bool TryGetStat(StatType statType, out float value)
+    {
+        value = 0f;
+
+        switch (statType)
+        {
+            case StatType.Durability:
+                value = Durability[entity];
+                break;
+            case StatType.Perform:
+                value = Perform[entity];
+                break;
+            default:
+                return false;
+        }
+
+        return Math.Abs(value) > 0.001f; // 0이 아닌 값만 true 반환
+    }
+
+
     /// <summary>
     /// Addressable로 아이콘 비동기 로드
     /// </summary>

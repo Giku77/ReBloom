@@ -17,7 +17,7 @@ public class GameInventorySlot : MonoBehaviour, IItemSlot, IDragSource,
     [SerializeField] private TextMeshProUGUI itemNameText;
 
     [Header("Optional")]
-    [SerializeField] private DebugItemTooltip tooltip;
+    [SerializeField] private GameInventoryToolTip tooltip;
 
     private ItemBase itemData;
 
@@ -29,6 +29,16 @@ public class GameInventorySlot : MonoBehaviour, IItemSlot, IDragSource,
         if (inventory == null)
         {
             Debug.LogWarning("[GameInventorySlot] GameInventory를 찾을 수 없습니다!");
+        }
+
+        Canvas parentCanvas = GetComponentInParent<Canvas>();
+        if (parentCanvas != null)
+        {
+            tooltip = parentCanvas.GetComponentInChildren<GameInventoryToolTip>();
+            if (tooltip != null)
+            {
+                Debug.Log("[GameInventorySlot] 툴팁을 Canvas에서 찾았습니다.");
+            }
         }
     }
     #endregion
@@ -135,17 +145,25 @@ public class GameInventorySlot : MonoBehaviour, IItemSlot, IDragSource,
     }
     #endregion
 
-    #region 툴팁 (아직 적용 안함)
+    #region 툴팁
     public void OnPointerEnter(PointerEventData eventData)
     {
+        Debug.Log($"[OnPointerEnter] itemData: {itemData?.itemName ?? "null"}");
+
         if (tooltip != null && itemData != null)
         {
-            tooltip.Show(itemData, showDescription: false, showStats: false);
+            Debug.Log($"[OnPointerEnter] 툴팁 Show 호출!");
+            tooltip.Show(itemData);
+        }
+        else
+        {
+            Debug.Log($"[OnPointerEnter] tooltip: {tooltip != null}, itemData: {itemData != null}");
         }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        Debug.Log("[OnPointerExit] 호출됨");
         if (tooltip != null)
         {
             tooltip.Hide();
