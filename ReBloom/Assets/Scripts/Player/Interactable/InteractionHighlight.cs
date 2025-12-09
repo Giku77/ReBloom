@@ -48,11 +48,7 @@ public class InteractionHighlight : MonoBehaviour
             Debug.Log("InteractionCanvasManager.Instance가 null!");
         }
 
-        // 처음에는 프롬프트 숨기기
-        if (promptCanvas != null)
-        {
-            promptCanvas.gameObject.SetActive(false);
-        }
+        HidePrompt();
     }
 
     private void LateUpdate()

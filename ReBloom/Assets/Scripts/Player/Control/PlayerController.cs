@@ -34,6 +34,7 @@ public class PlayerController : MonoBehaviour
     private float originalRotationSpeed;
     private float originalTurnSpeed;
     private bool wasBuildPlacing = false;
+    private float originalZoomDistance;
 
     public float currentSpeed = 0f;
 
@@ -540,7 +541,10 @@ public class PlayerController : MonoBehaviour
         onPassOut?.Invoke();
 
         if (thirdPersonCamera != null)
+        {
+            originalZoomDistance = thirdPersonCamera.distance;
             thirdPersonCamera.enabled = false;
+        }
 
         if (cinemachineBrain != null)
             cinemachineBrain.enabled = true;
@@ -551,7 +555,10 @@ public class PlayerController : MonoBehaviour
             cinemachineBrain.enabled = false;
 
         if (thirdPersonCamera != null)
+        {
+            thirdPersonCamera.distance = originalZoomDistance;
             thirdPersonCamera.enabled = true;
+        }
 
         Anim.PlayerWakeUp();
 
