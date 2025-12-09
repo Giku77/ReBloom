@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using Unity.Cinemachine;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -390,6 +389,11 @@ public class PlayerController : MonoBehaviour
 
             Vector3 fly = cameraTransform.TransformDirection(move);
 
+            if (Keyboard.current.spaceKey.wasPressedThisFrame)
+            {
+                fly.y = 5f;
+            }
+
             rb.linearVelocity = fly * debugSpeed;
             return;
         }
@@ -475,6 +479,8 @@ public class PlayerController : MonoBehaviour
 
     private void JumpPlayer()
     {
+        if (debugMode) return;
+
         if (IsMovementLocked) { jumpRequested = false; return; }
         if (!jumpRequested) return;
 
