@@ -55,6 +55,7 @@ public class CraftingUI : UIBase
     {
         selectedAmount = Mathf.RoundToInt(value);
         UpdateCraftCountText();
+        RefreshMaterialText();
     }
 
     private void UpdateCraftCountText()
@@ -96,10 +97,11 @@ public class CraftingUI : UIBase
             });
     }
 
+    private CraftingSlotUI firstslot;
+
     private void Start()
     {
         var recipes = recipeDb.GetAll();
-        CraftingSlotUI firstslot = null;
         foreach (var recipe in recipes)
         {
             var slot = Instantiate(slotPrefab, slotParent);
@@ -110,11 +112,22 @@ public class CraftingUI : UIBase
         firstslot?.Select();
     }
 
+    private void OnEnable()
+    {
+        firstslot?.Select();
+    }
+
     public void OnClickCraftButton()
     {
-        if (selectedAmount <= 0)
+        if (selectedAmount <= 0 && maxCraftable > 0)
         {
             setResultText("제작 수량을 선택해주세요.");
+            return;
+        }
+
+        if (selectedAmount <= 0)
+        {
+            setResultText("재료가 부족합니다.");
             return;
         }
 
@@ -160,6 +173,7 @@ public class CraftingUI : UIBase
                 craftingCountSlider.value = selectedAmount;
             }
             UpdateCraftCountText();
+            RefreshMaterialText();
         }
     }
 
@@ -167,6 +181,18 @@ public class CraftingUI : UIBase
     {
         recipeResultText.text = result;
     }
+
+    private void RefreshMaterialText()
+    {
+        if (!recipeDb.TryGet(currentRecipeId, out var recipe))
+            return;
+
+        int amount = Mathf.Max(selectedAmount, 1); // 0이면 그냥 1개 기준으로 보여주게
+
+        var check = crafting.CanCraft(currentRecipeId, amount);
+        recipeMaterialsText.text = BuildMaterialText(recipe, check, amount);
+    }
+
 
     public void SelectRecipe(int recipeId)
     {
@@ -177,7 +203,6 @@ public class CraftingUI : UIBase
             return;
 
         recipeNameText.text = recipe.productName;  
-        recipeMaterialsText.text = BuildMaterialText(recipe); 
         recipeResultText.text = string.Empty;
 
         maxCraftable = crafting.GetMaxCraftable(recipeId);
@@ -193,19 +218,47 @@ public class CraftingUI : UIBase
         }
 
         UpdateCraftCountText();
+        RefreshMaterialText();
     }
 
-    private string BuildMaterialText(CraftRecipeData recipe)
+    private string BuildMaterialText(
+        CraftRecipeData recipe,
+        CraftCheckResult check,
+        int amount)
     {
         System.Text.StringBuilder sb = new System.Text.StringBuilder();
-        sb.AppendLine("필요 재료 : ");
+
         foreach (var mat in recipe.materials)
         {
-            var itemName = mat.name;
-            sb.AppendLine($"{itemName} x{mat.count}");
+            int need = mat.count * amount;
+
+            check.missingMaterials?.TryGetValue(mat.itemId, out int missing);
+
+            int owned = inventory.GetItemCount(mat.itemId);
+            bool isLack = owned < need;
+            int lack = System.Math.Max(0, need - owned);
+
+            //if (isLack) sb.Append("<color=#ff8080>");   // 빨간색 계열
+            //else        sb.Append("<color=#80ff80>");   // 초록색 계열
+
+            //sb.Append($"{mat.name} (보유: {owned} / <color=#A0A0A0>소모: {need}");
+
+            // if (isLack)
+            //     sb.Append($", 부족: {lack}");
+            if (isLack) sb.Append("<color=#ff8080>");
+            sb.Append($"{mat.name} : {owned} / {need}");
+            sb.Append("</color>\n");
+            // sb.Append($"보유: {owned}</color>");
+            // sb.Append(" / ");
+            // sb.Append("<color=#a0a0a0>");
+            // sb.Append($"소모: {need}");
+            // sb.Append("</color>");
+            // sb.Append(")\n");
         }
+
         return sb.ToString();
     }
+
 
     public void Toggle()
     {

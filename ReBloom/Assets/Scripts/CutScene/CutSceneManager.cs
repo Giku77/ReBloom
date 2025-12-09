@@ -15,6 +15,7 @@ public class CutSceneManager : MonoBehaviour
     [SerializeField] private Image cutSceneImage;
     [SerializeField] private Image backgroundImage;
     [SerializeField] private CanvasGroup cutSceneGroup;
+    [SerializeField] private GameObject skipHoldUI;
 
     [Header("Settings")]
     [SerializeField] private int introCutSceneId = 1;
@@ -56,6 +57,8 @@ public class CutSceneManager : MonoBehaviour
         cutSceneCts.Cancel();
     }
 
+    private bool isFirst = true;
+    private string currentImgName = "";
     public async UniTask PlayCutSceneSequenceAsync(int startCutSceneId)
     {
         if (isPlaying)
@@ -78,7 +81,7 @@ public class CutSceneManager : MonoBehaviour
             if (cutSceneGroup != null)
             {
                 cutSceneGroup.gameObject.SetActive(true);
-                //cutSceneGroup.alpha = 0f;
+                cutSceneGroup.alpha = 0f;
             }
 
             await ApplyCutSceneVisualAsync(firstData);
@@ -89,11 +92,37 @@ public class CutSceneManager : MonoBehaviour
             int currentId = startCutSceneId;
 
             while (!token.IsCancellationRequested &&
-                   cutSceneDb.TryGet(currentId, out var data))
+            cutSceneDb.TryGet(currentId, out var data))
             {
+                bool imageChanged = currentImgName != data.ImageName;
+
+                if (!isFirst)
+                {
+                    if (imageChanged)
+                    {
+                        if (dialogueUI != null)
+                            dialogueUI.HideInstant();
+
+                        if (cutSceneGroup != null)
+                            await FadeCanvasGroupAsync(cutSceneGroup, 0f, fadeDuration, token);
+                    }
+                }
+                else
+                {
+                    isFirst = false;
+                }
+
                 await ApplyCutSceneVisualAsync(data);
 
-                await dialogueUI.ShowLineAsync(data.TextKR, textColor: Color.yellow);
+                if (imageChanged && cutSceneGroup != null)
+                    await FadeCanvasGroupAsync(cutSceneGroup, 1f, fadeDuration, token);
+
+                currentImgName = data.ImageName;
+
+                await UniTask.Delay(TimeSpan.FromSeconds(0.2f), cancellationToken: token);
+
+                if (dialogueUI != null)
+                    await dialogueUI.ShowLineAsync(data.TextKR);
 
                 if (token.IsCancellationRequested)
                     break;
@@ -116,6 +145,9 @@ public class CutSceneManager : MonoBehaviour
 
             if (backgroundImage != null)
                 backgroundImage.gameObject.SetActive(false);
+
+            if (skipHoldUI != null)
+                skipHoldUI.SetActive(false);
 
             // if (cutSceneGroup != null)
             // {
