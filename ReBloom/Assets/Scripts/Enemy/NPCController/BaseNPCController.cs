@@ -17,6 +17,9 @@ public abstract class BaseNPCController : MonoBehaviour
     public Vector3 initialPosition { get; protected set; }
     public Quaternion initialRotation { get; protected set; }
 
+    public bool isStunned = false;
+    protected float stunEndTime = 0f;
+
     protected virtual void Start()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -70,5 +73,14 @@ public abstract class BaseNPCController : MonoBehaviour
     private void OnDestroy()
     {
         PlayerFootstep.OnFootstep -= HandleFootstep;
+    }
+
+    public void ApplyStun(float duration)
+    {
+        isStunned = true;
+        stunEndTime = Time.time + duration;
+        if (agent != null)
+            agent.isStopped = true;
+        animator.SetTrigger("Stunned");
     }
 }

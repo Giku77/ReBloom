@@ -4,11 +4,8 @@ using UnityEngine.AI;
 public class MechNPCController : BaseNPCController
 {
     [Header("Mech Specific")]
-    public bool isStunned = false;
     public bool isJammed = false;
     public float lastAttackTime = -999f;
-
-    private float stunEndTime = 0f;
 
     protected override void InitializeState()
     {
@@ -37,12 +34,12 @@ public class MechNPCController : BaseNPCController
         }
     }
 
-    public void ApplyStun(float duration)
-    {
-        isStunned = true;
-        stunEndTime = Time.time + duration;
-        if (agent != null)
-            agent.isStopped = true;
-        animator.SetTrigger("Stunned");
-    }
+    //public void ApplyStun(float duration)
+    //{
+    //    isStunned = true;
+    //    stunEndTime = Time.time + duration;
+    //    if (agent != null)
+    //        agent.isStopped = true;
+    //    animator.SetTrigger("Stunned");
+    //}
 }

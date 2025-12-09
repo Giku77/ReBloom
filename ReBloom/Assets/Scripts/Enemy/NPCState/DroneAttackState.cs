@@ -51,7 +51,7 @@ public class DroneAttackState : NPCState
         if (attackTimer >= attackInterval)
         {
             attackTimer = 0f;
-            drone.AttackNow();
+            drone.Attack();
         }
     }
 

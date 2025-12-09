@@ -78,9 +78,11 @@ public class DroneNPCController : BaseNPCController
             ChangeState(new DroneChaseState(this));
     }
 
-    public void AttackNow()
+    public void Attack()
     {
         //if (Time.time - lastAttackTime < attackCooldown) return;
+
+        animator.SetTrigger("Shoot1");
 
         var stats = player.GetComponent<PlayerStats>();
         if (stats != null)
