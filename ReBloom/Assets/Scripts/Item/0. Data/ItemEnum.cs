@@ -1,0 +1,178 @@
+﻿
+// ============================================================
+// ==================== 아이템 테이블 타입 ====================
+// ============================================================
+
+public enum ItemTableType
+{
+    Consumable,     // 소모품
+    Protective,     // 보호구
+    Tool,           // 도구
+    Misc            // 기타
+}
+
+/// <summary>
+/// 인벤토리 슬롯 위치 (장비/소비/기타/중요)
+/// </summary>
+public enum InventorySlotType
+{
+    Equipment = 1,      // 장비 탭
+    Consumable = 2,     // 소비 아이템 탭
+    Misc = 3,           // 기타 아이템 탭
+    Important = 4       // 중요 아이템 탭
+}
+
+/// <summary>
+/// 아이템 티어 (3단계)
+/// </summary>
+public enum ItemTier
+{
+    Common = 0,         // 일반 (1단계)
+    Rare = 1,           // 희귀 (2단계)
+    Epic = 2            // 영웅 (3단계)
+}
+
+// ==================== 소비 아이템 관련 ====================
+
+/// <summary>
+/// 소비 아이템 대분류
+/// </summary>
+public enum ConsumableCategory
+{
+    Food = 1,           // 1. 식량
+    Medical = 2,        // 2. 구급물품
+    Jamming = 3,        // 3. 재밍 아이템 (주파수)
+    ExpansionChip       // 4. 가방확장칩
+}
+
+/// <summary>
+/// 소비 아이템 소분류
+/// </summary>
+public enum ConsumableSubCategory
+{
+    CannedFood = 0,             // 통조림
+    Water = 1,                  // 물
+    Antidote = 2,               // 방사능 해독
+    MedicalKit = 3,             // 구급상자
+    CultivatedVegetable = 4,    // 재배 채소
+    HeatPack = 5,               // 발열팩
+    Jammer = 6                  // 재머
+}
+
+/// <summary>
+/// 오염도 (4단계)
+/// 데이터는 float형
+/// ui 및 이벤트 용도 (예비)
+/// </summary>
+public enum ContaminationLevel
+{
+    None = 0,           // 0단계 - 오염 없음
+    Low = 1,            // 1단계 - 낮음
+    Medium = 2,         // 2단계 - 중간
+    High = 3            // 3단계 - 높음
+}
+
+// ==================== 도구 관련 ====================
+
+/// <summary>
+/// 도구 사용 장소
+/// </summary>
+public enum ToolUsageType
+{
+    Plant = 1,              // 1. 식물 (낫)
+    BuildingMineral = 2,    // 2. 건물, 광물 (곡괭이??)
+    All = 3                 // 3. 건물, 광물, 자동차 (도끼)
+}
+
+/// <summary>
+/// 도구 카테고리
+/// </summary>
+public enum ToolCategory
+{
+    Shovel = 1,     // 삽
+    Hammer = 2    // 망치
+    // 추가 카테고리 필요 시 여기에 추가
+}
+
+// ==================== 보호구 관련 ====================
+
+/// <summary>
+/// 보호구 종류
+/// </summary>
+public enum GearType
+{
+    Clothing = 1,       // 옷
+    Shoes = 2,           // 신발
+    Tool = 3,           // 도구
+    None = 4
+}
+
+// ==================== 기타 아이템 관련 ====================
+
+/// <summary>
+/// 기타 아이템 분류
+/// </summary>
+public enum MiscItemCategory
+{
+    UnidentifiedSeed = 1,   // 미확인 종자
+    Seed = 2,               // 종자
+    NaturalMaterial = 3,    // 자연 재료
+    ProcessedMaterial = 4,  // 가공 재료
+    ImportantItem = 5       // 중요 아이템
+}
+
+/// <summary>
+/// 변이도 등급 (드랍 결정에 사용)
+/// 지역 고유 변이도 + 날씨 변이도를 계산하여 사용
+/// </summary>
+public enum MutationLevel
+{
+    VeryLow = 0,        // 매우 낮음
+    Low = 1,            // 낮음
+    Medium = 2,         // 보통
+    High = 3,           // 높음
+}
+
+// =====================================================
+// ==================== 정렬 옵션 ======================
+// =====================================================
+
+/// <summary>
+/// 정렬 옵션
+/// </summary>
+public enum SortOption
+{
+    ByID,           // ID 정렬
+    ByName,         // 이름 정렬
+    ByTier,         // 등급 정렬
+    BySubCategory   // 하위 분류 정렬
+}
+
+
+public enum ToolType
+{
+    Shovel = 1,   // 삽
+    Hammer = 2,   // 망치
+}
+
+public enum StatType
+{
+    //소비
+    Pollution,  // 오염도
+    Thirst,     // 갈증
+    Hunger,    // 허기
+    Temperature, // 체온
+    HP, // 체력
+    Range, // 무력화 아이템 범위
+    Duration, // 무력화 아이템 사용시간
+
+    //보호구
+    Pollution_Resist,
+    Height_Resist,
+    Extra_HP,
+    Insulation,
+
+    //도구
+    Durability,
+    Perform
+}

@@ -34,6 +34,13 @@ public class ConsumableItemData : ItemBase
     private BGField<string> Description;
     private BGField<string> Addressable_Key;
 
+    // UI용 읽기 전용 Property
+    public float PollutionValue => Pollution != null ? Pollution[entity] : 0f;
+    public float ThirstValue => Thirst != null ? Thirst[entity] : 0f;
+    public float HungerValue => Hunger != null ? Hunger[entity] : 0f;
+    public float HPValue => HP != null ? HP[entity] : 0f;
+    public float TempValue => Temp != null ? Temp[entity] : 0f;
+
     /// <summary>
     /// BG Database Entity로 초기화
     /// </summary>
@@ -316,11 +323,41 @@ public class ConsumableItemData : ItemBase
     }
 
     /// <summary>
+    /// UI 표시용 스탯 정보 가져오기
+    /// </summary>
+    public bool TryGetStat(StatType statType, out float value)
+    {
+        value = 0f;
+
+        switch (statType)
+        {
+            case StatType.HP:
+                value = HP[entity];
+                break;
+            case StatType.Pollution:
+                value = Pollution[entity];
+                break;
+            case StatType.Thirst:
+                value = Thirst[entity];
+                break;
+            case StatType.Hunger:
+                value = Hunger[entity];
+                break;
+            case StatType.Temperature:
+                value = Temp[entity];
+                break;
+            default:
+                return false;
+        }
+
+        return Math.Abs(value) > 0.001f; // 0이 아닌 값만 true 반환
+    }
+    /// <summary>
     /// 사용 효과 재생 (VFX/SFX)
     /// </summary>
     private void PlayUseEffect(Vector3 position)
     {
-        // TODO: TA 작업 - VFX/SFX 시스템과 연동
+        // TODO: 작업 - VFX/SFX 시스템과 연동
         // VFXManager.I.Play("ItemUse_" + itemName, position);
         // SFXManager.I.Play("ItemUse_Sound");
     }

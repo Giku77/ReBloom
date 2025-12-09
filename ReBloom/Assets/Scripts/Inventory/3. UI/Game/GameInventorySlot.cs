@@ -17,7 +17,7 @@ public class GameInventorySlot : MonoBehaviour, IItemSlot, IDragSource,
     [SerializeField] private TextMeshProUGUI itemNameText;
 
     [Header("Optional")]
-    [SerializeField] private DebugItemTooltip tooltip;
+    [SerializeField] private GameInventoryToolTip tooltip;
 
     private ItemBase itemData;
 
@@ -29,6 +29,19 @@ public class GameInventorySlot : MonoBehaviour, IItemSlot, IDragSource,
         if (inventory == null)
         {
             Debug.LogWarning("[GameInventorySlot] GameInventory를 찾을 수 없습니다!");
+        }
+        if (tooltip == null)
+        {
+            tooltip = FindFirstObjectByType<GameInventoryToolTip>();
+
+            if (tooltip != null)
+            {
+                Debug.Log($"[GameInventorySlot] 툴팁 자동 검색 완료: {tooltip.name}");
+            }
+            else
+            {
+                Debug.LogWarning("[GameInventorySlot] GameInventoryToolTip을 찾을 수 없습니다!");
+            }
         }
     }
     #endregion
@@ -135,12 +148,12 @@ public class GameInventorySlot : MonoBehaviour, IItemSlot, IDragSource,
     }
     #endregion
 
-    #region 툴팁 (아직 적용 안함)
+    #region 툴팁
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (tooltip != null && itemData != null)
         {
-            tooltip.Show(itemData, showDescription: false, showStats: false);
+            tooltip.Show(itemData);
         }
     }
 
