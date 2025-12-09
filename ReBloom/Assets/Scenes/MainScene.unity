@@ -659,7 +659,7 @@ MonoBehaviour:
   thirdPersonCamera: {fileID: 366669680}
   robotPet: {fileID: 686687085}
   cutSceneManager: {fileID: 1108709572}
-  isDebug: 0
+  isDebug: 1
 --- !u!4 &556542449
 Transform:
   m_ObjectHideFlags: 0
@@ -1053,6 +1053,10 @@ PrefabInstance:
     - target: {fileID: 899873214960286743, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1097723878453359439, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
+      propertyPath: layer
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2568565311856529922, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
       propertyPath: m_AnchorMax.y
@@ -2125,6 +2129,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68985daf64a74734bbc2b8ca7aa305fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1492327049 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5461208628427969299, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
+  m_PrefabInstance: {fileID: 1979078237}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1528782627 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6767319946384473068, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
@@ -2781,6 +2790,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4767455867535488716, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
+      propertyPath: buildUI
+      value: 
+      objectReference: {fileID: 1492327049}
+    - target: {fileID: 4767455867535488716, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
       propertyPath: playerCamera
       value: 
       objectReference: {fileID: 366669684}
@@ -2788,6 +2801,10 @@ PrefabInstance:
       propertyPath: playerTransform
       value: 
       objectReference: {fileID: 443533650}
+    - target: {fileID: 4767455867535488716, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
+      propertyPath: buildingMask.m_Bits
+      value: 512
+      objectReference: {fileID: 0}
     - target: {fileID: 6552575735141113880, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
       propertyPath: m_Name
       value: BuildSystemBoot
@@ -2810,7 +2827,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3822635548090404213, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
   m_PrefabInstance: {fileID: 1979078237}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1492327049}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 58510976499feec47a7b8e882dcc7315, type: 3}

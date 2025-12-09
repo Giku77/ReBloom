@@ -146,6 +146,8 @@ public class DebugInventoryUI : UIBase
         //    Cursor.visible = true;
         //    Cursor.lockState = CursorLockMode.None;
         //}
+        if (UIManager.Instance != null && UIManager.Instance.IsBlockedInput)
+          return;
         UIManager.Instance.ToggleUI(Type);
     }
 

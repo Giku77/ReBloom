@@ -277,6 +277,8 @@ public class CraftingUI : UIBase
         //    backgroundImage.gameObject.SetActive(false);
         //    Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = false;
         //}
+        if (UIManager.Instance != null && UIManager.Instance.IsBlockedInput)
+          return;
         UIManager.Instance?.ToggleUI(Type);
     }
 

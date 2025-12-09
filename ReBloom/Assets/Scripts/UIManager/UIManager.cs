@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using NUnit.Framework;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class UIManager : MonoBehaviour
@@ -11,6 +12,10 @@ public class UIManager : MonoBehaviour
     private readonly Stack<UIType> escStack = new();  
 
     public bool IsInUIMode => escStack.Count > 0;
+
+    private bool isBlockedInput = false;
+
+    public bool IsBlockedInput => isBlockedInput;
 
     private void Awake()
     {
@@ -51,9 +56,8 @@ public class UIManager : MonoBehaviour
 
     public void ToggleUI(UIType type)
     {
-        Debug.Log($"[UIManager] ToggleUI called: {type}");
         if (!uiDict.TryGetValue(type, out var ui)) return;
-        Debug.Log($"[UIManager] ToggleUI: {type}, IsOpen: {ui.IsOpen}");
+
         if (ui.IsOpen)
         {
             Debug.Log($"[UIManager] Hiding UI: {type}");
@@ -82,6 +86,20 @@ public class UIManager : MonoBehaviour
             PushToEscStack(type);
             UpdateInputLock();
         }
+    }
+
+    public void CloseAllUIs()
+    {
+        foreach (var kvp in uiDict)
+        {
+            var ui = kvp.Value;
+            if (ui.IsOpen)
+            {
+                ui.Hide();
+                RemoveFromEscStack(kvp.Key);
+            }
+        }
+        UpdateInputLock();
     }
 
     private void CloseAllModalsExcept(UIType except)
@@ -130,6 +148,14 @@ public class UIManager : MonoBehaviour
         if (!escStack.Contains(type))
             escStack.Push(type);
     }
+
+    
+    public void SetBlockingInput(bool isBlocked)
+    {
+        isBlockedInput = isBlocked;
+        UpdateInputLock();
+    }
+
 
     private void RemoveFromEscStack(UIType type)
     {

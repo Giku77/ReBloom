@@ -64,5 +64,5 @@ public enum UILayer
 {
     HUD,
     Modal,
-    Overlay
+    Overlay,
 }

@@ -5,6 +5,7 @@ public class BuildPreviewVisual : MonoBehaviour
     [SerializeField] private Renderer[] renderers;
     [SerializeField] private Color validColor = Color.green;
     [SerializeField] private Color invalidColor = Color.red;
+    [SerializeField] private Color editColor = Color.yellow;
 
     private MaterialPropertyBlock mpb;
 
@@ -19,6 +20,14 @@ public class BuildPreviewVisual : MonoBehaviour
     {
         Color c = isValid ? validColor : invalidColor;
         mpb.SetColor("_BaseColor", c);
+
+        foreach (var r in renderers)
+            r.SetPropertyBlock(mpb);
+    }
+    
+    public void SetEditMode()
+    {
+        mpb.SetColor("_BaseColor", editColor);
 
         foreach (var r in renderers)
             r.SetPropertyBlock(mpb);

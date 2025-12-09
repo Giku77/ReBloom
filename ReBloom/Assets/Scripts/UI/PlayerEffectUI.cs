@@ -53,6 +53,7 @@ public class PlayerEffectUI : UIBase
         await MoveLoadingImage();
 
         UIManager.Instance.ToggleUI(UIType.PlayerEffect);
+        UIManager.Instance.SetBlockingInput(false);
 
         //passOutLoadingScreen?.SetActive(false);
     }
