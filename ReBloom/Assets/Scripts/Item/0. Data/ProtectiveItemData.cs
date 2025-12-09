@@ -118,6 +118,33 @@ public class ProtectiveItemData : ItemBase
             // TODO: 장비 파괴 처리
         }
     }
+    /// <summary>
+    /// UI 표시용 스탯 정보 가져오기
+    /// </summary>
+    public bool TryGetStat(StatType statType, out float value)
+    {
+        value = 0f;
+
+        switch (statType)
+        {
+            case StatType.Pollution_Resist:
+                value = Pollution_Resist[entity];
+                break;
+            case StatType.Height_Resist:
+                value = Height_Resist[entity];
+                break;
+            case StatType.Extra_HP:
+                value = Extra_HP[entity];
+                break;
+            case StatType.Insulation:
+                value = Insulation[entity];
+                break;
+            default:
+                return false;
+        }
+
+        return Math.Abs(value) > 0.001f; // 0이 아닌 값만 true 반환
+    }
 
     /// <summary>
     /// Addressable로 아이콘 비동기 로드
