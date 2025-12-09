@@ -30,17 +30,14 @@ public class GameInventorySlot : MonoBehaviour, IItemSlot, IDragSource,
         {
             Debug.LogWarning("[GameInventorySlot] GameInventory를 찾을 수 없습니다!");
         }
-        if (tooltip == null)
-        {
-            tooltip = FindFirstObjectByType<GameInventoryToolTip>();
 
+        Canvas parentCanvas = GetComponentInParent<Canvas>();
+        if (parentCanvas != null)
+        {
+            tooltip = parentCanvas.GetComponentInChildren<GameInventoryToolTip>();
             if (tooltip != null)
             {
-                Debug.Log($"[GameInventorySlot] 툴팁 자동 검색 완료: {tooltip.name}");
-            }
-            else
-            {
-                Debug.LogWarning("[GameInventorySlot] GameInventoryToolTip을 찾을 수 없습니다!");
+                Debug.Log("[GameInventorySlot] 툴팁을 Canvas에서 찾았습니다.");
             }
         }
     }
@@ -151,14 +148,22 @@ public class GameInventorySlot : MonoBehaviour, IItemSlot, IDragSource,
     #region 툴팁
     public void OnPointerEnter(PointerEventData eventData)
     {
+        Debug.Log($"[OnPointerEnter] itemData: {itemData?.itemName ?? "null"}");
+
         if (tooltip != null && itemData != null)
         {
+            Debug.Log($"[OnPointerEnter] 툴팁 Show 호출!");
             tooltip.Show(itemData);
+        }
+        else
+        {
+            Debug.Log($"[OnPointerEnter] tooltip: {tooltip != null}, itemData: {itemData != null}");
         }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        Debug.Log("[OnPointerExit] 호출됨");
         if (tooltip != null)
         {
             tooltip.Hide();

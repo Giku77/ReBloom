@@ -63,8 +63,7 @@ public class GameInventoryToolTip : MonoBehaviour
     /// </summary>
     public void Show(ItemBase item)
     {
-        if (item == null) return;
-
+        Debug.Log($"[GameInventoryToolTip] Show 호출됨! Item: {item?.itemName}");
         currentItem = item;
         tooltipRoot.SetActive(true);
 
@@ -72,10 +71,21 @@ public class GameInventoryToolTip : MonoBehaviour
         title.text = item.itemName;
         description.text = item.description;
         category.text = GetCategoryName(item);
-        tier.text = $"Tier {item.tier}";
 
-        // 티어 색상
-        imgBorder.color = GetTierColor(item.tier);
+        if (item.tier > 0)
+        {
+            tier.gameObject.SetActive(true);
+            tier.text = $"Tier {item.tier}";
+
+            // 티어 색상
+            imgBorder.color = GetTierColor(item.tier);
+        }
+        else
+        {
+            tier.gameObject.SetActive(false);
+            imgBorder.color = GetTierColor(item.tier);
+        }
+
 
         HideAllStats();
         // 스탯 정보 (아이템 타입별 분기)
@@ -222,9 +232,10 @@ public class GameInventoryToolTip : MonoBehaviour
     {
         return tier switch
         {
-            1 => new Color(0.7f, 0.7f, 0.7f), // 회색
-            2 => new Color(0.3f, 0.6f, 1f),   // 파랑
-            3 => new Color(0.8f, 0.3f, 1f),   // 보라
+            0 => Color.white,                     //
+            1 => new Color(0.7f, 0.7f, 0.7f),    // 회색
+            2 => new Color(0.3f, 0.6f, 1f),      // 파랑
+            3 => new Color(0.8f, 0.3f, 1f),      // 보라
             _ => Color.white
         };
     }
