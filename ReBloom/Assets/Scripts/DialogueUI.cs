@@ -11,6 +11,9 @@ public class DialogueUI : UIBase
     [SerializeField] private Image backgroundImage;
     [SerializeField] private float typeSpeed = 40f; // 글자/초
 
+    [Header("Fade Settings")]
+    [SerializeField] private float fadeDuration = 0.25f; // 페이드 인/아웃 시간(초)
+
     private bool nextRequested;
     private CanvasGroup canvasGroup;
 
@@ -20,12 +23,41 @@ public class DialogueUI : UIBase
     protected override void Awake()
     {
         base.Awake();
-        canvasGroup = GetComponentInParent<CanvasGroup>();
+        canvasGroup = GetComponent<CanvasGroup>();
         if (backgroundImage != null)
         {
             originalBgColor = backgroundImage.color;
         }
     }
+
+    public async UniTask FadeAsync(float from, float to, float duration)
+    {
+        if (canvasGroup == null || duration <= 0f)
+        {
+            if (canvasGroup != null)
+                canvasGroup.alpha = to;
+            return;
+        }
+
+        var token = this.GetCancellationTokenOnDestroy();
+
+        float t = 0f;
+        canvasGroup.alpha = from;
+
+        while (t < duration)
+        {
+            if (token.IsCancellationRequested)
+                return;
+
+            t += Time.deltaTime;
+            float lerp = Mathf.Clamp01(t / duration);
+            canvasGroup.alpha = Mathf.Lerp(from, to, lerp);
+            await UniTask.Yield(PlayerLoopTiming.Update, token);
+        }
+
+        canvasGroup.alpha = to;
+    }
+
 
     public void OnNextInput(InputAction.CallbackContext ctx)
     {
@@ -34,10 +66,45 @@ public class DialogueUI : UIBase
         nextRequested = true;
     }
 
+    public override void Hide()
+    {
+        if (canvasGroup != null)
+        {
+            FadeAsync(canvasGroup.alpha, 0f, fadeDuration)
+                .ContinueWith(() => base.Hide())
+                .Forget();
+        }
+        else
+        {
+            base.Hide();
+        }
+    }
+
     public override void Show()
     {
         base.Show();
-        if (canvasGroup != null) canvasGroup.alpha = 1f;
+        if (canvasGroup != null)
+        {
+            canvasGroup.alpha = 1f;
+        }
+        // if (canvasGroup != null) {
+        //     canvasGroup.alpha = 0f;
+        //     FadeAsync(0f, 1f, fadeDuration).Forget();
+        // }
+    }
+
+    public void HideInstant()
+    {
+        if (messageText != null)
+            messageText.text = string.Empty;
+
+        if (characterImage != null)
+            characterImage.gameObject.SetActive(false);
+
+        if (canvasGroup != null)
+            canvasGroup.alpha = 0f;
+
+        base.Hide();
     }
 
     public async UniTask ShowLineAsync(

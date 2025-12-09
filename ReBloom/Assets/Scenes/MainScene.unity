@@ -292,17 +292,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 59bf6f93a384f9e41b45c36fa65e247f, type: 3}
   m_PrefabInstance: {fileID: 1068744568}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &302170613 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5577737273405749052, guid: 334112ed8d703c347a8da67fd011b66e, type: 3}
-  m_PrefabInstance: {fileID: 3071402431937619815}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!134 &323962727
 PhysicsMaterial:
   m_ObjectHideFlags: 0
@@ -1601,6 +1590,7 @@ MonoBehaviour:
   cutSceneImage: {fileID: 3071402431937619819}
   backgroundImage: {fileID: 3071402431937619818}
   cutSceneGroup: {fileID: 3071402431937619817}
+  skipHoldUI: {fileID: 3071402431937619821}
   introCutSceneId: 1
   seenKeyPrefix: CutScene_
   fadeDuration: 0.5
@@ -3303,73 +3293,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2692577772589344599, guid: 334112ed8d703c347a8da67fd011b66e, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3972443039724972028, guid: 334112ed8d703c347a8da67fd011b66e, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 150
-      objectReference: {fileID: 0}
-    - target: {fileID: 3972443039724972028, guid: 334112ed8d703c347a8da67fd011b66e, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 150
-      objectReference: {fileID: 0}
-    - target: {fileID: 3972443039724972028, guid: 334112ed8d703c347a8da67fd011b66e, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: -282.7
-      objectReference: {fileID: 0}
-    - target: {fileID: 3972443039724972028, guid: 334112ed8d703c347a8da67fd011b66e, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 120
-      objectReference: {fileID: 0}
-    - target: {fileID: 5577737273405749052, guid: 334112ed8d703c347a8da67fd011b66e, type: 3}
-      propertyPath: m_Sprite
-      value: 
-      objectReference: {fileID: 21300000, guid: e47621b43d1634d0c8165dbedd08aea9, type: 3}
-    - target: {fileID: 5577737273405749052, guid: 334112ed8d703c347a8da67fd011b66e, type: 3}
-      propertyPath: m_Color.a
-      value: 0.60784316
-      objectReference: {fileID: 0}
-    - target: {fileID: 5577737273405749052, guid: 334112ed8d703c347a8da67fd011b66e, type: 3}
-      propertyPath: m_Color.b
-      value: 0.509434
-      objectReference: {fileID: 0}
-    - target: {fileID: 5577737273405749052, guid: 334112ed8d703c347a8da67fd011b66e, type: 3}
-      propertyPath: m_Color.g
-      value: 0.509434
-      objectReference: {fileID: 0}
-    - target: {fileID: 5577737273405749052, guid: 334112ed8d703c347a8da67fd011b66e, type: 3}
-      propertyPath: m_Color.r
-      value: 0.509434
-      objectReference: {fileID: 0}
-    - target: {fileID: 5664524007324304387, guid: 334112ed8d703c347a8da67fd011b66e, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 95
-      objectReference: {fileID: 0}
-    - target: {fileID: 7169588346689615860, guid: 334112ed8d703c347a8da67fd011b66e, type: 3}
-      propertyPath: backgroundImage
-      value: 
-      objectReference: {fileID: 302170613}
     - target: {fileID: 7454756938500135222, guid: 334112ed8d703c347a8da67fd011b66e, type: 3}
       propertyPath: m_Name
       value: DialogueCanvas
-      objectReference: {fileID: 0}
-    - target: {fileID: 8366023380383808408, guid: 334112ed8d703c347a8da67fd011b66e, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: -21
-      objectReference: {fileID: 0}
-    - target: {fileID: 8512762122882008476, guid: 334112ed8d703c347a8da67fd011b66e, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: -261.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8512762122882008476, guid: 334112ed8d703c347a8da67fd011b66e, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 89
-      objectReference: {fileID: 0}
-    - target: {fileID: 8637922869318930102, guid: 334112ed8d703c347a8da67fd011b66e, type: 3}
-      propertyPath: m_text
-      value: "\uAFB9 \uB20C\uB7EC\uC11C \uC2A4\uD0B5 [SPACE]"
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3389,7 +3315,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
 --- !u!225 &3071402431937619817 stripped
 CanvasGroup:
-  m_CorrespondingSourceObject: {fileID: 4617576583958069629, guid: 334112ed8d703c347a8da67fd011b66e, type: 3}
+  m_CorrespondingSourceObject: {fileID: 6865695992299619275, guid: 334112ed8d703c347a8da67fd011b66e, type: 3}
   m_PrefabInstance: {fileID: 3071402431937619815}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &3071402431937619818 stripped

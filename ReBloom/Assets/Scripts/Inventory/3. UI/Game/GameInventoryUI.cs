@@ -59,7 +59,6 @@ public class GameInventoryUI : UIBase
     #region Unity 생명주기
     protected override void Awake()
     {
-        base.Awake();
         InitializeTabButtons();
         questUI = FindFirstObjectByType<QuestUI>();
 
@@ -87,6 +86,7 @@ public class GameInventoryUI : UIBase
         inventoryData.OnInventoryChanged += RefreshUI;
         DragDropManager.OnDragFeedback += HandleDragFeedback;
         DragDropManager.OnDragFeedback += HandleTrashFeedback;
+        base.Awake();
         ////// 초기화
         //inventoryData.Initialize();
         //CreateEmptySlots();
