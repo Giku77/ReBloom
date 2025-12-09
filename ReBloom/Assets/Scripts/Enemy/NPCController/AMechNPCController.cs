@@ -14,9 +14,6 @@ public class AMechNPCController : BaseNPCController
     public float callInterval = 7f;
 
     private int index = -1;
-    private bool waiting = false;
-    private float waitTime = 2f;
-    private float timer = 0f;
 
     public static event Action OnPlayerDetected;
 
@@ -31,15 +28,9 @@ public class AMechNPCController : BaseNPCController
 
         CheckVision();
 
-        if (waiting)
+        if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance + 0.1f)
         {
-            timer += Time.deltaTime;
-            if (timer >= waitTime)
-            {
-                waiting = false;
-                MoveNext();
-            }
-            return;
+            MoveNext();
         }
     }
 
