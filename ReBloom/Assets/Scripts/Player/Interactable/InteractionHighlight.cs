@@ -41,6 +41,7 @@ public class InteractionHighlight : MonoBehaviour
         {
             promptCanvas = InteractionCanvasManager.Instance.GetCanvas();
             promptText = InteractionCanvasManager.Instance.GetText();
+            holdPromptUI = InteractionCanvasManager.Instance.GetHoldInteractionUI();
         }
         else if (InteractionCanvasManager.Instance == null)
         {
