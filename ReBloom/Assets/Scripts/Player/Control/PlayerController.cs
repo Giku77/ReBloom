@@ -521,6 +521,8 @@ public class PlayerController : MonoBehaviour
         isDead = true;
         isInteracting = false;
         rb.linearVelocity = Vector3.zero;
+        UIManager.Instance.SetBlockingInput(true);
+        UIManager.Instance.CloseAllUIs();
 
         Anim.PlayDeath();
         Anim.SetRootMotion(true);

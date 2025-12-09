@@ -1,10 +1,11 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class BuildPreviewVisual : MonoBehaviour
 {
     [SerializeField] private Renderer[] renderers;
     [SerializeField] private Color validColor = Color.green;
     [SerializeField] private Color invalidColor = Color.red;
+    private Color editColor = Color.blue;
 
     private MaterialPropertyBlock mpb;
 
@@ -22,5 +23,22 @@ public class BuildPreviewVisual : MonoBehaviour
 
         foreach (var r in renderers)
             r.SetPropertyBlock(mpb);
+    }
+    
+    public void SetEditMode()
+    {
+        mpb.SetColor("_BaseColor", editColor);
+
+        foreach (var r in renderers)
+            r.SetPropertyBlock(mpb);
+    }
+
+    public void ResetColor()
+    {
+        mpb.Clear();
+        foreach (var r in renderers)
+        {
+            r.SetPropertyBlock(null);
+        }
     }
 }

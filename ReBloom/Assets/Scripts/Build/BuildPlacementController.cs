@@ -9,18 +9,40 @@ public class BuildPlacementController : MonoBehaviour
     [SerializeField] private Transform playerTransform;
     [SerializeField] private Camera playerCamera;
     [SerializeField] private float placeDistance = 3f;
+    [SerializeField] private float editPickDistance = 10f;
     [SerializeField] private LayerMask groundMask;
+    [SerializeField] private LayerMask buildingMask;
 
     private ArcData currentArc;
     private GameObject previewInstance;
     private BuildPreviewVisual previewVisual;
     private bool isPlacing = false;
     public bool IsPlacing => isPlacing;
-
     private Vector3 lastValidPos;
     private Quaternion lastRot;
     private bool lastCanBuild;
     private string lastError;
+
+    private bool isEditMode = false;              // C로 토글되는 전체 “건축 편집 모드”
+    private bool isMovingExisting = false;        // 기존 건물 이동 중인지
+    private BuildingInstance hoveredBuilding;     // 카메라가 바라보고 있는 건물
+    private BuildingInstance movingBuilding;      // 실제로 이동 중인 건물
+    private Vector3 moveStartPos;
+    private Quaternion moveStartRot;
+    private string moveError;
+    private bool moveCanBuild;
+
+    public bool IsEditMode => isEditMode;
+    public BuildingInstance CurrentEditingTarget
+    {
+        get
+        {
+            if (!isEditMode) return null;
+            if (isMovingExisting && movingBuilding != null)
+                return movingBuilding;
+            return hoveredBuilding;
+        }
+    }
 
     private void Awake()
     {
@@ -32,6 +54,13 @@ public class BuildPlacementController : MonoBehaviour
         int previewLayer = LayerMask.NameToLayer("BuildingPreview");
         foreach (var tr in preview.GetComponentsInChildren<Transform>(true))
             tr.gameObject.layer = previewLayer;
+    }
+
+    private void SetupBuilding(GameObject obj)
+    {         
+        int buildingLayer = LayerMask.NameToLayer("Building");
+        foreach (var tr in obj.GetComponentsInChildren<Transform>(true))
+            tr.gameObject.layer = buildingLayer;
     }
 
     public void StartPlacement(ArcData arc, ArcRecipe arcRecipe, GameObject previewPrefab)
@@ -70,25 +99,201 @@ public class BuildPlacementController : MonoBehaviour
 
     private void Update()
     {
-        if (!isPlacing || currentArc == null || previewInstance == null)
+        var keyboard = Keyboard.current;
+        if (keyboard != null && keyboard.cKey.wasPressedThisFrame && !isPlacing)
+        {
+            // C로 편집 모드 토글 (설치 프리뷰 중일 땐 토글 안 함)
+            //UIManager.Instance?.HideUI(UIType.Building);
+            UIManager.Instance?.ToggleUI(UIType.EditBuild);
+            isEditMode = !isEditMode;
+
+            if (!isEditMode)
+            {
+                ExitEditMode();
+            }
+        }
+
+        // === 1) 설치 프리뷰 모드 ===
+        if (isPlacing && currentArc != null && previewInstance != null)
+        {
+            Vector3 targetPos;
+            Quaternion targetRot;
+
+            GetTargetTransform(out targetPos, out targetRot);
+
+            previewInstance.transform.position = targetPos;
+            previewInstance.transform.rotation = targetRot;
+
+            lastCanBuild = BuildManager.I.CanBuildAt(currentArc, targetPos, targetRot, out lastError);
+            previewVisual?.SetValid(lastCanBuild);
+
+            HandleInput(targetPos, targetRot);
             return;
+        }
 
-        // 1) 프리뷰 위치 / 회전 구하기
-        Vector3 targetPos;
-        Quaternion targetRot;
-
-        GetTargetTransform(out targetPos, out targetRot);
-
-        previewInstance.transform.position = targetPos;
-        previewInstance.transform.rotation = targetRot;
-
-        // 2) 설치 가능 여부 체크
-        lastCanBuild = BuildManager.I.CanBuildAt(currentArc, targetPos, targetRot, out lastError);
-        previewVisual?.SetValid(lastCanBuild);
-
-        // 3) 입력 처리
-        HandleInput(targetPos, targetRot);
+        // === 2) 건축 편집 모드 ===
+        if (isEditMode)
+        {
+            UpdateEditMode();
+        }
     }
+
+    private void UpdateEditMode()
+    {
+        var mouse = Mouse.current;
+        var keyboard = Keyboard.current;
+        if (mouse == null) return;
+        if (!isMovingExisting)
+        {
+            // 아직 아무것도 안 옮기는 상태 → 바라보는 건물 찾기 & 이동/삭제 입력
+            Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
+            hoveredBuilding = null;
+
+            if (Physics.Raycast(ray, out var hit, editPickDistance, buildingMask))
+            {
+                hoveredBuilding = hit.collider.GetComponentInParent<BuildingInstance>();
+                if (hoveredBuilding == null)
+                {
+                    hoveredBuilding = hit.collider.GetComponent<BuildingInstance>();
+                }
+            }
+            //Debug.Log($"Hovered Building: {hoveredBuilding}");
+            previewVisual?.ResetColor();
+            previewVisual = hoveredBuilding?.gameObject.GetComponent<BuildPreviewVisual>();
+
+            if (previewVisual != null)
+            {
+                previewVisual.SetEditMode();
+            }
+
+            // TODO: 여기서 hoveredBuilding 에 하이라이트 켜주면 좋음 (InteractionHighlight 등)
+
+            // 왼쪽 클릭 → 이동 모드 시작
+            if (hoveredBuilding != null && mouse.leftButton.wasPressedThisFrame)
+            {
+                SetupPreview(hoveredBuilding.gameObject);
+                StartMoveExisting(hoveredBuilding);
+            }
+
+            // Delete 키 → 삭제
+            if (hoveredBuilding != null &&
+                keyboard != null && keyboard.deleteKey.wasPressedThisFrame)
+            {
+                BuildManager.I.TryRemoveBuilding(hoveredBuilding);
+                hoveredBuilding = null;
+            }
+        }
+        else
+        {
+            // 이미 선택한 건물 이동 중
+            UpdateMovingExisting(mouse, keyboard);
+        }
+    }
+
+    private void ExitEditMode()
+    {
+        if (isMovingExisting && movingBuilding != null)
+        {
+            // 편집 모드 끌 때 이동 중이었으면 원위치로
+            SetupBuilding(movingBuilding.gameObject);
+            movingBuilding.transform.SetPositionAndRotation(moveStartPos, moveStartRot);
+        }
+
+        previewVisual?.ResetColor();
+        isMovingExisting = false;
+        movingBuilding = null;
+        hoveredBuilding = null;
+        previewInstance = null;
+        previewVisual = null;
+        currentArc = null;
+
+        // 하이라이트 끄기 등 추가 정리
+        //previewVisual.ResetColor();
+    }
+
+
+    private void StartMoveExisting(BuildingInstance inst)
+    {
+        movingBuilding = inst;
+        moveStartPos = inst.transform.position;
+        moveStartRot = inst.transform.rotation;
+
+        // 이 건물이 어떤 ArcData인지 DB에서 조회
+        if (!BuildManager.I.ArcDB.TryGet(inst.ArcId, out var arc))
+        {
+            Debug.LogWarning($"ArcData not found for building {inst.ArcId}");
+            movingBuilding = null;
+            return;
+        }
+
+        currentArc = arc;           // GetTargetTransform / CanBuildAt 에서 사용
+        isMovingExisting = true;
+
+        // 프리뷰 색 변경하고 싶으면 여기서 BuildPreviewVisual 사용
+        previewInstance = movingBuilding.gameObject;
+        previewVisual = previewInstance.GetComponent<BuildPreviewVisual>();
+        if (previewVisual != null)
+        {
+            previewVisual.SetValid(true); // 일단 초록색 등
+        }
+    }
+
+    private void UpdateMovingExisting(Mouse mouse, Keyboard keyboard)
+    {
+        // 새 위치/회전은 기존 설치 프리뷰와 똑같이 계산
+        Vector3 pos;
+        Quaternion rot;
+        GetTargetTransform(out pos, out rot);
+
+        movingBuilding.transform.SetPositionAndRotation(pos, rot);
+
+        // 새 위치가 유효한지 BuildManager 규칙 재사용
+        moveCanBuild = BuildManager.I.CanBuildAt(currentArc, pos, rot, out moveError);
+        previewVisual?.SetValid(moveCanBuild);
+
+        // 왼쪽 클릭 → 이동 확정
+        if (mouse.leftButton.wasPressedThisFrame)
+        {
+            if (moveCanBuild)
+            {
+                if (BuildManager.I.TryMoveBuilding(movingBuilding, pos, rot, out moveError))
+                {
+                    SetupBuilding(movingBuilding.gameObject);
+                    FinishMoveExisting();
+                }
+                else
+                {
+                    ToastMessageUI.Instance?.Show($"이동 실패: {moveError}");
+                }
+            }
+            else
+            {
+                ToastMessageUI.Instance?.Show($"이동 불가: {moveError}");
+            }
+        }
+
+        // 우클릭 또는 ESC → 이동 취소 (원위치)
+        if (mouse.rightButton.wasPressedThisFrame ||
+            (keyboard != null && keyboard.escapeKey.wasPressedThisFrame))
+        {
+            movingBuilding.transform.SetPositionAndRotation(moveStartPos, moveStartRot);
+            SetupBuilding(movingBuilding.gameObject);
+            FinishMoveExisting();
+        }
+    }
+
+    private void FinishMoveExisting()
+    {
+        isMovingExisting = false;
+        movingBuilding = null;
+        previewVisual.ResetColor();
+        previewInstance = null;
+        previewVisual = null;
+        currentArc = null;
+    }
+
+
+
 
     private void GetTargetTransform(out Vector3 pos, out Quaternion rot)
     {

@@ -122,6 +122,8 @@ public class BuildUI : UIBase
         //Cursor.visible = next;
         //Cursor.lockState = next ? CursorLockMode.None : CursorLockMode.Locked;
         //Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = next;
+        if (UIManager.Instance != null && UIManager.Instance.IsBlockedInput)
+          return;
         UIManager.Instance?.ToggleUI(Type);
     }
 

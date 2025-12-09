@@ -230,6 +230,61 @@ public class BuildManager : MonoBehaviour
         return true;
     }
 
+    public bool TryMoveBuilding(BuildingInstance inst, Vector3 desiredPos, Quaternion desiredRot, out string errorCode)
+    {
+        if (inst == null)
+        {
+            errorCode = "NULL_INSTANCE";
+            return false;
+        }
+
+        if (!arcDB.TryGet(inst.ArcId, out var arc))
+        {
+            errorCode = "ARC_NOT_FOUND";
+            return false;
+        }
+
+        float depthOffset = 0.1f;
+
+        if (arc.buildPrefab != null &&
+            arc.buildPrefab.TryGetComponent<BuildingInstance>(out var biOnPrefab) &&
+            biOnPrefab.depthOffset != 0f)
+        {
+            depthOffset = biOnPrefab.depthOffset;
+        }
+
+        var ctx = new ArcContext
+        {
+            Data = arc,
+            Position = desiredPos,
+            Rotation = desiredRot,
+            ArcPrefab = arc.buildPrefab,
+            FootPrint = footprintProvider.GetFootprint(arc),
+            PlayerTransform = player.transform,
+            DepthOffset = depthOffset
+        };
+
+        if (!Validate(ctx, out errorCode))
+            return false;
+
+        if (!TryAdjustToGround(ctx, out var adjustedPos, out errorCode))
+            return false;
+
+        inst.transform.SetPositionAndRotation(adjustedPos, desiredRot);
+
+        if (inst.TryGetComponent<CorridorNode>(out var node))
+        {
+            var cell = CorridorGrid.WorldToCell(adjustedPos);
+            node.Cell = cell;
+            CorridorConnectionManager.I.Register(node); 
+        }
+
+        SetupTemporaryPassThrough(inst.gameObject);
+
+        errorCode = null;
+        return true;
+    }
+
     public bool TryBuild(int arcId, Vector3 pos, Quaternion rot)
     {
         if (!arcDB.TryGet(arcId, out var arc))

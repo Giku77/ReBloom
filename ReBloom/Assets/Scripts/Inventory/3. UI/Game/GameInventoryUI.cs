@@ -171,6 +171,8 @@ public class GameInventoryUI : UIBase
     #region UI 이벤트
     public void ToggleInventory()
     {
+        if (UIManager.Instance != null && UIManager.Instance.IsBlockedInput)
+          return;
         UIManager.Instance?.ToggleUI(Type);
     }
     protected override void OnShow()
