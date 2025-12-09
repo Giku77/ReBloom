@@ -5,7 +5,6 @@ public class DroneNPCController : BaseNPCController
     [Header("Drone Settings")]
     public Transform[] patrolPoints;
     public bool usePatrol = true;
-    public float flyHeight = 2f;
 
     [Header("Detection")]
     public float detectionRange = 10f;
@@ -99,5 +98,20 @@ public class DroneNPCController : BaseNPCController
     {
         isResting = true;
         ChangeState(new DroneRestState(this));
+    }
+
+    private void OnEnable()
+    {
+        AMechNPCController.OnPlayerDetected += HandleReinforce;
+    }
+
+    private void OnDisable()
+    {
+        AMechNPCController.OnPlayerDetected -= HandleReinforce;
+    }
+
+    private void HandleReinforce()
+    {
+        ChangeState(new DroneChaseState(this));
     }
 }
