@@ -1,0 +1,179 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1723074021734877396
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1838023671529521782}
+  - component: {fileID: 6541286994802398588}
+  - component: {fileID: 4234349777930066281}
+  - component: {fileID: 6875237176649415016}
+  m_Layer: 0
+  m_Name: DroneNPC
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1838023671529521782
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1723074021734877396}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -326.5358, y: 140.76, z: 36.118}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4923217926404496794}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!136 &6541286994802398588
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1723074021734877396}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 1.7689514
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.4730835, z: 0}
+--- !u!195 &4234349777930066281
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1723074021734877396}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
+--- !u!114 &6875237176649415016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1723074021734877396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 729ed49097cfda343927fd61c61da250, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  agent: {fileID: 4234349777930066281}
+  animator: {fileID: 8279786222735763026}
+  player: {fileID: 0}
+  hearingRange: 15
+  patrolPoints:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  usePatrol: 1
+  flyHeight: 2
+  detectionRange: 10
+  detectionAngle: 90
+  attackRange: 1.5
+  attackDamage: 35
+  attackCooldown: 3
+  lastAttackTime: -999
+  maxChaseTime: 7
+  recheckCooldown: 30
+--- !u!1001 &1706461431793275647
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1838023671529521782}
+    m_Modifications:
+    - target: {fileID: 6051810127199965029, guid: 85745a1fbc6d2474ab64e360c59fae19, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6051810127199965029, guid: 85745a1fbc6d2474ab64e360c59fae19, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6051810127199965029, guid: 85745a1fbc6d2474ab64e360c59fae19, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6051810127199965029, guid: 85745a1fbc6d2474ab64e360c59fae19, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6051810127199965029, guid: 85745a1fbc6d2474ab64e360c59fae19, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6051810127199965029, guid: 85745a1fbc6d2474ab64e360c59fae19, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6051810127199965029, guid: 85745a1fbc6d2474ab64e360c59fae19, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6051810127199965029, guid: 85745a1fbc6d2474ab64e360c59fae19, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6051810127199965029, guid: 85745a1fbc6d2474ab64e360c59fae19, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6051810127199965029, guid: 85745a1fbc6d2474ab64e360c59fae19, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6392729463572780511, guid: 85745a1fbc6d2474ab64e360c59fae19, type: 3}
+      propertyPath: m_Name
+      value: SciFiDrone07
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 85745a1fbc6d2474ab64e360c59fae19, type: 3}
+--- !u!4 &4923217926404496794 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6051810127199965029, guid: 85745a1fbc6d2474ab64e360c59fae19, type: 3}
+  m_PrefabInstance: {fileID: 1706461431793275647}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &8279786222735763026 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 7298404330970281133, guid: 85745a1fbc6d2474ab64e360c59fae19, type: 3}
+  m_PrefabInstance: {fileID: 1706461431793275647}
+  m_PrefabAsset: {fileID: 0}

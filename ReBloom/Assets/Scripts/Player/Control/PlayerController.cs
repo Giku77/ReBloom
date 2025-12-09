@@ -32,6 +32,10 @@ public class PlayerController : MonoBehaviour
 
     public event Action onPassOut;
 
+    private float originalRotationSpeed;
+    private float originalTurnSpeed;
+    private bool wasBuildPlacing = false;
+
     public float currentSpeed = 0f;
 
     public float SpeedRatio
@@ -176,6 +180,9 @@ public class PlayerController : MonoBehaviour
         sprintSpeed = moveSpeed * 1.5f;
         originalSpeed = moveSpeed;
 
+        originalRotationSpeed = rotationSpeed;
+        originalTurnSpeed = turnSpeed;
+
         if (playerStats != null)
             playerStats.OnDeath += HandleDeath;
 
@@ -310,6 +317,7 @@ public class PlayerController : MonoBehaviour
         StepClimb();
         RotatePlayer();
         JumpPlayer();
+        HandleBuildPlacementMode();
 
         wasGround = previousGround;
     }
@@ -629,5 +637,25 @@ public class PlayerController : MonoBehaviour
         await UniTask.Delay((int)(landingSlow * 1000f));
 
         RemoveSpeedMultiplier(landingKey);
+    }
+
+    private void HandleBuildPlacementMode()
+    {
+        if (BuildPlacementController.I == null) return;
+
+        bool isBuildPlacing = BuildPlacementController.I.IsPlacing;
+
+        if (isBuildPlacing && !wasBuildPlacing)
+        {
+            rotationSpeed = originalRotationSpeed * 0.3f;
+            turnSpeed = originalTurnSpeed * 0.3f;
+        }
+        else if (!isBuildPlacing && wasBuildPlacing)
+        {
+            rotationSpeed = originalRotationSpeed;
+            turnSpeed = originalTurnSpeed;
+        }
+
+        wasBuildPlacing = isBuildPlacing;
     }
 }

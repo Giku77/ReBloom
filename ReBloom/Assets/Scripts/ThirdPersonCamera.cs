@@ -104,6 +104,12 @@ public class ThirdPersonCamera : MonoBehaviour
 
         if (!isSequenceLocked)
         {
+            float currentSensitivity = mouseSensitivity;
+            if (BuildPlacementController.I != null && BuildPlacementController.I.IsPlacing)
+            {
+                currentSensitivity *= 0.3f;
+            }
+
             yaw += lookInput.x * mouseSensitivity * Time.deltaTime;
             pitch -= lookInput.y * mouseSensitivity * Time.deltaTime;
             pitch = Mathf.Clamp(pitch, minVerticalAngle, maxVerticalAngle);
@@ -140,5 +146,11 @@ public class ThirdPersonCamera : MonoBehaviour
     {
         yaw = newYaw;
         pitch = Mathf.Clamp(newPitch, minVerticalAngle, maxVerticalAngle);
+    }
+
+    public void SetHeightAngle()
+    { 
+    
+    
     }
 }

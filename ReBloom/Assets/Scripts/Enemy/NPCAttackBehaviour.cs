@@ -83,10 +83,10 @@ public class NPCAttackBehaviour : StateMachineBehaviour
         
         Debug.Log("[NPC Attack] 공격 애니메이션 종료");
 
-        NPCController npc = animator.GetComponentInParent<NPCController>();
+        MechNPCController npc = animator.GetComponentInParent<MechNPCController>();
         if (npc != null)
         {
-            npc.ChangeState(new NPCReturnState(npc));
+            npc.ChangeState(new MechNPCReturnState(npc));
         }
     }
 

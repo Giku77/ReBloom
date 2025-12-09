@@ -2,9 +2,9 @@ using UnityEngine;
 
 public abstract class NPCState
 {
-    protected NPCController controller;
+    protected BaseNPCController controller;
 
-    public NPCState(NPCController controller)
+    public NPCState(BaseNPCController controller)
     {
         this.controller = controller;
     }

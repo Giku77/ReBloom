@@ -451,7 +451,7 @@ public class ItemSpawner : MonoBehaviour
             return null;
         }
 
-        Debug.Log($"[ItemSpawner] LoadItemPrefabAsync 시작: id={itemID}, name={itemData.itemName}, address='{addressPath}'");
+        //Debug.Log($"[ItemSpawner] LoadItemPrefabAsync 시작: id={itemID}, name={itemData.itemName}, address='{addressPath}'");
 
         AsyncOperationHandle<GameObject> handle = default;
 
@@ -471,7 +471,7 @@ public class ItemSpawner : MonoBehaviour
                 return null;
             }
 
-            Debug.Log($"[ItemSpawner] 프리팹 로드 성공: id={itemID}, name={itemData.itemName}, prefab={prefab.name}, address='{addressPath}'");
+            //Debug.Log($"[ItemSpawner] 프리팹 로드 성공: id={itemID}, name={itemData.itemName}, prefab={prefab.name}, address='{addressPath}'");
             prefabCache[itemID] = prefab;
             return prefab;
         }

@@ -1,10 +1,14 @@
 ﻿using UnityEngine;
 
-public class NPCChaseState : NPCState
+public class MechNPCChaseState : NPCState
 {
+    private MechNPCController mechController;
     private float attackRange = 3f;
 
-    public NPCChaseState(NPCController controller) : base(controller) { }
+    public MechNPCChaseState(BaseNPCController controller) : base(controller)
+    {
+        mechController = controller as MechNPCController;
+    }
 
     public override void Enter()
     {
@@ -15,13 +19,13 @@ public class NPCChaseState : NPCState
 
     public override void Update()
     {
-        if (controller.isStunned) return;
+        if (mechController != null && mechController.isStunned) return;
 
         float distanceToTarget = Vector3.Distance(controller.transform.position, controller.lastHeardPosition);
         
         if (distanceToTarget <= attackRange)
         {
-            controller.ChangeState(new NPCAttackState(controller));
+            controller.ChangeState(new MechNPCAttackState(controller));
             return;
         }
 
@@ -29,14 +33,14 @@ public class NPCChaseState : NPCState
         {
             if (controller.agent.hasPath || controller.agent.velocity.sqrMagnitude == 0f)
             {
-                controller.ChangeState(new NPCReturnState(controller));
+                controller.ChangeState(new MechNPCReturnState(controller));
             }
         }
     }
 
     public override void HandleFootstep(Vector3 footPos, float loudness)
     {
-        if (controller.isStunned) return;
+        if (mechController != null && mechController.isStunned) return;
 
         float effectiveRange = controller.hearingRange * loudness;
         float distance = Vector3.Distance(controller.transform.position, footPos);
