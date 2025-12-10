@@ -7,6 +7,7 @@ public class InteractionCanvasManager : MonoBehaviour
 
     [SerializeField] private Canvas sharedPromptCanvas;
     [SerializeField] private TextMeshProUGUI sharedPromptText;
+    [SerializeField] private HoldInteractionUI holdInteractionUI;
 
     private void Awake()
     {
@@ -22,4 +23,5 @@ public class InteractionCanvasManager : MonoBehaviour
 
     public Canvas GetCanvas() => sharedPromptCanvas;
     public TextMeshProUGUI GetText() => sharedPromptText;
+    public HoldInteractionUI GetHoldInteractionUI() => holdInteractionUI;
 }

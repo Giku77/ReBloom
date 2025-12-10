@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using Unity.Cinemachine;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -35,6 +34,7 @@ public class PlayerController : MonoBehaviour
     private float originalRotationSpeed;
     private float originalTurnSpeed;
     private bool wasBuildPlacing = false;
+    private float originalZoomDistance;
 
     public float currentSpeed = 0f;
 
@@ -390,6 +390,11 @@ public class PlayerController : MonoBehaviour
 
             Vector3 fly = cameraTransform.TransformDirection(move);
 
+            if (Keyboard.current.spaceKey.wasPressedThisFrame)
+            {
+                fly.y = 5f;
+            }
+
             rb.linearVelocity = fly * debugSpeed;
             return;
         }
@@ -475,6 +480,8 @@ public class PlayerController : MonoBehaviour
 
     private void JumpPlayer()
     {
+        if (debugMode) return;
+
         if (IsMovementLocked) { jumpRequested = false; return; }
         if (!jumpRequested) return;
 
@@ -534,7 +541,10 @@ public class PlayerController : MonoBehaviour
         onPassOut?.Invoke();
 
         if (thirdPersonCamera != null)
+        {
+            originalZoomDistance = thirdPersonCamera.distance;
             thirdPersonCamera.enabled = false;
+        }
 
         if (cinemachineBrain != null)
             cinemachineBrain.enabled = true;
@@ -545,7 +555,10 @@ public class PlayerController : MonoBehaviour
             cinemachineBrain.enabled = false;
 
         if (thirdPersonCamera != null)
+        {
+            thirdPersonCamera.distance = originalZoomDistance;
             thirdPersonCamera.enabled = true;
+        }
 
         Anim.PlayerWakeUp();
 

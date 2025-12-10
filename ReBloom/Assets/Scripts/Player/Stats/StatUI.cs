@@ -154,50 +154,50 @@ public class StatUI : MonoBehaviour
     {
         if (thirstBar == null || debuffManager == null) return;
         
-        var fillImage = thirstBar.fillRect?.GetComponent<Image>();
-        if (fillImage == null) return;
+        //var fillImage = thirstBar.fillRect?.GetComponent<Image>();
+        //if (fillImage == null) return;
         
-        if (debuffManager.HasDebuff(222))
-        {
-            fillImage.color = Color.red;
-        }
-        else if (debuffManager.HasDebuff(221))
-        {
-            fillImage.color = new Color(1f, 0.5f, 0f);
-        }
-        else if (debuffManager.HasDebuff(220))
-        {
-            fillImage.color = Color.yellow;
-        }
-        else
-        {
-            fillImage.color = Color.green;
-        }
+        //if (debuffManager.HasDebuff(222))
+        //{
+        //    fillImage.color = Color.red;
+        //}
+        //else if (debuffManager.HasDebuff(221))
+        //{
+        //    fillImage.color = new Color(1f, 0.5f, 0f);
+        //}
+        //else if (debuffManager.HasDebuff(220))
+        //{
+        //    fillImage.color = Color.yellow;
+        //}
+        //else
+        //{
+        //    fillImage.color = Color.green;
+        //}
     }
 
     private void UpdateHungerBarColor()
     {
         if (hungerBar == null || debuffManager == null) return;
         
-        var fillImage = hungerBar.fillRect?.GetComponent<Image>();
-        if (fillImage == null) return;
+        //var fillImage = hungerBar.fillRect?.GetComponent<Image>();
+        //if (fillImage == null) return;
         
-        if (debuffManager.HasDebuff(232))
-        {
-            fillImage.color = Color.red;
-        }
-        else if (debuffManager.HasDebuff(231))
-        {
-            fillImage.color = new Color(1f, 0.5f, 0f);
-        }
-        else if (debuffManager.HasDebuff(230))
-        {
-            fillImage.color = Color.yellow;
-        }
-        else
-        {
-            fillImage.color = Color.green;
-        }
+        //if (debuffManager.HasDebuff(232))
+        //{
+        //    fillImage.color = Color.red;
+        //}
+        //else if (debuffManager.HasDebuff(231))
+        //{
+        //    fillImage.color = new Color(1f, 0.5f, 0f);
+        //}
+        //else if (debuffManager.HasDebuff(230))
+        //{
+        //    fillImage.color = Color.yellow;
+        //}
+        //else
+        //{
+        //    fillImage.color = Color.green;
+        //}
     }
 
     private void UpdateTemperatureBarColor()

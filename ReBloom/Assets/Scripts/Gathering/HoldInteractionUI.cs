@@ -6,9 +6,14 @@ public class HoldInteractionUI : MonoBehaviour
     [SerializeField] private GameObject sliderPanel;
     [SerializeField] private Slider progressSlider;
 
-    private void Awake()
+    //private void Awake()
+    //{
+    //    Hide();
+    //}
+
+    private void Start()
     {
-        Hide();
+        //Hide();
     }
 
     public void Show()

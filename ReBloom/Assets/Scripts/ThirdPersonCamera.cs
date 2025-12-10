@@ -6,7 +6,7 @@ public class ThirdPersonCamera : MonoBehaviour
 {
     [Header("Camera Settings")]
     [SerializeField] private Transform target;
-    [SerializeField] private float distance = 10f;
+    public float distance = 10f;
     [SerializeField] private float height = 2f;
     [SerializeField] private float mouseSensitivity = 100f;
     [SerializeField] private float minVerticalAngle = -30f;

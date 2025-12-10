@@ -10,10 +10,10 @@ public class InteractionHighlight : MonoBehaviour
     [SerializeField] private float backlightRange = 3f;
     [SerializeField] private float bodylightRange = 0.05f;
 
-    [Header("Prompt UI")]
-    [SerializeField] private Canvas promptCanvas;              
-    [SerializeField] private TextMeshProUGUI promptText;
-    [SerializeField] private HoldInteractionUI holdPromptUI;
+    //[Header("Prompt UI")]
+    private Canvas promptCanvas;              
+    private TextMeshProUGUI promptText;
+    private HoldInteractionUI holdPromptUI;
 
     public HoldInteractionUI HoldPromptUI => holdPromptUI;
     public string promptFormat = "상호작용 [E]";
@@ -41,18 +41,31 @@ public class InteractionHighlight : MonoBehaviour
         {
             promptCanvas = InteractionCanvasManager.Instance.GetCanvas();
             promptText = InteractionCanvasManager.Instance.GetText();
+            holdPromptUI = InteractionCanvasManager.Instance.GetHoldInteractionUI();
         }
         else if (InteractionCanvasManager.Instance == null)
         {
             Debug.Log("InteractionCanvasManager.Instance가 null!");
         }
 
-        // 처음에는 프롬프트 숨기기
-        if (promptCanvas != null)
-        {
-            promptCanvas.gameObject.SetActive(false);
-        }
+        HidePrompt();
     }
+
+    //private void Start()
+    //{
+    //    if (promptCanvas == null && InteractionCanvasManager.Instance != null)
+    //    {
+    //        promptCanvas = InteractionCanvasManager.Instance.GetCanvas();
+    //        promptText = InteractionCanvasManager.Instance.GetText();
+    //        holdPromptUI = InteractionCanvasManager.Instance.GetHoldInteractionUI();
+    //    }
+    //    else if (InteractionCanvasManager.Instance == null)
+    //    {
+    //        Debug.Log("InteractionCanvasManager.Instance가 null!");
+    //    }
+
+    //    HidePrompt();
+    //}
 
     private void LateUpdate()
     {
@@ -103,6 +116,9 @@ public class InteractionHighlight : MonoBehaviour
     /// <summary>프롬프트만 숨기기</summary>
     public void HidePrompt()
     {
+        if (holdPromptUI != null)
+            holdPromptUI.Hide();
+
         if (promptCanvas != null)
             promptCanvas.gameObject.SetActive(false);
     }
