@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class EquipmentSlotUI : MonoBehaviour, IPointerClickHandler, IDragSource
+public class EquipmentSlotUI : MonoBehaviour, IPointerClickHandler, IDragSource, IPointerEnterHandler, IPointerExitHandler
 {
     [Header("UI References")]
     [SerializeField] private Image slotIcon;
@@ -19,11 +19,12 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerClickHandler, IDragSource
 
     private PlayerEquipManager equipManager;
     private GearType slotType;
+    private ItemBase itemData;
+    private GameInventoryToolTip tooltip;
 
     #region IDragSource 구현
     public DragSourceType SourceType => DragSourceType.Storage;
     public int SlotIndex => transform.GetSiblingIndex();
-
     public DragContext CreateDragContext(ItemBase item)
     {
         return new DragContext
@@ -35,6 +36,18 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerClickHandler, IDragSource
         };
     }
     #endregion
+    private void Awake()
+    {
+        Canvas parentCanvas = GetComponentInParent<Canvas>();
+        if (parentCanvas != null)
+        {
+            tooltip = parentCanvas.GetComponentInChildren<GameInventoryToolTip>();
+            if (tooltip != null)
+            {
+                Debug.Log("[GameInventorySlot] 툴팁을 Canvas에서 찾았습니다.");
+            }
+        }
+    }
 
     public void Initialize(PlayerEquipManager manager, GearType type)
     {
@@ -50,6 +63,8 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerClickHandler, IDragSource
             ClearSlot();
             return;
         }
+
+        this.itemData = itemData;
 
         if (slotIcon != null)
         {
@@ -146,4 +161,30 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerClickHandler, IDragSource
     {
         
     }
+
+    #region 툴팁
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        Debug.Log($"[EquipMentSlotUI] itemData: {itemData?.itemName ?? "null"}");
+
+        if (tooltip != null && itemData != null)
+        {
+            Debug.Log($"[OnPointerEnter] 툴팁 Show 호출!");
+            tooltip.Show(itemData);
+        }
+        else
+        {
+            Debug.Log($"[OnPointerEnter] tooltip: {tooltip != null}, itemData: {itemData != null}");
+        }
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        Debug.Log("[OnPointerExit] 호출됨");
+        if (tooltip != null)
+        {
+            tooltip.Hide();
+        }
+    }
+    #endregion
 }
