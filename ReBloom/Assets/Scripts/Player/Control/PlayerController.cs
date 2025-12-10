@@ -705,6 +705,8 @@ public class PlayerController : MonoBehaviour
     { 
         isStunned = true;
 
+        Debug.Log("[PlayerController] 플레이어 스턴");
+
         stunDuration = stunTime;
         this.stunTime = 0f;
     }

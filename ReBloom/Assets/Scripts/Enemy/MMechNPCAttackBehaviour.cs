@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class NPCAttackBehaviour : StateMachineBehaviour
+public class MMechNPCAttackBehaviour : StateMachineBehaviour
 {
     [Header("Attack Timing")]
     [Range(0f, 1f)]
@@ -15,18 +15,9 @@ public class NPCAttackBehaviour : StateMachineBehaviour
     private Collider hitboxCollider;
     private Transform npcTransform;
 
-    private bool waitStarted = false;
-    private float waitTimer = 0f;
-    private const float waitDuration = 2f;
-    private BaseNPCController npcBase;
-
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         hitboxActivated = false;
-        waitStarted = false;
-        waitTimer = 0f;
-
-        npcBase = animator.GetComponentInParent<BaseNPCController>();
 
         if (hitboxCollider == null)
         {
@@ -36,65 +27,67 @@ public class NPCAttackBehaviour : StateMachineBehaviour
             if (hitboxTransform != null)
             {
                 hitboxCollider = hitboxTransform.GetComponent<Collider>();
-            }
-        }
 
-        if (hitboxCollider != null)
-        {
-            hitboxCollider.enabled = false;
-        }
-    }
-
-    public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-    {
-        float normalizedTime = stateInfo.normalizedTime;
-
-        // 히트박스 온오프
-        if (hitboxCollider != null)
-        {
-            float normalized01 = normalizedTime - Mathf.Floor(normalizedTime);
-            if (normalized01 >= hitboxStartTime && normalized01 <= hitboxEndTime)
-            {
-                if (!hitboxActivated)
+                if (hitboxCollider != null)
                 {
-                    hitboxCollider.enabled = true;
-                    hitboxActivated = true;
+                    Debug.Log($"[NPC Attack] 히트박스 찾음: {hitboxObjectName}");
+                }
+                else
+                {
+                    Debug.LogWarning($"[NPC Attack] {hitboxObjectName}에 Collider가 없습니다!");
                 }
             }
             else
             {
-                if (hitboxActivated)
-                {
-                    hitboxCollider.enabled = false;
-                    hitboxActivated = false;
-                }
+                Debug.LogWarning($"[NPC Attack] {hitboxObjectName}을 찾을 수 없습니다!");
             }
         }
 
-        if (!waitStarted && normalizedTime >= 1f)
+        if (hitboxCollider != null)
         {
-            waitStarted = true;
-            waitTimer = 0f;
+            hitboxCollider.enabled = false;
         }
 
-        if (waitStarted)
-        {
-            waitTimer += Time.deltaTime;
-            if (waitTimer >= waitDuration)
-            {
-                if (npcBase != null)
-                {
-                    npcBase.ChangeState(new MMechBlueNPCPatrolState(npcBase));
-                }
-            }
-        }
+        Debug.Log("[NPC Attack] 공격 애니메이션 시작");
     }
 
+    public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    {
+        if (hitboxCollider == null) return;
+
+        float normalizedTime = stateInfo.normalizedTime % 1f;
+
+        if (normalizedTime >= hitboxStartTime && normalizedTime <= hitboxEndTime)
+        {
+            if (!hitboxActivated)
+            {
+                hitboxCollider.enabled = true;
+                hitboxActivated = true;
+                Debug.Log($"[NPC Attack] 히트박스 활성화 ({normalizedTime:F2})");
+            }
+        }
+        else if (hitboxActivated)
+        {
+            hitboxCollider.enabled = false;
+            hitboxActivated = false;
+            Debug.Log($"[NPC Attack] 히트박스 비활성화 ({normalizedTime:F2})");
+        }
+    }
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         if (hitboxCollider != null)
+        {
             hitboxCollider.enabled = false;
+        }
+
+        Debug.Log("[NPC Attack] 공격 애니메이션 종료");
+
+        MMechBlueNPCController npc = animator.GetComponentInParent<MMechBlueNPCController>();
+        if (npc != null)
+        {
+            npc.ChangeState(new MMechBlueNPCPatrolState(npc));
+        }
     }
 
     private Transform FindChildRecursive(Transform parent, string name)
