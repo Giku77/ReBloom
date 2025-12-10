@@ -1741,6 +1741,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6033448797983562982}
     m_Modifications:
+    - target: {fileID: 3481414864542648382, guid: 0f075cf1676f2444e9a284f0ecc13573, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3597727534746305665, guid: 0f075cf1676f2444e9a284f0ecc13573, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -1843,7 +1847,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7130910170994979871, guid: 0f075cf1676f2444e9a284f0ecc13573, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1855,6 +1859,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5475316041514871136, guid: 0f075cf1676f2444e9a284f0ecc13573, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5033828725016124747}
+    - targetCorrespondingSourceObject: {fileID: 5475316041514871136, guid: 0f075cf1676f2444e9a284f0ecc13573, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3004829382056299713}
   m_SourcePrefab: {fileID: 100100000, guid: 0f075cf1676f2444e9a284f0ecc13573, type: 3}
 --- !u!224 &312216872667016595 stripped
 RectTransform:
@@ -1908,6 +1915,21 @@ MonoBehaviour:
   sharedPromptCanvas: {fileID: 1036221682787078409}
   sharedPromptText: {fileID: 8399099376722507994}
   holdInteractionUI: {fileID: 6382746175488842575}
+--- !u!114 &3004829382056299713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9098607535371092082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c76fe3aa0a7aafc449892e1c0e0e3e59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sharedPromptCanvas: {fileID: 1036221682787078409}
+  sharedPromptText: {fileID: 8399099376722507994}
+  holdInteractionUI: {fileID: 0}
 --- !u!1001 &4021823519988011640
 PrefabInstance:
   m_ObjectHideFlags: 0
