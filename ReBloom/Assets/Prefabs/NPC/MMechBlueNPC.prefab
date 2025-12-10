@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6361598503418911115}
   - component: {fileID: 1957059467194113148}
+  - component: {fileID: 5113560716417957603}
   m_Layer: 0
   m_Name: MMechBlueHitBox
   m_TagString: Untagged
@@ -51,8 +52,20 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 3.6683452, z: 1.4575653}
-  m_Center: {x: -1.3397654e-14, y: 1.3341744, z: -0.22878297}
+  m_Size: {x: 1, y: 5.164571, z: 2.9618924}
+  m_Center: {x: 4.527851e-15, y: 2.0822878, z: -0.98094803}
+--- !u!114 &5113560716417957603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 168256300887868108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2f2cd90b36f33245b4a9ca92a9f584d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2108688644509346927
 GameObject:
   m_ObjectHideFlags: 0
@@ -176,7 +189,7 @@ NavMeshAgent:
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
-  m_StoppingDistance: 2.8
+  m_StoppingDistance: 0
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
