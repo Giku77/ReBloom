@@ -181,6 +181,7 @@ public class BuildPlacementController : MonoBehaviour
             {
                 BuildManager.I.TryRemoveBuilding(hoveredBuilding);
                 hoveredBuilding = null;
+                previewVisual = null;
             }
         }
         else
