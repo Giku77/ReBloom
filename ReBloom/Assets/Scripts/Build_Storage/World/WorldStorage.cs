@@ -4,36 +4,49 @@ public class WorldStorage : WorldItemContainerBase
 {
     [Header("Storage References")]
     [SerializeField] private StorageData storageDataRef;
-    [SerializeField] private StorageUI storageUI;
 
     private StorageData storageData;
+    private static StorageUI sharedStorageUI;
+
+    private string storageID;
 
     protected override IItemContainer Container => storageData;
     public override bool CanInteract() => storageData != null;
-     
-    public void TrasnferTo(IItemContainer target, int itemID, int count) => Container.TransferTo(target,itemID,count);
+
     protected override void Awake()
     {
         base.Awake();
-        
+
+        // 고유 ID 생성
+        storageID = $"{gameObject.name}_{GetInstanceID()}";
+
         if (storageDataRef != null)
         {
-            // 런타임 인스턴스 생성
+            // 데이터 인스턴스 생성
             storageData = Instantiate(storageDataRef);
-            
-            // StorageUI에 인스턴스 전달
-            if (storageUI != null)
-            {
-                storageUI.Initialize(storageData, this);
-            }
-            else
-            {
-                Debug.LogError("[WorldStorage] StorageUI가 할당되지 않았습니다!");
-            }
+            storageData.name = $"StorageData_{storageID}";
+
+            Debug.Log($"[WorldStorage] 창고 생성: {storageID}");
+            Debug.Log($"→ Data Instance ID: {storageData.GetInstanceID()}");
         }
         else
         {
-            Debug.LogError("[WorldStorage] StorageDataRef가 할당되지 않았습니다!");
+            Debug.LogError($"[WorldStorage] {gameObject.name}: StorageDataRef 미할당!");
+        }
+
+        // StorageUI 찾기 (싱글톤)
+        if (sharedStorageUI == null)
+        {
+            sharedStorageUI = FindFirstObjectByType<StorageUI>();
+
+            if (sharedStorageUI != null)
+            {
+                Debug.Log($"[WorldStorage] StorageUI 찾음: {sharedStorageUI.name}");
+            }
+            else
+            {
+                Debug.LogError("[WorldStorage] StorageUI를 찾을 수 없습니다!");
+            }
         }
     }
 
@@ -41,32 +54,43 @@ public class WorldStorage : WorldItemContainerBase
     {
         if (storageData == null)
         {
-            Debug.LogError("[WorldStorage] 데이터가 없습니다!");
             return;
         }
 
+        // 1. 플레이어에게 현재 창고 알림 (거리 체크용)
+        player.SetCurrentStorage(this);
+
+        // 2. UI 열기
         OpenStorageUI();
     }
 
     private void OpenStorageUI()
     {
-        Debug.Log("[WorldStorage] 창고 UI 열기");
-        
-        if (storageUI != null)
+        if (sharedStorageUI == null)
         {
-            DragDropManager.I.SetCurrentStorage(this);
-            storageUI.Toggle(); // 토글 방식으로 변경
+            Debug.LogError("[WorldStorage] StorageUI 없음!");
+            return;
         }
-        else
-        {
-            Debug.LogError("[WorldStorage] StorageUI를 찾을 수 없습니다!");
-        }
+
+        // 1. 데이터 설정
+        sharedStorageUI.Initialize(storageData, this);
+
+        // 2. DragDropManager에 등록
+        DragDropManager.I.SetCurrentStorage(this);
+
+        // 3. UI 열기
+        sharedStorageUI.Toggle();
     }
 
-    protected override void OnTransferComplete()
+    /// <summary>
+    /// 외부에서 UI 닫기 (PlayerController.CheckStorageDistance에서 호출)
+    /// </summary>
+    public void CloseUI()
     {
-        base.OnTransferComplete();
-        // 창고는 비워져도 제거 안 함
+        if (sharedStorageUI != null)
+        {
+            sharedStorageUI.CloseUI();
+        }
     }
 
     public void AddItem(ItemBase item, int quantity)
@@ -78,4 +102,6 @@ public class WorldStorage : WorldItemContainerBase
     }
 
     public StorageData GetStorageData() => storageData;
+
+    public string GetStorageUID() => storageID;
 }
