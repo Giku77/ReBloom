@@ -70,7 +70,7 @@ public class ResearchManager : MonoBehaviour
         if (amount <= 0f) return;
 
         currentProgress += amount;
-        Debug.Log($"[Research] Progress += {amount}, now = {currentProgress}");
+        //Debug.Log($"[Research] Progress += {amount}, now = {currentProgress}");
 
         OnProgressChanged?.Invoke(currentProgress);
         CheckNewUnlocks();
