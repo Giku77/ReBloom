@@ -51,6 +51,22 @@ public class InteractionHighlight : MonoBehaviour
         HidePrompt();
     }
 
+    //private void Start()
+    //{
+    //    if (promptCanvas == null && InteractionCanvasManager.Instance != null)
+    //    {
+    //        promptCanvas = InteractionCanvasManager.Instance.GetCanvas();
+    //        promptText = InteractionCanvasManager.Instance.GetText();
+    //        holdPromptUI = InteractionCanvasManager.Instance.GetHoldInteractionUI();
+    //    }
+    //    else if (InteractionCanvasManager.Instance == null)
+    //    {
+    //        Debug.Log("InteractionCanvasManager.Instance가 null!");
+    //    }
+
+    //    HidePrompt();
+    //}
+
     private void LateUpdate()
     {
         // 프롬프트가 카메라를 바라보게 (빌보드)
@@ -100,6 +116,9 @@ public class InteractionHighlight : MonoBehaviour
     /// <summary>프롬프트만 숨기기</summary>
     public void HidePrompt()
     {
+        if (holdPromptUI != null)
+            holdPromptUI.Hide();
+
         if (promptCanvas != null)
             promptCanvas.gameObject.SetActive(false);
     }
