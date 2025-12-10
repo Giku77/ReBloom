@@ -6,13 +6,18 @@ public class StatTooltipUI : MonoBehaviour
 {
     [Header("UI Elements")]
     [SerializeField] private GameObject tooltipPanel;
+    [SerializeField] private TextMeshProUGUI statTitle;
     [SerializeField] private TextMeshProUGUI statValueText;
     [SerializeField] private TextMeshProUGUI stateText;
-    [SerializeField] private TextMeshProUGUI statRateText;
+    [SerializeField] private TextMeshProUGUI hpDecreaseRateText;
+    [SerializeField] private TextMeshProUGUI speedDecreaseRateText;
+    [SerializeField] private Image stateBorder;
+    //[SerializeField] private TextMeshProUGUI statRateText;
     [SerializeField] private TextMeshProUGUI descriptionText;
     
     [Header("Stat Type")]
     [SerializeField] private StatType statType = StatType.Pollution;
+    [SerializeField] private Color stateColor;
     
     [Header("References")]
     [SerializeField] private PlayerStats playerStats;
@@ -93,18 +98,22 @@ public class StatTooltipUI : MonoBehaviour
             case StatType.Temperature:
                 UpdateTemperatureTooltip();
                 break;
+            case StatType.HP:
+                UpdateHPTooltip();
+                break;
         }
     }
     
     private void UpdatePollutionTooltip()
     {
+        statTitle.text = "오염도";
         float pollutionValue = playerStats.Pollution.Value;
         float pollutionMax = playerStats.Pollution.MaxValue;
         int pollutionPercent = Mathf.RoundToInt((pollutionValue / pollutionMax) * 100f);
         
         if (statValueText != null)
         {
-            statValueText.text = $"오염도 : {pollutionPercent}%";
+            statValueText.text = $"현재 수치: {pollutionPercent}%";
         }
         
         string state = "정상";
@@ -126,27 +135,30 @@ public class StatTooltipUI : MonoBehaviour
             stateText.text = $"상태 : {state}";
         }
         
-        float actualRate = 0f;
+        //float actualRate = 0f;
         
         if (playerStats.Pollution is PollutionStat pollutionStat)
         {
-            actualRate = pollutionStat.ActualRate;
-            if (statRateText != null)
+            //actualRate = pollutionStat.ActualRate;
+            if (hpDecreaseRateText != null)
             {
-                statRateText.text = $"초당 증가량 : {actualRate:F3}";
+                hpDecreaseRateText.text = $"초당 체력 감소량 : ??";
             }
+            descriptionText.text = "오염도 수치가 100%에 도달하면 중독 상태에 빠져 체력이 감소합니다.";
+            stateBorder.color = GetStateColor(StatType.Pollution);
         }
     }
     
     private void UpdateThirstTooltip()
     {
+        statTitle.text = "갈증";
         float thirstValue = playerStats.Thirst.Value;
         float thirstMax = playerStats.Thirst.MaxValue;
         int thirstPercent = Mathf.RoundToInt((thirstValue / thirstMax) * 100f);
         
         if (statValueText != null)
         {
-            statValueText.text = $"갈증 : {thirstPercent}%";
+            statValueText.text = $"현재 수치: {thirstPercent}%";
         }
         
         string state = "정상";
@@ -168,20 +180,28 @@ public class StatTooltipUI : MonoBehaviour
             stateText.text = $"상태 : {state}";
         }
         
-        float actualRate = 0f;
+        //float actualRate = 0f;
         
         if (playerStats.Thirst is ThirstStat thirstStat)
         {
-            actualRate = thirstStat.ActualRate;
-            if (statRateText != null)
+           // actualRate = thirstStat.ActualRate;
+           //actualRate:F3;
+            if (hpDecreaseRateText != null)
             {
-                statRateText.text = $"초당 증가량 : {actualRate:F3}";
+                hpDecreaseRateText.text = $"초당 체력 감소량: ??";
             }
+            if (speedDecreaseRateText != null)
+            {
+                speedDecreaseRateText.text = $"이동 속도 감소량: ??";
+            }
+            descriptionText.text = "갈증 수치가 30% / 60% / 100% 에 도달하면 상태 이상 단계가 상승하고 디버프가 적용됩니다.";
+            stateBorder.color = GetStateColor(StatType.Thirst);
         }
     }
     
     private void UpdateHungerTooltip()
     {
+        statTitle.text = "허기";
         float hungerValue = playerStats.Hunger.Value;
         float hungerMax = playerStats.Hunger.MaxValue;
         int hungerPercent = Mathf.RoundToInt((hungerValue / hungerMax) * 100f);
@@ -210,25 +230,32 @@ public class StatTooltipUI : MonoBehaviour
             stateText.text = $"상태 : {state}";
         }
         
-        float actualRate = 0f;
+        //float actualRate = 0f;
         
         if (playerStats.Hunger is HungerStat hungerStat)
         {
-            actualRate = hungerStat.ActualRate;
-            if (statRateText != null)
+            //actualRate = hungerStat.ActualRate;
+            if (hpDecreaseRateText != null)
             {
-                statRateText.text = $"초당 증가량 : {actualRate:F3}";
+                hpDecreaseRateText.text = $"초당 체력 감소량: ??";
             }
+            if (speedDecreaseRateText != null)
+            {
+                speedDecreaseRateText.text = $"이동 속도 감소량: ??";
+            }
+            descriptionText.text = "허기 수치가 30% / 60% / 100% 에 도달하면 상태 이상 단계가 상승하고 디버프가 적용됩니다.";
+            stateBorder.color = GetStateColor(StatType.Hunger);
         }
     }
 
     private void UpdateTemperatureTooltip()
     {
+        statTitle.text = "체온";
         float tempValue = playerStats.Temperature.Value;
 
         if (statValueText != null)
         {
-            statValueText.text = $"체온 : {tempValue:F1}°C";
+            statValueText.text = $"현재 수치 : {tempValue:F1}°C";
         }
 
         string state = "정상";
@@ -250,15 +277,48 @@ public class StatTooltipUI : MonoBehaviour
             stateText.text = $"상태 : {state}";
         }
 
-        float actualRate = 0f;
+        //float actualRate = 0f;
 
         if (playerStats.Temperature is TemperatureStat temperatureStat)
         {
-            actualRate = temperatureStat.ActualRate;
-            if (statRateText != null)
+           // actualRate = temperatureStat.ActualRate;
+            if (hpDecreaseRateText != null)
             {
-                statRateText.text = $"초당 증가량 : {actualRate:F3}";
+                hpDecreaseRateText.text = $"초당 체력 감소량: ??";
             }
+            if (speedDecreaseRateText != null)
+            {
+                speedDecreaseRateText.text = $"이동 속도 감소량: ??";
+            }
+            descriptionText.text = "34°C 이하: 저체온증 / 31°C 이하: 중증 저체온 / 38°C 이상: 고열 / 41°C 이상: 열사병";
+            stateBorder.color = GetStateColor(StatType.Temperature);
+        }
+    }
+    private void UpdateHPTooltip()
+    {
+        statTitle.text = "체력";
+        float tempValue = playerStats.Temperature.Value;
+
+        if (statValueText != null)
+        {
+            statValueText.text = $"현재 수치 : {tempValue:F1}°C";
+        }
+
+        //float actualRate = 0f;
+
+        if (playerStats.Health is HealthStat health)
+        {
+           // actualRate = temperatureStat.ActualRate;
+            if (hpDecreaseRateText != null)
+            {
+                hpDecreaseRateText.text = $"초당 체력 감소량: ??";
+            }
+            if (speedDecreaseRateText != null)
+            {
+                speedDecreaseRateText.text = $"이동 속도 감소량: ??";
+            }
+            descriptionText.text = " ";
+            stateBorder.color = GetStateColor(StatType.HP);
         }
     }
 
@@ -269,5 +329,30 @@ public class StatTooltipUI : MonoBehaviour
         {
             graphic.raycastTarget = false;
         }
+    }
+
+    private Color GetStateColor(StatType statType)
+    {
+        Color color = Color.white; // Default color
+
+        switch (statType)
+        {
+            case StatType.Pollution:
+                color = stateColor;
+                break;
+            case StatType.Hunger:
+                color = stateColor;
+                break;
+            case StatType.Thirst:
+                color = stateColor;
+                break;
+            case StatType.HP:
+                color = stateColor;
+                break;
+            case StatType.Temperature:
+                color = stateColor;
+                break;
+        }
+        return color;
     }
 }
