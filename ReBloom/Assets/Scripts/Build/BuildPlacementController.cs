@@ -104,6 +104,8 @@ public class BuildPlacementController : MonoBehaviour
         {
             // C로 편집 모드 토글 (설치 프리뷰 중일 땐 토글 안 함)
             //UIManager.Instance?.HideUI(UIType.Building);
+            if (UIManager.Instance != null && UIManager.Instance.IsBlockedInput)
+              return;
             UIManager.Instance?.ToggleUI(UIType.EditBuild);
             isEditMode = !isEditMode;
 
