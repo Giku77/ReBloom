@@ -23,11 +23,6 @@ public class MMechBlueNPCController : BaseNPCController
     {
         base.Update();
 
-        if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance + 0.1f)
-        {
-            MoveNext();
-        }
-
         UpdateAnimation();
 
         if (currentState is MMechBlueNPCPatrolState || currentState is MMechBlueNPCChaseState)
@@ -44,12 +39,6 @@ public class MMechBlueNPCController : BaseNPCController
         }
     }
 
-    private void MoveNext()
-    {
-        index = (index + 1) % patrolPoints.Length;
-        agent.isStopped = false;
-        agent.SetDestination(patrolPoints[index].position);
-    }
     public bool IsCheckVision()
     {
         if (player == null) return false;

@@ -3,7 +3,7 @@
 public class MMechBlueNPCChaseState : NPCState
 {
     private MMechBlueNPCController m_mech;
-    private float attackRange = 3f; 
+    private float attackRange = 1f; 
 
 
     public MMechBlueNPCChaseState(BaseNPCController controller) : base(controller)

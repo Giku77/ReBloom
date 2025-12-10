@@ -702,7 +702,9 @@ public class PlayerController : MonoBehaviour
     }
 
     public void ApplyStun(float stunTime)
-    { 
+    {
+        if (isStunned) return;
+
         isStunned = true;
 
         Debug.Log("[PlayerController] 플레이어 스턴");
