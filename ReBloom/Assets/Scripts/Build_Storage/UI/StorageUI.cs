@@ -319,7 +319,13 @@ public class StorageUI : MonoBehaviour
         {
             storageUIRoot.SetActive(false);
             DragDropManager.I?.SetCurrentStorage(null);
-            Debug.Log("[StorageUI] 창고 UI 닫힘");
+
+            // 플레이어 참조 정리
+            var player = FindFirstObjectByType<PlayerController>();
+            if (player != null)
+            {
+                player.SetCurrentStorage(null);
+            }
         }
     }
     #endregion

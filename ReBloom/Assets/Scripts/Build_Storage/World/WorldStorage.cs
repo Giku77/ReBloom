@@ -54,11 +54,13 @@ public class WorldStorage : WorldItemContainerBase
     {
         if (storageData == null)
         {
-            Debug.LogError($"[WorldStorage] {storageID}: 데이터 없음!");
             return;
         }
 
-        Debug.Log($"[WorldStorage] 상호작용: {storageID}");
+        // 1. 플레이어에게 현재 창고 알림 (거리 체크용)
+        player.SetCurrentStorage(this);
+
+        // 2. UI 열기
         OpenStorageUI();
     }
 
@@ -70,8 +72,6 @@ public class WorldStorage : WorldItemContainerBase
             return;
         }
 
-        Debug.Log($"[WorldStorage] UI 열기 - {gameObject.name}");
-
         // 1. 데이터 설정
         sharedStorageUI.Initialize(storageData, this);
 
@@ -80,6 +80,17 @@ public class WorldStorage : WorldItemContainerBase
 
         // 3. UI 열기
         sharedStorageUI.Toggle();
+    }
+
+    /// <summary>
+    /// 외부에서 UI 닫기 (PlayerController.CheckStorageDistance에서 호출)
+    /// </summary>
+    public void CloseUI()
+    {
+        if (sharedStorageUI != null)
+        {
+            sharedStorageUI.CloseUI();
+        }
     }
 
     public void AddItem(ItemBase item, int quantity)

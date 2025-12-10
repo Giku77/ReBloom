@@ -124,24 +124,28 @@ public class PlayerController : MonoBehaviour
             craftingUI.Toggle();
     }
 
-    public StorageInteractable CurrentOpenedStorage { get; private set; }
-    public void OpenStorageUI()
-    {
-        if (storageUI != null)
-            storageUI.Toggle();
+    public WorldStorage CurrentOpenedStorage { get; private set; }
 
-        if (storageUI != null && !storageUI.gameObject.activeSelf && CurrentOpenedStorage != null)
+    /// <summary>
+    /// 창고 참조 설정 (WorldStorage.Interact에서 호출)
+    /// </summary>
+    public void SetCurrentStorage(WorldStorage storage)
+    {
+        CurrentOpenedStorage = storage;
+
+        if (storage != null)
         {
-            CurrentOpenedStorage = null;
+            Debug.Log($"[PlayerController] 창고 설정: {storage.name}");
+        }
+        else
+        {
+            Debug.Log("[PlayerController] 창고 참조 제거");
         }
     }
 
-    public void OpenStorage(StorageInteractable storage)
-    {
-        CurrentOpenedStorage = storage;
-        OpenStorageUI();
-    }
-
+    /// <summary>
+    /// 창고와의 거리 체크 (Update에서 호출)
+    /// </summary>
     private void CheckStorageDistance()
     {
         if (CurrentOpenedStorage == null) return;
@@ -151,9 +155,15 @@ public class PlayerController : MonoBehaviour
             CurrentOpenedStorage.transform.position
         );
 
+        Debug.Log($"[PlayerController] 창고 거리: {dist:F2}m");
+
         if (dist > storageCloseDistance)
         {
-            OpenStorageUI();
+            Debug.Log($"[PlayerController] 창고가 너무 멀어짐! UI 닫기");
+
+            // WorldStorage에게 닫으라고 요청
+            CurrentOpenedStorage.CloseUI();
+            CurrentOpenedStorage = null;
         }
     }
 
