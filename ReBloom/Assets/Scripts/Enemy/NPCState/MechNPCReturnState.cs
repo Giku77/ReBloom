@@ -19,11 +19,11 @@ public class MechNPCReturnState : NPCState
     {
         //if (mechController != null && mechController.isStunned) return;
 
-
         if (!controller.agent.pathPending && controller.agent.remainingDistance <= controller.agent.stoppingDistance)
         {
             if (controller.agent.hasPath || controller.agent.velocity.sqrMagnitude == 0f)
             {
+                //controller.animator.SetTrigger("Return");
                 controller.ChangeState(new MechNPCIdleState(controller));
             }
         }

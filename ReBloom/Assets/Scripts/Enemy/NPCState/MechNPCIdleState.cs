@@ -11,6 +11,8 @@ public class MechNPCIdleState : NPCState
     {
         Debug.Log("NPC: Idle 상태 진입");
         controller.agent.isStopped = true;
+
+        //controller.animator.SetTrigger("Return");
         
         float angleDifference = Quaternion.Angle(controller.transform.rotation, controller.initialRotation);
         isRotating = angleDifference > 1f;
@@ -26,6 +28,9 @@ public class MechNPCIdleState : NPCState
             {
                 controller.transform.rotation = controller.initialRotation;
                 isRotating = false;
+
+                controller.animator.ResetTrigger("Return");
+                controller.animator.SetTrigger("Return");
                 Debug.Log("NPC: 기존 위치 이동완료");
             }
         }
@@ -39,7 +44,7 @@ public class MechNPCIdleState : NPCState
         if (distance <= effectiveRange)
         {
             controller.lastHeardPosition = footPos;
-            controller.ChangeState(new MechNPCChaseState(controller));
+            controller.ChangeState(new MechNPCTransformState(controller));
         }
     }
 }
