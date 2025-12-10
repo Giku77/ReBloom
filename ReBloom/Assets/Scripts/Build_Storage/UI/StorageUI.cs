@@ -31,11 +31,10 @@ public class StorageUI : MonoBehaviour
             storageUIRoot.SetActive(false);
         }
     }
-
-    private void OnEnable()
-    {
-        RefreshUI();
-    }
+    //private void OnEnable()
+    //{
+    //    RefreshUI();
+    //}
 
     private void OnDestroy()
     {
@@ -52,6 +51,13 @@ public class StorageUI : MonoBehaviour
     /// </summary>
     public void Initialize(StorageData data, WorldStorage storage)
     {
+        // 기존 이벤트 구독 해제
+        if (storageData != null)
+        {
+            storageData.OnStorageChanged -= RefreshUI;
+        }
+
+        // 새 데이터 설정
         storageData = data;
         worldStorage = storage;
 
@@ -70,10 +76,10 @@ public class StorageUI : MonoBehaviour
         // 이벤트 구독
         storageData.OnStorageChanged += RefreshUI;
 
-        // EmptySlot 생성
+        // EmptySlot 재생성 (티어가 다를 수 있음)
         CreateEmptySlots();
 
-        Debug.Log($"[StorageUI] 초기화 완료 - Tier: {storageData.StorageTier}, 슬롯: {storageData.SlotCount}개");
+        Debug.Log($"[StorageUI] 초기화 완료 - Storage: {storage.name}, Tier: {storageData.StorageTier}, 슬롯: {storageData.SlotCount}개");
     }
 
     /// <summary>
