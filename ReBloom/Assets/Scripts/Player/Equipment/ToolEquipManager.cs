@@ -14,7 +14,8 @@ public class ToolEquipManager : MonoBehaviour
     [Header("Scale Settings")]
     [SerializeField] private Vector3 hammerScale = new Vector3(100f, 100f, 100f);
     [SerializeField] private Vector3 shovelScale = Vector3.one;
-    
+    [SerializeField] private Vector3 waterCanScale = new Vector3(0.05f, 0.05f, 0.05f);
+
     [Header("Current Tool")]
     private GameObject currentToolInstance;
     private AsyncOperationHandle<GameObject> currentHandle;
@@ -51,6 +52,9 @@ public class ToolEquipManager : MonoBehaviour
                 break;
             case ToolCategory.Shovel:
                 currentToolInstance.transform.localScale = shovelScale;
+                break;
+            case ToolCategory.WateringCan:
+                currentToolInstance.transform.localScale = waterCanScale;
                 break;
             default:
                 currentToolInstance.transform.localScale = Vector3.one;
@@ -126,48 +130,6 @@ public class ToolEquipManager : MonoBehaviour
         {
             Debug.LogError($"[ToolEquipManager] 도구 로드 에러: {toolAddress}\n{e.Message}");
         }
-
-        //if (tool == null)
-        //{
-        //    Debug.LogError("[ToolEquipManager] ToolItemData가 null입니다!");
-        //    return;
-        //}
-
-        //if (toolHolder == null)
-        //{
-        //    Debug.LogError("[ToolEquipManager] ToolHolder가 없습니다!");
-        //    return;
-        //}
-
-        //UnequipTool();
-
-        //string toolAddress = GetAddressableKey(tool);
-
-        //try
-        //{
-        //    Debug.Log($"[ToolEquipManager] 도구 로드 시작: {toolAddress}");
-
-        //    currentHandle = Addressables.LoadAssetAsync<GameObject>(toolAddress);
-        //    await currentHandle.Task;
-
-        //    if (currentHandle.Status == AsyncOperationStatus.Succeeded)
-        //    {
-        //        currentToolInstance = Instantiate(currentHandle.Result, toolHolder);
-        //        //currentToolInstance.transform.localPosition = Vector3.zero;
-        //        //currentToolInstance.transform.localRotation = Quaternion.identity;
-
-
-        //        Debug.Log($"[ToolEquipManager] 도구 장착 완료: {tool.itemName} ({toolAddress})");
-        //    }
-        //    else
-        //    {
-        //        Debug.LogError($"[ToolEquipManager] 도구 로드 실패: {toolAddress}");
-        //    }
-        //}
-        //catch (System.Exception e)
-        //{
-        //    Debug.LogError($"[ToolEquipManager] 도구 로드 에러: {toolAddress}\n{e.Message}");
-        //}
     }
 
     /// <summary>
@@ -195,18 +157,6 @@ public class ToolEquipManager : MonoBehaviour
         ReleaseCurrentHandle();
 
         Debug.Log("[ToolEquipManager] 도구 완전 해제");
-
-        //if (currentToolInstance != null)
-        //{
-        //    Destroy(currentToolInstance);
-        //    currentToolInstance = null;
-        //    Debug.Log("[ToolEquipManager] 도구 해제 완료");
-        //}
-
-        //if (currentHandle.IsValid())
-        //{
-        //    Addressables.Release(currentHandle);
-        //}
     }
 
     /// <summary>
@@ -234,6 +184,9 @@ public class ToolEquipManager : MonoBehaviour
                 break;
             case ToolCategory.Hammer:
                 categoryName = "Equip/Hammer";
+                break;
+            case ToolCategory.WateringCan:
+                categoryName = "Equip/WateringCan";
                 break;
             default:
                 categoryName = "Equip/Tool";

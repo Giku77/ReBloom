@@ -290,6 +290,11 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        if (Keyboard.current.pKey.wasPressedThisFrame)
+        {
+            Anim.PlayWatering();
+        }
+
         if (Keyboard.current.f3Key.wasPressedThisFrame)
         {
             debugMode = !debugMode;

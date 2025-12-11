@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerAnimation : MonoBehaviour
 {
@@ -17,7 +18,7 @@ public class PlayerAnimation : MonoBehaviour
     public static readonly int Sleep = Animator.StringToHash("Start");
     public static readonly int StandUp = Animator.StringToHash("StandUp");
     public static readonly int Stun = Animator.StringToHash("Stun");
-
+    public static readonly int Watering = Animator.StringToHash("Watering");
 
     [Header("Layer Blending")]
     [SerializeField] private float layerBlendSpeed = 5f;
@@ -85,6 +86,11 @@ public class PlayerAnimation : MonoBehaviour
     public void PlayDeath()
     {
         animator.SetTrigger(Death);
+    }
+
+    public void PlayWatering()
+    {
+        animator.SetTrigger(Watering);
     }
 
     public void SetRootMotion(bool value)
