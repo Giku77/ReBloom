@@ -18,16 +18,16 @@ public class NPCAttackBehaviour : StateMachineBehaviour
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         hitboxActivated = false;
-        
+
         if (hitboxCollider == null)
         {
             npcTransform = animator.transform;
             Transform hitboxTransform = FindChildRecursive(npcTransform, hitboxObjectName);
-            
+
             if (hitboxTransform != null)
             {
                 hitboxCollider = hitboxTransform.GetComponent<Collider>();
-                
+
                 if (hitboxCollider != null)
                 {
                     Debug.Log($"[NPC Attack] 히트박스 찾음: {hitboxObjectName}");
@@ -42,12 +42,12 @@ public class NPCAttackBehaviour : StateMachineBehaviour
                 Debug.LogWarning($"[NPC Attack] {hitboxObjectName}을 찾을 수 없습니다!");
             }
         }
-        
+
         if (hitboxCollider != null)
         {
             hitboxCollider.enabled = false;
         }
-        
+
         Debug.Log("[NPC Attack] 공격 애니메이션 시작");
     }
 
@@ -56,7 +56,7 @@ public class NPCAttackBehaviour : StateMachineBehaviour
         if (hitboxCollider == null) return;
 
         float normalizedTime = stateInfo.normalizedTime % 1f;
-        
+
         if (normalizedTime >= hitboxStartTime && normalizedTime <= hitboxEndTime)
         {
             if (!hitboxActivated)
@@ -80,7 +80,7 @@ public class NPCAttackBehaviour : StateMachineBehaviour
         {
             hitboxCollider.enabled = false;
         }
-        
+
         Debug.Log("[NPC Attack] 공격 애니메이션 종료");
 
         MechNPCController npc = animator.GetComponentInParent<MechNPCController>();
@@ -96,7 +96,7 @@ public class NPCAttackBehaviour : StateMachineBehaviour
         {
             if (child.name == name)
                 return child;
-            
+
             Transform found = FindChildRecursive(child, name);
             if (found != null)
                 return found;

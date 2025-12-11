@@ -241,6 +241,7 @@ public class PlayerEquipManager : MonoBehaviour
 
                 inventoryItemData.AddItem(player.currentToolEquip.itemID, 1);
                 player.currentToolEquip = null;
+                anim.SetToolType(0);
                 anim.HandLayerChange();
                 
                 // ToolEquipManager를 통해 프리팹 제거

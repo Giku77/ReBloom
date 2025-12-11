@@ -16,6 +16,7 @@ public class PlayerAnimation : MonoBehaviour
     public static readonly int WakeUp = Animator.StringToHash("WakeUp");
     public static readonly int Sleep = Animator.StringToHash("Start");
     public static readonly int StandUp = Animator.StringToHash("StandUp");
+    public static readonly int Stun = Animator.StringToHash("Stun");
 
 
     [Header("Layer Blending")]
@@ -74,6 +75,11 @@ public class PlayerAnimation : MonoBehaviour
     public void SetJumping(bool value)
     {
         animator.SetBool(Jump, value);
+    }
+
+    public void SetStun(bool value)
+    {
+        animator.SetBool(Stun, value);
     }
 
     public void PlayDeath()

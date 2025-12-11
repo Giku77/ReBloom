@@ -60,12 +60,14 @@ public class PlayerController : MonoBehaviour
     private bool isSprinting = false;
     private Vector2 moveInput;
     private Vector3 moveDirection;
-    private Vector3 oldMoveDirection;
 
     public bool isSlow = false;
     private bool isFreeLook = false;
 
     public bool isDead = false;
+    private bool isStunned = false;
+    private float stunDuration;
+    private float stunTime = 0f;
 
     private bool isInputBlocked = false;
 
@@ -297,6 +299,19 @@ public class PlayerController : MonoBehaviour
             Debug.Log("디버그 모드 온오프");
         }
         CheckStorageDistance();
+
+        if (isStunned == true)
+        {
+            stunTime += Time.deltaTime;
+
+            if (stunTime >= stunDuration)
+            { 
+                isStunned = false;
+                stunTime = 0f;
+            }
+
+            Anim.SetStun(isStunned);
+        }
     }
 
     private void FixedUpdate()
@@ -409,7 +424,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
   
-        if (!isGround || IsMovementLocked) return;
+        if (!isGround || IsMovementLocked || isStunned) return;
 
         Vector2 finalMoveInput = moveInput;
 
@@ -493,7 +508,7 @@ public class PlayerController : MonoBehaviour
         if (debugMode) return;
 
         if (IsMovementLocked) { jumpRequested = false; return; }
-        if (!jumpRequested) return;
+        if (!jumpRequested || isStunned) return;
 
         Vector3 velocity = rb.linearVelocity;
         velocity.y = jumpForce;
@@ -508,6 +523,8 @@ public class PlayerController : MonoBehaviour
 
     private void RotatePlayer()
     {
+        if (isStunned) return;
+
         if (isFreeLook)
         {
             if (moveInput.magnitude > 0.1f)
@@ -682,5 +699,17 @@ public class PlayerController : MonoBehaviour
         }
 
         wasBuildPlacing = isBuildPlacing;
+    }
+
+    public void ApplyStun(float stunTime)
+    {
+        if (isStunned) return;
+
+        isStunned = true;
+
+        Debug.Log("[PlayerController] 플레이어 스턴");
+
+        stunDuration = stunTime;
+        this.stunTime = 0f;
     }
 }
