@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 5739832242324988863}
   - component: {fileID: -5203348266740459651}
   - component: {fileID: 6907271545608232022}
+  - component: {fileID: -1404189718393966963}
   m_Layer: 11
   m_Name: detoxificationkit1
   m_TagString: Untagged
@@ -130,7 +131,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1e1b7fd66b097c43840613e4f2134ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickupRange: 2
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -150,11 +150,10 @@ MonoBehaviour:
   lightIntensity: 2
   backlightRange: 3
   bodylightRange: 0.05
-  promptCanvas: {fileID: 0}
-  promptText: {fileID: 0}
-  holdPromptUI: {fileID: 0}
   promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
   isPermanent: 0
+  disableHighlight: 0
+  disableOutline: 0
 --- !u!114 &-5203348266740459651
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -188,3 +187,17 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.19738886, y: 0.19738884, z: 0.2983935}
   m_Center: {x: 0, y: 0.0000000015288559, z: 0.025649946}
+--- !u!114 &-1404189718393966963
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4691850412101563291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5127be94d2e1eac45a6fb562c37b7c82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlined: 0
+  outlineLayerMask: 256

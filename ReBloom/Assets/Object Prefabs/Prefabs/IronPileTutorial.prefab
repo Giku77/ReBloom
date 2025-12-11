@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 6835854486390209645}
   - component: {fileID: 4959479642904715925}
   - component: {fileID: -2549922904725363908}
+  - component: {fileID: 7133589944241765734}
   m_Layer: 7
   m_Name: IronPileTutorial
   m_TagString: Untagged
@@ -128,11 +129,10 @@ MonoBehaviour:
   lightIntensity: 2
   backlightRange: 3
   bodylightRange: 0.05
-  promptCanvas: {fileID: 0}
-  promptText: {fileID: 0}
-  holdPromptUI: {fileID: 0}
   promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
   isPermanent: 0
+  disableHighlight: 0
+  disableOutline: 0
 --- !u!114 &-2549922904725363908
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -147,3 +147,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910007
   inventoryItemData: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
+--- !u!114 &7133589944241765734
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4920799398043664451}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5127be94d2e1eac45a6fb562c37b7c82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlined: 0
+  outlineLayerMask: 256

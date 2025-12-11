@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: -8602603471662551737}
   - component: {fileID: -2897667777692623704}
   - component: {fileID: 1058698606581449230}
+  - component: {fileID: -453648582375984215}
   m_Layer: 11
   m_Name: Hammer1
   m_TagString: Untagged
@@ -149,11 +150,10 @@ MonoBehaviour:
   lightIntensity: 2
   backlightRange: 3
   bodylightRange: 0.05
-  promptCanvas: {fileID: 0}
-  promptText: {fileID: 0}
-  holdPromptUI: {fileID: 0}
   promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
   isPermanent: 0
+  disableHighlight: 0
+  disableOutline: 0
 --- !u!114 &-2897667777692623704
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -187,3 +187,17 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.010380945, y: 0.0048927213, z: 0.0008891087}
   m_Center: {x: -0.00038698275, y: -0.000112532834, z: -1.751804e-13}
+--- !u!114 &-453648582375984215
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3533958267307647205}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5127be94d2e1eac45a6fb562c37b7c82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlined: 0
+  outlineLayerMask: 256

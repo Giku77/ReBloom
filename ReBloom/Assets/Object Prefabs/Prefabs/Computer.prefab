@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 8677729249254875860}
   - component: {fileID: 6375631109508624390}
   - component: {fileID: -7277042688720458170}
+  - component: {fileID: 7153109428747927524}
   m_Layer: 7
   m_Name: Computer
   m_TagString: Untagged
@@ -166,11 +167,10 @@ MonoBehaviour:
   lightIntensity: 2
   backlightRange: 3
   bodylightRange: 0.05
-  promptCanvas: {fileID: 0}
-  promptText: {fileID: 0}
-  holdPromptUI: {fileID: 0}
   promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
   isPermanent: 0
+  disableHighlight: 0
+  disableOutline: 0
 --- !u!208 &-7277042688720458170
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -187,3 +187,17 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0.068, y: 0.286, z: 0.034}
   m_TimeToStationary: 0.5
+--- !u!114 &7153109428747927524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 131420615664546077}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5127be94d2e1eac45a6fb562c37b7c82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlined: 0
+  outlineLayerMask: 256

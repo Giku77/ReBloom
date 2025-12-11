@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 2099438146028577655}
   - component: {fileID: -6151673180266279877}
   - component: {fileID: 1041914027674288865}
+  - component: {fileID: 985658381568148078}
   m_Layer: 11
   m_Name: cleanwater
   m_TagString: Untagged
@@ -130,7 +131,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1e1b7fd66b097c43840613e4f2134ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickupRange: 2
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -150,11 +150,10 @@ MonoBehaviour:
   lightIntensity: 2
   backlightRange: 3
   bodylightRange: 0.05
-  promptCanvas: {fileID: 0}
-  promptText: {fileID: 0}
-  holdPromptUI: {fileID: 0}
   promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
   isPermanent: 0
+  disableHighlight: 0
+  disableOutline: 0
 --- !u!114 &-6151673180266279877
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -188,3 +187,17 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.021089155, y: 0.021089152, z: 0.059440184}
   m_Center: {x: -4.656613e-10, y: 0, z: 0.0069437795}
+--- !u!114 &985658381568148078
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7117453016605849912}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5127be94d2e1eac45a6fb562c37b7c82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlined: 0
+  outlineLayerMask: 256

@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 1764972538906808219}
   - component: {fileID: 2578039876759995521}
   - component: {fileID: 1977724006645071203}
+  - component: {fileID: 2159474746335715541}
   m_Layer: 11
   m_Name: EmptyBottle
   m_TagString: Untagged
@@ -151,6 +152,8 @@ MonoBehaviour:
   bodylightRange: 0.05
   promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
   isPermanent: 0
+  disableHighlight: 0
+  disableOutline: 0
 --- !u!114 &2578039876759995521
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -184,3 +187,17 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.021089159, y: 0.021089155, z: 0.059440196}
   m_Center: {x: -8.795429e-10, y: 0, z: 0.006943781}
+--- !u!114 &2159474746335715541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9210242413060623600}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5127be94d2e1eac45a6fb562c37b7c82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlined: 0
+  outlineLayerMask: 256

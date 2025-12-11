@@ -100,6 +100,7 @@ GameObject:
   - component: {fileID: 4136337255673658205}
   - component: {fileID: 1956385036517432545}
   - component: {fileID: 5052928546573977566}
+  - component: {fileID: -8405018538302164807}
   m_Layer: 11
   m_Name: Bark
   m_TagString: Untagged
@@ -162,7 +163,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1e1b7fd66b097c43840613e4f2134ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickupRange: 2
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -182,11 +182,10 @@ MonoBehaviour:
   lightIntensity: 2
   backlightRange: 3
   bodylightRange: 0.05
-  promptCanvas: {fileID: 0}
-  promptText: {fileID: 0}
-  holdPromptUI: {fileID: 0}
   promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
   isPermanent: 0
+  disableHighlight: 0
+  disableOutline: 0
 --- !u!114 &1956385036517432545
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -220,6 +219,20 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 40.157024, y: 30.183193, z: 23.359009}
   m_Center: {x: 2.6246867, y: -1.3123288, z: -1.5748047}
+--- !u!114 &-8405018538302164807
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2834487734122551784}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5127be94d2e1eac45a6fb562c37b7c82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlined: 0
+  outlineLayerMask: 256
 --- !u!1 &3140143859059581843
 GameObject:
   m_ObjectHideFlags: 0

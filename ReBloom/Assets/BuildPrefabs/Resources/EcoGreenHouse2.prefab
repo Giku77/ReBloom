@@ -755,6 +755,7 @@ GameObject:
   - component: {fileID: 410638906858560070}
   - component: {fileID: 1207787481348812869}
   - component: {fileID: 4565165347843757173}
+  - component: {fileID: 8741126869296711014}
   m_Layer: 9
   m_Name: EcoGreenHouse2
   m_TagString: Untagged
@@ -858,6 +859,20 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 10, y: 6.3, z: 13}
   m_Center: {x: 0, y: 3.15, z: 0}
+--- !u!114 &8741126869296711014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3444027433931962851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5127be94d2e1eac45a6fb562c37b7c82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlined: 0
+  outlineLayerMask: 256
 --- !u!1 &4623256307439603667
 GameObject:
   m_ObjectHideFlags: 0
@@ -2190,6 +2205,8 @@ MonoBehaviour:
   bodylightRange: 0
   promptFormat: "\uB18D\uC0AC\uD558\uAE30 [E]"
   isPermanent: 0
+  disableHighlight: 0
+  disableOutline: 0
 --- !u!114 &4539314870855535165
 MonoBehaviour:
   m_ObjectHideFlags: 0

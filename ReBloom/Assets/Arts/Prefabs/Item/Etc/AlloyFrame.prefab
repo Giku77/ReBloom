@@ -105,6 +105,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 77e9c05ccf33a7a429f074986f0abb48, type: 3}
       insertIndex: -1
       addedObject: {fileID: 878033970192891071}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 77e9c05ccf33a7a429f074986f0abb48, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -4708968507228998654}
   m_SourcePrefab: {fileID: 100100000, guid: 77e9c05ccf33a7a429f074986f0abb48, type: 3}
 --- !u!1 &7769230365820996686 stripped
 GameObject:
@@ -150,7 +153,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1e1b7fd66b097c43840613e4f2134ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickupRange: 2
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -170,11 +172,10 @@ MonoBehaviour:
   lightIntensity: 2
   backlightRange: 3
   bodylightRange: 0.05
-  promptCanvas: {fileID: 0}
-  promptText: {fileID: 0}
-  holdPromptUI: {fileID: 0}
   promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
   isPermanent: 0
+  disableHighlight: 0
+  disableOutline: 0
 --- !u!114 &4236790549678555980
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -208,3 +209,17 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.69710445, y: 0.5499228, z: 0.684306}
   m_Center: {x: -0.008532286, y: 0.2762323, z: -0.010665357}
+--- !u!114 &-4708968507228998654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7769230365820996686}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5127be94d2e1eac45a6fb562c37b7c82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlined: 0
+  outlineLayerMask: 256

@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: -854465795906382282}
   - component: {fileID: -8802718139750203839}
   - component: {fileID: -9131649468345432634}
+  - component: {fileID: -8503188786084520732}
   m_Layer: 11
   m_Name: Shovel2
   m_TagString: Untagged
@@ -149,11 +150,10 @@ MonoBehaviour:
   lightIntensity: 2
   backlightRange: 3
   bodylightRange: 0.05
-  promptCanvas: {fileID: 0}
-  promptText: {fileID: 0}
-  holdPromptUI: {fileID: 0}
   promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
   isPermanent: 0
+  disableHighlight: 0
+  disableOutline: 0
 --- !u!114 &-8802718139750203839
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -187,3 +187,17 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.4996463, y: 0.5184696, z: 0.11435207}
   m_Center: {x: 0.08929015, y: -0.013420855, z: -0.008562957}
+--- !u!114 &-8503188786084520732
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 766801629455051432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5127be94d2e1eac45a6fb562c37b7c82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlined: 0
+  outlineLayerMask: 256

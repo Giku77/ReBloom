@@ -58,7 +58,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 8ad1a811afc45aa479d54cbbb7dc24e2, type: 3}
       propertyPath: m_Name
-      value: PotStove 1
+      value: PotStove
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 8ad1a811afc45aa479d54cbbb7dc24e2, type: 3}
       propertyPath: m_Layer
@@ -83,6 +83,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8ad1a811afc45aa479d54cbbb7dc24e2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7114986373721645328}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8ad1a811afc45aa479d54cbbb7dc24e2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6749362364700779696}
   m_SourcePrefab: {fileID: 100100000, guid: 8ad1a811afc45aa479d54cbbb7dc24e2, type: 3}
 --- !u!1 &5646523969117648567 stripped
 GameObject:
@@ -141,11 +144,10 @@ MonoBehaviour:
   lightIntensity: 2
   backlightRange: 3
   bodylightRange: 0.05
-  promptCanvas: {fileID: 0}
-  promptText: {fileID: 0}
-  holdPromptUI: {fileID: 0}
   promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
   isPermanent: 0
+  disableHighlight: 0
+  disableOutline: 0
 --- !u!65 &6919325115132658560
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -183,3 +185,17 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0, z: 0.43300003}
   m_TimeToStationary: 0.5
+--- !u!114 &6749362364700779696
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5646523969117648567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5127be94d2e1eac45a6fb562c37b7c82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlined: 0
+  outlineLayerMask: 256

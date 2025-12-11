@@ -3696,6 +3696,7 @@ GameObject:
   - component: {fileID: 5949891540697573252}
   - component: {fileID: -3286049665821783525}
   - component: {fileID: 2026102940138406411}
+  - component: {fileID: -5104247666151172379}
   m_Layer: 11
   m_Name: Clothes1
   m_TagString: Untagged
@@ -3758,7 +3759,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1e1b7fd66b097c43840613e4f2134ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickupRange: 2
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -3778,11 +3778,10 @@ MonoBehaviour:
   lightIntensity: 2
   backlightRange: 3
   bodylightRange: 0.05
-  promptCanvas: {fileID: 0}
-  promptText: {fileID: 0}
-  holdPromptUI: {fileID: 0}
   promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
   isPermanent: 0
+  disableHighlight: 0
+  disableOutline: 0
 --- !u!114 &-3286049665821783525
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3816,6 +3815,20 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.64, y: 1.5133457, z: 0.29797977}
   m_Center: {x: 0, y: 0.074273586, z: -0.0063762665}
+--- !u!114 &-5104247666151172379
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6184125340059443749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5127be94d2e1eac45a6fb562c37b7c82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlined: 0
+  outlineLayerMask: 256
 --- !u!1 &6280291271289506223
 GameObject:
   m_ObjectHideFlags: 0

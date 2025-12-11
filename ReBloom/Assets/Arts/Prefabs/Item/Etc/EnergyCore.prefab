@@ -962,6 +962,7 @@ GameObject:
   - component: {fileID: 2648440367948364633}
   - component: {fileID: 8768520665334630747}
   - component: {fileID: -1046346753268520725}
+  - component: {fileID: 6902145223235470062}
   m_Layer: 11
   m_Name: EnergyCore
   m_TagString: Untagged
@@ -1077,7 +1078,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1e1b7fd66b097c43840613e4f2134ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickupRange: 2
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -1097,11 +1097,10 @@ MonoBehaviour:
   lightIntensity: 2
   backlightRange: 3
   bodylightRange: 0.05
-  promptCanvas: {fileID: 0}
-  promptText: {fileID: 0}
-  holdPromptUI: {fileID: 0}
   promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
   isPermanent: 0
+  disableHighlight: 0
+  disableOutline: 0
 --- !u!114 &8768520665334630747
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1135,6 +1134,20 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2.3, y: 2.9, z: 2.3}
   m_Center: {x: 0, y: 0.2, z: 0}
+--- !u!114 &6902145223235470062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1795024978187277628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5127be94d2e1eac45a6fb562c37b7c82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlined: 0
+  outlineLayerMask: 256
 --- !u!1 &2422382807240765475
 GameObject:
   m_ObjectHideFlags: 0
