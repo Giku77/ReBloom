@@ -1,14 +1,17 @@
+﻿using LineworkLite.FreeOutline;
 using UnityEngine;
 
 [DisallowMultipleComponent]
 public class OutlineToggle : MonoBehaviour
 {
+    [SerializeField] private Outline outline;
     [SerializeField] private bool outlined = false;
 
     [SerializeField] private uint outlineLayerMask = 1u << 8; // 8번 레이어로 설정
 
     private Renderer[] renderers;
     private uint originalMask;
+
 
     private void Awake()
     {
@@ -43,9 +46,16 @@ public class OutlineToggle : MonoBehaviour
         }
     }
 
-    public void SetOutlined(bool value)
+    public void SetOutlined(bool value, bool throughWalls = false)
     {
         outlined = value;
+        if (outline != null)
+        {
+            outline.occlusion =
+                throughWalls
+                ? LineworkLite.Common.Utils.Occlusion.Always       // 스캔 중
+                : LineworkLite.Common.Utils.Occlusion.WhenNotOccluded; // 평소
+        }
         Apply();
     }
 }
