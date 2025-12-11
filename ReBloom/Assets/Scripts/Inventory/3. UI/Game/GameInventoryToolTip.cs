@@ -65,7 +65,6 @@ public class GameInventoryToolTip : MonoBehaviour
     {
         Debug.Log($"[GameInventoryToolTip] Show 호출됨! Item: {item?.itemName}");
         currentItem = item;
-        tooltipRoot.SetActive(true);
 
         // 기본 정보
         title.text = item.itemName;
@@ -105,8 +104,29 @@ public class GameInventoryToolTip : MonoBehaviour
         {
             HideAllStats();
         }
+        tooltipRoot.SetActive(true);
+        ForceUpdateLayout();
     }
+    private void ForceUpdateLayout()
+    {
+        // TextMeshPro 텍스트 메시 강제 갱신
+        title.ForceMeshUpdate();
+        category.ForceMeshUpdate();
+        for (int i = 0; i < statUIs.Length; i++)
+        {
+            statUIs[i].valueText.ForceMeshUpdate();  // 값 표시용
+            statUIs[i].label.ForceMeshUpdate();
+        }
+        // 캔버스 갱신
+        Canvas.ForceUpdateCanvases();
 
+        // 부모부터 자식까지 순서대로 갱신
+        var parentRect = title.transform.parent as RectTransform;
+        if (parentRect != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(parentRect);
+        }
+    }
     /// <summary>
     /// 소비 아이템 스탯 표시
     /// </summary>
