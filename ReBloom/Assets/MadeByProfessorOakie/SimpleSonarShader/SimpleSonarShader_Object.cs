@@ -51,6 +51,17 @@ public class SimpleSonarShader_Object : MonoBehaviour
 
         // Add this objects function to the static delegate
         RingDelegate += SendSonarData;
+
+        foreach (var r in ObjectRenderers)
+        {
+            var mat = r.material;
+            var shared = r.sharedMaterial;
+            Debug.Log(
+                $"[Sonar] Renderer={r.name}, " +
+                $"mat={mat.name}, shader={mat.shader.name}, " +
+                $"sharedMat={shared?.name}, sharedShader={shared?.shader?.name}"
+            );
+        }
     }
 
     /// <summary>
