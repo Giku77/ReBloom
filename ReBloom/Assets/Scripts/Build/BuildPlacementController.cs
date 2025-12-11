@@ -107,7 +107,7 @@ public class BuildPlacementController : MonoBehaviour
             if (UIManager.Instance != null && UIManager.Instance.IsBlockedInput)
               return;
             UIManager.Instance?.ToggleUI(UIType.EditBuild);
-            isEditMode = !isEditMode;
+            //isEditMode = !isEditMode;
 
             if (!isEditMode)
             {
@@ -447,6 +447,15 @@ public class BuildPlacementController : MonoBehaviour
             (keyboard != null && keyboard.escapeKey.wasPressedThisFrame))
         {
             CancelPlacement();
+        }
+    }
+
+    public void SetEditMode(bool editMode)
+    {
+        isEditMode = editMode;
+        if (!isEditMode)
+        {
+            ExitEditMode();
         }
     }
 }

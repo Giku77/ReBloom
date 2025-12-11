@@ -122,7 +122,7 @@ public class CutSceneManager : MonoBehaviour
                 await UniTask.Delay(TimeSpan.FromSeconds(0.2f), cancellationToken: token);
 
                 if (dialogueUI != null)
-                    await dialogueUI.ShowLineAsync(data.TextKR);
+                    await dialogueUI.ShowLineAsync(data.TextKR, cancellationToken: token);
 
                 if (token.IsCancellationRequested)
                     break;

@@ -11,6 +11,8 @@ public class QuestManager : MonoBehaviour
 
     private StageDetector _stageDetector;
     public QuestData Current => _current;
+    public QuestDB DB => _db;
+
 
     private void Awake() => I = this;
 

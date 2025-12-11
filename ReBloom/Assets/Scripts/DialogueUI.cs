@@ -1,4 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
+using System.Threading;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -113,10 +114,12 @@ public class DialogueUI : UIBase
         bool waitForNextInput = true,
         bool showNextHint = true,
         Color textColor = new Color(),
-        int alpha = 155)
+        int alpha = 155,
+        CancellationToken cancellationToken = default)
     {
         if (textColor == new Color())
             textColor = Color.white;
+
         if (backgroundImage != null)
         {
             var c = originalBgColor;
@@ -135,13 +138,18 @@ public class DialogueUI : UIBase
         if (characterImage != null)
             characterImage.gameObject.SetActive(showCharacterImage);
 
-        var token = this.GetCancellationTokenOnDestroy();
+        var destroyToken = this.GetCancellationTokenOnDestroy();
+        CancellationToken token = cancellationToken.CanBeCanceled
+            ? CancellationTokenSource.CreateLinkedTokenSource(destroyToken, cancellationToken).Token
+            : destroyToken;
 
         nextRequested = false;
 
-        foreach (char c in localizedText)
+        foreach (char ch in localizedText)
         {
-            messageText.text += c;
+            token.ThrowIfCancellationRequested();
+
+            messageText.text += ch;
 
             if (nextRequested)
                 break;
@@ -150,6 +158,8 @@ public class DialogueUI : UIBase
                 (int)(1000f / typeSpeed),
                 cancellationToken: token);
         }
+
+        token.ThrowIfCancellationRequested();
 
         messageText.text = localizedText;
 
@@ -162,7 +172,7 @@ public class DialogueUI : UIBase
         if (showNextHint)
         {
             messageText.text = localizedText +
-                               " <color=#FFA500>[G] 다음</color>";
+                            " <color=#FFA500>[G] 다음</color>";
         }
 
         nextRequested = false;
