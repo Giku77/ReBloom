@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 3142915256245305608}
   - component: {fileID: 5214395534153529274}
   - component: {fileID: 4595347137967441198}
+  - component: {fileID: -5472782865215820786}
   m_Layer: 11
   m_Name: DeathBox
   m_TagString: Untagged
@@ -126,6 +127,8 @@ MonoBehaviour:
   bodylightRange: 0.05
   promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
   isPermanent: 0
+  disableHighlight: 0
+  disableOutline: 0
 --- !u!114 &3142915256245305608
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -188,3 +191,18 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2.0094492, y: 2.1659954, z: 4.299005}
   m_Center: {x: 0, y: 0.00000005960464, z: 0}
+--- !u!114 &-5472782865215820786
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 731978083580188806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5127be94d2e1eac45a6fb562c37b7c82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outline: {fileID: 4011610321156874807, guid: 97aac55f4d7b4f3489999c7128acef97, type: 2}
+  outlined: 0
+  outlineLayerMask: 256

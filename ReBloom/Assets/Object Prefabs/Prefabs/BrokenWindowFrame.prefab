@@ -50,7 +50,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 586729341950085039, guid: 8c4e0735bce1bce4c829a7ccc4a80695, type: 3}
       propertyPath: m_Name
-      value: BrokenWindowFrame 1
+      value: BrokenWindowFrame
       objectReference: {fileID: 0}
     - target: {fileID: 586729341950085039, guid: 8c4e0735bce1bce4c829a7ccc4a80695, type: 3}
       propertyPath: m_Layer
@@ -84,6 +84,9 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 586729341950085039, guid: 8c4e0735bce1bce4c829a7ccc4a80695, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6541667488255550602}
     - targetCorrespondingSourceObject: {fileID: 6443588785494813966, guid: 8c4e0735bce1bce4c829a7ccc4a80695, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6827174920904488877}
@@ -173,11 +176,10 @@ MonoBehaviour:
   lightIntensity: 2
   backlightRange: 3
   bodylightRange: 0.05
-  promptCanvas: {fileID: 0}
-  promptText: {fileID: 0}
-  holdPromptUI: {fileID: 0}
   promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
   isPermanent: 0
+  disableHighlight: 0
+  disableOutline: 0
 --- !u!65 &9106039921623176083
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -199,3 +201,23 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.526638, y: 1.9957123, z: 0.5028877}
   m_Center: {x: 0.0011799932, y: 0.0021438599, z: 0.0075950623}
+--- !u!1 &9180780305044080090 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 586729341950085039, guid: 8c4e0735bce1bce4c829a7ccc4a80695, type: 3}
+  m_PrefabInstance: {fileID: 8596479099910079093}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6541667488255550602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9180780305044080090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5127be94d2e1eac45a6fb562c37b7c82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outline: {fileID: 4011610321156874807, guid: 97aac55f4d7b4f3489999c7128acef97, type: 2}
+  outlined: 0
+  outlineLayerMask: 256

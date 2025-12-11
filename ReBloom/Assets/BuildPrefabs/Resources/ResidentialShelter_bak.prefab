@@ -1222,6 +1222,7 @@ GameObject:
   - component: {fileID: 1859804234082453156}
   - component: {fileID: 8429219314238294501}
   - component: {fileID: 1880644259631985790}
+  - component: {fileID: 2909296657059179480}
   m_Layer: 9
   m_Name: ResidentialShelter_bak
   m_TagString: Untagged
@@ -1339,11 +1340,10 @@ MonoBehaviour:
   lightIntensity: 0
   backlightRange: 0
   bodylightRange: 0
-  promptCanvas: {fileID: 1774244320278916688, guid: 9ec99a5a91830b94696de74c175a5202, type: 3}
-  promptText: {fileID: 7093626327689955203, guid: 9ec99a5a91830b94696de74c175a5202, type: 3}
-  holdPromptUI: {fileID: 2280528934107632811, guid: 9ec99a5a91830b94696de74c175a5202, type: 3}
   promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
   isPermanent: 0
+  disableHighlight: 0
+  disableOutline: 0
 --- !u!65 &1880644259631985790
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1365,6 +1365,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 10.637683, y: 7.510586, z: 11.6686735}
   m_Center: {x: -1.0838408, y: 3.7547073, z: 1.9156631}
+--- !u!114 &2909296657059179480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6072082916375374651}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5127be94d2e1eac45a6fb562c37b7c82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outline: {fileID: 4011610321156874807, guid: 97aac55f4d7b4f3489999c7128acef97, type: 2}
+  outlined: 0
+  outlineLayerMask: 256
 --- !u!1 &6463193541678269415
 GameObject:
   m_ObjectHideFlags: 0

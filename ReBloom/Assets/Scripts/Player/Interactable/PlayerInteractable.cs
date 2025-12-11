@@ -204,6 +204,11 @@ public class PlayerInteractable : MonoBehaviour
                     currentHighlight.HidePrompt();
                 else
                     currentHighlight.Hide();
+                
+                if (currentHighlight.TryGetComponent<OutlineToggle>(out var outlineToggle))
+                {
+                    outlineToggle.SetOutlined(false);
+                }
             }
 
             currentHighlight = closestHighlight;
@@ -214,6 +219,10 @@ public class PlayerInteractable : MonoBehaviour
                     currentHighlight.ShowPrompt();
                 else
                     currentHighlight.Show(); 
+                if (currentHighlight.TryGetComponent<OutlineToggle>(out var outlineToggle))
+                {
+                    outlineToggle.SetOutlined(true);
+                }
             }
         }
     }

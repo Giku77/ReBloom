@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: -2733853671415454139}
   - component: {fileID: 1801426058727731011}
   - component: {fileID: -5191165865355143246}
+  - component: {fileID: 8741594922125672617}
   m_Layer: 11
   m_Name: FilterModule
   m_TagString: Untagged
@@ -87,7 +88,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1e1b7fd66b097c43840613e4f2134ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickupRange: 2
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -107,11 +107,10 @@ MonoBehaviour:
   lightIntensity: 2
   backlightRange: 3
   bodylightRange: 0.05
-  promptCanvas: {fileID: 0}
-  promptText: {fileID: 0}
-  holdPromptUI: {fileID: 0}
   promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
   isPermanent: 0
+  disableHighlight: 0
+  disableOutline: 0
 --- !u!114 &1801426058727731011
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -145,6 +144,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.8, y: 1.857502, z: 3.2237887}
   m_Center: {x: 3.0269866e-15, y: 0.007621252, z: 0.46810502}
+--- !u!114 &8741594922125672617
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 579857788885929789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5127be94d2e1eac45a6fb562c37b7c82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outline: {fileID: 4011610321156874807, guid: 97aac55f4d7b4f3489999c7128acef97, type: 2}
+  outlined: 0
+  outlineLayerMask: 256
 --- !u!1 &1798077839291720677
 GameObject:
   m_ObjectHideFlags: 0

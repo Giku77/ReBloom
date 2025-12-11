@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 458486339986041613}
   - component: {fileID: 1098124234039512179}
   - component: {fileID: 4323058065720888702}
+  - component: {fileID: 6174425038427584275}
   m_Layer: 0
   m_Name: ConcretePileTutorial
   m_TagString: Untagged
@@ -164,11 +165,25 @@ MonoBehaviour:
   lightIntensity: 2
   backlightRange: 3
   bodylightRange: 0.05
-  promptCanvas: {fileID: 0}
-  promptText: {fileID: 0}
-  holdPromptUI: {fileID: 0}
   promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
   isPermanent: 0
+  disableHighlight: 0
+  disableOutline: 0
+--- !u!114 &6174425038427584275
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6999244790741617855}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5127be94d2e1eac45a6fb562c37b7c82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outline: {fileID: 4011610321156874807, guid: 97aac55f4d7b4f3489999c7128acef97, type: 2}
+  outlined: 0
+  outlineLayerMask: 256
 --- !u!1 &8610586578109371933
 GameObject:
   m_ObjectHideFlags: 0

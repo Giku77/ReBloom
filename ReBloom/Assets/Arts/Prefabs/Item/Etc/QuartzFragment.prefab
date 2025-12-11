@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 4360765432217908161}
   - component: {fileID: -4141827489943036429}
   - component: {fileID: -5015515721583656644}
+  - component: {fileID: 4681211637471950954}
   m_Layer: 11
   m_Name: QuartzFragment
   m_TagString: Untagged
@@ -82,7 +83,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1e1b7fd66b097c43840613e4f2134ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickupRange: 2
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -102,11 +102,10 @@ MonoBehaviour:
   lightIntensity: 2
   backlightRange: 3
   bodylightRange: 0.05
-  promptCanvas: {fileID: 0}
-  promptText: {fileID: 0}
-  holdPromptUI: {fileID: 0}
   promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
   isPermanent: 0
+  disableHighlight: 0
+  disableOutline: 0
 --- !u!114 &-4141827489943036429
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -140,6 +139,21 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.3, y: 0.017204314, z: 0.25729245}
   m_Center: {x: 0, y: 0.0066528767, z: 0.021353781}
+--- !u!114 &4681211637471950954
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6021576131994855767}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5127be94d2e1eac45a6fb562c37b7c82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outline: {fileID: 4011610321156874807, guid: 97aac55f4d7b4f3489999c7128acef97, type: 2}
+  outlined: 0
+  outlineLayerMask: 256
 --- !u!1001 &2551553162709279235
 PrefabInstance:
   m_ObjectHideFlags: 0
