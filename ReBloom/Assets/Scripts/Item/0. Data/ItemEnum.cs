@@ -90,8 +90,8 @@ public enum ToolUsageType
 public enum ToolCategory
 {
     Shovel = 1,     // 삽
-    Hammer = 2    // 망치
-    // 추가 카테고리 필요 시 여기에 추가
+    Hammer = 2,    // 망치
+    WateringCan = 3,  //
 }
 
 // ==================== 보호구 관련 ====================
