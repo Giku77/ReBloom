@@ -52,10 +52,18 @@ public class QuestData
 {
     public int questId;
     public string questName;
+    public int questNameID;
+    public int questTextID;
     public int formerQuestId;
 
     public bool isMainQuest;
 
     public List<QuestGoal> goals = new();
     public List<QuestReward> rewards = new();
+}
+
+public class QuestStringData
+{
+    public int QuestStringID;
+    public string TextKR;
 }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class QuestDB
 {
     private Dictionary<int, QuestData> _byId = new();
+    private Dictionary<int, QuestStringData> _strings = new();
 
     public void LoadFromBG()
     {
@@ -20,10 +21,25 @@ public class QuestDB
             var q = ParseQuest(entity);
             _byId[q.questId] = q;
         }
+        var stringMeta = BGRepo.I.GetMeta("Quest_String");
+        foreach (var e in stringMeta.EntitiesToList())
+        {
+            var s = new QuestStringData
+            {
+                QuestStringID = e.Get<int>("stringID"),
+                TextKR        = e.Get<string>("stringKOR")
+            };
+
+            _strings[s.QuestStringID] = s;
+        }
     }
 
     public bool TryGet(int questId, out QuestData data)
         => _byId.TryGetValue(questId, out data);
+    public bool TryGetString(int stringId, out QuestStringData data)
+        => _strings.TryGetValue(stringId, out data);
+    public string GetTextKR(int stringId)
+        => _strings.TryGetValue(stringId, out var d) ? d.TextKR : $"#{stringId}";
 
 
     private QuestData ParseQuest(BGEntity entity)
@@ -31,6 +47,8 @@ public class QuestDB
         var q = new QuestData();
         q.questId = entity.Get<int>("questID");
         q.questName = entity.Get<string>("questName");
+        q.questNameID = entity.Get<int>("questNameID");
+        q.questTextID = entity.Get<int>("questTextID");
         q.formerQuestId = entity.Get<int>("formerQuestID");
         q.isMainQuest = entity.Get<bool>("isMainQuest");
 

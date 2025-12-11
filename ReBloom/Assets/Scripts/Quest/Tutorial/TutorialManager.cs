@@ -126,7 +126,8 @@ public class TutorialManager : MonoBehaviour
                     text,
                     showCharacterImg,
                     waitForNextInput,
-                    showNextHint);
+                    showNextHint,
+                    cancellationToken: token);
             }
             else 
             {

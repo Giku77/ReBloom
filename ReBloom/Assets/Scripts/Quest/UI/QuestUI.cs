@@ -39,7 +39,8 @@ public class QuestUI : MonoBehaviour
         else
         {
             //title.text = $"퀘스트 {qm.Current.questId}";
-            description.text = qm.Current.questName;
+            title.text = qm.DB.GetTextKR(qm.Current.questNameID);
+            description.text = qm.DB.GetTextKR(qm.Current.questTextID);
             if (qm.Current.goals != null)
             {
                 foreach (var goal in qm.Current.goals)

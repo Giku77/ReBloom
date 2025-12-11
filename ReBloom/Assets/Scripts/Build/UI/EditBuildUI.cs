@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using System.Security.Principal;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -16,6 +17,18 @@ public class EditBuildUI : UIBase
     private void Update()
     {
         RefreshIfChanged();
+    }
+
+    protected override void OnShow()
+    {
+        base.OnShow();
+        BuildPlacementController.I?.SetEditMode(true);
+    }
+
+    protected override void OnHide()
+    {
+        base.OnHide();
+        BuildPlacementController.I?.SetEditMode(false);
     }
 
     private void RefreshIfChanged()
