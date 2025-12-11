@@ -131,7 +131,7 @@ public class ConsumableItemData : ItemBase
         player.playerStats.Pollution.Modify(-pollution);
         player.playerStats.Temperature.Modify(temp);
 
-        Debug.Log($"[소비] {itemName} - HP:{hp}, 오염:{pollution}");
+        Debug.Log($"[소비] {itemName}");
         return true;
     }
 
