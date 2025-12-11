@@ -1330,14 +1330,17 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3915509196807712028, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1666148845}
   m_SourcePrefab: {fileID: 100100000, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
 --- !u!114 &903014005 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1388426644026376058, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
   m_PrefabInstance: {fileID: 903014004}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1666148844}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e41929d7021dbc84d9450659825922dd, type: 3}
@@ -1348,7 +1351,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1097723878453359439, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
   m_PrefabInstance: {fileID: 903014004}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1666148844}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cfbc115185f315a42a7e44af8749d387, type: 3}
@@ -1666,7 +1669,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3683887210291562536, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
   m_PrefabInstance: {fileID: 903014004}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1666148844}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eea4e930601930548b2f70662310f533, type: 3}
@@ -1677,7 +1680,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5813627158112115396, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
   m_PrefabInstance: {fileID: 903014004}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1666148844}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 56bdb4bd23168814b9234b2c6666ef24, type: 3}
@@ -1688,7 +1691,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8101906087064541247, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
   m_PrefabInstance: {fileID: 903014004}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1666148844}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 97f4df3d60347b94281788cc7ab01109, type: 3}
@@ -1699,7 +1702,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 251664490291277007, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
   m_PrefabInstance: {fileID: 903014004}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1666148844}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 838ff50d40bdaf841bc5e98f4e9ef801, type: 3}
@@ -1710,7 +1713,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7606702177261600104, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
   m_PrefabInstance: {fileID: 903014004}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1666148844}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 045d1a2066c7ebd4397d6aab88beca7a, type: 3}
@@ -2226,6 +2229,50 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4878723573058038, guid: c86b329dfab02684e8d3582eef0fde54, type: 3}
   m_PrefabInstance: {fileID: 1220600538}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1666148844 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3915509196807712028, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
+  m_PrefabInstance: {fileID: 903014004}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1666148845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1666148844}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a63da122c2ceab4f94d9e8afbb85348, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scanOrigin: {fileID: 1149445216}
+  sonarSource: {fileID: 1695463277}
+  interactableMask:
+    serializedVersion: 2
+    m_Bits: 2176
+  scanAction:
+    m_Name: Scan
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: 2a5ba37b-764b-4ae3-92af-0befb2e26cf5
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 494e88ac-6616-41a8-82c0-cee45a4e9d19
+      m_Path: <Keyboard>/q
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Scan
+      m_Flags: 0
+    m_Flags: 0
+  animController: {fileID: 1149445219}
+  scanRadius: 15
+  ringSpeed: 10
+  highlightDuration: 2
+  cooldown: 3
 --- !u!4 &1674159905 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 59bf6f93a384f9e41b45c36fa65e247f, type: 3}
