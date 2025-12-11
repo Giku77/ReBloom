@@ -112,7 +112,11 @@ public class GameInventoryToolTip : MonoBehaviour
         // TextMeshPro 텍스트 메시 강제 갱신
         title.ForceMeshUpdate();
         category.ForceMeshUpdate();
-
+        for (int i = 0; i < statUIs.Length; i++)
+        {
+            statUIs[i].valueText.ForceMeshUpdate();  // 값 표시용
+            statUIs[i].label.ForceMeshUpdate();
+        }
         // 캔버스 갱신
         Canvas.ForceUpdateCanvases();
 
