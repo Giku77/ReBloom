@@ -23,6 +23,8 @@ public class InteractionHighlight : MonoBehaviour
     private Renderer highlightRend;
 
     public bool isPermanent = false;
+    public bool disableHighlight = false;
+    public bool disableOutline = false;
 
     private void Awake()
     {
@@ -89,6 +91,8 @@ public class InteractionHighlight : MonoBehaviour
     /// <summary>빛/Emission만 켜기 (텍스트는 안 건드림)</summary>
     public void ShowHighlightOnly()
     {
+        if (disableHighlight) return;
+
         if (!isHighlighted)
         {
             highlightLight.enabled = true;
@@ -127,7 +131,7 @@ public class InteractionHighlight : MonoBehaviour
     {
         if (isPermanent) return;
 
-        if (isHighlighted)
+        if (!disableHighlight && isHighlighted)
         {
             highlightLight.enabled = false;
             isHighlighted = false;

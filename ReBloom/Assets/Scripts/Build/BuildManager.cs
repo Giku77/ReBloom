@@ -398,7 +398,7 @@ public class BuildManager : MonoBehaviour
             CorridorConnectionManager.I.Register(corridorNode);
         }
         if (p.TryGetComponent<InteractionHighlight>(out var highlight))
-          highlight.promptFormat = $"상호작용[E] : {arc.name}";
+          highlight.promptFormat = $"상호작용 [E] : {arc.name}";
         SetupTemporaryPassThrough(p);
         return true;
     }

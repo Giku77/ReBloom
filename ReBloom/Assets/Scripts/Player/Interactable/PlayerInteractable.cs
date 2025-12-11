@@ -103,12 +103,18 @@ public class PlayerInteractable : MonoBehaviour
                     hilight.HoldPromptUI?.Show();
                     bool isGatherObject = closestInteractable is GatherObject;
                     bool isBuildingInteractable = closestInteractable is BuildingInteractableBase;
+                    bool isWaterSource = closestInteractable is WaterSource;
                     if (isGatherObject)
                     {
                         msg = "채집";
                         anim.SetGathering(true);
                     }
                     else if (isBuildingInteractable) msg = "상호작용";
+                    else if (isWaterSource)
+                    {
+                        msg = "물 뜨는";
+                        anim.PlayPickUp();
+                    }
                     else msg = "작업";
                     if (hilight)
                     {

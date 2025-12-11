@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 5439539354667152054}
   - component: {fileID: 4670080573039894748}
   - component: {fileID: 2170844431290177074}
+  - component: {fileID: -8039775796289759345}
+  - component: {fileID: -3499968222108906725}
   m_Layer: 9
   m_Name: WaterPurificationFacility
   m_TagString: Untagged
@@ -141,3 +143,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   arcId: 3101001
   depthOffset: 0
+--- !u!114 &-8039775796289759345
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8984912697897830035}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bcb90db3cf36fe4d8707b36f1985768, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  lightIntensity: 2
+  backlightRange: 3
+  bodylightRange: 0.05
+  promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
+  isPermanent: 0
+  disableHighlight: 0
+  disableOutline: 0
+--- !u!114 &-3499968222108906725
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8984912697897830035}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2096316175eec7541bcb075ee749dbe6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  building: {fileID: 2170844431290177074}
+  inventoryItemData: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}

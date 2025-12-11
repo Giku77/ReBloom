@@ -55,6 +55,11 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
         {
             bool success = item.Apply(playerController);
             if (success) RemoveItem(itemId, amount);
+
+            if (item.itemID == 4002001 || item.itemID == 4002002)
+            {
+                AddItem(4102035, 1);
+            }
         }
         else if (item.canEquip)
         {
