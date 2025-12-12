@@ -1,5 +1,6 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 
 public class StageManager : MonoBehaviour
@@ -7,6 +8,7 @@ public class StageManager : MonoBehaviour
     private StageDB stageDB;
     private Dictionary<int, WeatherInfo> weatherByStageID = new Dictionary<int, WeatherInfo>();
 
+    public static event Action<int, WeatherType> OnWeatherChange;
     
     public StageDB DB => stageDB;
     
@@ -69,7 +71,7 @@ public class StageManager : MonoBehaviour
         float totalRate = data.sunnyRate + data.rainRate + data.radioRate + 
                          data.snowRate + data.thunderRate + data.hotRate;
         
-        float random = Random.Range(0f, totalRate);
+        float random = UnityEngine.Random.Range(0f, totalRate);
         float accumulated = 0f;
         
         accumulated += data.sunnyRate;
@@ -122,48 +124,49 @@ public class StageManager : MonoBehaviour
         switch (weather)
         {
             case WeatherType.Sunny:
-                info.weatherDuration = data.sunny_d + Random.Range(-data.sunny_vari, data.sunny_vari);
+                info.weatherDuration = data.sunny_d + UnityEngine.Random.Range(-data.sunny_vari, data.sunny_vari);
                 info.currentPollution = data.sunnyPollution;
                 info.currentThirst = data.sunnyThirst;
                 info.currentTemp = data.sunnyTemp;
                 break;
                 
             case WeatherType.Rain:
-                info.weatherDuration = data.rain_d + Random.Range(-data.rain_vari, data.rain_vari);
+                info.weatherDuration = data.rain_d + UnityEngine.Random.Range(-data.rain_vari, data.rain_vari);
                 info.currentPollution = data.rainPollution;
                 info.currentThirst = data.rainThirst;
                 info.currentTemp = data.rainTemp;
                 break;
                 
             case WeatherType.Radio:
-                info.weatherDuration = data.radio_d + Random.Range(-data.radio_vari, data.radio_vari);
+                info.weatherDuration = data.radio_d + UnityEngine.Random.Range(-data.radio_vari, data.radio_vari);
                 info.currentPollution = data.radioPollution;
                 info.currentThirst = data.radioThirst;
                 info.currentTemp = data.radioTemp;
                 break;
                 
             case WeatherType.Snow:
-                info.weatherDuration = data.snow_d + Random.Range(-data.snow_vari, data.snow_vari);
+                info.weatherDuration = data.snow_d + UnityEngine.Random.Range(-data.snow_vari, data.snow_vari);
                 info.currentPollution = data.snowPollution;
                 info.currentThirst = data.snowThirst;
                 info.currentTemp = data.snowTemp;
                 break;
                 
             case WeatherType.Thunder:
-                info.weatherDuration = data.thunde_d + Random.Range(-data.thunde_vari, data.thunde_vari);
+                info.weatherDuration = data.thunde_d + UnityEngine.Random.Range(-data.thunde_vari, data.thunde_vari);
                 info.currentPollution = data.thundePollution;
                 info.currentThirst = data.thundeThirst;
                 info.currentTemp = data.thundeTemp;
                 break;
                 
             case WeatherType.Hot:
-                info.weatherDuration = data.hot_d + Random.Range(-data.hot_vari, data.hot_vari);
+                info.weatherDuration = data.hot_d + UnityEngine.Random.Range(-data.hot_vari, data.hot_vari);
                 info.currentPollution = data.hotPollution;
                 info.currentThirst = data.hotThirst;
                 info.currentTemp = data.hotTemp;
                 break;
         }
-        
+
+        OnWeatherChange?.Invoke(stageID, weather);
         //Debug.Log($"[StageManager] Stage {data.name} 날씨 변경: {weather} (지속시간: {info.weatherDuration:F1}초, 오염도: {info.currentPollution}, 갈증: {info.currentThirst}, 온도: {info.currentTemp})");
     }
     

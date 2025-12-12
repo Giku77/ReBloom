@@ -9,9 +9,10 @@ public class StageDetector : MonoBehaviour
     private StageBase previousStage;
 
     [Header("Weather FX")]
-    [SerializeField] private GameObject rainFX;
-    [SerializeField] private GameObject snowFX;
-    [SerializeField] private GameObject dustFX;
+    [SerializeField] private GameObject rainEffect;
+    [SerializeField] private GameObject snowEffect;
+    [SerializeField] private GameObject radioEffect;
+    [SerializeField] private GameObject thunderEffect;
 
     public StageBase CurrentStage => currentStage;
 
@@ -35,6 +36,16 @@ public class StageDetector : MonoBehaviour
         {
             PrintWeathers();
         }
+    }
+
+    private void OnEnable()
+    {
+        StageManager.OnWeatherChange += OnWeatherChanged;
+    }
+
+    private void OnDisable()
+    {
+        StageManager.OnWeatherChange -= OnWeatherChanged;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -66,6 +77,17 @@ public class StageDetector : MonoBehaviour
             {
                 Debug.LogWarning($"[StageDetector] Stage ID={stage.StageID}가 초기화되지 않았습니다!");
             }
+        }
+
+        if (other.gameObject.layer == LayerMask.NameToLayer("Inside"))
+        {
+            Debug.Log("[StageDetector] 건물 안으로 들어갔습니다.");
+            ClearWeatherEffect();
+        }
+        else if (other.gameObject.layer == LayerMask.NameToLayer("Outside"))
+        {
+            Debug.Log("[StageDetector] 건물 밖으로 나왔습니다.");
+            ApplyWeather(currentStage.CurrentWeather);
         }
     }
 
@@ -110,27 +132,45 @@ public class StageDetector : MonoBehaviour
     }
     private void ApplyWeather(WeatherType weather)
     {
-        // 모든 FX 끄기
-        rainFX?.SetActive(false);
-        snowFX?.SetActive(false);
-        dustFX?.SetActive(false);
+        thunderEffect?.SetActive(false);
+        rainEffect?.SetActive(false);
+        snowEffect?.SetActive(false);
+        radioEffect?.SetActive(false);
 
         switch (weather)
         {
             case WeatherType.Rain:
-                rainFX?.SetActive(true);
+                rainEffect?.SetActive(true);
                 break;
             case WeatherType.Snow:
-                snowFX?.SetActive(true);
+                snowEffect?.SetActive(true);
                 break;
-            case WeatherType.Radio: // 먼지
-                dustFX?.SetActive(true);
+            case WeatherType.Radio:
+                radioEffect?.SetActive(true);
                 break;
             case WeatherType.Thunder:
+                rainEffect?.SetActive(true);
+                thunderEffect?.SetActive(true);
+                break;
             case WeatherType.Sunny:
             case WeatherType.Hot:
             default:
                 break;
+        }
+    }
+
+    private void ClearWeatherEffect()
+    {
+        thunderEffect?.SetActive(false);
+        rainEffect?.SetActive(false);
+        snowEffect?.SetActive(false);
+    }
+
+    private void OnWeatherChanged(int stageID, WeatherType weather)
+    {
+        if (currentStage != null && currentStage.StageID == stageID)
+        {
+            ApplyWeather(weather);
         }
     }
 }
