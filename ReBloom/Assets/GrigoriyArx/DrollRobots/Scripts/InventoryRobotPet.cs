@@ -12,6 +12,7 @@ using UnityEngine.InputSystem;
 public class InventoryRobotPet : MonoBehaviour
 {
     [Header("추적 설정")]
+    [SerializeField] private Transform followTarget;
     [SerializeField] private Transform player;                    // 플레이어 Transform
     [SerializeField] private float idleDistance = 2.0f;          // Idle 전환 거리
     [SerializeField] private float runDistance = 5.0f;           // Run 전환 거리
@@ -50,6 +51,51 @@ public class InventoryRobotPet : MonoBehaviour
 
     // Input Action
     private InputAction interactAction;
+
+    // [SerializeField] private LayerMask obstacleMask;
+    // [SerializeField] private float blockedTeleportDelay = 0.6f;
+    // private float blockedTimer;
+
+    [SerializeField] private float pathRecalcInterval = 0.25f;
+    [SerializeField] private float cornerReachDist = 0.6f;
+    [SerializeField] private float navSampleRadius = 2.0f;
+    [SerializeField] private int navAreaMask = NavMesh.AllAreas;
+
+    private NavMeshPath _path;
+    private int _cornerIndex;
+    private float _nextPathTime;
+
+    // bool IsLineBlocked()
+    // {
+    //     if (player == null) return false;
+    //     Vector3 from = transform.position;
+    //     Vector3 to = player.position + Vector3.up * 1.0f;
+    //     Vector3 dir = (to - from);
+    //     float dist = dir.magnitude;
+    //     if (dist < 0.01f) return false;
+
+    //     return Physics.Raycast(from, dir.normalized, dist, obstacleMask, QueryTriggerInteraction.Ignore);
+    // }
+
+    private bool TryRebuildPath(Vector3 targetWorldPos)
+    {
+        if (_path == null) _path = new NavMeshPath();
+
+        Vector3 startSamplePos = transform.position - Vector3.up * followHeight;
+
+        if (!NavMesh.SamplePosition(startSamplePos, out var startHit, navSampleRadius, navAreaMask))
+            return false;
+
+        if (!NavMesh.SamplePosition(targetWorldPos, out var endHit, navSampleRadius, navAreaMask))
+            return false;
+
+        bool ok = NavMesh.CalculatePath(startHit.position, endHit.position, navAreaMask, _path);
+        if (!ok || _path.corners == null || _path.corners.Length < 2)
+            return false;
+
+        _cornerIndex = 1;
+        return true;
+    }
 
     #region Unity 생명주기
 
@@ -92,6 +138,9 @@ public class InventoryRobotPet : MonoBehaviour
         {
             player = GameObject.FindGameObjectWithTag("Player")?.transform;
         }
+
+        if (followTarget == null)
+            followTarget = player;
 
         // 시작 시 인사 애니메이션
         PlayGreeting();
@@ -156,8 +205,34 @@ public class InventoryRobotPet : MonoBehaviour
         Vector3 playerPos = player.position;
         Vector3 currentPos = transform.position;
 
+        float distToPlayerWorld =
+        Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z),
+                     new Vector3(player.position.x, 0, player.position.z));
+
+        Vector3 targetWorld = (followTarget != null ? followTarget.position : player.position);
+
+        if (Time.time >= _nextPathTime)
+        {
+            TryRebuildPath(targetWorld);
+            _nextPathTime = Time.time + pathRecalcInterval;
+        }
+
+        Vector3 basePos = targetWorld;
+
+        if (_path != null && _path.corners != null && _path.corners.Length > 1 && _cornerIndex < _path.corners.Length)
+        {
+            basePos = _path.corners[_cornerIndex];
+
+            float d = Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z),
+                                    new Vector3(basePos.x, 0, basePos.z));
+            if (d <= cornerReachDist)
+                _cornerIndex = Mathf.Min(_cornerIndex + 1, _path.corners.Length - 1);
+        }
+
         // 목표 위치 (플레이어 위 + 떠다니기)
-        Vector3 targetPosition = playerPos + Vector3.up * followHeight;
+        //Vector3 basePos = followTarget != null ? followTarget.position : player.position;
+        Vector3 targetPosition = basePos + Vector3.up * followHeight;
+        //Vector3 targetPosition = playerPos + Vector3.up * followHeight;
         IsNearPlayer = true;
 
         floatTimer += Time.fixedDeltaTime * floatFrequency;
@@ -167,13 +242,26 @@ public class InventoryRobotPet : MonoBehaviour
         Vector3 toTarget = targetPosition - currentPos;
         float distanceToPlayer = toTarget.magnitude;
 
-        if (distanceToPlayer > teleportDistance && Time.time - lastTeleportTime > teleportCooldown)
+        if (distToPlayerWorld > teleportDistance && Time.time - lastTeleportTime > teleportCooldown)
         {
             IsNearPlayer = false;
             animController.PlayAnimation("JumpForward");
             TeleportToPlayer();
             return;
         }
+
+        // if (IsLineBlocked())
+        // {
+        //     blockedTimer += Time.fixedDeltaTime;
+        //     if (blockedTimer >= blockedTeleportDelay && Time.time - lastTeleportTime > teleportCooldown)
+        //     {
+        //         animController.PlayAnimation("JumpForward");
+        //         TeleportToPlayer();
+        //         blockedTimer = 0f;
+        //         return;
+        //     }
+        // }
+        // else blockedTimer = 0f;
 
         float currentSpeed = 0f;
 

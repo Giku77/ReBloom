@@ -14,8 +14,10 @@ public class ArcData
     public int installLimit;
     public float buildTime;        
     public string text;
-    public int interactType;
+    public int arcInteraction;
     public float interactTime;
+    public string interactText;
+    public int arrangePossible;
     public GameObject buildPrefab;   
     public GameObject previewPrefab;
 }

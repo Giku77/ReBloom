@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using LineworkLite.FreeOutline;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class BuildPlacementController : MonoBehaviour
@@ -16,6 +17,7 @@ public class BuildPlacementController : MonoBehaviour
     private ArcData currentArc;
     private GameObject previewInstance;
     private BuildPreviewVisual previewVisual;
+    private OutlineToggle outlineToggle;
     private bool isPlacing = false;
     public bool IsPlacing => isPlacing;
     private Vector3 lastValidPos;
@@ -163,10 +165,15 @@ public class BuildPlacementController : MonoBehaviour
             previewVisual?.ResetColor();
             previewVisual = hoveredBuilding?.gameObject.GetComponent<BuildPreviewVisual>();
 
-            if (previewVisual != null)
-            {
-                previewVisual.SetEditMode();
-            }
+            // if (previewVisual != null)
+            // {
+            //     previewVisual.SetEditMode();
+            // }
+            if (outlineToggle) 
+                outlineToggle.SetOutlined(false);
+            outlineToggle = hoveredBuilding?.gameObject.GetComponent<OutlineToggle>();
+            if (outlineToggle) 
+                outlineToggle.SetOutlined(true, true);
 
             // TODO: 여기서 hoveredBuilding 에 하이라이트 켜주면 좋음 (InteractionHighlight 등)
 
@@ -181,9 +188,12 @@ public class BuildPlacementController : MonoBehaviour
             if (hoveredBuilding != null &&
                 keyboard != null && keyboard.deleteKey.wasPressedThisFrame)
             {
+                if (outlineToggle)
+                    outlineToggle.SetOutlined(false);
                 BuildManager.I.TryRemoveBuilding(hoveredBuilding);
                 hoveredBuilding = null;
                 previewVisual = null;
+                outlineToggle = null;
             }
         }
         else
@@ -203,6 +213,10 @@ public class BuildPlacementController : MonoBehaviour
         }
 
         previewVisual?.ResetColor();
+        if (outlineToggle != null && hoveredBuilding != null)
+        {
+            outlineToggle.SetOutlined(false);
+        }
         isMovingExisting = false;
         movingBuilding = null;
         hoveredBuilding = null;
@@ -287,9 +301,13 @@ public class BuildPlacementController : MonoBehaviour
 
     private void FinishMoveExisting()
     {
+        if (outlineToggle != null && hoveredBuilding != null)
+        {
+            outlineToggle.SetOutlined(false);
+        }
         isMovingExisting = false;
         movingBuilding = null;
-        previewVisual.ResetColor();
+        previewVisual?.ResetColor();
         previewInstance = null;
         previewVisual = null;
         currentArc = null;

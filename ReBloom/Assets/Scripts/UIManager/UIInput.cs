@@ -49,6 +49,14 @@ public class UIInput : MonoBehaviour
 
     private void Update()
     {
+        if (dialogueUI != null && dialogueUI.IsOpen)
+        {
+            if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
+            {
+                dialogueUI.RequestNext();
+            }
+        }
+
         if (!skipHeld)
             return;
 

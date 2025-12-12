@@ -25,8 +25,10 @@ public class ArcDB
                 installLimit = e.Get<int>("Installationlimit"),
                 buildTime = e.Get<float>("ArcTime"),
                 text = e.Get<string>("Text"),
-                interactType = e.Get<int>("ArcInteraction"),
+                arcInteraction = e.Get<int>("ArcInteraction"),
                 interactTime = e.Get<float>("InteractionTime"),
+                interactText = e.Get<string>("InteractionText"),
+                arrangePossible = e.Get<int>("ArrangePossible"),
                 buildPrefab = e.Get<GameObject>("buildPrefab"),
                 previewPrefab = e.Get<GameObject>("previewPrefab"),
             };
