@@ -1,12 +1,18 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
 
+
 public class StageDetector : MonoBehaviour
 {
     [SerializeField] private RegionDefinition[] regions;
     private StageBase currentStage;
     private StageBase previousStage;
-    
+
+    [Header("Weather FX")]
+    [SerializeField] private GameObject rainFX;
+    [SerializeField] private GameObject snowFX;
+    [SerializeField] private GameObject dustFX;
+
     public StageBase CurrentStage => currentStage;
 
     private StageManager stageManager;
@@ -16,6 +22,11 @@ public class StageDetector : MonoBehaviour
         //임시로 시작 구역 거점으로 지정
         //currentStage = startStage;
         stageManager = GetComponent<StageManager>();
+
+        if (currentStage != null)
+        {
+            ApplyWeather(currentStage.CurrentWeather);
+        }
     }
 
     private void Update()
@@ -32,7 +43,9 @@ public class StageDetector : MonoBehaviour
         {
             previousStage = currentStage != null ? currentStage : stage;
             currentStage = stage;
-            
+
+            ApplyWeather(currentStage.CurrentWeather);
+
             if (stage.Data != null)
             {
                 Debug.Log($"[StageDetector] 지역 진입: {stage.Data.name}");
@@ -94,5 +107,30 @@ public class StageDetector : MonoBehaviour
         Debug.Log($"Weather: {currentStage.CurrentWeather.ToString()}");
         Debug.Log($"Duration: {currentStage.WeatherTimer:F2} /{currentStage.WeatherDuration:F2}");
 
+    }
+    private void ApplyWeather(WeatherType weather)
+    {
+        // 모든 FX 끄기
+        rainFX?.SetActive(false);
+        snowFX?.SetActive(false);
+        dustFX?.SetActive(false);
+
+        switch (weather)
+        {
+            case WeatherType.Rain:
+                rainFX?.SetActive(true);
+                break;
+            case WeatherType.Snow:
+                snowFX?.SetActive(true);
+                break;
+            case WeatherType.Radio: // 먼지
+                dustFX?.SetActive(true);
+                break;
+            case WeatherType.Thunder:
+            case WeatherType.Sunny:
+            case WeatherType.Hot:
+            default:
+                break;
+        }
     }
 }
