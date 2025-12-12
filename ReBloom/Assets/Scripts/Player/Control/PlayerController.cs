@@ -563,6 +563,9 @@ public class PlayerController : MonoBehaviour
         UIManager.Instance.SetBlockingInput(true);
         UIManager.Instance.CloseAllUIs();
 
+        Anim.SetToolType(0);
+        Anim.HandLayerChange();
+
         Anim.PlayDeath();
         Anim.SetRootMotion(true);
 
