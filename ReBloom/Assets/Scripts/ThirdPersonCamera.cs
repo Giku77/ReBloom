@@ -17,6 +17,8 @@ public class ThirdPersonCamera : MonoBehaviour
 
     private float maxZoomOutDistance = 20f;
     private float maxZoominDistance = 1f;
+    private float maxZoomOutInsideDistance = 2.9f;
+    private float originalMaxZoomOutDistance = 20f;
 
     [SerializeField] private LayerMask collisionMask;
 
@@ -25,6 +27,8 @@ public class ThirdPersonCamera : MonoBehaviour
     private Vector2 lookInput;
 
     private Quaternion oldRotation;
+
+    private float outsideDistance;
 
     private void Start()
     {
@@ -39,6 +43,39 @@ public class ThirdPersonCamera : MonoBehaviour
         if (!isZoomLocked && !isSequenceLocked)
         {
             HandleZoom();
+        }
+    }
+
+    private void OnEnable()
+    {
+        StageDetector.OnEnterDoor += EnterInside;
+    }
+
+    private void OnDisable()
+    {
+        StageDetector.OnEnterDoor -= EnterInside;
+    }
+
+    private void EnterInside(bool isInside)
+    {
+        if (isInside)
+        {
+            outsideDistance = distance;
+
+            if (distance > maxZoomOutInsideDistance)
+            {
+                distance = maxZoomOutInsideDistance;
+            }
+
+            maxZoomOutDistance = maxZoomOutInsideDistance;
+        }
+        else
+        {
+            maxZoomOutDistance = originalMaxZoomOutDistance;
+
+            distance = outsideDistance;
+
+            outsideDistance = 0f;
         }
     }
 
