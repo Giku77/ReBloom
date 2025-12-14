@@ -348,6 +348,7 @@ public class PlayerController : MonoBehaviour
         RotatePlayer();
         JumpPlayer();
         HandleBuildPlacementMode();
+        GroundStick();
 
         wasGround = previousGround;
     }
@@ -719,5 +720,22 @@ public class PlayerController : MonoBehaviour
 
         stunDuration = stunTime;
         this.stunTime = 0f;
+    }
+
+    private void GroundStick()
+    {
+        if (wasJumping || jumpRequested) return;
+        if (moveInput.magnitude < 0.1f) return;
+        if (rb.linearVelocity.y > 0.1f) return;
+
+        if (Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out RaycastHit hit, 2f, groundLayer))
+        {
+            float angle = Vector3.Angle(hit.normal, Vector3.up);
+
+            if (angle > 5f)
+            {
+                rb.AddForce(Vector3.down * 50f, ForceMode.Force);
+            }
+        }
     }
 }
