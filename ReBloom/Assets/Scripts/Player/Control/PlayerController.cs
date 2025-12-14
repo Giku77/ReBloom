@@ -343,6 +343,10 @@ public class PlayerController : MonoBehaviour
             Debug.Log("착지! Jump = false");
             if (Anim != null)
             {
+                if (playerStats.Health.Value / playerStats.Health.MaxValue <= 0.2f)
+                {
+                    SoundManager.I?.StartBreathingHeavy();
+                }
                 Anim.SetSlow(false);
                 Anim.SetJumping(false);
             }
@@ -535,6 +539,8 @@ public class PlayerController : MonoBehaviour
 
         Debug.Log("점프 실행! Jump = true");
         Anim.SetJumping(true);
+        SoundManager.I?.StopBreathingHeavy();
+        SoundManager.I?.PlayJump();
 
         jumpRequested = false;
         wasJumping = true;

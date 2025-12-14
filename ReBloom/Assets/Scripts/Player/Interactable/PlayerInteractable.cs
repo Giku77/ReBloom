@@ -101,6 +101,7 @@ public class PlayerInteractable : MonoBehaviour
                         await UniTask.Delay(800);
                         player.isInteracting = false;
                         isPlayingPickupAnim = false;
+                        SoundManager.I?.PlayGetWorldItem();
                     }
                     else
                     {

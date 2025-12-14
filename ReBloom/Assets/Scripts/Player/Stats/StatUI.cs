@@ -334,6 +334,8 @@ public class StatUI : MonoBehaviour
         lowHealthCTS = new CancellationTokenSource();
         CancellationToken token = lowHealthCTS.Token;
 
+        SoundManager.I?.StartBreathingHeavy();
+
         try
         {
             while (playerStats.Health.Value / playerStats.Health.MaxValue <= 0.2f)
@@ -359,6 +361,8 @@ public class StatUI : MonoBehaviour
                 damageImage.canvasRenderer.SetAlpha(0f);
             }
         }
+
+        SoundManager.I?.StopBreathingHeavy();
     }
 
     private Color GetTempColor(float temp)
