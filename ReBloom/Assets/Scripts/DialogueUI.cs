@@ -31,6 +31,11 @@ public class DialogueUI : UIBase
         }
     }
 
+    public void RequestNext()
+    {
+        nextRequested = true;
+    }
+
     public async UniTask FadeAsync(float from, float to, float duration)
     {
         if (canvasGroup == null || duration <= 0f)
@@ -172,7 +177,7 @@ public class DialogueUI : UIBase
         if (showNextHint)
         {
             messageText.text = localizedText +
-                            " <color=#FFA500>[G] 다음</color>";
+                            " <color=#FFA500>[ENTER]</color>";
         }
 
         nextRequested = false;

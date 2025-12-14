@@ -288,6 +288,46 @@ public class DayNightCycle : MonoBehaviour
         cloudRenderer.material.SetColor("_EmissionColor", newEmission);
     }
 
+    public void AdvanceMinutes(float minutes)
+    {
+        // 24시간 = 1440분
+        float addSeconds = dayLengthInSeconds * (minutes / 1440f);
+        AddSeconds(addSeconds);
+    }
+
+    public void AdvanceHours(float hours)
+    {
+        AdvanceMinutes(hours * 60f);
+    }
+
+    private void AddSeconds(float seconds)
+    {
+        currentTime += seconds;
+
+        // dayLengthInSeconds 넘어가면 날짜 증가 + 래핑
+        while (currentTime >= dayLengthInSeconds)
+        {
+            currentTime -= dayLengthInSeconds;
+            CurrentDay++;
+        }
+        while (currentTime < 0f)
+        {
+            currentTime += dayLengthInSeconds;
+            CurrentDay = Mathf.Max(1, CurrentDay - 1);
+        }
+
+        UpdateDayCycle();
+        UpdateTemperature();
+        UpdateSun();
+        UpdateMoon();
+        UpdateCloudAlpha();
+    }
+
+    public bool IsNightTime()
+    {
+        return CurrentDayCycle == DayCycle.Night;
+    }
+
     //private void UpdateSkybox()
     //{
     //    if (skyboxMaterial == null) return;
