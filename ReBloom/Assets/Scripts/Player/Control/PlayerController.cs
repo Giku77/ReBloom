@@ -398,11 +398,15 @@ public class PlayerController : MonoBehaviour
     public void OnFreeLook(InputAction.CallbackContext context)
     {
         if (context.started)
+        {
             isFreeLook = true;
-
-        if(context.canceled)
+            thirdPersonCamera.EnterFreeLook();
+        }
+        if (context.canceled)
+        {
             isFreeLook = false;
-
+            thirdPersonCamera.ExitFreeLook();
+        }
     }
 
     public void OnAutoRun(InputAction.CallbackContext context)

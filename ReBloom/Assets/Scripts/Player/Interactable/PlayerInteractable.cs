@@ -12,12 +12,11 @@ public class PlayerInteractable : MonoBehaviour
     PlayerController player;
 
     private CancellationTokenSource cts;
-
     private InteractionHighlight currentHighlight = null;
-
     private PlayerAnimation anim;
-
     private InteractionHighlight hilight;
+
+    private bool isPlayingPickupAnim = false;
 
     private string saveprompt = string.Empty;
 
@@ -90,9 +89,23 @@ public class PlayerInteractable : MonoBehaviour
                 bool isWorldItem = closestInteractable is WorldItem;
                 if (isWorldItem)
                 {
-                    anim.PlayPickUp();
-                    player.isInteracting = true;
-                    await UniTask.Delay(800);
+                    //anim.PlayPickUp();
+                    //player.isInteracting = true;
+                    //await UniTask.Delay(800);
+
+                    if (!isPlayingPickupAnim)
+                    {
+                        isPlayingPickupAnim = true;
+                        anim.PlayPickUp();
+                        player.isInteracting = true;
+                        await UniTask.Delay(800);
+                        player.isInteracting = false;
+                        isPlayingPickupAnim = false;
+                    }
+                    else
+                    {
+                        await UniTask.Delay(100);
+                    }
                 }
                 
                 saveprompt = hilight.promptFormat;

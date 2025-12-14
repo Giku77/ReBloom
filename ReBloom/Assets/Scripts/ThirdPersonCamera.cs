@@ -24,6 +24,8 @@ public class ThirdPersonCamera : MonoBehaviour
 
     private float yaw = 0f;
     private float pitch = 0f;
+    private float savedYaw;
+    private float savedPitch;
     private Vector2 lookInput;
 
     private Quaternion oldRotation;
@@ -185,9 +187,15 @@ public class ThirdPersonCamera : MonoBehaviour
         pitch = Mathf.Clamp(newPitch, minVerticalAngle, maxVerticalAngle);
     }
 
-    public void SetHeightAngle()
-    { 
-    
-    
+    public void EnterFreeLook()
+    {
+        savedYaw = yaw;
+        savedPitch = pitch;
+    }
+
+    public void ExitFreeLook()
+    {
+        yaw = savedYaw;
+        pitch = savedPitch;
     }
 }

@@ -41,6 +41,7 @@ public class DayNightCycle : MonoBehaviour
     private float yEast = 90f;
     private float yWest = -90f;
 
+    private int lastHour = -1;
     public float SunAngle { get; private set; }
     public float SunYRotation { get; private set; }
     public float TimeTempDelta { get; private set; }
@@ -104,11 +105,26 @@ public class DayNightCycle : MonoBehaviour
     {
         currentTime += Time.deltaTime;
         
+        //if (currentTime >= dayLengthInSeconds)
+        //{
+        //    currentTime -= dayLengthInSeconds;
+        //    CurrentDay++;
+        //}
+
         if (currentTime >= dayLengthInSeconds)
         {
             currentTime -= dayLengthInSeconds;
+        }
+
+        int currentHour = GetCurrentHour();
+
+        // 🔥 자정(00시) 진입 순간에 날짜 증가
+        if (lastHour != currentHour && currentHour == 0)
+        {
             CurrentDay++;
         }
+
+        lastHour = currentHour;
 
         UpdateDayCycle();
         UpdateTemperature();
