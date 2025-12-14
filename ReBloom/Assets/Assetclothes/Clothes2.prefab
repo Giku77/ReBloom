@@ -50,8 +50,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0748ebb08677c334ca4380cf3297da2b, type: 3}
       propertyPath: m_Name
-      value: clothes 1
+      value: Clothes2
       objectReference: {fileID: 0}
+    - target: {fileID: 8397952948062939231, guid: 0748ebb08677c334ca4380cf3297da2b, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 4300000, guid: 4b6a487f7ae6d8e40bbd83f93c7aa5b0, type: 2}
     - target: {fileID: 8693035487355826688, guid: 0748ebb08677c334ca4380cf3297da2b, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -85,5 +89,198 @@ PrefabInstance:
     - {fileID: -8700617353114198275, guid: 0748ebb08677c334ca4380cf3297da2b, type: 3}
     - {fileID: 65702495048144492, guid: 0748ebb08677c334ca4380cf3297da2b, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7775830407755403248, guid: 0748ebb08677c334ca4380cf3297da2b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4764467134476646332}
+    - targetCorrespondingSourceObject: {fileID: 7775830407755403248, guid: 0748ebb08677c334ca4380cf3297da2b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9217291831711519039}
   m_SourcePrefab: {fileID: 100100000, guid: 0748ebb08677c334ca4380cf3297da2b, type: 3}
+--- !u!33 &7190143646361822449 stripped
+MeshFilter:
+  m_CorrespondingSourceObject: {fileID: 8397952948062939231, guid: 0748ebb08677c334ca4380cf3297da2b, type: 3}
+  m_PrefabInstance: {fileID: 1676183741339389102}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &8061686929368071854 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 8693035487355826688, guid: 0748ebb08677c334ca4380cf3297da2b, type: 3}
+  m_PrefabInstance: {fileID: 1676183741339389102}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8983076749820609374 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7775830407755403248, guid: 0748ebb08677c334ca4380cf3297da2b, type: 3}
+  m_PrefabInstance: {fileID: 1676183741339389102}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4764467134476646332
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8983076749820609374}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 447cf81bd06af284781dfd4985756c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentScannedMeshesList:
+  - originalGameObject: {fileID: 8983076749820609374}
+    originalSkinnedMeshRenderer: {fileID: 0}
+    originalMeshFilter: {fileID: 7190143646361822449}
+    originalMeshRenderer: {fileID: 8061686929368071854}
+    allMeshLods:
+    - {fileID: 4300000, guid: 4b6a487f7ae6d8e40bbd83f93c7aa5b0, type: 2}
+    - {fileID: 4300000, guid: 4b6a487f7ae6d8e40bbd83f93c7aa5b0, type: 2}
+    - {fileID: 4300000, guid: 1aa25196b16bbd542adaa3efdf2b4226, type: 2}
+    - {fileID: 4300000, guid: 872bfe9fc7b2adf4ab9a887d958e8da4, type: 2}
+    - {fileID: 4300000, guid: 995737820cdd567448042eb0dc3386b5, type: 2}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    allMeshLodsPaths:
+    - Assets/Assetclothes/clothes.fbx
+    - Assets/Plugins/MT Assets/_AssetsData/Meshes/LODs_1/LOD1_639013069896240705.asset
+    - Assets/Plugins/MT Assets/_AssetsData/Meshes/LODs_2/LOD2_639013069896240705.asset
+    - Assets/Plugins/MT Assets/_AssetsData/Meshes/LODs_3/LOD3_639013069896240705.asset
+    - Assets/Plugins/MT Assets/_AssetsData/Meshes/LODs_4/LOD4_639013069896240705.asset
+    - 
+    - 
+    - 
+    - 
+    canChangeMaterialsOnThisMeshLods: 0
+    allMeshLodsMaterials:
+    - materialArray:
+      - {fileID: 2100000, guid: 64706107cf73d114eb192cf864069463, type: 2}
+      - {fileID: 2100000, guid: 58fe2352c51ca6a4fac54b82b424ccbe, type: 2}
+      - {fileID: 2100000, guid: aa694afbf7f885942b780b7d665fc5f9, type: 2}
+      - {fileID: 2100000, guid: 222576f5f88e8c842ba8520fe443c42b, type: 2}
+      - {fileID: 2100000, guid: 7144e030d9f53474baeeb4930c268eea, type: 2}
+      - {fileID: 2100000, guid: 5ebce36bd44929045a22c715471eb4d4, type: 2}
+      - {fileID: 2100000, guid: 42ffb83d27d0ea84c8c7e9440cafdff7, type: 2}
+    - materialArray:
+      - {fileID: 2100000, guid: 64706107cf73d114eb192cf864069463, type: 2}
+      - {fileID: 2100000, guid: 58fe2352c51ca6a4fac54b82b424ccbe, type: 2}
+      - {fileID: 2100000, guid: aa694afbf7f885942b780b7d665fc5f9, type: 2}
+      - {fileID: 2100000, guid: 222576f5f88e8c842ba8520fe443c42b, type: 2}
+      - {fileID: 2100000, guid: 7144e030d9f53474baeeb4930c268eea, type: 2}
+      - {fileID: 2100000, guid: 5ebce36bd44929045a22c715471eb4d4, type: 2}
+      - {fileID: 2100000, guid: 42ffb83d27d0ea84c8c7e9440cafdff7, type: 2}
+    - materialArray:
+      - {fileID: 2100000, guid: 64706107cf73d114eb192cf864069463, type: 2}
+      - {fileID: 2100000, guid: 58fe2352c51ca6a4fac54b82b424ccbe, type: 2}
+      - {fileID: 2100000, guid: aa694afbf7f885942b780b7d665fc5f9, type: 2}
+      - {fileID: 2100000, guid: 222576f5f88e8c842ba8520fe443c42b, type: 2}
+      - {fileID: 2100000, guid: 7144e030d9f53474baeeb4930c268eea, type: 2}
+      - {fileID: 2100000, guid: 5ebce36bd44929045a22c715471eb4d4, type: 2}
+      - {fileID: 2100000, guid: 42ffb83d27d0ea84c8c7e9440cafdff7, type: 2}
+    - materialArray:
+      - {fileID: 2100000, guid: 64706107cf73d114eb192cf864069463, type: 2}
+      - {fileID: 2100000, guid: 58fe2352c51ca6a4fac54b82b424ccbe, type: 2}
+      - {fileID: 2100000, guid: aa694afbf7f885942b780b7d665fc5f9, type: 2}
+      - {fileID: 2100000, guid: 222576f5f88e8c842ba8520fe443c42b, type: 2}
+      - {fileID: 2100000, guid: 7144e030d9f53474baeeb4930c268eea, type: 2}
+      - {fileID: 2100000, guid: 5ebce36bd44929045a22c715471eb4d4, type: 2}
+      - {fileID: 2100000, guid: 42ffb83d27d0ea84c8c7e9440cafdff7, type: 2}
+    - materialArray:
+      - {fileID: 2100000, guid: 64706107cf73d114eb192cf864069463, type: 2}
+      - {fileID: 2100000, guid: 58fe2352c51ca6a4fac54b82b424ccbe, type: 2}
+      - {fileID: 2100000, guid: aa694afbf7f885942b780b7d665fc5f9, type: 2}
+      - {fileID: 2100000, guid: 222576f5f88e8c842ba8520fe443c42b, type: 2}
+      - {fileID: 2100000, guid: 7144e030d9f53474baeeb4930c268eea, type: 2}
+      - {fileID: 2100000, guid: 5ebce36bd44929045a22c715471eb4d4, type: 2}
+      - {fileID: 2100000, guid: 42ffb83d27d0ea84c8c7e9440cafdff7, type: 2}
+    - materialArray: []
+    - materialArray: []
+    - materialArray: []
+    - materialArray: []
+    originalMeshLodsManager: {fileID: 9217291831711519039}
+    beforeCullingData_lastMeshOfThis: {fileID: 0}
+    beforeCullingData_isForcedToRenderizationOff: 0
+  modeOfMeshesScanning: 1
+  scanInactiveGameObjects: 0
+  gameObjectsToIgnore: []
+  levelsOfDetailToGenerate: 4
+  percentOfVerticesForEachLod:
+  - 100
+  - 75
+  - 60
+  - 35
+  - 10
+  - 25
+  - 15
+  - 10
+  - 5
+  saveGeneratedLodsInAssets: 1
+  skinnedAnimsCompatibilityMode: 1
+  preventArtifacts: 1
+  optimizeResultingMeshes: 0
+  enableLightmapsSupport: 0
+  enableMaterialsChanges: 0
+  forceOfSimplification: 0
+  cullingMode: 1
+  _customPivotToSimulateLods: {fileID: 0}
+  cameraDetectionMode: 1
+  useCacheForMainCameraInDetection: 1
+  customCameraForSimulationOfLods: {fileID: 0}
+  minDistanceOfViewForEachLod:
+  - 0
+  - 1
+  - 15
+  - 30
+  - 50
+  - 180
+  - 200
+  - 220
+  - 250
+  minDistanceOfViewForCull: 270
+  onDoneScan:
+    m_PersistentCalls:
+      m_Calls: []
+  onUndoScan:
+    m_PersistentCalls:
+      m_Calls: []
+  forceChangeLodsOfSkinnedInEditor: 0
+  drawGizmoOnThisPivot: 0
+  colorOfGizmo: {r: 0, g: 0, b: 1, a: 1}
+  sizeOfGizmo: 0.2
+  forceShowHiddenSettings: 0
+  showScanEventsOptions: 0
+  last_minDistanceOfViewForEachLod:
+  - 0
+  - 1
+  - 15
+  - 30
+  - 50
+  - 0
+  - 0
+  - 0
+  - 0
+  last_minDistanceOfViewForCull: 270
+  setupRunned: 1
+  isLodSimulationEnabledInThisSceneForEditorSceneViewMode: 1
+--- !u!114 &9217291831711519039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8983076749820609374}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df4a344429936c44486b3ad2f611c409, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  responsibleUlod: {fileID: 4764467134476646332}
+  idOfOriginalMeshItemOfThisInResponsibleUlod: 0
+  lastLods:
+  - {fileID: 4300000, guid: 4b6a487f7ae6d8e40bbd83f93c7aa5b0, type: 2}
+  - {fileID: 4300000, guid: 4b6a487f7ae6d8e40bbd83f93c7aa5b0, type: 2}
+  - {fileID: 4300000, guid: 1aa25196b16bbd542adaa3efdf2b4226, type: 2}
+  - {fileID: 4300000, guid: 872bfe9fc7b2adf4ab9a887d958e8da4, type: 2}
+  - {fileID: 4300000, guid: 995737820cdd567448042eb0dc3386b5, type: 2}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}

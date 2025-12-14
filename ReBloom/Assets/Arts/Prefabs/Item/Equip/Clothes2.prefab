@@ -613,6 +613,8 @@ GameObject:
   - component: {fileID: 8358174241921344179}
   - component: {fileID: 5156978081117365984}
   - component: {fileID: 7898240128010848182}
+  - component: {fileID: 3642902725063488538}
+  - component: {fileID: 3148026058257224785}
   m_Layer: 11
   m_Name: Cloth
   m_TagString: Untagged
@@ -706,7 +708,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1074572715997184709}
-  m_Mesh: {fileID: -8884592712571033611, guid: 0748ebb08677c334ca4380cf3297da2b, type: 3}
+  m_Mesh: {fileID: 4300000, guid: b7ebe45b1d61a7e489fd3dab346c76cd, type: 2}
 --- !u!23 &7898240128010848182
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -758,6 +760,178 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &3642902725063488538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1074572715997184709}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 447cf81bd06af284781dfd4985756c5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentScannedMeshesList:
+  - originalGameObject: {fileID: 1074572715997184709}
+    originalSkinnedMeshRenderer: {fileID: 0}
+    originalMeshFilter: {fileID: 5156978081117365984}
+    originalMeshRenderer: {fileID: 7898240128010848182}
+    allMeshLods:
+    - {fileID: 4300000, guid: 75a9e93e584624c489022fe0eca1bc90, type: 2}
+    - {fileID: 4300000, guid: 75a9e93e584624c489022fe0eca1bc90, type: 2}
+    - {fileID: 4300000, guid: fdf9b293ffff7f049b94ec199eac0e0e, type: 2}
+    - {fileID: 4300000, guid: 5dea9929d25477c45a70c35ff5f0e2b5, type: 2}
+    - {fileID: 4300000, guid: b7ebe45b1d61a7e489fd3dab346c76cd, type: 2}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    allMeshLodsPaths:
+    - Assets/Assetclothes/clothes.fbx
+    - Assets/Plugins/MT Assets/_AssetsData/Meshes/LODs_1/LOD1_639013075521729149.asset
+    - Assets/Plugins/MT Assets/_AssetsData/Meshes/LODs_2/LOD2_639013075521729149.asset
+    - Assets/Plugins/MT Assets/_AssetsData/Meshes/LODs_3/LOD3_639013075521729149.asset
+    - Assets/Plugins/MT Assets/_AssetsData/Meshes/LODs_4/LOD4_639013075521729149.asset
+    - 
+    - 
+    - 
+    - 
+    canChangeMaterialsOnThisMeshLods: 0
+    allMeshLodsMaterials:
+    - materialArray:
+      - {fileID: 2100000, guid: 64706107cf73d114eb192cf864069463, type: 2}
+      - {fileID: 2100000, guid: 58fe2352c51ca6a4fac54b82b424ccbe, type: 2}
+      - {fileID: 2100000, guid: aa694afbf7f885942b780b7d665fc5f9, type: 2}
+      - {fileID: 2100000, guid: 222576f5f88e8c842ba8520fe443c42b, type: 2}
+      - {fileID: 2100000, guid: 7144e030d9f53474baeeb4930c268eea, type: 2}
+      - {fileID: 2100000, guid: 5ebce36bd44929045a22c715471eb4d4, type: 2}
+      - {fileID: 2100000, guid: 42ffb83d27d0ea84c8c7e9440cafdff7, type: 2}
+    - materialArray:
+      - {fileID: 2100000, guid: 64706107cf73d114eb192cf864069463, type: 2}
+      - {fileID: 2100000, guid: 58fe2352c51ca6a4fac54b82b424ccbe, type: 2}
+      - {fileID: 2100000, guid: aa694afbf7f885942b780b7d665fc5f9, type: 2}
+      - {fileID: 2100000, guid: 222576f5f88e8c842ba8520fe443c42b, type: 2}
+      - {fileID: 2100000, guid: 7144e030d9f53474baeeb4930c268eea, type: 2}
+      - {fileID: 2100000, guid: 5ebce36bd44929045a22c715471eb4d4, type: 2}
+      - {fileID: 2100000, guid: 42ffb83d27d0ea84c8c7e9440cafdff7, type: 2}
+    - materialArray:
+      - {fileID: 2100000, guid: 64706107cf73d114eb192cf864069463, type: 2}
+      - {fileID: 2100000, guid: 58fe2352c51ca6a4fac54b82b424ccbe, type: 2}
+      - {fileID: 2100000, guid: aa694afbf7f885942b780b7d665fc5f9, type: 2}
+      - {fileID: 2100000, guid: 222576f5f88e8c842ba8520fe443c42b, type: 2}
+      - {fileID: 2100000, guid: 7144e030d9f53474baeeb4930c268eea, type: 2}
+      - {fileID: 2100000, guid: 5ebce36bd44929045a22c715471eb4d4, type: 2}
+      - {fileID: 2100000, guid: 42ffb83d27d0ea84c8c7e9440cafdff7, type: 2}
+    - materialArray:
+      - {fileID: 2100000, guid: 64706107cf73d114eb192cf864069463, type: 2}
+      - {fileID: 2100000, guid: 58fe2352c51ca6a4fac54b82b424ccbe, type: 2}
+      - {fileID: 2100000, guid: aa694afbf7f885942b780b7d665fc5f9, type: 2}
+      - {fileID: 2100000, guid: 222576f5f88e8c842ba8520fe443c42b, type: 2}
+      - {fileID: 2100000, guid: 7144e030d9f53474baeeb4930c268eea, type: 2}
+      - {fileID: 2100000, guid: 5ebce36bd44929045a22c715471eb4d4, type: 2}
+      - {fileID: 2100000, guid: 42ffb83d27d0ea84c8c7e9440cafdff7, type: 2}
+    - materialArray:
+      - {fileID: 2100000, guid: 64706107cf73d114eb192cf864069463, type: 2}
+      - {fileID: 2100000, guid: 58fe2352c51ca6a4fac54b82b424ccbe, type: 2}
+      - {fileID: 2100000, guid: aa694afbf7f885942b780b7d665fc5f9, type: 2}
+      - {fileID: 2100000, guid: 222576f5f88e8c842ba8520fe443c42b, type: 2}
+      - {fileID: 2100000, guid: 7144e030d9f53474baeeb4930c268eea, type: 2}
+      - {fileID: 2100000, guid: 5ebce36bd44929045a22c715471eb4d4, type: 2}
+      - {fileID: 2100000, guid: 42ffb83d27d0ea84c8c7e9440cafdff7, type: 2}
+    - materialArray: []
+    - materialArray: []
+    - materialArray: []
+    - materialArray: []
+    originalMeshLodsManager: {fileID: 3148026058257224785}
+    beforeCullingData_lastMeshOfThis: {fileID: 0}
+    beforeCullingData_isForcedToRenderizationOff: 0
+  modeOfMeshesScanning: 1
+  scanInactiveGameObjects: 0
+  gameObjectsToIgnore: []
+  levelsOfDetailToGenerate: 4
+  percentOfVerticesForEachLod:
+  - 100
+  - 75
+  - 65
+  - 45
+  - 35
+  - 25
+  - 15
+  - 10
+  - 5
+  saveGeneratedLodsInAssets: 1
+  skinnedAnimsCompatibilityMode: 1
+  preventArtifacts: 1
+  optimizeResultingMeshes: 0
+  enableLightmapsSupport: 0
+  enableMaterialsChanges: 0
+  forceOfSimplification: 0
+  cullingMode: 1
+  _customPivotToSimulateLods: {fileID: 0}
+  cameraDetectionMode: 1
+  useCacheForMainCameraInDetection: 1
+  customCameraForSimulationOfLods: {fileID: 0}
+  minDistanceOfViewForEachLod:
+  - 0
+  - 1
+  - 15
+  - 30
+  - 50
+  - 180
+  - 200
+  - 220
+  - 250
+  minDistanceOfViewForCull: 270
+  onDoneScan:
+    m_PersistentCalls:
+      m_Calls: []
+  onUndoScan:
+    m_PersistentCalls:
+      m_Calls: []
+  forceChangeLodsOfSkinnedInEditor: 0
+  drawGizmoOnThisPivot: 0
+  colorOfGizmo: {r: 0, g: 0, b: 1, a: 1}
+  sizeOfGizmo: 0.2
+  forceShowHiddenSettings: 0
+  showScanEventsOptions: 0
+  last_minDistanceOfViewForEachLod:
+  - 0
+  - 1
+  - 15
+  - 30
+  - 50
+  - 0
+  - 0
+  - 0
+  - 0
+  last_minDistanceOfViewForCull: 270
+  setupRunned: 1
+  isLodSimulationEnabledInThisSceneForEditorSceneViewMode: 1
+--- !u!114 &3148026058257224785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1074572715997184709}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df4a344429936c44486b3ad2f611c409, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  responsibleUlod: {fileID: 3642902725063488538}
+  idOfOriginalMeshItemOfThisInResponsibleUlod: 0
+  lastLods:
+  - {fileID: 4300000, guid: 75a9e93e584624c489022fe0eca1bc90, type: 2}
+  - {fileID: 4300000, guid: 75a9e93e584624c489022fe0eca1bc90, type: 2}
+  - {fileID: 4300000, guid: fdf9b293ffff7f049b94ec199eac0e0e, type: 2}
+  - {fileID: 4300000, guid: 5dea9929d25477c45a70c35ff5f0e2b5, type: 2}
+  - {fileID: 4300000, guid: b7ebe45b1d61a7e489fd3dab346c76cd, type: 2}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &1159576876115126995
 GameObject:
   m_ObjectHideFlags: 0
