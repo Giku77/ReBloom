@@ -13,6 +13,8 @@ public class GatherManager : MonoBehaviour
     private GatherObjectDB gatherObjectDB;
     private GatherDB gatherDB;
 
+    public GatherObjectDB GatherObjectDB => gatherObjectDB;
+
     private void Awake()
     {
         gatherObjectDB = new GatherObjectDB();

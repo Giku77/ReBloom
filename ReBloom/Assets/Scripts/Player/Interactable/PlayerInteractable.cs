@@ -104,12 +104,18 @@ public class PlayerInteractable : MonoBehaviour
                     bool isGatherObject = closestInteractable is GatherObject;
                     bool isBuildingInteractable = closestInteractable is BuildingInteractableBase;
                     bool isWaterSource = closestInteractable is WaterSource;
+                    bool isDeathBox = closestInteractable is WorldDeathBox;
                     if (isGatherObject)
                     {
                         msg = "채집";
                         anim.SetGathering(true);
                     }
                     else if (isBuildingInteractable) msg = "상호작용";
+                    else if (isDeathBox)
+                    {
+                        msg = "회수";
+                        anim.PlayPickUp();
+                    }
                     else if (isWaterSource)
                     {
                         msg = "물 뜨는";

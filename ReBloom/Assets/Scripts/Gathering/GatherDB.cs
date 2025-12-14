@@ -1,4 +1,5 @@
-using BansheeGz.BGDatabase;
+ï»¿using BansheeGz.BGDatabase;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,7 +12,7 @@ public class GatherDB
         var meta = BGRepo.I.GetMeta("Gathering");
         if (meta == null)
         {
-            Debug.LogWarning("[GatheringDB] 'Gathering' µ¥ÀÌÅÍ Å×ÀÌºíÀ» Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("[GatheringDB] 'Gathering' ë°ì´í„° í…Œì´ë¸”ì„ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
@@ -19,12 +20,12 @@ public class GatherDB
 
         foreach (var entity in meta.EntitiesToList())
         {
-            var data = ParseDebuff(entity);
+            var data = ParseGather(entity);
             dataById[data.id] = data;
         }
     }
 
-    private GatherData ParseDebuff(BGEntity entity)
+    private GatherData ParseGather(BGEntity entity)
     {
         var data = new GatherData();
 
@@ -41,10 +42,8 @@ public class GatherDB
         return data;
     }
 
-    public bool TryGet(int id, out GatherData data)
-    {
-        return dataById.TryGetValue(id, out data);
-    }
+    public bool TryGet(int id, out GatherData data) => dataById.TryGetValue(id, out data);
+
 
     public Dictionary<int, GatherData> GetAll()
     {

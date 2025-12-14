@@ -1,30 +1,50 @@
-using BansheeGz.BGDatabase;
+ï»¿using BansheeGz.BGDatabase;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class GatherObjectDB
 {
     private Dictionary<int, GatherObjectData> dataById = new Dictionary<int, GatherObjectData>();
+    private Dictionary<int, ObjectStringData> stringData = new Dictionary<int, ObjectStringData>();
 
     public void LoadFromBG()
     {
         var meta = BGRepo.I.GetMeta("Gathering_Object");
+        var meatString = BGRepo.I.GetMeta("Object_String");
+
         if (meta == null)
         {
-            Debug.LogWarning("[GatheringObjectDB] 'GatheringObject' µ¥ÀÌÅÍ Å×ÀÌºíÀ» Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("[GatheringObjectDB] 'GatheringObject' ë°ì´í„° í…Œì´ë¸”ì„ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
+            return;
+        }
+        if (meatString == null)
+        {
+            Debug.LogWarning("[GatheringObjectDB] 'ObjectString' ë°ì´í„° í…Œì´ë¸”ì„ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
         dataById.Clear();
+        stringData.Clear();
 
         foreach (var entity in meta.EntitiesToList())
         {
             var data = ParseDebuff(entity);
             dataById[data.id] = data;
-            Debug.Log($"[GatherObjectDB] ID {data.id} ·ÎµåµÊ");
+            Debug.Log($"[GatherObjectDB] ID {data.id} ë¡œë“œë¨");
+        }
+        foreach (var entity in meatString.EntitiesToList())
+        {
+            var data = new ObjectStringData
+            {
+                stringID = entity.Get<int>("stringID"),
+                stringKOR = entity.Get<string>("stringKOR"),
+                stringENG = entity.Get<string>("stringENG")
+            };
+
+            stringData[data.stringID] = data;
         }
 
-        Debug.Log($"[GatherObjectDB] ÃÑ {dataById.Count}°³ ·Îµå ¿Ï·á");
+        Debug.Log($"[GatherObjectDB] ì´ {dataById.Count}ê°œ ë¡œë“œ ì™„ë£Œ");
     }
 
     private GatherObjectData ParseDebuff(BGEntity entity)
@@ -32,7 +52,7 @@ public class GatherObjectDB
         var data = new GatherObjectData();
 
         data.id = entity.Get<int>("ObjectID");
-        data.objectNameId = entity.Get<string>("ObjectNameID");
+        data.objectNameId = entity.Get<int>("ObjectNameID");
         data.searchTime = entity.Get<float>("SearchTime");
         data.respawnTime = entity.Get<float>("RespawnTime");
         data.gatherId = entity.Get<int>("GatherID");
@@ -47,6 +67,8 @@ public class GatherObjectDB
     {
         return dataById.TryGetValue(id, out data);
     }
+    public bool TryGetString(int stringId, out ObjectStringData data) => stringData.TryGetValue(stringId, out data);
+    public string GetTextKR(int stringId) => stringData.TryGetValue(stringId, out var d) ? d.stringKOR : $"#{stringId}";
 
     public Dictionary<int, GatherObjectData> GetAll()
     {

@@ -21,6 +21,8 @@ public class WorldDeathBox : WorldItemContainerBase
         {
             deathBoxData = Instantiate(deathBoxDataRef);
         }
+
+        highlight.promptFormat = "아이템 회수 [E]";
     }
 
     /// <summary>
