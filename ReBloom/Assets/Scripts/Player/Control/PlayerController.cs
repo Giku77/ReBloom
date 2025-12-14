@@ -28,6 +28,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private EquipmentUI equipmentUI;
     [SerializeField] private ThirdPersonCamera thirdPersonCamera;
     [SerializeField] private CinemachineBrain cinemachineBrain;
+    [SerializeField] private InventoryRobotPet robotPet;
 
     public event Action onPassOut;
 
@@ -316,6 +317,14 @@ public class PlayerController : MonoBehaviour
             }
 
             Anim.SetStun(isStunned);
+        }
+
+        if (Keyboard.current.lKey.wasPressedThisFrame)
+        {
+            if (robotPet != null)
+            {
+                robotPet.ToggleFlashlight();
+            }
         }
     }
 
