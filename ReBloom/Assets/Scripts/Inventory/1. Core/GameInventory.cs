@@ -1,9 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using Cysharp.Threading.Tasks;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class GameInventory : MonoBehaviour, IInventoryProvider
+public class GameInventory : MonoBehaviour, IGameInventory
 {
+    //Core Systems
+    private InventoryItemData containerData;     // 순수 데이터
+    private InventoryService inventoryService;   // 비즈니스 로직
+    private ItemDropService dropService;         // 드롭 처리
+    private InventoryMessageService uiService;        // UI 처리
+
     [Header("Data Reference")]
     [SerializeField] private InventoryItemData inventoryData;
 
@@ -29,6 +36,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
         var player = GameObject.FindWithTag("Player");
         playerController = player.GetComponent<PlayerController>();
         playerEquipmanager = player.GetComponent<PlayerEquipManager>();
+        InitializeServices();
         //// 초기화
     }
     private void Start()
@@ -36,19 +44,55 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
         inventoryData.Initialize();
         quickSlot?.SyncInventoryQuickSlots();
     }
+    private void InitializeServices()
+    {
+        // 자동으로 컴포넌트 찾기
+        if (inventoryService == null)
+            inventoryService = GetComponent<InventoryService>();
 
+        if (dropService == null)
+            dropService = GetComponent<ItemDropService>();
+
+        if (uiService == null)
+            uiService = GetComponent<InventoryMessageService>();
+    }
     private void OnEnable()
     {
         //quickSlot?.SyncInventoryQuickSlots();
     }
 
-    #region IInventoryProvider 구현
-    public int GetItemCount(int itemId) => inventoryData.GetItemCount(itemId);
-    public void AddItem(int itemId, int amount) => inventoryData.AddItem(itemId, amount);
-    public void RemoveItem(int itemId, int amount) => inventoryData.RemoveItem(itemId, amount);
-    public void Clear() => inventoryData.Clear();
-    public bool HasItem(int itemId, int amount) => inventoryData.HasItem(itemId, amount);
-    public bool TransferTo(IItemContainer container, int itemId, int amount) => inventoryData.TransferTo(container, itemId, amount);
+    #region 단순 위임 메서드들
+    public int GetItemCount(int itemID)
+        => inventoryData.GetItemCount(itemID);
+
+    // HasItem 중복 제거 - 하나만 남김
+    public bool HasItem(int itemID, int count)
+        => inventoryData.HasItem(itemID, count);
+
+    public void RemoveItem(int itemID, int count)
+        => inventoryData.TryRemoveItem(itemID, count);
+
+    // AddItem 메서드 추가 (필요함!)
+    public int AddItem(int itemID, int count)
+        => inventoryData.TryAddItem(itemID, count);
+
+    public void Clear()
+        => inventoryData.Clear();
+
+    public bool TransferTo(IItemContainer target, int itemID, int count)
+    {
+        if (GetItemCount(itemID) < count)
+            return false;
+
+        target.TryAddItem(itemID, count, out int added);  // 인터페이스 메서드명
+        if (added > 0)
+        {
+            inventoryData.TryRemoveItem(itemID, added);  // inventoryData 사용
+        }
+
+        return added == count;
+    }
+
     public bool SwapSlots(int fromIndex, int toIndex) => inventoryData.SwapSlots(fromIndex, toIndex);
     public void Consume(int itemId, int amount)
     {
@@ -79,17 +123,28 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     /// </summary>
     /// <param name="itemId"></param>
     /// <param name="amount"></param>
-    public int AddItemFromWorld(int itemId, int amount)
+    public int AddItemFromWorld(int itemID, int count)
     {
-        int added = inventoryData.AddItemWithOverflow(itemId, amount, out int overflow);
+        int added = inventoryData.TryAddItem(itemID, count);  // TryAddItem 사용
+        int overflow = count - added;
+
+        if (added > 0)
+        {
+            var item = ItemDatabase.I.GetItem(itemID);
+            uiService?.ShowItemAcquired(item, added);
+            InventroyEventSystem.ItemAcquiredTier(item.tier);
+        }
 
         if (overflow > 0)
         {
-            DropOverflow(itemId, overflow);
+            dropService?.DropItem(itemID, overflow);
+            uiService?.ShowWarning($"인벤토리 부족! {added}/{count}개만 획득");
+            InventroyEventSystem.InventoryFull();
         }
 
         return added;
     }
+
 
     /// <summary>
     /// 드롭 없이 가득 찰 때까지만 Add 하고 끝내는 경우
@@ -97,10 +152,23 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     /// </summary>
     /// <param name="itemId"></param>
     /// <param name="amount"></param>
-    public bool TryAddItemFromWorld(int itemId, int amount)
+    public bool TryAddItemFromWorld(int itemID, int count)
     {
-        inventoryData.AddItemWithOverflow(itemId, amount, out int overflow);
+        inventoryData.AddItemWithOverflow(itemID, count, out int overflow);
         return overflow == 0;
+    }
+    public bool CanUnequip(int itemID)
+    {
+        var testSlots = inventoryData.GetAllSlots();
+        // 빈 슬롯이 있는지 체크하는 로직
+        for (int i = 0; i < inventoryData.SlotCount; i++)
+        {
+            if (inventoryData.IsEmptySlot(i))
+                return true;
+        }
+
+        uiService?.ShowWarning("인벤토리가 가득 찼습니다!");
+        return false;
     }
 
     private void DropOverflow(int itemId, int amount)
@@ -109,9 +177,25 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
         if (item == null) return;
 
         Vector3 dropPos = playerController.transform.position + Vector3.up * 0.5f;
-        itemSpawner.DropItemWithQuantity(item, dropPos, amount).Forget();
+        itemSpawner.DropItemWithQuantity(item, dropPos, amount).Forget<GameObject>();
     }
 
+    /// <summary>
+    /// 아이템 사용
+    /// </summary>
+    public bool UseItem(int itemID)
+    {
+        if (!inventoryData.TryRemoveItem(itemID, 1))
+            return false;
+
+        var item = ItemDatabase.I.GetItem(itemID);
+        if (item != null && item.canUseable)
+        {
+            item.Apply(playerController);
+        }
+
+        return true;
+    }
     /// <summary>
     /// 도구 장착/해제 토글 (외부 호출용)
     /// </summary>
@@ -120,6 +204,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
         //equipmanager가 처리
         return playerEquipmanager.ToggleEquip(itemId);
     }
+
 
     #region 아이템 & 카테고리 분류
 
@@ -232,5 +317,6 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
         TutorialEventBus.RaiseAction((int)TutorialActionId.OpenInventory);
     }
     public void CloseInventory() => inventoryUI.ToggleInventory();
+
     #endregion
 }

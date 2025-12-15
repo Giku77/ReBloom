@@ -50,16 +50,12 @@ public abstract class WorldItemContainerBase : MonoBehaviour, IInteractable
     protected void TransferAllToPlayer()
     {
         if (!Container.HasItems)
-        {
-            Debug.LogWarning($"[{GetType().Name}] 컨테이너가 비어있습니다!");
             return;
-        }
 
-        // IItemContainer 인터페이스로 통일된 방식
-        bool success = Container.TransferAllTo(playerInventory);
+        bool success = ItemTransferUtility.TransferAll(Container, playerInventory);
 
-        Debug.Log($"[{GetType().Name}] 모든 아이템을 회수했습니다!");
-        if(success) OnTransferComplete();
+        if (success)
+            OnTransferComplete();
     }
 
     // 자식이 오버라이드: 회수 후 동작

@@ -19,7 +19,7 @@ public class BuildManager : MonoBehaviour
         player = GameObject.FindWithTag("Player");
 
         Init(arcDB, arcRecipeDB, inventory);
-    } 
+    }
 
     private BuildingFootprintProvider footprintProvider;
 

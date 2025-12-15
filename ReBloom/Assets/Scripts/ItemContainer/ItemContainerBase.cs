@@ -15,14 +15,17 @@ public abstract class ItemContainerBase : ScriptableObject, IItemContainer
     int IItemContainer.SlotCount
     {
         get => maxSlots;
-        set => maxSlots = value;
     }
 
     public event Action OnContainerChanged;
 
     // 이벤트 발생 헬퍼
     protected void NotifyChanged() => OnContainerChanged?.Invoke();
-
+    public int TryAddItem(int itemID, int count)
+    {
+        int added = AddItem(itemID, count);
+        return added;  // 전부 추가됐는지
+    }
     // ---- 공통 구현 ----
     /// <summary>
     /// 아이템 추가 - 부분 추가 가능
@@ -73,6 +76,11 @@ public abstract class ItemContainerBase : ScriptableObject, IItemContainer
 
         NotifyChanged();
         return originalCount;
+    }
+
+    public virtual bool TryRemoveItem(int itemID, int count)
+    {
+        return RemoveItem(itemID, count);
     }
 
     public virtual bool RemoveItem(int itemID, int count)
