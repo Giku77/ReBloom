@@ -121,7 +121,7 @@ public class PlayerInteractable : MonoBehaviour
                     bool isDeathBox = closestInteractable is WorldDeathBox;
                     if (isGatherObject)
                     {
-                        msg = "채집";
+                        msg = "조사";
                         anim.SetGathering(true);
                     }
                     else if (isBuildingInteractable) msg = "상호작용";

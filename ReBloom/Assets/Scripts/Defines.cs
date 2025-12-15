@@ -59,6 +59,7 @@ public enum UIType
     Dialogue,
     PlayerEffect,
     EditBuild,
+    WaterTank,
 }
 
 public enum UILayer

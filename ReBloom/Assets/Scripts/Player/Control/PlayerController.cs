@@ -118,6 +118,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] Transform spawnPoint;
 
     [SerializeField] private CraftingUI craftingUI;
+    [SerializeField] private WaterTankUI waterTankUI;
+
     [SerializeField] private StorageUI storageUI;
     [SerializeField] private float storageCloseDistance = 5f;
 
@@ -125,6 +127,12 @@ public class PlayerController : MonoBehaviour
     {
         if (craftingUI != null)
             craftingUI.Toggle();
+    }
+
+    public void OpenWaterTankUI()
+    {
+        if (waterTankUI != null)
+            waterTankUI.Toggle();
     }
 
     public WorldStorage CurrentOpenedStorage { get; private set; }
@@ -325,6 +333,11 @@ public class PlayerController : MonoBehaviour
             {
                 robotPet.ToggleFlashlight();
             }
+        }
+
+        if (waterTankUI.waterTankManager != null)
+        {
+            waterTankUI.waterTankManager.Tick(Time.deltaTime);
         }
     }
 
