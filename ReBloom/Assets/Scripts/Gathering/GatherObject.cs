@@ -4,22 +4,17 @@ using UnityEngine;
 public class GatherObject : MonoBehaviour, IInteractable
 {
     public int gatherObjectID;
-
     private float respawnTime;
-
     private float timer;
-
     private bool isAvailable = true;
-
     private GatherObjectData gatherObjectData;
-
     private GatherManager gatherManager;
-
     [SerializeField] private InventoryItemData inventoryItemData;
-
     private InteractionHighlight highlight;
-
     private PlayerEquipManager playerEquipManager;
+    private int objectNameID;
+    private string gatherName;
+
 
     private string gatherAvailableText = $"채집 시작 [E]";
     private string gatherNotAvailableText = "채집 불가";
@@ -94,12 +89,17 @@ public class GatherObject : MonoBehaviour, IInteractable
 
             Debug.Log($"채집 오브젝트 초기화 {gatherObjectData.objectNameId}");
 
+            objectNameID = gatherObjectData.objectNameId;
+            gatherName = gatherManager.GatherObjectDB.GetTextKR(objectNameID);
+
+            gatherAvailableText = $"{gatherName} 채집 시작 [E]";
+            gatherNotAvailableText = $"{gatherName} 채집 불가";
+
             if (highlight != null)
             {
                 highlight.ShowHighlightOnly();
                 highlight.promptFormat = gatherAvailableText;
             }
-
         }
     }
 

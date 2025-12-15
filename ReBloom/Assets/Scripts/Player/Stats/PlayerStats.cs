@@ -116,6 +116,8 @@ public class PlayerStats : MonoBehaviour
     {
         Health.Modify(-damage);
         anim.SetHitAnim();
+        SoundManager.I?.PlayGetDamage();
+
     }
     /// <summary>
     /// LSY: DeathBoxHandler를 찾아서 자동 이벤트 등록

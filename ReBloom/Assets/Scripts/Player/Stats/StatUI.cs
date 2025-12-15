@@ -23,6 +23,7 @@ public class StatUI : MonoBehaviour
     [SerializeField] private Image thirstGauge;
     [SerializeField] private Image hungerGauge;
     [SerializeField] private TextMeshProUGUI tempText;
+    [SerializeField] private Image bodyTemperatureImage;
 
     [Header("StatTexts")]
     [SerializeField] private TextMeshProUGUI pollutionText;
@@ -219,8 +220,6 @@ public class StatUI : MonoBehaviour
         { 
             fillImager.color = Color.green;
         }
-
-
     }
 
 
@@ -292,7 +291,7 @@ public class StatUI : MonoBehaviour
     private void UpdateTemperatureUI(float value, float maxValue)
     {
         if (tempBar != null)
-        { 
+        {
             float minTemp = 31f;
             float maxTemp = playerStats.Temperature.MaxValue;
 
@@ -306,6 +305,11 @@ public class StatUI : MonoBehaviour
         if (tempText != null)
         {
             tempText.text = $"{value:F1}";
+        }
+
+        if (bodyTemperatureImage != null)
+        {
+            bodyTemperatureImage.color = GetTempColor(value);
         }
     }
 
@@ -329,6 +333,8 @@ public class StatUI : MonoBehaviour
         lowHealthCTS?.Cancel();
         lowHealthCTS = new CancellationTokenSource();
         CancellationToken token = lowHealthCTS.Token;
+
+        SoundManager.I?.StartBreathingHeavy();
 
         try
         {
@@ -355,5 +361,26 @@ public class StatUI : MonoBehaviour
                 damageImage.canvasRenderer.SetAlpha(0f);
             }
         }
+
+        SoundManager.I?.StopBreathingHeavy();
+    }
+
+    private Color GetTempColor(float temp)
+    {
+        if (temp >= 40f)
+            return Color.red;
+
+        if (temp >= 38f)
+            return new Color(1f, 0.55f, 0f); // 주황
+
+        // 저체온
+        if (temp <= 33f)
+            return new Color(0.2f, 0.4f, 1f); // 파랑
+
+        if (temp <= 35f)
+            return new Color(0.5f, 0.75f, 1f); // 연파랑
+
+        // 정상
+        return Color.green;
     }
 }

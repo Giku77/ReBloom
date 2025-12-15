@@ -28,6 +28,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private EquipmentUI equipmentUI;
     [SerializeField] private ThirdPersonCamera thirdPersonCamera;
     [SerializeField] private CinemachineBrain cinemachineBrain;
+    [SerializeField] private InventoryRobotPet robotPet;
 
     public event Action onPassOut;
 
@@ -317,6 +318,14 @@ public class PlayerController : MonoBehaviour
 
             Anim.SetStun(isStunned);
         }
+
+        if (Keyboard.current.lKey.wasPressedThisFrame)
+        {
+            if (robotPet != null)
+            {
+                robotPet.ToggleFlashlight();
+            }
+        }
     }
 
     private void FixedUpdate()
@@ -334,6 +343,10 @@ public class PlayerController : MonoBehaviour
             Debug.Log("착지! Jump = false");
             if (Anim != null)
             {
+                if (playerStats.Health.Value / playerStats.Health.MaxValue <= 0.2f)
+                {
+                    SoundManager.I?.StartBreathingHeavy();
+                }
                 Anim.SetSlow(false);
                 Anim.SetJumping(false);
             }
@@ -348,6 +361,7 @@ public class PlayerController : MonoBehaviour
         RotatePlayer();
         JumpPlayer();
         HandleBuildPlacementMode();
+        GroundStick();
 
         wasGround = previousGround;
     }
@@ -397,11 +411,15 @@ public class PlayerController : MonoBehaviour
     public void OnFreeLook(InputAction.CallbackContext context)
     {
         if (context.started)
+        {
             isFreeLook = true;
-
-        if(context.canceled)
+            thirdPersonCamera.EnterFreeLook();
+        }
+        if (context.canceled)
+        {
             isFreeLook = false;
-
+            thirdPersonCamera.ExitFreeLook();
+        }
     }
 
     public void OnAutoRun(InputAction.CallbackContext context)
@@ -521,6 +539,8 @@ public class PlayerController : MonoBehaviour
 
         Debug.Log("점프 실행! Jump = true");
         Anim.SetJumping(true);
+        SoundManager.I?.StopBreathingHeavy();
+        SoundManager.I?.PlayJump();
 
         jumpRequested = false;
         wasJumping = true;
@@ -562,6 +582,9 @@ public class PlayerController : MonoBehaviour
         rb.linearVelocity = Vector3.zero;
         UIManager.Instance.SetBlockingInput(true);
         UIManager.Instance.CloseAllUIs();
+
+        Anim.SetToolType(0);
+        Anim.HandLayerChange();
 
         Anim.PlayDeath();
         Anim.SetRootMotion(true);
@@ -716,5 +739,22 @@ public class PlayerController : MonoBehaviour
 
         stunDuration = stunTime;
         this.stunTime = 0f;
+    }
+
+    private void GroundStick()
+    {
+        if (wasJumping || jumpRequested) return;
+        if (moveInput.magnitude < 0.1f) return;
+        if (rb.linearVelocity.y > 0.1f) return;
+
+        if (Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out RaycastHit hit, 2f, groundLayer))
+        {
+            float angle = Vector3.Angle(hit.normal, Vector3.up);
+
+            if (angle > 5f)
+            {
+                rb.AddForce(Vector3.down * 50f, ForceMode.Force);
+            }
+        }
     }
 }

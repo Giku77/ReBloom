@@ -37,6 +37,14 @@ public class InventoryRobotPet : MonoBehaviour
     [SerializeField] private RobotEmotionManager emotionManager;
     [SerializeField] private Rob11ColorManager colorManager;
 
+    [Header("손전등 설정")]
+    [SerializeField] private Light flashlight;
+    [SerializeField] private Transform lightSource; // 로봇 머리나 눈 위치
+    [SerializeField] private float lightRange = 20f;
+    [SerializeField] private float lightIntensity = 2f;
+    [SerializeField] private float lightSpotAngle = 60f;
+    private bool isFlashlightOn = false;
+
     private bool isOrbiting = false;
     private float orbitAngle = 0f;
     private float orbitRadius = 2f;
@@ -111,6 +119,8 @@ public class InventoryRobotPet : MonoBehaviour
         rb.linearDamping = 2f;       // 공기 저항 (부드러운 이동)
         rb.angularDamping = 2f;      // 회전 저항
         rb.constraints = RigidbodyConstraints.FreezeRotation; // 회전은 코드로만 제어
+
+        flashlight.enabled = false;
     }
 
     private void OnEnable()
@@ -593,5 +603,30 @@ public class InventoryRobotPet : MonoBehaviour
         emotionManager.SetEmotion(RobotEmotion.Neutral);
     }
 
+    public void ToggleFlashlight()
+    {
+        isFlashlightOn = !isFlashlightOn;
+
+        if (flashlight != null)
+        {
+            flashlight.enabled = isFlashlightOn;
+        }
+
+        if (isFlashlightOn)
+        {
+            emotionManager?.SetEmotion(RobotEmotion.Wonder);
+            animController?.PlayAnimation("LookingFor");
+        }
+    }
+
+    public void SetFlashlight(bool on)
+    {
+        isFlashlightOn = on;
+
+        if (flashlight != null)
+        {
+            flashlight.enabled = on;
+        }
+    }
     #endregion
 }

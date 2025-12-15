@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 
@@ -15,6 +16,10 @@ public class StageDetector : MonoBehaviour
     [SerializeField] private GameObject thunderEffect;
 
     public StageBase CurrentStage => currentStage;
+
+    private bool isInside = false;
+
+    public static event Action<bool> OnEnterDoor;
 
     private StageManager stageManager;
 
@@ -82,11 +87,23 @@ public class StageDetector : MonoBehaviour
         if (other.gameObject.layer == LayerMask.NameToLayer("Inside"))
         {
             Debug.Log("[StageDetector] 건물 안으로 들어갔습니다.");
+
+            if (isInside == false)
+            {
+                isInside = true;
+                OnEnterDoor?.Invoke(isInside);
+            }
             ClearWeatherEffect();
         }
         else if (other.gameObject.layer == LayerMask.NameToLayer("Outside"))
         {
             Debug.Log("[StageDetector] 건물 밖으로 나왔습니다.");
+
+            if (isInside == true)
+            {
+                isInside = false;
+                OnEnterDoor?.Invoke(isInside);
+            }
             ApplyWeather(currentStage.CurrentWeather);
         }
     }
