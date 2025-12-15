@@ -58,6 +58,8 @@ public class UIManager : MonoBehaviour
     {
         if (!uiDict.TryGetValue(type, out var ui)) return;
 
+        Debug.Log("[UIManager] 토글 UI 호출");
+
         if (ui.IsOpen)
         {
             Debug.Log($"[UIManager] Hiding UI: {type}");

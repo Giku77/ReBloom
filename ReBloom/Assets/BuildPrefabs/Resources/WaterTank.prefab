@@ -123,6 +123,8 @@ GameObject:
   - component: {fileID: 183732250032962557}
   - component: {fileID: 268198289448570546}
   - component: {fileID: 5215141788559336282}
+  - component: {fileID: -9159161846034797930}
+  - component: {fileID: 1266150984971312495}
   m_Layer: 9
   m_Name: WaterTank
   m_TagString: Untagged
@@ -212,3 +214,36 @@ MonoBehaviour:
   outline: {fileID: 4011610321156874807, guid: 97aac55f4d7b4f3489999c7128acef97, type: 2}
   outlined: 0
   outlineLayerMask: 256
+--- !u!114 &-9159161846034797930
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8295690755802342363}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bcb90db3cf36fe4d8707b36f1985768, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  lightIntensity: 0
+  backlightRange: 0
+  bodylightRange: 0
+  promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
+  isPermanent: 0
+  disableHighlight: 1
+  disableOutline: 0
+--- !u!114 &1266150984971312495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8295690755802342363}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53fd16c806d66ff409605d5ee2c6a33f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  building: {fileID: 183732250032962557}

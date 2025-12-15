@@ -16,8 +16,8 @@ public class GatherObject : MonoBehaviour, IInteractable
     private string gatherName;
 
 
-    private string gatherAvailableText = $"채집 시작 [E]";
-    private string gatherNotAvailableText = "채집 불가";
+    private string gatherAvailableText = $"조사 시작 [E]";
+    private string gatherNotAvailableText = "조사 불가";
 
     public float HoldTime => gatherObjectData.searchTime * playerEquipManager.GetToolPerform();
 
@@ -92,8 +92,8 @@ public class GatherObject : MonoBehaviour, IInteractable
             objectNameID = gatherObjectData.objectNameId;
             gatherName = gatherManager.GatherObjectDB.GetTextKR(objectNameID);
 
-            gatherAvailableText = $"{gatherName} 채집 시작 [E]";
-            gatherNotAvailableText = $"{gatherName} 채집 불가";
+            gatherAvailableText = $"{gatherName} 조사 [E]";
+            gatherNotAvailableText = $"{gatherName} 조사 완료";
 
             if (highlight != null)
             {
