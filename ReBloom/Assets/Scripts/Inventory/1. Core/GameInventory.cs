@@ -15,6 +15,10 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     [SerializeField] private PlayerController playerController;
     [SerializeField] private PlayerEquipManager playerEquipmanager;
 
+
+    [Header("Manager")]
+    [SerializeField] private ItemSpawner itemSpawner;
+
     public IItemContainer Container => inventoryData;
 
     //private int currentEquippedToolId = -1;        // 도구
@@ -58,7 +62,7 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
 
             if (item.itemID == 4002001 || item.itemID == 4002002)
             {
-                AddItem(4102035, 1);
+                AddItem(4102035, 1); //@??
             }
         }
         else if (item.canEquip)
@@ -69,99 +73,44 @@ public class GameInventory : MonoBehaviour, IInventoryProvider
     }
     #endregion
 
-    //// 도구 장착 처리
-    //private void HandleToolEquip(ToolItemData item, int itemId)
-    //{
-    //    // 같은 도구 클릭 = 토글
-    //    if (currentEquippedToolId == itemId)
-    //    {
-    //        item.UnApply(playerController);
-    //        AddItem(item.itemID, 1); // 임의로 추가
-    //        currentEquippedToolId = -1;
-    //        Debug.Log($"[GameInventory] {item.itemName} 장착 해제");
-    //        return;
-    //    }
+    /// <summary>
+    /// add 아이템 시도 후 overflow 만큼 월드에 드롭
+    /// 실제 추가된 수량 반환
+    /// </summary>
+    /// <param name="itemId"></param>
+    /// <param name="amount"></param>
+    public int AddItemFromWorld(int itemId, int amount)
+    {
+        int added = inventoryData.AddItemWithOverflow(itemId, amount, out int overflow);
 
-    //    // 다른 도구로 교체
-    //    if (currentEquippedToolId != -1)
-    //    {
-    //        ItemBase previousTool = ItemDatabase.I.GetItem(currentEquippedToolId);
-    //        previousTool?.UnApply(playerController);
-    //    }
+        if (overflow > 0)
+        {
+            DropOverflow(itemId, overflow);
+        }
 
-    //    // 새 도구 장착
-    //    bool success = item.Apply(playerController);
-    //    if (success)
-    //    {
-    //        currentEquippedToolId = itemId;
-    //        Debug.Log($"[GameInventory] {item.itemName} 장착");
-    //    }
-    //}
+        return added;
+    }
 
-    //// 보호구 장착 처리
-    //private void HandleProtectiveEquip(ProtectiveItemData item, int itemId)
-    //{
-    //    switch (item.gearType)
-    //    {
-    //        case GearType.Clothing:
-    //            // 같은 옷 클릭 = 토글 // 12.04 수정사항: 인벤토리에서 빠지면서 같은 옷 클릭 안됨
-    //            if (currentEquippedClothingId == itemId)
-    //            {
-    //                item.UnApply(playerController);
-    //                AddItem(item.itemID, 1); // 임의로 추가
-    //                currentEquippedClothingId = -1;
-    //                Debug.Log($"[GameInventory] {item.itemName} 장착 해제");
-    //                return;
-    //            }
+    /// <summary>
+    /// 드롭 없이 가득 찰 때까지만 Add 하고 끝내는 경우
+    /// 하나라도 overflow 발생 시 false
+    /// </summary>
+    /// <param name="itemId"></param>
+    /// <param name="amount"></param>
+    public bool TryAddItemFromWorld(int itemId, int amount)
+    {
+        inventoryData.AddItemWithOverflow(itemId, amount, out int overflow);
+        return overflow == 0;
+    }
 
-    //            // 다른 옷으로 교체
-    //            if (currentEquippedClothingId != -1)
-    //            {
-    //                ItemBase previousCloth = ItemDatabase.I.GetItem(currentEquippedClothingId);
-    //                previousCloth?.UnApply(playerController);
-    //            }
+    private void DropOverflow(int itemId, int amount)
+    {
+        var item = ItemDatabase.I.GetItem(itemId);
+        if (item == null) return;
 
-    //            // 새 옷 장착, 장착한 아이템은 이 함수 바깥에서 인벤토리 슬롯 제거
-    //            bool clothSuccess = item.Apply(playerController);
-    //            if (clothSuccess)
-    //            {
-    //                currentEquippedClothingId = itemId;
-    //                Debug.Log($"[GameInventory] {item.itemName} 장착");
-    //            }
-    //            break;
-
-    //        case GearType.Shoes:
-    //            // 같은 신발 클릭 = 토글
-    //            if (currentEquippedShoesId == itemId)
-    //            {
-    //                item.UnApply(playerController);
-    //                AddItem(item.itemID, 1); // 임의로 추가
-    //                currentEquippedShoesId = -1;
-    //                Debug.Log($"[GameInventory] {item.itemName} 장착 해제");
-    //                return;
-    //            }
-
-    //            // 다른 신발로 교체
-    //            if (currentEquippedShoesId != -1)
-    //            {
-    //                ItemBase previousShoes = ItemDatabase.I.GetItem(currentEquippedShoesId);
-    //                previousShoes?.UnApply(playerController);
-    //            }
-
-    //            // 새 신발 장착
-    //            bool shoesSuccess = item.Apply(playerController);
-    //            if (shoesSuccess)
-    //            {
-    //                currentEquippedShoesId = itemId;
-    //                Debug.Log($"[GameInventory] {item.itemName} 장착");
-    //            }
-    //            break;
-
-    //        default:
-    //            Debug.LogWarning($"[GameInventory] 알 수 없는 보호구 타입: {item.gearType}");
-    //            break;
-    //    }
-    //}
+        Vector3 dropPos = playerController.transform.position + Vector3.up * 0.5f;
+        itemSpawner.DropItemWithQuantity(item, dropPos, amount).Forget();
+    }
 
     /// <summary>
     /// 도구 장착/해제 토글 (외부 호출용)

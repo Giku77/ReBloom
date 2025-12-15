@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -8,6 +9,8 @@ public class InventoryItemData : ScriptableObject, IItemContainer
 {
     [Header("Settings")]
     [SerializeField] private int inventoryTier = 0;
+    [SerializeField] private ItemSpawner itemSpawner;
+    [SerializeField] Vector3 defaultDropPosition;
 
     public int InventoryTier
     {
@@ -91,7 +94,7 @@ public class InventoryItemData : ScriptableObject, IItemContainer
     /// <summary>
     /// 아이템 추가 (스택 처리 포함)
     /// </summary>
-    public int AddItem(int itemID, int count)
+    private int AddItem(int itemID, int count)
     {
         var item = ItemDatabase.I.GetItem(itemID);
         if (item == null) return 0;
@@ -191,107 +194,74 @@ public class InventoryItemData : ScriptableObject, IItemContainer
         return true;
     }
 
+    public int AddItemWithOverflow(int itemID, int amount, out int overflow)
+    {
+        int added = AddItem(itemID, amount);
+        overflow = amount - added;
+        return added;
+    }
+
     ///// <summary>
-    ///// 두 슬롯의 위치를 교환
+    ///// 아이템 추가 (첫 빈 슬롯에)
     ///// </summary>
-    //public bool SwapSlots(int fromIndex, int toIndex) //TODO: 빈슬롯 이동 미구현
+    //private bool AddItemAtFirstEmpty(int itemID, int count)
     //{
-    //    // 유효성 검사
-    //    if (fromIndex < 0 || fromIndex >= activeSlots.Count)
+    //    var item = ItemDatabase.I.GetItem(itemID);
+    //    if (item == null) return false;
+
+    //    int remainingCount = count;
+
+    //    // 1. 스택 가능한 기존 슬롯 찾기
+    //    if (item.maxCount > 1)
     //    {
-    //        Debug.LogError($"[InventoryData] 유효하지 않은 출발 인덱스: {fromIndex} (슬롯 개수: {activeSlots.Count})");
-    //        return false;
+    //        for (int i = 0; i < SlotCount; i++)
+    //        {
+    //            if (slots[i] != null && slots[i].itemID == itemID)
+    //            {
+    //                int canStack = Mathf.Min(item.maxCount - slots[i].count, remainingCount);
+    //                if (canStack > 0)
+    //                {
+    //                    slots[i].count += canStack;
+    //                    remainingCount -= canStack;
+
+    //                    if (remainingCount <= 0)
+    //                    {
+    //                        OnItemAdded?.Invoke(itemID, count);
+    //                        OnInventoryChanged?.Invoke();
+    //                        return true;
+    //                    }
+    //                }
+    //            }
+    //        }
     //    }
 
-    //    if (toIndex < 0 || toIndex >= activeSlots.Count)
+    //    // 2. 빈 슬롯에 추가
+    //    while (remainingCount > 0)
     //    {
-    //        Debug.LogError($"[InventoryData] 유효하지 않은 도착 인덱스: {toIndex} (슬롯 개수: {activeSlots.Count})");
-    //        return false;
+    //        int emptyIndex = FindFirstEmptySlot();
+    //        if (emptyIndex == -1)
+    //        {
+    //            Debug.LogWarning("인벤토리 가득참!");
+    //            return false;
+    //        }
+
+    //        int toAdd = Mathf.Min(remainingCount, item.maxCount);
+    //        slots[emptyIndex] = new ItemSlotData
+    //        {
+    //            itemID = itemID,
+    //            count = toAdd
+    //        };
+    //        remainingCount -= toAdd;
     //    }
 
-    //    if (fromIndex == toIndex)
-    //    {
-    //      //  Debug.LogWarning("[InventoryData] 같은 슬롯입니다.");
-    //        return false;
-    //    }
-
-    //    // 스왑
-    //    ItemSlotData temp = activeSlots[fromIndex];
-    //    activeSlots[fromIndex] = activeSlots[toIndex];
-    //    activeSlots[toIndex] = temp;
-
-    //    // 디버그 로그
-    //    var fromItem = ItemDatabase.I.GetItem(activeSlots[toIndex].itemID); // 스왑 후이므로 반대
-    //    var toItem = ItemDatabase.I.GetItem(activeSlots[fromIndex].itemID);
-    //    // Debug.Log($"[InventoryData] 슬롯 스왑: [{fromIndex}] {toItem?.itemName} ({activeSlots[fromIndex].count}개) <-> " + $"[{toIndex}] {fromItem?.itemName} ({activeSlots[toIndex].count}개)");
-
-    //    // 변경 이벤트 발생 (UI 갱신)
+    //    OnItemAdded?.Invoke(itemID, count);
     //    OnInventoryChanged?.Invoke();
-
     //    return true;
     //}
 
     /// <summary>
-    /// 아이템 추가 (첫 빈 슬롯에)
+    /// 첫 빈 슬롯 찾기
     /// </summary>
-    private bool AddItemAtFirstEmpty(int itemID, int count)
-    {
-        var item = ItemDatabase.I.GetItem(itemID);
-        if (item == null) return false;
-
-        int remainingCount = count;
-
-        // 1. 스택 가능한 기존 슬롯 찾기
-        if (item.maxCount > 1)
-        {
-            for (int i = 0; i < SlotCount; i++)
-            {
-                if (slots[i] != null && slots[i].itemID == itemID)
-                {
-                    int canStack = Mathf.Min(item.maxCount - slots[i].count, remainingCount);
-                    if (canStack > 0)
-                    {
-                        slots[i].count += canStack;
-                        remainingCount -= canStack;
-
-                        if (remainingCount <= 0)
-                        {
-                            OnItemAdded?.Invoke(itemID, count);
-                            OnInventoryChanged?.Invoke();
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-
-        // 2. 빈 슬롯에 추가
-        while (remainingCount > 0)
-        {
-            int emptyIndex = FindFirstEmptySlot();
-            if (emptyIndex == -1)
-            {
-                Debug.LogWarning("인벤토리 가득참!");
-                return false;
-            }
-
-            int toAdd = Mathf.Min(remainingCount, item.maxCount);
-            slots[emptyIndex] = new ItemSlotData
-            {
-                itemID = itemID,
-                count = toAdd
-            };
-            remainingCount -= toAdd;
-        }
-
-        OnItemAdded?.Invoke(itemID, count);
-        OnInventoryChanged?.Invoke();
-        return true;
-    }
-
-  /// <summary>
-  /// 첫 빈 슬롯 찾기
-  /// </summary>
     private int FindFirstEmptySlot()
     {
         for (int i = 0; i < SlotCount; i++)
@@ -416,31 +386,6 @@ public class InventoryItemData : ScriptableObject, IItemContainer
         return false;
     }
 
-    //public bool TransferAllTo(IItemContainer target)
-    //{
-    //    if (target == null || !HasItems)
-    //    {
-    //        Debug.Log("[InventoryItemData] Transfer 실패: target null 또는 아이템 없음");
-    //        return false;
-    //    }
-
-    //    var itemsCopy = Items;
-    //    int totalTransferred = 0;
-
-    //    foreach (var slot in itemsCopy)
-    //    {
-    //        if (slot != null && slot.itemID > 0)
-    //        {
-    //            target.AddItem(slot.itemID, slot.count);
-    //            totalTransferred++;
-    //        }
-    //    }
-
-    //    Debug.Log($"[InventoryItemData] {totalTransferred}개 아이템 전송 완료");
-    //    Clear();
-    //    return true;
-    //}
-
     /// <summary>
     /// 모든 아이템을 다른 컨테이너로 전송 (부분 성공 지원)
     /// </summary>
@@ -534,18 +479,6 @@ public class InventoryItemData : ScriptableObject, IItemContainer
     {
         int maxSlots = 40; // 최대 Tier 슬롯 수
         slots = new ItemSlotData[maxSlots];
-        // 테스트 아이템
-        //AddItemAtFirstEmpty(4102001, 5);
-        //AddItemAtFirstEmpty(4102031, 3);
-        //AddItemAtFirstEmpty(4102007, 5);
-        //AddItemAtFirstEmpty(4102008, 5);
-        //AddItemAtFirstEmpty(4102009, 10);
-
-        //AddItem(4102001, 5);
-        //AddItem(4102031, 3);
-        //AddItem(4102007, 5);
-        //AddItem(4102008, 5);
-        //AddItem(4102009, 10);
 
         inventoryTier = 0;
         OnInventoryChanged?.Invoke();

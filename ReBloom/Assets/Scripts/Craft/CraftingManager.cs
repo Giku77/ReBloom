@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Cysharp.Threading.Tasks;
+using System.Collections.Generic;
 
 public enum CraftFailReason
 {
@@ -97,14 +98,20 @@ public class CraftingManager
 
     public CraftFailReason Craft(int recipeId)
     {
-        return Craft(recipeId, 1);
+        return Craft(recipeId, 1).reason;
     }
 
-    public CraftFailReason Craft(int recipeId, int amount)
+    public struct CraftResult
+    {
+        public CraftFailReason reason;
+        public int overflowCount;
+    }
+
+    public CraftResult Craft(int recipeId, int amount)
     {
         var check = CanCraft(recipeId, amount);
         if (!check.canCraft)
-            return check.failReason;
+            return new CraftResult { reason = check.failReason };
 
         var recipe = check.recipe;
 
@@ -119,22 +126,13 @@ public class CraftingManager
         //}
 
         int totalProductCount = recipe.productCount * amount;
-        int addedCount = _inventory.AddItem(recipe.productId, totalProductCount);
-
+        _inventory.AddItemWithOverflow(recipe.productId, totalProductCount, out int overflow);
         SoundManager.I?.PlayCrafting();
-
-        if (addedCount < totalProductCount)
+        return new CraftResult
         {
-            // 일부만 인벤토리에 들어감
-            int failedCount = totalProductCount - addedCount;
-
-            // TODO: 나머지는 플레이어 발 밑에 드랍 (ItemSpawner 사용)
-            // await itemSpawner.DropItemWithQuantity(item, playerPos, failedCount);
-
-            return CraftFailReason.NoOutputSpace; // 부분 실패
-        }
-
-        return CraftFailReason.None;
+            reason = overflow > 0 ? CraftFailReason.NoOutputSpace : CraftFailReason.None,
+            overflowCount = overflow
+        };
     }
 
     public int GetMaxCraftable(int recipeId)

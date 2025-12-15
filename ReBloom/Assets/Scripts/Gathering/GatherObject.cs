@@ -9,7 +9,9 @@ public class GatherObject : MonoBehaviour, IInteractable
     private bool isAvailable = true;
     private GatherObjectData gatherObjectData;
     private GatherManager gatherManager;
-    [SerializeField] private InventoryItemData inventoryItemData;
+
+    [SerializeField] private GameInventory inventoryItemData;
+
     private InteractionHighlight highlight;
     private PlayerEquipManager playerEquipManager;
     private int objectNameID;
@@ -64,7 +66,7 @@ public class GatherObject : MonoBehaviour, IInteractable
             return;
         }
 
-        inventoryItemData.AddItem(drops.item.itemID, drops.amount);
+        inventoryItemData.TryAddItemFromWorld(drops.item.itemID, drops.amount); //실패 시 월드 드롭하려면: AddItemFromWorld()
         Debug.Log($"[GatherObject] {drops.item.itemName} {drops.amount}개 획득");
 
         isAvailable = false;

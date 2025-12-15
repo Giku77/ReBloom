@@ -1,4 +1,4 @@
-public interface IInventoryProvider
+﻿public interface IInventoryProvider
 {
     int GetItemCount(int itemId);
     void AddItem(int itemId, int amount);

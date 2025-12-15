@@ -79,11 +79,11 @@ public class PlayerController : MonoBehaviour
 
     //임시 장착 확인용 
     [Header("Equipment")]
-    [SerializeField] private InventoryItemData inventoryItemData;
+    // [SerializeField] private InventoryItemData inventory;
     public PlayerEquipManager playerEquip;
 
     //LSY: 읽기 전용 인벤토리
-    public InventoryItemData Inventory {  get { return inventoryItemData; } }
+    public GameInventory Inventory {  get { return Inventory; } }
 
     [Header("Jump Setting")]
     [SerializeField] private Transform groundCheck;
@@ -228,7 +228,7 @@ public class PlayerController : MonoBehaviour
         if (success)
         {
             int newSlots = inventoryItemData.SlotCount;
-            //Debug.Log($"[PlayerController] {inventoryItemData} 인벤토리 Tier {targetTier}로 확장 완료! (현재 {newSlots}칸)");
+            //Debug.Log($"[PlayerController] {inventory} 인벤토리 Tier {targetTier}로 확장 완료! (현재 {newSlots}칸)");
 
             // TODO: 토스트 메시지 표시
             // ToastManager.I?.Show($"{slotType} 인벤토리 Tier {targetTier} 확장!");
