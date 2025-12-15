@@ -6,7 +6,6 @@ public class DeathBoxHandler : MonoBehaviour
     [Header("References")]
     [SerializeField] private GameInventory playerInventory;
     [SerializeField] private PlayerEquipManager playerEquipManager;
-    [SerializeField] private DeathBoxData deathBoxDataTemplate;
 
     [Header("POPPI Reference")]
     [SerializeField] private InventoryRobotPet poppi; // DogFollower 직접 참조
@@ -55,7 +54,7 @@ public class DeathBoxHandler : MonoBehaviour
         Vector3 spawnPosition = CalculateSpawnPosition();
 
         // 2. 새 DeathBoxData 인스턴스 생성
-        DeathBoxData newDeathBoxData = Instantiate(deathBoxDataTemplate);
+        DeathBoxData newDeathBoxData = ScriptableObject.CreateInstance<DeathBoxData>();
 
         // 3. 인벤토리 → 시체박스 이전
         newDeathBoxData.CreateFromInventory(playerInventory.Container, spawnPosition);

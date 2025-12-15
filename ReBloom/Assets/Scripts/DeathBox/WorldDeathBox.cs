@@ -2,8 +2,6 @@
 
 public class WorldDeathBox : WorldItemContainerBase
 {
-    [Header("DeathBox References")]
-    [SerializeField] private DeathBoxData deathBoxDataRef;
     private DeathBoxData deathBoxData;
 
     // 부모가 요구하는 Container 속성 구현
@@ -16,13 +14,9 @@ public class WorldDeathBox : WorldItemContainerBase
     {
         base.Awake();
 
-        // 런타임 인스턴스 생성
-        if (deathBoxDataRef != null)
-        {
-            deathBoxData = Instantiate(deathBoxDataRef);
-        }
 
-        highlight.promptFormat = "아이템 회수 [E]";
+       deathBoxData = ScriptableObject.CreateInstance<DeathBoxData>();
+       highlight.promptFormat = "아이템 회수 [E]";
     }
 
     /// <summary>
@@ -32,10 +26,9 @@ public class WorldDeathBox : WorldItemContainerBase
     {
         deathBoxData = data;
 
-        // playerInventory 설정
-        if (currentPlayerInventory is InventoryItemData inventory)
+        if (currentPlayerInventory != null)
         {
-            playerInventory = inventory;
+            playerInventory = GameObject.FindFirstObjectByType<GameInventory>();
         }
 
         // 플레이어 찾기
@@ -52,7 +45,7 @@ public class WorldDeathBox : WorldItemContainerBase
     private void OnDestroy()
     {
         // 런타임 SO 정리
-        if (deathBoxData != null && deathBoxData != deathBoxDataRef)
+        if (deathBoxData != null)
         {
             Destroy(deathBoxData);
         }

@@ -235,7 +235,7 @@ public class PlayerEquipManager : MonoBehaviour
                 if (!player.currentShoesEquip)
                     return;
 
-                if (!inventoryItemData.TryAddItemFromWorld(player.currentClothEquip.itemID, 1))
+                if (!inventoryItemData.TryAddItemFromWorld(player.currentShoesEquip.itemID, 1))
                 {
                     Debug.Log("인벤토리 공간이 부족하여 장비를 해제할 수 없습니다.");
                     return;
@@ -247,7 +247,7 @@ public class PlayerEquipManager : MonoBehaviour
                 if (!player.currentToolEquip)
                     return;
 
-                if (!inventoryItemData.TryAddItemFromWorld(player.currentClothEquip.itemID, 1))
+                if (!inventoryItemData.TryAddItemFromWorld(player.currentToolEquip.itemID, 1))
                 {
                     Debug.Log("인벤토리 공간이 부족하여 장비를 해제할 수 없습니다.");
                     return;

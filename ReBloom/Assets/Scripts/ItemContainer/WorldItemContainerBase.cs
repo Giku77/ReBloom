@@ -3,7 +3,7 @@
 public abstract class WorldItemContainerBase : MonoBehaviour, IInteractable
 {
     [Header("Container Settings")]
-    [SerializeField] protected InventoryItemData playerInventory;
+    [SerializeField] protected GameInventory playerInventory;
 
     protected Transform playerTransform;
     protected InteractionHighlight highlight;
@@ -52,7 +52,7 @@ public abstract class WorldItemContainerBase : MonoBehaviour, IInteractable
         if (!Container.HasItems)
             return;
 
-        bool success = ItemTransferUtility.TransferAll(Container, playerInventory);
+        bool success = ItemTransferUtility.TransferAll(Container, playerInventory.Container);
 
         if (success)
             OnTransferComplete();

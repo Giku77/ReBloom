@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 
 public class ItemTransferUtility
 {
@@ -22,20 +23,20 @@ public class ItemTransferUtility
     }
     public static bool TransferAll(IItemContainer from, IItemContainer to)
     {
-        if (!from.HasItems)
+        if (from == null || to == null || !from.HasItems)
             return false;
 
-        bool allSuccess = true;
-
-        foreach (var slot in from.Items)
+        // .ToList() 추가로 복사본 생성
+        foreach (var slot in from.Items.ToList())  // ← 여기!
         {
-            if (slot.itemID <= 0) continue;
-
-            if (!TransferItem(from, to, slot.itemID, slot.count))
-                allSuccess = false;
+            if (slot.itemID > 0)
+            {
+                int added = to.TryAddItem(slot.itemID, slot.count);
+                from.TryRemoveItem(slot.itemID, added);
+            }
         }
 
-        return allSuccess;
+        return true;
     }
 
     // 드래그 앤 드롭도 통합
