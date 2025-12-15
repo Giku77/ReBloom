@@ -159,6 +159,7 @@ public class CraftingUI : UIBase
                 {
                     var pos = player.transform.position + Vector3.up * 0.5f;
                     var itemData = ItemDatabase.I.GetItem(recipe.productId);
+                    SoundManager.I?.PlayCrafting();
                     itemSpawner.DropItemWithQuantity(itemData, pos, recipe.productCount * selectedAmount).Forget();
                 }
             }

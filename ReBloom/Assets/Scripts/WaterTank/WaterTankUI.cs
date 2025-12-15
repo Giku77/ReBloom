@@ -78,7 +78,8 @@ public class WaterTankUI : UIBase
     }
 
     private void OnRetrieveWaterButtonClicked()
-    { 
+    {
+        Debug.Log("[WaterTankUI] 물 회수 버튼 클릭");
         waterTankManager?.RetrieveWater();
     }
 
