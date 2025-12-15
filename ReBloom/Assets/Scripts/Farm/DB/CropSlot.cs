@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public enum CropSlotState
 {
@@ -19,5 +19,6 @@ public class CropSlot
 
     public int wateredCount;    
     // 시각화용
+    public GameObject visualRoot;
     [HideInInspector] public CropVisual visual;
 }

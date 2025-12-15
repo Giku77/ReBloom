@@ -89,9 +89,10 @@ public class FarmBed : MonoBehaviour
         var point = slotPoints[index];
 
         // 기존 비주얼 정리 (Addressables InstantiateAsync를 쓸 경우 ReleaseInstance!)
-        if (slot.visual != null)
+        if (slot.visualRoot != null)
         {
-            FarmPrefabProvider.I.ReleaseAddressableInstance(slot.visual.gameObject);
+            FarmPrefabProvider.I.ReleaseAddressableInstance(slot.visualRoot);
+            slot.visualRoot = null;
             slot.visual = null;
         }
 
@@ -114,8 +115,8 @@ public class FarmBed : MonoBehaviour
             if (go != null) FarmPrefabProvider.I.ReleaseAddressableInstance(go);
             return;
         }
-
-        slot.visual = go != null ? go.GetComponent<CropVisual>() : null;
+        slot.visualRoot = go;
+        slot.visual = go.GetComponentInChildren<CropVisual>(true);
     }
 
     // 단계 변경 시 여기 호출

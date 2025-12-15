@@ -13,6 +13,7 @@ public class FarmUI : UIBase
     private PlayerController currentPlayer;
 
     private int currentCellIndex = -1;
+    private System.Action _plotChangedHandler;
 
     public void Open(FarmBed plot, PlayerController player, int focusCellIndex = -1)
     {
@@ -29,7 +30,11 @@ public class FarmUI : UIBase
             inventoryItemData.OnInventoryChanged += RefreshSeeds;
 
         if (currentPlot != null)
-            currentPlot.OnChanged += () => { RefreshGrid(); if (infoPanel.gameObject.activeSelf) infoPanel.Refresh(); };
+        {
+            _plotChangedHandler = OnPlotChanged;
+            currentPlot.OnChanged += _plotChangedHandler;
+        }
+           
         BindInfoPanelEvents();
 
         if (infoPanel != null)
@@ -56,13 +61,21 @@ public class FarmUI : UIBase
         UIManager.Instance.HideUI(UIType.Farm);
     }
 
+    private void OnPlotChanged()
+    {
+        RefreshGrid();
+        if (infoPanel != null && infoPanel.gameObject.activeSelf)
+            infoPanel.Refresh();
+    }
+
+
     private void Unbind()
     {
         if (inventoryItemData != null)
             inventoryItemData.OnInventoryChanged -= RefreshSeeds;
 
-        if (currentPlot != null)
-            currentPlot.OnChanged -= RefreshGrid;
+        if (currentPlot != null && _plotChangedHandler != null)
+            currentPlot.OnChanged -= _plotChangedHandler;
 
         if (infoPanel != null && _infoPanelBound)
         {
@@ -71,6 +84,8 @@ public class FarmUI : UIBase
             infoPanel.OnUprootClicked -= HandleUprootClicked;
             _infoPanelBound = false;
         }
+
+        _plotChangedHandler = null;
 
         currentPlot = null;
         currentPlayer = null;
