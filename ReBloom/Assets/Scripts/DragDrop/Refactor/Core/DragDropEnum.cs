@@ -7,7 +7,8 @@ public enum DragSourceType
     QuickSlot,
     Equipment,
     Storage,
-    Debug
+    Debug,
+    SeedList
 }
 
 /// <summary>

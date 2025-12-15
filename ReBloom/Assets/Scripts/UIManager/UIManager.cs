@@ -218,4 +218,17 @@ public class UIManager : MonoBehaviour
 
         Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = uiBlocking;
     }
+
+    public T GetUI<T>(UIType type) where T : class, IGameUI
+    {
+        foreach (var kvp in uiDict)
+        {
+            var ui = kvp.Value;
+            if (ui.Type == type && ui is T typedUI)
+            {
+                return typedUI;
+            }
+        }
+        return null;
+    }
 }

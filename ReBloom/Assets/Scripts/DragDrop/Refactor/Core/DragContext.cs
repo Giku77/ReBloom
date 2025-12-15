@@ -1,4 +1,6 @@
-﻿/// <summary>
+﻿using UnityEngine;
+
+/// <summary>
 /// 드래그 컨텍스트 - 드래그 중인 정보를 담는 데이터 클래스
 /// </summary>
 public class DragContext
@@ -13,4 +15,5 @@ public class DragContext
     public bool IsFromInventory => SourceType == DragSourceType.Inventory;
     public bool IsFromStorage => SourceType == DragSourceType.Storage;
     public bool IsFromEquipment => SourceType == DragSourceType.Equipment;
+    public GameObject Ghost;
 }
