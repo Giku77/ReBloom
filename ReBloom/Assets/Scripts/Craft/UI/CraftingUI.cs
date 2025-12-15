@@ -15,7 +15,7 @@ public class CraftingUI : UIBase
     [SerializeField] private ItemSpawner itemSpawner;
 
     [Header("Info References")]
-    [SerializeField] private InventoryItemData inventory;
+    [SerializeField] private GameInventory inventory;
     [SerializeField] private Button craftButton;
     [SerializeField] private TextMeshProUGUI recipeNameText;
     [SerializeField] private TextMeshProUGUI recipeDescText;

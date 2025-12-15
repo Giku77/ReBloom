@@ -6,8 +6,8 @@ public class QuestManager : MonoBehaviour
 
     private QuestDB _db;
     private QuestData _current;
-    private IGameInventory _inventory;
-    public IGameInventory Inventory => _inventory;
+    private GameInventory _inventory;
+    public GameInventory Inventory => _inventory;
 
     private StageDetector _stageDetector;
     public QuestData Current => _current;
@@ -21,7 +21,7 @@ public class QuestManager : MonoBehaviour
 
 
 
-    public void Init(QuestDB db, IGameInventory inventory, StageDetector stageDetector)
+    public void Init(QuestDB db, GameInventory inventory, StageDetector stageDetector)
     {
         _db = db;
         _inventory = inventory;

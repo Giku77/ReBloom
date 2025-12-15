@@ -9,10 +9,16 @@ public class InventoryItemData : ScriptableObject, IItemContainer
 {
     [Header("Settings")]
     [SerializeField] private int inventoryTier = 0;
+    [SerializeField] private int MaxTier = 3;
+    
     [SerializeField] private ItemSlotData[] slots;
 
     // ---- 속성 ----
     public int SlotCount => GetSlotCountForTier(inventoryTier);
+
+    public bool HasLockedSlots => inventoryTier < 3;
+    public int LockedSlotCount => inventoryTier < 3 ? 5 : 0;
+
     public IReadOnlyList<ItemSlotData> Items => GetValidSlots();
 
     public bool HasItems => slots != null;
@@ -92,12 +98,18 @@ public class InventoryItemData : ScriptableObject, IItemContainer
     }
 
     // ---- 티어 시스템 ----
-    public bool ExpandToTier(int targetTier)
+    public bool CanExpandWithChip(int chipTier)
     {
-        if (targetTier <= inventoryTier || targetTier > 3)
+        // 다음 단계가 아니면 실패
+        return inventoryTier + 1 == chipTier && inventoryTier < MaxTier;
+    }
+
+    public bool ExpandWithChip(int chipTier)
+    {
+        if (!CanExpandWithChip(chipTier))
             return false;
 
-        inventoryTier = targetTier;
+        inventoryTier++;
         OnContainerChanged?.Invoke();
         return true;
     }
@@ -228,9 +240,13 @@ public class InventoryItemData : ScriptableObject, IItemContainer
 
     public void Initialize()
     {
-        // 필요한 초기화 로직
-        inventoryTier = 0;
-        OnContainerChanged?.Invoke();
+        // 슬롯 배열만 초기화
+        if (slots == null || slots.Length != 40)
+        {
+            slots = new ItemSlotData[40];
+        }
+
+        OnContainerChanged?.Invoke();  // UI 초기 갱신용
     }
     private void OnEnable()
     {

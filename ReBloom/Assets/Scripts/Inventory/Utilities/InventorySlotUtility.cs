@@ -2,10 +2,7 @@
 
 public class InventorySlotUtility : MonoBehaviour
 {
-    public static bool TryStackItems(
-         InventoryItemData inventory,
-         int sourceSlot,
-         int targetSlot)
+    public static bool TryStackItems(InventoryItemData inventory,int sourceSlot,int targetSlot)
     {
         var source = inventory.GetSlot(sourceSlot);
         var target = inventory.GetSlot(targetSlot);
@@ -21,10 +18,7 @@ public class InventorySlotUtility : MonoBehaviour
         return true;
     }
 
-    public static bool SplitStack(
-        InventoryItemData inventory,
-        int sourceSlot,
-        int amount)
+    public static bool SplitStack(InventoryItemData inventory,int sourceSlot,int amount)
     {
         // 분할 로직...
         return true;

@@ -7,7 +7,6 @@ public class GameInventory : MonoBehaviour, IGameInventory
 {
     //Core Systems
     private InventoryItemData containerData;     // 순수 데이터
-    private InventoryService inventoryService;   // 비즈니스 로직
     private ItemDropService dropService;         // 드롭 처리
     private InventoryMessageService uiService;        // UI 처리
 
@@ -46,10 +45,6 @@ public class GameInventory : MonoBehaviour, IGameInventory
     }
     private void InitializeServices()
     {
-        // 자동으로 컴포넌트 찾기
-        if (inventoryService == null)
-            inventoryService = GetComponent<InventoryService>();
-
         if (dropService == null)
             dropService = GetComponent<ItemDropService>();
 
@@ -84,7 +79,7 @@ public class GameInventory : MonoBehaviour, IGameInventory
         if (GetItemCount(itemID) < count)
             return false;
 
-        target.TryAddItem(itemID, count, out int added);  // 인터페이스 메서드명
+        int added = target.TryAddItem(itemID, count);  // 인터페이스 메서드명
         if (added > 0)
         {
             inventoryData.TryRemoveItem(itemID, added);  // inventoryData 사용
@@ -145,7 +140,6 @@ public class GameInventory : MonoBehaviour, IGameInventory
         return added;
     }
 
-
     /// <summary>
     /// 드롭 없이 가득 찰 때까지만 Add 하고 끝내는 경우
     /// 하나라도 overflow 발생 시 false
@@ -169,15 +163,6 @@ public class GameInventory : MonoBehaviour, IGameInventory
 
         uiService?.ShowWarning("인벤토리가 가득 찼습니다!");
         return false;
-    }
-
-    private void DropOverflow(int itemId, int amount)
-    {
-        var item = ItemDatabase.I.GetItem(itemId);
-        if (item == null) return;
-
-        Vector3 dropPos = playerController.transform.position + Vector3.up * 0.5f;
-        itemSpawner.DropItemWithQuantity(item, dropPos, amount).Forget<GameObject>();
     }
 
     /// <summary>
@@ -204,8 +189,10 @@ public class GameInventory : MonoBehaviour, IGameInventory
         //equipmanager가 처리
         return playerEquipmanager.ToggleEquip(itemId);
     }
-
-
+    public bool TryExpandWithChip(int tier)
+    {
+        return inventoryData.ExpandWithChip(tier);
+    }
     #region 아이템 & 카테고리 분류
 
     /// <summary>

@@ -198,15 +198,10 @@ public class ConsumableItemData : ItemBase
     //    return true;
     //}
 
-    public bool ApplyExpansionChip(PlayerController playerController)
+    public bool ApplyExpansionChip(PlayerController player)
     {
-        int mainCat = M_Cat[entity];
-        if (mainCat == (int)ConsumableCategory.ExpansionChip)
-        {
-            bool success = playerController.ExpandInventory(Tier[entity]);
-            return success;
-        }
-        return false;
+        int chipTier = Tier[entity]; // 이 칩이 몇 티어용인지
+        return player.Inventory.TryExpandWithChip(chipTier);
     }
     /// <summary>
     /// Addressable로 아이콘 비동기 로드

@@ -3,7 +3,7 @@
 public class WaterSource : MonoBehaviour, IInteractable
 {
     [Header ("Reference")]
-    [SerializeField] private InventoryItemData inventoryItemData;
+    [SerializeField] private GameInventory inventoryItemData;
 
     private bool Available => inventoryItemData.HasItem(4102035, 1);
     private InteractionHighlight highlight;
@@ -42,6 +42,6 @@ public class WaterSource : MonoBehaviour, IInteractable
         if (inventoryItemData == null) return;
 
         inventoryItemData.RemoveItem(4102035, 1);
-        inventoryItemData.AddItem(4002001, 1);
+        inventoryItemData.AddItemFromWorld(4002001, 1);
     }
 }

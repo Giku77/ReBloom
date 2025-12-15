@@ -10,7 +10,7 @@ public class GatherObject : MonoBehaviour, IInteractable
     private GatherObjectData gatherObjectData;
     private GatherManager gatherManager;
 
-    [SerializeField] private GameInventory inventoryItemData;
+    private GameInventory inventoryItemData;
 
     private InteractionHighlight highlight;
     private PlayerEquipManager playerEquipManager;
@@ -28,6 +28,7 @@ public class GatherObject : MonoBehaviour, IInteractable
         highlight = GetComponent<InteractionHighlight>();
 
         playerEquipManager = FindFirstObjectByType<PlayerEquipManager>();
+        inventoryItemData = GameObject.FindFirstObjectByType<GameInventory>();
     }
 
     private void Update()

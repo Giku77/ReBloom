@@ -3,7 +3,7 @@
 public class InventoryMessageService : MonoBehaviour
 {
     [SerializeField] private ItemToastMessageUI itemToastUI;
-    [SerializeField] private MessageUI messageUI;
+    //[SerializeField] private MessageUI messageUI;
 
     public void ShowItemAcquired(ItemBase item, int count)
     {
@@ -18,14 +18,13 @@ public class InventoryMessageService : MonoBehaviour
 
     public void ShowInventoryFull(int added, int requested)
     {
-        messageUI.Show(
-            $"인벤토리 부족! {added}/{requested}개만 획득",
-            Color.yellow
+        itemToastUI.ShowWarning(
+            $"인벤토리 부족! {added}/{requested}개만 획득"
         );
     }
 
     public void ShowWarning(string message)
     {
-        messageUI.Show(message, Color.yellow);
+        itemToastUI.ShowWarning(message);
     }
 }

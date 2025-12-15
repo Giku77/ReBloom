@@ -22,7 +22,7 @@ public class DeathBoxData : ItemContainerBase
         deathPosition = position;
         deathTime = DateTime.Now;
 
-        inventory.TransferAllTo(this);
+        ItemTransferUtility.TransferAll(inventory, this);
 
         Debug.Log($"[DeathBox] 위치 {position}에 시체박스 생성됨");
     }

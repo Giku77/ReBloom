@@ -119,7 +119,7 @@ public abstract class ItemContainerBase : ScriptableObject, IItemContainer
         int availableCount = GetItemCount(itemID);
         if (availableCount < count) return false;
 
-        int addedCount = target.AddItem(itemID, count);
+        int addedCount = target.TryAddItem(itemID, count);
 
         if (addedCount > 0)
         {
@@ -142,7 +142,7 @@ public abstract class ItemContainerBase : ScriptableObject, IItemContainer
 
         foreach (var slot in itemsCopy)
         {
-            int addedCount = target.AddItem(slot.itemID, slot.count);
+            int addedCount = target.TryAddItem(slot.itemID, slot.count);
 
             if (addedCount > 0)
             {

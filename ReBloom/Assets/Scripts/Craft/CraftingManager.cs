@@ -23,9 +23,9 @@ public struct CraftCheckResult
 public class CraftingManager
 {
     private readonly CraftRecipeDB _recipeDb;
-    private readonly InventoryItemData _inventory;
+    private readonly GameInventory _inventory;
 
-    public CraftingManager(CraftRecipeDB recipeDb, InventoryItemData inventory)
+    public CraftingManager(CraftRecipeDB recipeDb, GameInventory inventory)
     {
         _recipeDb = recipeDb;
         _inventory  = inventory;
@@ -127,12 +127,14 @@ public class CraftingManager
 
         int totalProductCount = recipe.productCount * amount;
         _inventory.AddItemWithOverflow(recipe.productId, totalProductCount, out int overflow);
-        SoundManager.I?.PlayCrafting();
+
         return new CraftResult
         {
             reason = overflow > 0 ? CraftFailReason.NoOutputSpace : CraftFailReason.None,
-            overflowCount = overflow
-        };
+        _inventory.AddItemWithOverflow(recipe.productId, totalProductCount, out int overflow);
+        SoundManager.I?.PlayCrafting();
+        var overflow = totalProductCount - _inventory.AddItemFromWorld(recipe.productId, totalProductCount);
+
     }
 
     public int GetMaxCraftable(int recipeId)

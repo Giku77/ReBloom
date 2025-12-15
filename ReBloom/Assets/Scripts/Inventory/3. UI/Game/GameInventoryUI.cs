@@ -48,7 +48,7 @@ public class GameInventoryUI : UIBase
 
     private List<Transform> emptySlotList;
     private List<Transform> lockSlotList;
-    private int lastTier = -1;
+    private int lastTotalSlotCount = -1;
 
     #region 상태 변수
     private InventorySlotType currentType = InventorySlotType.Consumable;
@@ -82,8 +82,6 @@ public class GameInventoryUI : UIBase
             return;
         }
 
-        // 이벤트 구독
-        inventoryData.OnInventoryChanged += RefreshUI;
         DragDropManager.OnDragFeedback += HandleDragFeedback;
         DragDropManager.OnDragFeedback += HandleTrashFeedback;
         base.Awake();
@@ -100,6 +98,7 @@ public class GameInventoryUI : UIBase
         //인벤토리 UI가 열릴 때 정적 이벤트 발생
         InventroyEventSystem.InventoryOpened();
         removeGradientGameObject.SetActive(false);
+        inventoryData.OnContainerChanged += RefreshUI;
         EventSystem currentEventSystem = EventSystem.current;
         if (currentEventSystem == null)
         {
@@ -122,16 +121,15 @@ public class GameInventoryUI : UIBase
 
     private void OnDisable()
     {
+        inventoryData.OnContainerChanged -= RefreshUI;
+
         //인벤토리 UI가 닫힐 때 정적 이벤트 발생
+
         InventroyEventSystem.InventoryClosed();
     }
 
     private void OnDestroy()
     {
-        if (inventoryData != null)
-        {
-            inventoryData.OnInventoryChanged -= RefreshUI;
-        }
         DragDropManager.OnDragFeedback -= HandleDragFeedback;
         DragDropManager.OnDragFeedback -= HandleTrashFeedback;
     }
@@ -201,22 +199,21 @@ public class GameInventoryUI : UIBase
         }
 
         // ===== 1단계: 현재 필요한 총 슬롯 개수 계산 =====
-        int baseSlots = inventoryData.SlotCount; // Tier에 따라 10/20/30/40
-        int lockSlots = (inventoryData.InventoryTier < 3) ? 5 : 0;
+        int baseSlots = inventoryData.SlotCount;
+        int lockSlots = inventoryData.LockedSlotCount;
         int totalRequiredSlots = baseSlots + lockSlots;
 
         //Debug.Log($"[GameInventoryUI] 슬롯 체크 - Tier: {inventoryData.InventoryTier}, " + $"기본: {baseSlots}, 잠금: {lockSlots}, 총: {totalRequiredSlots}");
+        bool slotStructureChanged = lastTotalSlotCount != totalRequiredSlots;
 
         // ===== 2단계: 티어가 변경되었으면 잠금 슬롯 제거 =====
-        if (lastTier != inventoryData.InventoryTier && lockSlotList.Count > 0)
+        if (slotStructureChanged && lockSlotList.Count > 0)
         {
-            //Debug.Log($"[GameInventoryUI] 티어 변경 감지 ({lastTier} -> {inventoryData.InventoryTier}), 기존 잠금 슬롯 제거");
-
             foreach (var lockSlot in lockSlotList)
             {
                 if (lockSlot != null)
                 {
-                    emptySlotList.Remove(lockSlot); // emptySlotList에서도 제거
+                    emptySlotList.Remove(lockSlot);
                     Destroy(lockSlot.gameObject);
                 }
             }
@@ -224,7 +221,7 @@ public class GameInventoryUI : UIBase
         }
 
         // 현재 티어 저장
-        lastTier = inventoryData.InventoryTier;
+        lastTotalSlotCount = totalRequiredSlots;
 
         // ===== 3단계: 기본 슬롯 추가 (부족한 만큼만) =====
         int currentBaseSlots = emptySlotList.Count; // 현재는 기본 슬롯만 있음

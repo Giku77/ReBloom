@@ -32,8 +32,19 @@ public class ItemToastMessageUI : MonoBehaviour
         SetupUI(obj, message, icon);
         PlayToastAnimation(obj);
     }
+    public void ShowWarning(string message)
+    {
+        GameObject obj = Instantiate(messageItemPrefab, messageContainer);
+        activeMessages.Enqueue(obj);
 
-    private void SetupUI(GameObject obj, string message, Sprite icon)
+        if (activeMessages.Count > maxMessageCount)
+            RemoveOldest();
+
+        SetupUI(obj, message);
+        PlayToastAnimation(obj);
+    }
+
+    private void SetupUI(GameObject obj, string message, Sprite icon = null)
     {
         var text = obj.GetComponentInChildren<TextMeshProUGUI>();
         var image = obj.GetComponentInChildren<Image>();
