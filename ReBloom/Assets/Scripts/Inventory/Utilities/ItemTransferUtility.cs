@@ -10,7 +10,8 @@ public class ItemTransferUtility
     {
         if (from.GetItemCount(itemID) < count) return false;
 
-        if (!to.TryAddItem(itemID, count, out int added)) return false;
+        var added = to.TryAddItem(itemID, count);
+        if (added <= 0) return false;
 
         if (added > 0)
         {

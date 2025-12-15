@@ -42,20 +42,7 @@ public class ItemToastMessage : MonoBehaviour
         // UI 초기화
         messageUI.Initialize(maxMessageCount, messageDuration);
 
-        // ItemBase 기반 이벤트 구독
-        inventoryData.OnItemToastMessage += OnItemAcquired;
-        inventoryData.OnWarningMessage += OnWarningMessage;
-
         Debug.Log("[ItemToastMessage] 이벤트 구독 완료");
-    }
-
-    private void OnDestroy()
-    {
-        if (inventoryData != null)
-        {
-            inventoryData.OnItemToastMessage -= OnItemAcquired;
-            inventoryData.OnWarningMessage -= OnWarningMessage;
-        }
     }
 
     // ItemBase 처리 이벤트 핸들러
