@@ -231,4 +231,13 @@ public class UIManager : MonoBehaviour
         }
         return null;
     }
+
+    public bool IsUIOpen(UIType type)
+    {
+        if (uiDict.TryGetValue(type, out var ui))
+        {
+            return ui.IsOpen;
+        }
+        return false;
+    }
 }

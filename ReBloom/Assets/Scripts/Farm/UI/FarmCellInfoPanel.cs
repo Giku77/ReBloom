@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class FarmCellInfoPanel : MonoBehaviour
@@ -13,6 +14,7 @@ public class FarmCellInfoPanel : MonoBehaviour
     [SerializeField] private Button waterBtn;
     [SerializeField] private Button harvestBtn;
     [SerializeField] private Button uprootBtn; // “파종(뽑기)” 같은 의미로 쓰면 됨
+    [SerializeField] private Button closeBtn;
 
     private int currentIndex = -1;
     private FarmBed plot;
@@ -21,11 +23,42 @@ public class FarmCellInfoPanel : MonoBehaviour
     public event Action<int> OnHarvestClicked;
     public event Action<int> OnUprootClicked;
 
+    private float _nextRefreshTime;
+    private void Update()
+    {
+        if (!gameObject.activeInHierarchy) return;
+        if (Time.time >= _nextRefreshTime)
+        {
+            _nextRefreshTime = Time.time + 1f; 
+            Refresh();
+        }
+        if (Keyboard.current == null) return;
+
+        if (Keyboard.current.rKey.wasPressedThisFrame)
+        {
+            if (plot == null || currentIndex < 0) return;
+
+            var cell = plot.Slots[currentIndex];
+            if (cell == null || cell.state != CropSlotState.Growing) return;
+
+            if (!plot.FarmDB.TryGet(cell.cropId, out var cropData)) return;
+
+            var stage = cropData.stages[cell.stageIndex];
+
+            cell.stageTimer = stage.needTime;
+
+            cell.wateredCount = stage.needWater;
+
+            Refresh();
+        }
+    }
+
     private void Awake()
     {
         if (waterBtn) waterBtn.onClick.AddListener(() => { if (currentIndex >= 0) OnWaterClicked?.Invoke(currentIndex); });
         if (harvestBtn) harvestBtn.onClick.AddListener(() => { if (currentIndex >= 0) OnHarvestClicked?.Invoke(currentIndex); });
         if (uprootBtn) uprootBtn.onClick.AddListener(() => { if (currentIndex >= 0) OnUprootClicked?.Invoke(currentIndex); });
+        if (closeBtn) closeBtn.onClick.AddListener(Hide);
     }
 
     public void Show(int cellIndex, FarmBed plot)
@@ -72,9 +105,30 @@ public class FarmCellInfoPanel : MonoBehaviour
                     break;
             }
             if (remainText)
-                remainText.text = $"남은 시간 : {cell.stageTimer}초";
+            {
+                if (cell.state == CropSlotState.Growing)
+                {
+                    var stage = cropData.stages[cell.stageIndex];
+                    float remainTime = stage.needTime - cell.stageTimer;
+                    remainText.text = $"남은 시간 : {Mathf.CeilToInt(remainTime)}초";
+                }
+                else
+                {
+                    remainText.text = $"남은 시간 : -";
+                }
+            }
             if (waterText)
-                waterText.text = $"필요한 물 : {cropData.stages[cell.stageIndex].needWater}회";
+            {
+                if (cell.state == CropSlotState.Growing)
+                {
+                    var stage = cropData.stages[cell.stageIndex];
+                    waterText.text = $"물 필요량 : {cell.wateredCount} / {stage.needWater}";
+                }
+                else
+                {
+                    waterText.text = $"물 필요량 : -";
+                }
+            }
         }
         if (waterBtn) waterBtn.gameObject.SetActive(cell.state == CropSlotState.Growing);
         if (harvestBtn) harvestBtn.gameObject.SetActive(cell.state == CropSlotState.Mature);

@@ -1,10 +1,13 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.ProBuilder.Shapes;
 
 public class FarmBedInteractable : BuildingInteractableBase
 {
     [SerializeField] private FarmBed farmBed;
     [SerializeField] private LayerMask farmSlotMask;
+    [SerializeField] private Transform cameraFocus;
+    private ThirdPersonCamera tpsCam;
 
     private FarmUI farmUI;
 
@@ -13,32 +16,39 @@ public class FarmBedInteractable : BuildingInteractableBase
     private void Start()
     {
         farmUI = UIManager.Instance.GetUI<FarmUI>(UIType.Farm);
+        tpsCam = Camera.main.GetComponent<ThirdPersonCamera>();
     }
 
     public override void Interact(PlayerController player)
     {
-        if (farmBed == null || player == null) return;
+        if (farmBed == null || player == null || tpsCam == null) return;
 
-        int focus = GetTargetSlotIndex(); // 바라본 칸이 있으면 그 칸으로 포커스
-        OpenSeedUI(player, focus);
+        if (UIManager.Instance != null && UIManager.Instance.IsUIOpen(UIType.Farm))
+            return;
+
+        var focus = cameraFocus != null ? cameraFocus : this.transform;
+        tpsCam?.EnterTopDown(focus, topDistance: 5f, topHeight: 0f);
+
+        //int focus = GetTargetSlotIndex(); // 바라본 칸이 있으면 그 칸으로 포커스
+        OpenSeedUI(player, -1);
     }
 
 
     private void Update()
     {
-        if (farmBed == null) return;
-        if (UIManager.Instance != null && UIManager.Instance.IsBlockedInput) return; // UI 열리면 하이라이트/레이캐스트 멈추기
+        //if (farmBed == null) return;
+        //if (UIManager.Instance != null && UIManager.Instance.IsBlockedInput) return; // UI 열리면 하이라이트/레이캐스트 멈추기
 
-        int idx = GetTargetSlotIndex();
-        if (idx == lastHighlightedIndex) return;
+        //int idx = GetTargetSlotIndex();
+        //if (idx == lastHighlightedIndex) return;
 
-        if (lastHighlightedIndex != -1)
-            farmBed.SetSlotHighlighted(lastHighlightedIndex, false);
+        //if (lastHighlightedIndex != -1)
+        //    farmBed.SetSlotHighlighted(lastHighlightedIndex, false);
 
-        if (idx != -1)
-            farmBed.SetSlotHighlighted(idx, true);
+        //if (idx != -1)
+        //    farmBed.SetSlotHighlighted(idx, true);
 
-        lastHighlightedIndex = idx;
+        //lastHighlightedIndex = idx;
     }
 
     private int GetTargetSlotIndex()

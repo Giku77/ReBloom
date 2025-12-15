@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class FarmBed : MonoBehaviour
@@ -204,6 +204,23 @@ public class FarmBed : MonoBehaviour
         }
 
         // 슬롯 초기화
+        slot.state = CropSlotState.Empty;
+        slot.cropId = 0;
+        slot.stageIndex = 0;
+        slot.stageTimer = 0;
+        slot.wateredCount = 0;
+
+        UpdateSlotVisual(index);
+        OnChanged?.Invoke();
+    }
+
+    public void Uproot(int index)
+    {
+        if (index < 0 || index >= slots.Length) return;
+
+        var slot = slots[index];
+        if (slot.state == CropSlotState.Empty) return;
+
         slot.state = CropSlotState.Empty;
         slot.cropId = 0;
         slot.stageIndex = 0;

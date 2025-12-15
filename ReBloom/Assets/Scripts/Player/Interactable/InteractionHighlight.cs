@@ -26,6 +26,32 @@ public class InteractionHighlight : MonoBehaviour
     public bool disableHighlight = false;
     public bool disableOutline = false;
 
+    private bool _suppressed;      
+    private bool _wantPrompt;
+
+    private bool ShouldSuppressPrompt()
+    {
+        return UIManager.Instance != null && UIManager.Instance.IsInUIMode;
+    }
+
+    private void UpdatePromptSuppression()
+    {
+        bool suppress = ShouldSuppressPrompt();
+
+        if (suppress && !_suppressed)
+        {
+            _suppressed = true;
+            HidePrompt();
+        }
+        else if (!suppress && _suppressed)
+        {
+            _suppressed = false;
+
+            if (_wantPrompt)
+                ShowPrompt();
+        }
+    }
+
     private void Awake()
     {
         highlightLight = gameObject.AddComponent<Light>();
@@ -80,12 +106,18 @@ public class InteractionHighlight : MonoBehaviour
                 Vector3.up
             );
         }
+        UpdatePromptSuppression();
     }
 
     public void Show() 
     {
         ShowHighlightOnly();
-        ShowPrompt();
+        _wantPrompt = true;
+        if (!ShouldSuppressPrompt())
+        {
+            Debug.Log($"[InteractionHighlight] Prompt not suppressed, showing prompt");
+            ShowPrompt();
+        }
     }
 
     /// <summary>빛/Emission만 켜기 (텍스트는 안 건드림)</summary>
@@ -130,6 +162,8 @@ public class InteractionHighlight : MonoBehaviour
     public void Hide()
     {
         if (isPermanent) return;
+
+        _wantPrompt = false;
 
         if (!disableHighlight && isHighlighted)
         {

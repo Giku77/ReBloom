@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -40,6 +40,13 @@ public class FarmCellSlotUI : MonoBehaviour, IPointerClickHandler, IDropTarget
 
         // stageIcon 갱신도 여기서:
         // - slot.crop / slot.stageIndex 기반으로 Addressables 스프라이트 로딩해서 넣으면 됨
+        if (stageIcon)
+        {
+            if (slot != null && slot.state != CropSlotState.Growing)
+            {
+
+            }
+        }
     }
 
     public void SetSelected(bool selected)

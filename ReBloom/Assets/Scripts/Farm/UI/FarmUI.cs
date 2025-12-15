@@ -1,4 +1,4 @@
-using Unity.VisualScripting;
+﻿using Unity.VisualScripting;
 using UnityEngine;
 
 public class FarmUI : UIBase
@@ -29,7 +29,11 @@ public class FarmUI : UIBase
             inventoryItemData.OnInventoryChanged += RefreshSeeds;
 
         if (currentPlot != null)
-            currentPlot.OnChanged += RefreshGrid;
+            currentPlot.OnChanged += () => { RefreshGrid(); if (infoPanel.gameObject.activeSelf) infoPanel.Refresh(); };
+        BindInfoPanelEvents();
+
+        if (infoPanel != null)
+            infoPanel.Hide();
 
         RefreshSeeds();
         RefreshGrid();
@@ -42,6 +46,10 @@ public class FarmUI : UIBase
 
     public override void Hide()
     {
+        Debug.Log("[FarmUI] Hide called.");
+        var tpsCam = Camera.main.GetComponent<ThirdPersonCamera>();
+        tpsCam?.ExitTopDown();
+
         Unbind();
         infoPanel.Hide();
         base.Hide();
@@ -56,7 +64,14 @@ public class FarmUI : UIBase
         if (currentPlot != null)
             currentPlot.OnChanged -= RefreshGrid;
 
-        //inventoryItemData = null;
+        if (infoPanel != null && _infoPanelBound)
+        {
+            infoPanel.OnWaterClicked -= HandleWaterClicked;
+            infoPanel.OnHarvestClicked -= HandleHarvestClicked;
+            infoPanel.OnUprootClicked -= HandleUprootClicked;
+            _infoPanelBound = false;
+        }
+
         currentPlot = null;
         currentPlayer = null;
         currentCellIndex = -1;
@@ -84,6 +99,68 @@ public class FarmUI : UIBase
         SetFocusCell(cellIndex);
     }
 
+    private bool _infoPanelBound;
+    private void BindInfoPanelEvents()
+    {
+        if (infoPanel == null) return;
+        if (_infoPanelBound) return;
+
+        infoPanel.OnWaterClicked += HandleWaterClicked;
+        infoPanel.OnHarvestClicked += HandleHarvestClicked;
+        infoPanel.OnUprootClicked += HandleUprootClicked;
+
+        _infoPanelBound = true;
+    }
+
+    private void HandleWaterClicked(int cellIndex)
+    {
+        if (currentPlot == null) return;
+
+        if (!currentPlot.CanWater(cellIndex))
+        {
+            ToastMessageUI.Instance?.Show("지금은 물을 줄 수 없습니다.");
+            return;
+        }
+
+        currentPlot.Water(cellIndex);
+
+        RefreshGrid();
+        infoPanel.Refresh();
+        ToastMessageUI.Instance?.Show("물을 주었습니다.");
+    }
+
+    private void HandleHarvestClicked(int cellIndex)
+    {
+        if (currentPlot == null || currentPlayer == null) return;
+
+        if (!currentPlot.CanHarvest(cellIndex))
+        {
+            ToastMessageUI.Instance?.Show("아직 수확할 수 없습니다.");
+            return;
+        }
+
+        currentPlot.Harvest(cellIndex, currentPlayer);
+
+        RefreshGrid();
+        infoPanel.Hide(); 
+        ToastMessageUI.Instance?.Show("수확 완료!");
+    }
+
+    private void HandleUprootClicked(int cellIndex)
+    {
+        if (currentPlot == null) return;
+
+        var slot = currentPlot.GetSlot(cellIndex);
+        if (slot == null || slot.state == CropSlotState.Empty)
+            return;
+
+        currentPlot.Uproot(cellIndex);
+
+        RefreshGrid();
+        infoPanel.Hide();
+        ToastMessageUI.Instance?.Show("뽑았습니다.");
+    }
+
     private void SetFocusCell(int cellIndex)
     {
         if (currentPlot == null) return;
@@ -91,6 +168,13 @@ public class FarmUI : UIBase
 
         currentCellIndex = cellIndex;
         var cell = currentPlot.Slots[cellIndex];
+        if (cell == null || cell.state == CropSlotState.Empty)
+        {
+            infoPanel.Hide();
+            ToastMessageUI.Instance?.Show("자라고 있는 씨앗이 없습니다.");
+            return;
+        }
+
         infoPanel.Show(cellIndex, currentPlot);
 
         // 원하면 하이라이트도 UI에서 제어 가능
@@ -112,28 +196,24 @@ public class FarmUI : UIBase
     {
         if (inventoryItemData == null || currentPlot == null) return;
 
-        // 1) 씨앗 -> 작물 row 찾기
         if (!currentPlot.FarmDB.TryGetBySeedId(seedItemId, out var cropRow))
         {
-            ToastMessageUI.Instance?.Show("이 씨앗은 심을 수 없어요.");
+            ToastMessageUI.Instance?.Show("이 씨앗은 심을 수 없습니다.");
             return;
         }
 
-        // 2) 심을 수 있는지 체크
         if (!currentPlot.CanPlant(cellIndex, cropRow.cropId))
         {
-            ToastMessageUI.Instance?.Show("여기에는 심을 수 없어요.");
+            ToastMessageUI.Instance?.Show("여기에는 심을 수 없습니다.");
             return;
         }
 
-        // 3) 인벤에서 씨앗 차감
         if (!inventoryItemData.RemoveItem(seedItemId, 1))
         {
             ToastMessageUI.Instance?.Show("씨앗이 부족합니다.");
             return;
         }
 
-        // 4) 심기
         currentPlot.Plant(cellIndex, cropRow.cropId);
 
         ToastMessageUI.Instance?.Show($"{cropRow.cropName} 심기 완료!");
