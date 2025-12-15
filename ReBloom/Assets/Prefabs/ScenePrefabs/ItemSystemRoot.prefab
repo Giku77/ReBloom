@@ -3996,6 +3996,7 @@ MonoBehaviour:
   thirstGauge: {fileID: 5589445518330811118}
   hungerGauge: {fileID: 6683372716764508135}
   tempText: {fileID: 1256427597980186049}
+  bodyTemperatureImage: {fileID: 0}
   pollutionText: {fileID: 9168448003553743445}
   hungerText: {fileID: 1700003397094115152}
   thirstText: {fileID: 6213393285800315695}
@@ -37615,9 +37616,25 @@ PrefabInstance:
       value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 4333611954315479635, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
+      propertyPath: flashlight
+      value: 
+      objectReference: {fileID: 4653355512628885537}
+    - target: {fileID: 4333611954315479635, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
+      propertyPath: lightRange
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 4333611954315479635, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
+      propertyPath: lightSource
+      value: 
+      objectReference: {fileID: 1818827421735998096}
+    - target: {fileID: 4333611954315479635, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
       propertyPath: followTarget
       value: 
       objectReference: {fileID: 8380984595686093257}
+    - target: {fileID: 4333611954315479635, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
+      propertyPath: lightIntensity
+      value: 15
+      objectReference: {fileID: 0}
     - target: {fileID: 4333611954315479635, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
       propertyPath: navSampleRadius
       value: 5
@@ -37722,13 +37739,120 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 8380984595686093257}
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5675025705955781145, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4653355512628885537}
+    - targetCorrespondingSourceObject: {fileID: 5675025705955781145, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7969838468859233393}
     - targetCorrespondingSourceObject: {fileID: 396325419089299037, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5042424970206599058}
+    - targetCorrespondingSourceObject: {fileID: 396325419089299037, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7330914199151708089}
   m_SourcePrefab: {fileID: 100100000, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
 --- !u!4 &773867449937303183 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6183543377561156633, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
+  m_PrefabInstance: {fileID: 6876169423783226006}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1273588950337061007 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5675025705955781145, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
+  m_PrefabInstance: {fileID: 6876169423783226006}
+  m_PrefabAsset: {fileID: 0}
+--- !u!108 &4653355512628885537
+Light:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1273588950337061007}
+  m_Enabled: 1
+  serializedVersion: 11
+  m_Type: 2
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Intensity: 1
+  m_Range: 10
+  m_SpotAngle: 30
+  m_InnerSpotAngle: 21.80208
+  m_CookieSize: 10
+  m_Shadows:
+    m_Type: 0
+    m_Resolution: -1
+    m_CustomResolution: -1
+    m_Strength: 1
+    m_Bias: 0.05
+    m_NormalBias: 0.4
+    m_NearPlane: 0.2
+    m_CullingMatrixOverride:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_UseCullingMatrixOverride: 0
+  m_Cookie: {fileID: 0}
+  m_DrawHalo: 0
+  m_Flare: {fileID: 0}
+  m_RenderMode: 0
+  m_CullingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_RenderingLayerMask: 1
+  m_Lightmapping: 4
+  m_LightShadowCasterMode: 0
+  m_AreaSize: {x: 1, y: 1}
+  m_BounceIntensity: 1
+  m_ColorTemperature: 6570
+  m_UseColorTemperature: 0
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_UseBoundingSphereOverride: 0
+  m_UseViewFrustumForShadowCasterCull: 1
+  m_ForceVisible: 0
+  m_ShadowRadius: 0
+  m_ShadowAngle: 0
+  m_LightUnit: 1
+  m_LuxAtDistance: 1
+  m_EnableSpotReflector: 1
+--- !u!114 &7969838468859233393
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1273588950337061007}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Version: 3
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_LightLayerMask: 1
+  m_RenderingLayers: 1
+  m_CustomShadowLayers: 0
+  m_ShadowLayerMask: 1
+  m_ShadowRenderingLayers: 1
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
+--- !u!4 &1818827421735998096 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5066772024065538054, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
   m_PrefabInstance: {fileID: 6876169423783226006}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &6106407099200730023 stripped
@@ -37753,6 +37877,20 @@ GameObject:
   m_PrefabInstance: {fileID: 6876169423783226006}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &5042424970206599058
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6551902338951867595}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9fc9c2255cc3d814a97d6839fceb893a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetRenderer: {fileID: 6359472452507413141}
+  defaultIntensity: 15
+--- !u!114 &7330914199151708089
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
