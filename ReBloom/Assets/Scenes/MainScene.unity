@@ -1128,6 +1128,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2792169698682505918, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
+      propertyPath: customCameraForSimulationOfLods
+      value: 
+      objectReference: {fileID: 366669684}
     - target: {fileID: 3634903024588441059, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1167,7 +1171,7 @@ PrefabInstance:
     - target: {fileID: 4002370204006414176, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: -6734620852318575487, guid: d22c3060bafc13e4da82ba0b757365a0, type: 3}
+      objectReference: {fileID: 0}
     - target: {fileID: 4466063604468141699, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1379,13 +1383,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 4141448024897168684, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1085942983}
-    - targetCorrespondingSourceObject: {fileID: 4141448024897168684, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1085942982}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
 --- !u!114 &903014005 stripped
 MonoBehaviour:
@@ -1487,157 +1485,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 59bf6f93a384f9e41b45c36fa65e247f, type: 3}
---- !u!1 &1085942980 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4141448024897168684, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
-  m_PrefabInstance: {fileID: 903014004}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1085942982
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1085942980}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: df4a344429936c44486b3ad2f611c409, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  responsibleUlod: {fileID: 1085942983}
-  idOfOriginalMeshItemOfThisInResponsibleUlod: 0
-  lastLods:
-  - {fileID: 4300000, guid: ad80bc88bc0c950439b47ff149e136d8, type: 2}
-  - {fileID: 4300000, guid: ad80bc88bc0c950439b47ff149e136d8, type: 2}
-  - {fileID: 4300000, guid: db5996673aec8e540b036c9cfc5992c8, type: 2}
-  - {fileID: 4300000, guid: 78c0afa68702e634693e9268fca17837, type: 2}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
---- !u!114 &1085942983
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1085942980}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 447cf81bd06af284781dfd4985756c5c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentScannedMeshesList:
-  - originalGameObject: {fileID: 1085942980}
-    originalSkinnedMeshRenderer: {fileID: 1085942984}
-    originalMeshFilter: {fileID: 0}
-    originalMeshRenderer: {fileID: 0}
-    allMeshLods:
-    - {fileID: 4300000, guid: ad80bc88bc0c950439b47ff149e136d8, type: 2}
-    - {fileID: 4300000, guid: ad80bc88bc0c950439b47ff149e136d8, type: 2}
-    - {fileID: 4300000, guid: db5996673aec8e540b036c9cfc5992c8, type: 2}
-    - {fileID: 4300000, guid: 78c0afa68702e634693e9268fca17837, type: 2}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    allMeshLodsPaths:
-    - Assets/Models/Character_output.fbx
-    - Assets/Plugins/MT Assets/_AssetsData/Meshes/LODs_1/LOD1_639013062013418790.asset
-    - Assets/Plugins/MT Assets/_AssetsData/Meshes/LODs_2/LOD2_639013062013418790.asset
-    - Assets/Plugins/MT Assets/_AssetsData/Meshes/LODs_3/LOD3_639013062013418790.asset
-    - 
-    - 
-    - 
-    - 
-    - 
-    canChangeMaterialsOnThisMeshLods: 0
-    allMeshLodsMaterials:
-    - materialArray:
-      - {fileID: -6478536213147159724, guid: e3681b47e12abcf458405a4a63cc3642, type: 3}
-    - materialArray:
-      - {fileID: -6478536213147159724, guid: e3681b47e12abcf458405a4a63cc3642, type: 3}
-    - materialArray:
-      - {fileID: -6478536213147159724, guid: e3681b47e12abcf458405a4a63cc3642, type: 3}
-    - materialArray:
-      - {fileID: -6478536213147159724, guid: e3681b47e12abcf458405a4a63cc3642, type: 3}
-    - materialArray: []
-    - materialArray: []
-    - materialArray: []
-    - materialArray: []
-    - materialArray: []
-    originalMeshLodsManager: {fileID: 1085942982}
-    beforeCullingData_lastMeshOfThis: {fileID: -6734620852318575487, guid: d22c3060bafc13e4da82ba0b757365a0, type: 3}
-    beforeCullingData_isForcedToRenderizationOff: 0
-  modeOfMeshesScanning: 1
-  scanInactiveGameObjects: 0
-  gameObjectsToIgnore: []
-  levelsOfDetailToGenerate: 3
-  percentOfVerticesForEachLod:
-  - 100
-  - 75
-  - 65
-  - 45
-  - 35
-  - 25
-  - 15
-  - 10
-  - 5
-  saveGeneratedLodsInAssets: 1
-  skinnedAnimsCompatibilityMode: 1
-  preventArtifacts: 1
-  optimizeResultingMeshes: 0
-  enableLightmapsSupport: 0
-  enableMaterialsChanges: 0
-  forceOfSimplification: 0
-  cullingMode: 1
-  _customPivotToSimulateLods: {fileID: 0}
-  cameraDetectionMode: 1
-  useCacheForMainCameraInDetection: 1
-  customCameraForSimulationOfLods: {fileID: 366669684}
-  minDistanceOfViewForEachLod:
-  - 0
-  - 5
-  - 15
-  - 30
-  - 150
-  - 180
-  - 200
-  - 220
-  - 250
-  minDistanceOfViewForCull: 270
-  onDoneScan:
-    m_PersistentCalls:
-      m_Calls: []
-  onUndoScan:
-    m_PersistentCalls:
-      m_Calls: []
-  forceChangeLodsOfSkinnedInEditor: 0
-  drawGizmoOnThisPivot: 0
-  colorOfGizmo: {r: 0, g: 0, b: 1, a: 1}
-  sizeOfGizmo: 0.2
-  forceShowHiddenSettings: 0
-  showScanEventsOptions: 0
-  last_minDistanceOfViewForEachLod:
-  - 0
-  - 5
-  - 15
-  - 30
-  - 0
-  - 0
-  - 0
-  - 0
-  - 0
-  last_minDistanceOfViewForCull: 270
-  setupRunned: 1
-  isLodSimulationEnabledInThisSceneForEditorSceneViewMode: 1
---- !u!137 &1085942984 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 4002370204006414176, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
-  m_PrefabInstance: {fileID: 903014004}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1108709571
 GameObject:
   m_ObjectHideFlags: 0
