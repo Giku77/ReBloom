@@ -60,6 +60,7 @@ public enum UIType
     PlayerEffect,
     EditBuild,
     WaterTank,
+    Farm
 }
 
 public enum UILayer

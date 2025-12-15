@@ -1,47 +1,54 @@
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.ProBuilder.Shapes;
 
 public class FarmBedInteractable : BuildingInteractableBase
 {
     [SerializeField] private FarmBed farmBed;
-    //[SerializeField] private Camera playerCamera;
-    [SerializeField] private BoxCollider bedCollider;
-    [SerializeField] private LayerMask farmSlotMask; 
-    [SerializeField] private int columns = 4;
-    [SerializeField] private int rows    = 2;
+    [SerializeField] private LayerMask farmSlotMask;
+    [SerializeField] private Transform cameraFocus;
+    private ThirdPersonCamera tpsCam;
 
-    [SerializeField] private CropData testCropData; // 테스트
+    private FarmUI farmUI;
 
     private int lastHighlightedIndex = -1;
 
+    private void Start()
+    {
+        farmUI = UIManager.Instance.GetUI<FarmUI>(UIType.Farm);
+        tpsCam = Camera.main.GetComponent<ThirdPersonCamera>();
+    }
+
     public override void Interact(PlayerController player)
     {
-        if (farmBed == null) return;
+        if (farmBed == null || player == null || tpsCam == null) return;
 
-        int slotIndex = GetTargetSlotIndex();
-        if (slotIndex < 0) return;
+        if (UIManager.Instance != null && UIManager.Instance.IsUIOpen(UIType.Farm))
+            return;
 
-        if (TryPlant(player, slotIndex)) return;
+        var focus = cameraFocus != null ? cameraFocus : this.transform;
+        tpsCam?.EnterTopDown(focus, topDistance: 5f, topHeight: 0f);
 
-        if (TryWater(player, slotIndex)) return;
-
-        if (TryHarvest(player, slotIndex)) return;
+        //int focus = GetTargetSlotIndex(); // 바라본 칸이 있으면 그 칸으로 포커스
+        OpenSeedUI(player, -1);
     }
+
 
     private void Update()
     {
-        if (farmBed == null) return;
+        //if (farmBed == null) return;
+        //if (UIManager.Instance != null && UIManager.Instance.IsBlockedInput) return; // UI 열리면 하이라이트/레이캐스트 멈추기
 
-        int idx = GetTargetSlotIndex();
+        //int idx = GetTargetSlotIndex();
+        //if (idx == lastHighlightedIndex) return;
 
-        if (idx == lastHighlightedIndex) return;
+        //if (lastHighlightedIndex != -1)
+        //    farmBed.SetSlotHighlighted(lastHighlightedIndex, false);
 
-        if (lastHighlightedIndex != -1)
-            farmBed.SetSlotHighlighted(lastHighlightedIndex, false);
+        //if (idx != -1)
+        //    farmBed.SetSlotHighlighted(idx, true);
 
-        if (idx != -1)
-            farmBed.SetSlotHighlighted(idx, true);
-
-        lastHighlightedIndex = idx;
+        //lastHighlightedIndex = idx;
     }
 
     private int GetTargetSlotIndex()
@@ -60,45 +67,27 @@ public class FarmBedInteractable : BuildingInteractableBase
         return slotIndexComp != null ? slotIndexComp.index : -1;
     }
 
-
-    private bool TryPlant(PlayerController player, int slotIndex)
+    private void OpenSeedUI(PlayerController player, int slotIndex)
     {
-        // 예시: 플레이어 현재 선택 슬롯 아이템 가져오기
-        //var item = player.Inventory.GetSelectedItem();
-        //if (item == null) return false;
+        if (farmUI == null)
+        {
+            ToastMessageUI.Instance?.Show("FarmUI가 연결되지 않았습니다.");
+            return;
+        }
 
-        //CropData crop = CropDB.I.GetCropBySeedItem(item); // 나중에 DB 사용
-        CropData crop = testCropData; // 테스트용
-
-        Debug.Log($"TryPlant: slotIndex={slotIndex}, crop={(crop != null ? crop.cropName : "null")}");
-
-        if (crop == null) return false;
-        if (!farmBed.CanPlant(slotIndex, crop)) return false;
-
-        Debug.Log("Planting crop...");  
-
-        farmBed.Plant(slotIndex, crop);
-
-        ToastMessageUI.Instance?.Show($"{crop.cropName}을(를) 심었습니다.");
-
-        // 씨앗 소모
-        //player.Inventory.RemoveItem(item, 1);
-
-        return true;
+        // - player.InventoryData에서 seed만 필터링
+        // - farmDB로 seedItemId -> cropRow 매핑
+        // - SeedSlotUI들 생성/갱신
+        farmUI.Open(farmBed, player, slotIndex);
     }
 
     private bool TryWater(PlayerController player, int slotIndex)
     {
-        // 물뿌리개 체크: 아이템 타입으로 판별
-        // var item = player.Inventory.GetSelectedItem();
-        // if (item == null || !item.IsWateringCan) return false;
-
+        // TODO: 물뿌리개/물통 체크는 너 시스템에 맞게 추가
         if (!farmBed.CanWater(slotIndex)) return false;
 
         farmBed.Water(slotIndex);
-
         ToastMessageUI.Instance?.Show("물을 주었습니다.");
-
         return true;
     }
 
@@ -106,13 +95,16 @@ public class FarmBedInteractable : BuildingInteractableBase
     {
         if (!farmBed.CanHarvest(slotIndex)) return false;
 
-        var crop = farmBed.Harvest(slotIndex);
-        if (crop == null) return false;
+        if (!farmBed.TryHarvest(slotIndex, out var row)) return false;
 
-        // 수확 아이템 지급
-        var harvestItem = ItemDatabase.I.GetItem(crop.harvestItemId);
-        player.Inventory.AddItem(crop.harvestItemId, 1); // 수량은 나중에 crop 데이터에 넣기
-        ToastMessageUI.Instance?.Show($"{harvestItem.itemName}을(를) 수확했습니다.");
+        // 드랍 지급 (Item1/2 보장, Item3 확률)
+        foreach (var d in row.drops)
+        {
+            if (d.rate < 1f && Random.value > d.rate) continue;
+            player.Inventory.AddItem(d.itemId, d.count);
+        }
+
+        ToastMessageUI.Instance?.Show($"{row.cropName} 수확 완료!");
         return true;
     }
 }

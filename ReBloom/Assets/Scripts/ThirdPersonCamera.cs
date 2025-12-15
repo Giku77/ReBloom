@@ -198,4 +198,53 @@ public class ThirdPersonCamera : MonoBehaviour
         yaw = savedYaw;
         pitch = savedPitch;
     }
+
+    private Transform savedTarget;
+    private float savedDistance;
+    private float savedHeight;
+    private bool savedZoomLocked;
+    private bool savedSequenceLocked;
+
+    public void EnterTopDown(Transform focus, float topDistance = 6f, float topHeight = 0f)
+    {
+        if (focus == null) return;
+
+        savedTarget = target;
+        savedDistance = distance;
+        savedHeight = height;
+        savedYaw = yaw;
+        savedPitch = pitch;
+        savedZoomLocked = isZoomLocked;
+        savedSequenceLocked = isSequenceLocked;
+
+        target = focus;
+        distance = topDistance;
+        height = topHeight;
+
+        isZoomLocked = true;
+        isSequenceLocked = true;
+
+        pitch = 89f;
+        yaw = focus.eulerAngles.y;
+
+        LookImmediate();
+    }
+
+    public void ExitTopDown()
+    {
+        target = savedTarget;
+        distance = savedDistance;
+        height = savedHeight;
+        yaw = savedYaw;
+        pitch = savedPitch;
+        isZoomLocked = savedZoomLocked;
+        isSequenceLocked = savedSequenceLocked;
+
+        LookImmediate();
+    }
+
+    private void LookImmediate()
+    {
+        Look();
+    }
 }

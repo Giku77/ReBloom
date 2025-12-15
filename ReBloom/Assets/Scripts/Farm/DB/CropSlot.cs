@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public enum CropSlotState
 {
@@ -12,11 +12,13 @@ public enum CropSlotState
 public class CropSlot
 {
     public CropSlotState state = CropSlotState.Empty;
-    public CropData crop;
+
+    public int cropId;         
     public int stageIndex;
     public float stageTimer;
-    public bool watered;
 
+    public int wateredCount;    
     // 시각화용
+    public GameObject visualRoot;
     [HideInInspector] public CropVisual visual;
 }
