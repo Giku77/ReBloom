@@ -9,21 +9,15 @@ public interface IItemContainer
 {
     // 읽기 전용 속성
     IReadOnlyList<ItemSlotData> Items { get; }
+    int SlotCount { get; }
     bool HasItems { get; }
-    int SlotCount { get; set; }
+
     // 이벤트
     event Action OnContainerChanged;
 
-    /// <summary>
-    /// AddItem: 아이템 추가
-    /// </summary>
-    /// <returns>실제 추가된 수량 (0 = 실패, count = 전부 성공, 중간값 = 일부 성공)</returns>
-    int AddItem(int itemID, int count);
-    bool RemoveItem(int itemID, int count);
+    // 핵심 메서드
+    int TryAddItem(int itemID, int count);
+    bool TryRemoveItem(int itemID, int count);
     int GetItemCount(int itemID);
     void Clear();
-
-    // 컨테이너 간 이동
-    bool TransferTo(IItemContainer target, int itemID, int count);
-    bool TransferAllTo(IItemContainer target);
 }

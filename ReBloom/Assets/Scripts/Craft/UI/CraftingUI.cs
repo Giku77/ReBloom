@@ -15,7 +15,7 @@ public class CraftingUI : UIBase
     [SerializeField] private ItemSpawner itemSpawner;
 
     [Header("Info References")]
-    [SerializeField] private InventoryItemData inventory;
+    [SerializeField] private GameInventory inventory;
     [SerializeField] private Button craftButton;
     [SerializeField] private TextMeshProUGUI recipeNameText;
     [SerializeField] private TextMeshProUGUI recipeDescText;
@@ -149,20 +149,18 @@ public class CraftingUI : UIBase
             return;
         }
 
-        var reason = crafting.Craft(currentRecipeId, selectedAmount);
-        if (reason == CraftFailReason.None || reason == CraftFailReason.NoOutputSpace)
+        var result = crafting.Craft(currentRecipeId, selectedAmount);
+
+        if (result.reason == CraftFailReason.None || result.reason == CraftFailReason.NoOutputSpace)
         {
-            if (itemSpawner != null && reason == CraftFailReason.NoOutputSpace)
+            if (result.overflowCount > 0)
             {
                 recipeDb.TryGet(currentRecipeId, out var recipe);
-                if (recipe != null)
-                {
-                    var pos = player.transform.position + Vector3.up * 0.5f;
-                    var itemData = ItemDatabase.I.GetItem(recipe.productId);
-                    SoundManager.I?.PlayCrafting();
-                    itemSpawner.DropItemWithQuantity(itemData, pos, recipe.productCount * selectedAmount).Forget();
-                }
+                var pos = player.transform.position + Vector3.up * 0.5f;
+                SoundManager.I?.PlayCrafting();
+                itemSpawner.DropItemWithQuantity(ItemDatabase.I.GetItem(recipe.productId), pos, result.overflowCount).Forget();
             }
+
             setResultText($"제작 성공! x{selectedAmount}");
 
             maxCraftable = crafting.GetMaxCraftable(currentRecipeId);

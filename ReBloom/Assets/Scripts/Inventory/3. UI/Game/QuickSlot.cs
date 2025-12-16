@@ -98,7 +98,7 @@ public class QuickSlot : MonoBehaviour
     {
         if (inventoryData != null)
         {
-            inventoryData.OnInventoryChanged += OnInventoryChanged;
+            inventoryData.OnContainerChanged += OnInventoryChanged;
             Debug.Log("[QuickSlot] 인벤토리 변경 이벤트 구독 완료");
         }
     }
@@ -107,7 +107,7 @@ public class QuickSlot : MonoBehaviour
     {
         if (inventoryData != null)
         {
-            inventoryData.OnInventoryChanged -= OnInventoryChanged;
+            inventoryData.OnContainerChanged -= OnInventoryChanged;
         }
     }
 

@@ -101,7 +101,7 @@ public class FarmBedInteractable : BuildingInteractableBase
         foreach (var d in row.drops)
         {
             if (d.rate < 1f && Random.value > d.rate) continue;
-            player.Inventory.AddItem(d.itemId, d.count);
+            player.Inventory.AddItemFromWorld(d.itemId, d.count);
         }
 
         ToastMessageUI.Instance?.Show($"{row.cropName} 수확 완료!");

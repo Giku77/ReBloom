@@ -189,7 +189,6 @@ public class DragDropManager : MonoBehaviour
 		await DropToWorldAsync(item, dropPosition, quantity);
 	}
 	#endregion
-
 	#region Private Methods - 드롭존 선택 및 검증
 	/// <summary>
 	/// 우선순위 기반 최적 드롭존 선택
@@ -269,6 +268,7 @@ public class DragDropManager : MonoBehaviour
 		return true;
 	}
 	#endregion
+
 
 	#region Private Methods - 드롭 처리
 	/// <summary>

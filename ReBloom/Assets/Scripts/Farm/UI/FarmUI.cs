@@ -26,8 +26,8 @@ public class FarmUI : UIBase
         currentPlayer = player;
 
 
-        if (inventoryItemData != null)
-            inventoryItemData.OnInventoryChanged += RefreshSeeds;
+        //if (inventoryItemData != null)
+        //    inventoryItemData.OnInventoryChanged += RefreshSeeds;
 
         if (currentPlot != null)
         {
@@ -71,8 +71,8 @@ public class FarmUI : UIBase
 
     private void Unbind()
     {
-        if (inventoryItemData != null)
-            inventoryItemData.OnInventoryChanged -= RefreshSeeds;
+        // if (inventoryItemData != null)
+        // inventoryItemData.OnInventoryChanged -= RefreshSeeds;
 
         if (currentPlot != null && _plotChangedHandler != null)
             currentPlot.OnChanged -= _plotChangedHandler;
@@ -223,7 +223,7 @@ public class FarmUI : UIBase
             return;
         }
 
-        if (!inventoryItemData.RemoveItem(seedItemId, 1))
+        if (!inventoryItemData.TryRemoveItem(seedItemId, 1))
         {
             ToastMessageUI.Instance?.Show("씨앗이 부족합니다.");
             return;

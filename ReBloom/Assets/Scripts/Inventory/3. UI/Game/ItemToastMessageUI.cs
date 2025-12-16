@@ -1,197 +1,111 @@
-﻿using Cysharp.Threading.Tasks;
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading;
+﻿using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
+
 
 public class ItemToastMessageUI : MonoBehaviour
 {
     [Header("UI Reference")]
-    [SerializeField] private GameObject messageItemPrefab; // TextMeshProUGUI가 붙은 GameObject
-    [SerializeField] private Transform messageContainer; // Vertical Layout Group
+    [SerializeField] private GameObject messageItemPrefab;
+    [SerializeField] private Transform messageContainer;
+
+    [Header("Settings")]
+    [SerializeField] private int maxMessageCount = 5;
+    [SerializeField] private float showDuration = 2.5f;
 
     // 아이콘 이미지
     [Header("Optional Icon Support")]
     [SerializeField] private bool useIcon = true;
 
-    [Header("Settings")]
-    private float messageDuration = 3f;
-    private int maxMessageCount = 5;
-
     private Queue<GameObject> activeMessages = new Queue<GameObject>();
 
-    private CancellationTokenSource _cts;
-
-    /// <summary>
-    /// 초기화
-    /// </summary>
-    public void Initialize(int maxCount, float duration)
+    public void Show(string message, Sprite icon)
     {
-        maxMessageCount = maxCount;
-        messageDuration = duration;
+        GameObject obj = Instantiate(messageItemPrefab, messageContainer);
+        activeMessages.Enqueue(obj);
 
-        if (messageItemPrefab == null)
-        {
-            Debug.LogError("[ItemToastMessageUI] messageItemPrefab이 할당되지 않았습니다!", this);
-            enabled = false;
-            return;
-        }
-
-        if (messageContainer == null)
-        {
-            Debug.LogError("[ItemToastMessageUI] messageContainer가 할당되지 않았습니다!", this);
-            enabled = false;
-            return;
-        }
-
-        _cts = new CancellationTokenSource();
-
-        Debug.Log("[ItemToastMessageUI] 초기화 완료");
-    }
-    private void OnDestroy()
-    {
-        _cts?.Cancel();
-        _cts?.Dispose();
-
-        ClearAllMessages();
-    }
-
-    #region Public API
-    /// <summary>
-    /// 메시지 표시 (외부 호출용)
-    /// </summary>
-    public void DisplayMessage(string message, Sprite icon, Color textColor, float duration)
-    {
-        ShowMessage(message, icon, textColor, duration).Forget();
-    }
-    #endregion
-
-    #region 메시지 표시
-    /// <summary>
-    /// 새 토스트 메시지 생성 및 표시
-    /// </summary>
-    private async UniTaskVoid ShowMessage(string message, Sprite icon, Color textColor, float duration)
-    {
-        // GameObject 생성
-        GameObject messageObj = Instantiate(messageItemPrefab, messageContainer);
-
-        // 텍스트 설정
-        TextMeshProUGUI messageText = messageObj.GetComponentInChildren<TextMeshProUGUI>();
-        if (messageText != null)
-        {
-            messageText.text = message;
-            messageText.color = textColor;
-        }
-        else
-        {
-            Debug.LogError("[ItemToastMessageUI] Prefab에 TextMeshProUGUI 컴포넌트가 없습니다!");
-            Destroy(messageObj);
-            return;
-        }
-
-        // 아이콘 설정 (옵션)
-        if (useIcon && icon != null)
-        {
-            Image iconImage = messageObj.GetComponentInChildren<Image>();
-            if (iconImage != null)
-            {
-                iconImage.sprite = icon;
-                iconImage.enabled = true;
-            }
-        }
-
-        // 큐에 추가
-        activeMessages.Enqueue(messageObj);
-
-        // 최대 개수 초과 시 가장 오래된 메시지 제거
         if (activeMessages.Count > maxMessageCount)
-        {
-            RemoveOldestMessage();
-        }
+            RemoveOldest();
 
-        Debug.Log($"[ItemToastMessageUI] 메시지 표시: {message}");
-
-        await RemoveMessageAfterDelayAsync(messageObj, duration);
+        SetupUI(obj, message, icon);
+        PlayToastAnimation(obj);
     }
-
-    /// <summary>
-    /// 일정 시간 후 메시지 제거 (UniTask 버전)
-    /// </summary>
-    private async UniTask RemoveMessageAfterDelayAsync(GameObject messageObj, float delay)
+    public void ShowWarning(string message)
     {
-        try
-        {
-            await UniTask.Delay(
-                System.TimeSpan.FromSeconds(delay),
-                cancellationToken: _cts.Token
-            );
+        GameObject obj = Instantiate(messageItemPrefab, messageContainer);
+        activeMessages.Enqueue(obj);
 
-            // 메시지가 아직 존재하는지 확인
-            if (messageObj != null && activeMessages.Contains(messageObj))
-            {
-                RemoveMessage(messageObj);
-            }
-        }
-        catch (System.OperationCanceledException)
-        {
-            // 취소됨 (OnDestroy 호출 시)
-            Debug.Log($"[ItemToastMessageUI] 메시지 타이머 취소됨");
-        }
+        if (activeMessages.Count > maxMessageCount)
+            RemoveOldest();
+
+        SetupUI(obj, message);
+        PlayToastAnimation(obj);
     }
 
-    /// <summary>
-    /// 가장 오래된 메시지 제거
-    /// </summary>
-    private void RemoveOldestMessage()
+    private void SetupUI(GameObject obj, string message, Sprite icon = null)
     {
-        if (activeMessages.Count > 0)
+        var text = obj.GetComponentInChildren<TextMeshProUGUI>();
+        var image = obj.GetComponentInChildren<Image>();
+
+        text.text = message;
+
+        if (image != null && icon != null)
         {
-            GameObject oldestMessage = activeMessages.Dequeue();
-            if (oldestMessage != null)
-            {
-                Destroy(oldestMessage);
-            }
+            image.sprite = icon;
+            image.enabled = true;
         }
     }
 
-    /// <summary>
-    /// 특정 메시지 제거
-    /// </summary>
-    private void RemoveMessage(GameObject messageObj)
+    private void PlayToastAnimation(GameObject obj)
     {
-        if (messageObj == null) return;
+        CanvasGroup cg = obj.GetComponent<CanvasGroup>();
+        if (cg == null)
+            cg = obj.AddComponent<CanvasGroup>();
 
-        // 큐에서 제거
-        Queue<GameObject> tempQueue = new Queue<GameObject>();
-        while (activeMessages.Count > 0)
+        obj.transform.localScale = Vector3.one * 0.9f;
+        cg.alpha = 0f;
+
+        Sequence seq = DOTween.Sequence();
+
+        seq.Append(cg.DOFade(1f, 0.2f));
+        seq.Join(obj.transform.DOScale(1f, 0.2f).SetEase(Ease.OutBack));
+
+        seq.AppendInterval(showDuration);
+
+        seq.Append(cg.DOFade(0f, 0.2f));
+        seq.Join(obj.transform.DOScale(0.8f, 0.2f));
+
+        seq.OnComplete(() =>
         {
-            GameObject msg = activeMessages.Dequeue();
-            if (msg != messageObj)
-            {
-                tempQueue.Enqueue(msg);
-            }
-        }
-        activeMessages = tempQueue;
-
-        // GameObject 파괴
-        Destroy(messageObj);
+            Remove(obj);
+        });
     }
 
-    /// <summary>
-    /// 모든 메시지 제거
-    /// </summary>
-    private void ClearAllMessages()
+    private void RemoveOldest()
     {
-        while (activeMessages.Count > 0)
-        {
-            GameObject msg = activeMessages.Dequeue();
-            if (msg != null)
-            {
-                Destroy(msg);
-            }
-        }
+        if (activeMessages.Count == 0) return;
+
+        GameObject old = activeMessages.Dequeue();
+        if (old != null)
+            Destroy(old);
     }
-    #endregion
+
+    private void Remove(GameObject obj)
+    {
+        if (activeMessages.Contains(obj))
+        {
+            var temp = new Queue<GameObject>();
+            while (activeMessages.Count > 0)
+            {
+                var m = activeMessages.Dequeue();
+                if (m != obj)
+                    temp.Enqueue(m);
+            }
+            activeMessages = temp;
+        }
+
+        Destroy(obj);
+    }
 }

@@ -177,11 +177,11 @@ public class PlayerEquipManager : MonoBehaviour
             // 같은 타입 기존 장비 해제
             if (protective.gearType == GearType.Clothing && player.currentClothEquip != null)
             {
-               // inventoryItemData.AddItem(player.currentClothEquip.itemID, 1);
+               // inventory.AddItem(player.currentClothEquip.itemID, 1);
             }
             else if (protective.gearType == GearType.Shoes && player.currentShoesEquip != null)
             {
-              //  inventoryItemData.AddItem(player.currentShoesEquip.itemID, 1);
+              //  inventory.AddItem(player.currentShoesEquip.itemID, 1);
             }
 
             Apply(protective);
@@ -192,7 +192,7 @@ public class PlayerEquipManager : MonoBehaviour
             // 기존 도구 해제
             if (player.currentToolEquip != null)
             {
-              //  inventoryItemData.AddItem(player.currentToolEquip.itemID, 1);
+              //  inventory.AddItem(player.currentToolEquip.itemID, 1);
             }
 
             Apply(tool);
@@ -223,7 +223,11 @@ public class PlayerEquipManager : MonoBehaviour
                 if (!player.currentClothEquip)
                     return;
 
-                inventoryItemData.AddItem(player.currentClothEquip.itemID, 1);
+                if (!inventoryItemData.TryAddItemFromWorld(player.currentClothEquip.itemID, 1))
+                {
+                    Debug.Log("인벤토리 공간이 부족하여 장비를 해제할 수 없습니다.");
+                    return;
+                }
                 player.currentClothEquip = null;
                 break;
 
@@ -231,7 +235,11 @@ public class PlayerEquipManager : MonoBehaviour
                 if (!player.currentShoesEquip)
                     return;
 
-                inventoryItemData.AddItem(player.currentShoesEquip.itemID, 1);
+                if (!inventoryItemData.TryAddItemFromWorld(player.currentShoesEquip.itemID, 1))
+                {
+                    Debug.Log("인벤토리 공간이 부족하여 장비를 해제할 수 없습니다.");
+                    return;
+                }
                 player.currentShoesEquip = null;
                 break;
                 
@@ -239,7 +247,11 @@ public class PlayerEquipManager : MonoBehaviour
                 if (!player.currentToolEquip)
                     return;
 
-                inventoryItemData.AddItem(player.currentToolEquip.itemID, 1);
+                if (!inventoryItemData.TryAddItemFromWorld(player.currentToolEquip.itemID, 1))
+                {
+                    Debug.Log("인벤토리 공간이 부족하여 장비를 해제할 수 없습니다.");
+                    return;
+                }
                 player.currentToolEquip = null;
                 anim.SetToolType(0);
                 anim.HandLayerChange();

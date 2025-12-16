@@ -6,7 +6,6 @@ public class DeathBoxHandler : MonoBehaviour
     [Header("References")]
     [SerializeField] private GameInventory playerInventory;
     [SerializeField] private PlayerEquipManager playerEquipManager;
-    [SerializeField] private DeathBoxData deathBoxDataTemplate;
 
     [Header("POPPI Reference")]
     [SerializeField] private InventoryRobotPet poppi; // DogFollower 직접 참조
@@ -45,42 +44,78 @@ public class DeathBoxHandler : MonoBehaviour
         // 강아지
         if (poppi == null)
         {
-            poppi = Object.FindFirstObjectByType<InventoryRobotPet>();
+            poppi = FindFirstObjectByType<InventoryRobotPet>();
         }
     }
 
     public void OnCreateDeathBox()
     {
-        // 1. 스폰 위치 계산
+        Debug.Log($"[DeathBoxHandler] ========== 시체박스 생성 시작 ==========");
+
+        // 현재 인벤토리 상태 상세 출력
+        //Debug.Log($"[DeathBoxHandler] 인벤토리 슬롯 수: {playerInventory.Container.Items.Count}");
+        int validInvItems = 0;
+        foreach (var slot in playerInventory.Container.Items)
+        {
+            if (slot != null && slot.itemID > 0 && slot.count > 0)
+            {
+                Debug.Log($"  [인벤토리] ID: {slot.itemID}, Count: {slot.count}");
+                validInvItems++;
+            }
+        }
+        //Debug.Log($"[DeathBoxHandler] 유효한 인벤토리 아이템: {validInvItems}개");
+
+        // 장착 아이템 상태
+        var equippedItems = playerEquipManager.GetEquippedItems();
+        //Debug.Log($"[DeathBoxHandler] 장착 아이템 수: {equippedItems.Count}");
+        foreach (var id in equippedItems)
+        {
+            Debug.Log($"  [장착] ID: {id}");
+        }
+
         Vector3 spawnPosition = CalculateSpawnPosition();
+        DeathBoxData newDeathBoxData = ScriptableObject.CreateInstance<DeathBoxData>();
+        newDeathBoxData.SetMetadata(spawnPosition);
 
-        // 2. 새 DeathBoxData 인스턴스 생성
-        DeathBoxData newDeathBoxData = Instantiate(deathBoxDataTemplate);
-
-        // 3. 인벤토리 → 시체박스 이전
-        newDeathBoxData.CreateFromInventory(playerInventory.Container, spawnPosition);
-
-        // 4. 장착 아이템 → 시체박스 직접 추가 (인벤토리 우회)
+        // 1. 장착 아이템 추가
         if (playerEquipManager != null)
         {
             AddEquippedItemsToDeathBox(newDeathBoxData);
+            Debug.Log($"[DeathBoxHandler] 장착 추가 후 시체박스: {newDeathBoxData.Items.Count}개");
         }
 
-        // 5. 인벤토리 클리어
+        // 2. 인벤토리 아이템 추가
+        //Debug.Log($"[DeathBoxHandler] 인벤토리 추가 전 - 인벤토리: {playerInventory.Container.Items.Count}개");
+        newDeathBoxData.AddItemsFromInventory(playerInventory.Container);
+        //Debug.Log($"[DeathBoxHandler] 인벤토리 추가 후 - 시체박스: {newDeathBoxData.Items.Count}개");
+        //Debug.Log($"[DeathBoxHandler] 인벤토리 추가 후 - 인벤토리: {playerInventory.Container.Items.Count}개");
+
+        // 시체박스 최종 내용 출력
+        //Debug.Log($"[DeathBoxHandler] ===== 시체박스 최종 내용 =====");
+        int validDeathBoxItems = 0;
+        foreach (var slot in newDeathBoxData.Items)
+        {
+            if (slot != null && slot.itemID > 0 && slot.count > 0)
+            {
+                Debug.Log($"  [시체박스] ID: {slot.itemID}, Count: {slot.count}");
+                validDeathBoxItems++;
+            }
+        }
+        Debug.Log($"[DeathBoxHandler] 유효한 시체박스 아이템: {validDeathBoxItems}개");
+
+        // 3. 원본 클리어
         if (clearInventoryOnDeath)
         {
-            Debug.Log("[DeathBoxHandler] 인벤토리 클리어 시작");
             playerInventory.Clear();
-            Debug.Log($"[DeathBoxHandler] 남은 아이템 수: {playerInventory.Container.Items.Count}");
         }
 
-        // 6. 시체박스 스폰
+        // 4. 시체박스 스폰 (한 번만!)
         if (autoSpawnDeathBox && deathBoxPrefab != null)
         {
             SpawnDeathBox(spawnPosition, newDeathBoxData);
         }
 
-        Debug.Log($"[DeathBoxHandler] 시체박스 생성. 위치: {spawnPosition}, 총: {activeDeathBoxes.Count}개");
+        Debug.Log($"[DeathBoxHandler] ========== 시체박스 생성 완료 ==========");
     }
     /// <summary>
     /// 장착 아이템을 시체박스에 직접 추가 (인벤토리 우회)
@@ -94,8 +129,7 @@ public class DeathBoxHandler : MonoBehaviour
         {
             if (itemId > 0)
             {
-                // AddItem은 인벤토리에 추가 성공한 수량을 반환함
-                int addedCount = deathBoxData.AddItem(itemId, 1);
+                int addedCount = deathBoxData.TryAddItem(itemId, 1);
 
                 if (addedCount > 0)
                 {
@@ -150,7 +184,7 @@ public class DeathBoxHandler : MonoBehaviour
         var deathBoxInteract = newDeathBox.GetComponent<WorldDeathBox>();
         if (deathBoxInteract != null)
         {
-            deathBoxInteract.Initialize(deathBoxData, playerInventory.Container);
+            deathBoxInteract.Initialize(deathBoxData);
         }
 
         activeDeathBoxes.Add(newDeathBox);

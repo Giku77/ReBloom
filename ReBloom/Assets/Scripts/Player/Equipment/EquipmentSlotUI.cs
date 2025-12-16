@@ -23,7 +23,7 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerClickHandler, IDragSource,
     private GameInventoryToolTip tooltip;
 
     #region IDragSource 구현
-    public DragSourceType SourceType => DragSourceType.Storage;
+    public DragSourceType SourceType => DragSourceType.Equipment;
     public int SlotIndex => transform.GetSiblingIndex();
     public DragContext CreateDragContext(ItemBase item)
     {
@@ -47,6 +47,14 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerClickHandler, IDragSource,
                 Debug.Log("[GameInventorySlot] 툴팁을 Canvas에서 찾았습니다.");
             }
         }
+        var dropZone = GetComponent<DropZoneMarker>();
+        if (dropZone == null)
+        {
+            dropZone = gameObject.AddComponent<DropZoneMarker>();
+        }
+        dropZone.SetZoneType(DropZoneType.Equipment);
+        dropZone.SetPriority(80);
+
     }
 
     public void Initialize(PlayerEquipManager manager, GearType type)

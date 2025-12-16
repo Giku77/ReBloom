@@ -19,7 +19,7 @@ public class QuestGoal
 
     [NonSerialized] public int currentCount;
 
-    public bool IsSatisfied(IInventoryProvider inv, StageDetector stageDetector)
+    public bool IsSatisfied(GameInventory inv, StageDetector stageDetector)
     {
         switch (type)
         {

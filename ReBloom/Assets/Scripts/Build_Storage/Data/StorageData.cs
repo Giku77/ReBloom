@@ -14,53 +14,22 @@ public class StorageData : ItemContainerBase
 
     public string StorageID => storageID;
     public int StorageTier => storageTier;
-
-    // 티어별 슬롯 수 오버라이드
-    public override int SlotCount => storageTier switch
+    private void OnEnable()
     {
-        1 => 50,
-        2 => 60,
-        _ => 50
-    };
-
-    #region ItemContainerBase 오버라이드
-
-    /// <summary>
-    /// 아이템 추가 시 이벤트 발생 TODO: 부분 추가 처리 필요
-    /// </summary>
-    public override int AddItem(int itemID, int count)
-    {
-        int remaingAmount = base.AddItem(itemID, count);
-
-        if (remaingAmount == 0)
-        {
-            OnStorageChanged?.Invoke();
-            Debug.Log($"[StorageData] 아이템 추가: ID={itemID}, Count={remaingAmount}");
-        }
-
-        return remaingAmount;
+        OnContainerChanged += HandleContainerChanged;
     }
 
-    /// <summary>
-    /// 아이템 제거 시 이벤트 발생
-    /// </summary>
-    public override bool RemoveItem(int itemID, int count)
+    private void OnDisable()
     {
-        bool success = base.RemoveItem(itemID, count);
-
-        if (success)
-        {
-            OnStorageChanged?.Invoke();
-            Debug.Log($"[StorageData] 아이템 제거: ID={itemID}, Count={count}");
-        }
-
-        return success;
+        OnContainerChanged -= HandleContainerChanged;
     }
 
-    #endregion
-
+    private void HandleContainerChanged()
+    {
+        OnStorageChanged?.Invoke();
+    }
     /// <summary>
-    /// 외부에서 명시적으로 UI 갱신 요청 (TransferTo 완료 후)
+    /// 외부에서 명시적으로 UI 갱신 요청 (TransferTo 완료 후) // 함수 수정 필요함
     /// </summary>
     public void NotifyStorageChanged()
     {

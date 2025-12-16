@@ -87,7 +87,7 @@ public class WorldItem : MonoBehaviour, IInteractable
         }
 
         // 부분 습득 지원
-        int addedCount = inventoryData.AddItem(itemData.itemID, quantity);
+        int addedCount = inventoryData.AddItemFromWorld(itemData.itemID, quantity);
 
         if (addedCount <= 0)
         {
