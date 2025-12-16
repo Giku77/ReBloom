@@ -26,7 +26,7 @@ public class CultivationUI : UIBase
         currentPlayer = player;
 
         if (inventoryItemData != null)
-            inventoryItemData.OnInventoryChanged += RefreshSeeds;
+            inventoryItemData.OnContainerChanged += RefreshSeeds;
 
         if (currentMachine != null)
             currentMachine.OnChanged += OnMachineChanged;
@@ -63,7 +63,7 @@ public class CultivationUI : UIBase
     private void Unbind()
     {
         if (inventoryItemData != null)
-            inventoryItemData.OnInventoryChanged -= RefreshSeeds;
+            inventoryItemData.OnContainerChanged -= RefreshSeeds;
 
         if (currentMachine != null)
             currentMachine.OnChanged -= OnMachineChanged;
@@ -119,7 +119,7 @@ public class CultivationUI : UIBase
             return;
         }
 
-        if (!inventoryItemData.RemoveItem(seedItemId, 1))
+        if (!inventoryItemData.TryRemoveItem(seedItemId, 1))
         {
             ToastMessageUI.Instance?.Show("아이템이 부족합니다.");
             return;
@@ -127,7 +127,7 @@ public class CultivationUI : UIBase
 
         if (!currentMachine.StartMachine(seedItemId))
         {
-            inventoryItemData.AddItem(seedItemId, 1); // 롤백
+            inventoryItemData.TryAddItem(seedItemId, 1); // 롤백
             ToastMessageUI.Instance?.Show("배양 시작에 실패했습니다.");
             return;
         }

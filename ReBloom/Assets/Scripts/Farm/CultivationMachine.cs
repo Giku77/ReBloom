@@ -127,7 +127,13 @@ public class CultivationMachine : MonoBehaviour
             return false;
         }
 
-        player.Inventory.AddItem(slot.outputItemId, slot.outputCount);
+        //player.Inventory.AddItem(slot.outputItemId, slot.outputCount);
+        var s = player.Inventory.AddItemFromWorld(slot.outputItemId, slot.outputCount);
+        if (s <= 0)
+        {
+            reason = "인벤토리에 공간이 부족합니다.";
+            return false;
+        }
 
         slot = new CultivationSlot(); // 초기화
         OnChanged?.Invoke();

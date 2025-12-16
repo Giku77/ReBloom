@@ -26,8 +26,8 @@ public class FarmUI : UIBase
         currentPlayer = player;
 
 
-        //if (inventoryItemData != null)
-        //    inventoryItemData.OnInventoryChanged += RefreshSeeds;
+        if (inventoryItemData != null)
+            inventoryItemData.OnContainerChanged += RefreshSeeds;
 
         if (currentPlot != null)
         {
@@ -79,8 +79,8 @@ public class FarmUI : UIBase
 
     private void Unbind()
     {
-        // if (inventoryItemData != null)
-        // inventoryItemData.OnInventoryChanged -= RefreshSeeds;
+        if (inventoryItemData != null)
+            inventoryItemData.OnContainerChanged -= RefreshSeeds;
 
         if (currentPlot != null && _plotChangedHandler != null)
             currentPlot.OnChanged -= _plotChangedHandler;
@@ -282,7 +282,7 @@ public class FarmUI : UIBase
             return;
         }
 
-        if (!inventoryItemData.RemoveItem(FarmConst.FertilizerItemId, 1))
+        if (!inventoryItemData.TryRemoveItem(FarmConst.FertilizerItemId, 1))
         {
             ToastMessageUI.Instance?.Show("비료 소모에 실패했습니다.");
             return;
@@ -290,7 +290,7 @@ public class FarmUI : UIBase
 
         if (!currentPlot.TryApplyFertilizer(cellIndex, FarmConst.FertilizerDuration))
         {
-            inventoryItemData.AddItem(FarmConst.FertilizerItemId, 1);
+            inventoryItemData.TryAddItem(FarmConst.FertilizerItemId, 1);
             ToastMessageUI.Instance?.Show("비료를 사용할 수 없습니다.");
             return;
         }

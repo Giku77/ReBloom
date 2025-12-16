@@ -19,6 +19,7 @@ public class InventoryMessageService : MonoBehaviour
 
     public void ShowInventoryFull(int added, int requested)
     {
+        if (added >= requested) return;
         itemToastUI.ShowWarning(
             $"인벤토리 부족! {added}/{requested}개만 획득"
         );
