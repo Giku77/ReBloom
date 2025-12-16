@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class FarmCellSlotUI : MonoBehaviour, IPointerClickHandler, IDropTarget
+public class FarmCellSlotUI : MonoBehaviour, IPointerClickHandler, IDropTarget, IPointerEnterHandler, IPointerExitHandler
 {
     [SerializeField] private Image stageIcon;
     [SerializeField] private Image highlight;
@@ -14,13 +14,15 @@ public class FarmCellSlotUI : MonoBehaviour, IPointerClickHandler, IDropTarget
     private CropSlot slot;        
     private Action onClick;
     private Action<int> onSeedDrop;
+    private Action<int, bool> onHoverChanged;
 
-    public void Bind(int index, CropSlot slot, Action onClick, Action<int> onSeedDrop)
+    public void Bind(int index, CropSlot slot, Action onClick, Action<int> onSeedDrop, Action<int, bool> onHoverChanged)
     {
         cellIndex = index;
         this.slot = slot;
         this.onClick = onClick;
         this.onSeedDrop = onSeedDrop;
+        this.onHoverChanged = onHoverChanged;
         Refresh(slot);
     }
 
@@ -56,6 +58,12 @@ public class FarmCellSlotUI : MonoBehaviour, IPointerClickHandler, IDropTarget
 
     public void OnPointerClick(PointerEventData eventData) => onClick?.Invoke();
 
+    public void OnPointerEnter(PointerEventData eventData)
+        => onHoverChanged?.Invoke(cellIndex, true);
+
+    public void OnPointerExit(PointerEventData eventData)
+        => onHoverChanged?.Invoke(cellIndex, false);
+
     public bool CanAcceptDrop(DragContext context)
     {
         if (context?.Item == null) return false;
@@ -74,5 +82,10 @@ public class FarmCellSlotUI : MonoBehaviour, IPointerClickHandler, IDropTarget
         if (seedId <= 0) return;
 
         onSeedDrop?.Invoke(seedId);
+    }
+
+    private void OnDisable()
+    {
+        onHoverChanged?.Invoke(cellIndex, false);
     }
 }
