@@ -98,7 +98,7 @@ public class GameInventory : MonoBehaviour, IGameInventory
 
             if (item.itemID == 4002001 || item.itemID == 4002002)
             {
-                TryAddItemFromWorld(4102035, 1); //@??
+                AddItemFromWorld(4102035, 1); //@??
             }
         }
         else if (item.canEquip)

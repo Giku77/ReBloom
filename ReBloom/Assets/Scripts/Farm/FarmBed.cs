@@ -201,7 +201,7 @@ public class FarmBed : MonoBehaviour
         foreach (var d in row.drops)
         {
             if (d.rate >= 1f || UnityEngine.Random.value <= d.rate)
-                player.Inventory.AddItem(d.itemId, d.count);
+                player.Inventory.AddItemFromWorld(d.itemId, d.count);
         }
 
         // 슬롯 초기화

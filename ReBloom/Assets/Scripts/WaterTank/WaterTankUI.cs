@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class WaterTankUI : UIBase
 {
     [SerializeField] private Image backgroundImage;
-    [SerializeField] private InventoryItemData inventoryItemData;
+    [SerializeField] private GameInventory inventoryItemData;
     public WaterTankManager waterTankManager;
 
     [Header("UI")]

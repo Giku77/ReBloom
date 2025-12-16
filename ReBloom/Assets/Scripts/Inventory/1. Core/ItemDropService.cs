@@ -7,6 +7,22 @@ public class ItemDropService : MonoBehaviour
     [SerializeField] private ItemSpawner itemSpawner;
     [SerializeField] private Transform player;
     [SerializeField] private float dropRadius = 2f;
+
+    private void Awake()
+    {
+        if (itemSpawner == null)
+        {
+            itemSpawner = FindFirstObjectByType<ItemSpawner>();
+        }
+        if (player == null)
+        {
+            var playerController = FindFirstObjectByType<PlayerController>();
+            if (playerController != null)
+            {
+                player = playerController.transform;
+            }
+        }
+    }
     public void DropItem(int itemID, int count)
     {
         if (player == null) return;
@@ -16,6 +32,7 @@ public class ItemDropService : MonoBehaviour
         if (item != null)
         {
             itemSpawner.DropItemWithQuantity(item, dropPos, count).Forget();
+            Debug.Log($"[DropItem]{item.itemName} x{count} 아이템을 드랍했습니다.");
         }
     }
 

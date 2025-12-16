@@ -13,11 +13,9 @@ public class WorldDeathBox : WorldItemContainerBase
     protected override void Awake()
     {
         base.Awake();
-        base.Awake();
 
-
-       deathBoxData = ScriptableObject.CreateInstance<DeathBoxData>();
-       highlight.promptFormat = "아이템 회수 [E]";
+        deathBoxData = ScriptableObject.CreateInstance<DeathBoxData>();
+    }
     /// </summary>
     public void Initialize(DeathBoxData data)
     {
@@ -67,7 +65,7 @@ public class WorldDeathBox : WorldItemContainerBase
             Debug.Log($"[WorldDeathBox] HasItems: {deathBoxData.HasItems}");
             Debug.Log($"[WorldDeathBox] Items.Count: {deathBoxData.Items.Count}");
         }
-
+        highlight.promptFormat = "아이템 회수 [E]";
         base.Interact(player);
     }
 

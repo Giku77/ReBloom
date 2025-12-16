@@ -1,5 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
+using UnityEngine.UIElements;
 
 public enum CraftFailReason
 {
@@ -126,15 +127,15 @@ public class CraftingManager
         //}
 
         int totalProductCount = recipe.productCount * amount;
-        _inventory.AddItemWithOverflow(recipe.productId, totalProductCount, out int overflow);
+        var overflow = _inventory.AddItemFromWorld(recipe.productId, totalProductCount);
+
+        SoundManager.I?.PlayCrafting();
 
         return new CraftResult
         {
             reason = overflow > 0 ? CraftFailReason.NoOutputSpace : CraftFailReason.None,
-        _inventory.AddItemWithOverflow(recipe.productId, totalProductCount, out int overflow);
-        SoundManager.I?.PlayCrafting();
-        var overflow = totalProductCount - _inventory.AddItemFromWorld(recipe.productId, totalProductCount);
-
+            overflowCount = overflow
+        };
     }
 
     public int GetMaxCraftable(int recipeId)
