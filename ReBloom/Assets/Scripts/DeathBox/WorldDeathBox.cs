@@ -19,16 +19,21 @@ public class WorldDeathBox : WorldItemContainerBase
        deathBoxData = ScriptableObject.CreateInstance<DeathBoxData>();
        highlight.promptFormat = "아이템 회수 [E]";
     /// </summary>
-    public void Initialize(DeathBoxData data, IItemContainer currentPlayerInventory)
+    public void Initialize(DeathBoxData data)
     {
         deathBoxData = data;
 
-        if (currentPlayerInventory != null)
+        // playerInventory는 항상 찾아야 함
+        if (playerInventory == null)
         {
-            playerInventory = GameObject.FindFirstObjectByType<GameInventory>();
+            playerInventory = FindFirstObjectByType<GameInventory>();
         }
 
-        // 플레이어 찾기
+        if (playerInventory == null)
+        {
+            Debug.LogError("[WorldDeathBox] GameInventory를 찾을 수 없습니다!");
+        }
+
         FindPlayer();
     }
 
@@ -45,15 +50,26 @@ public class WorldDeathBox : WorldItemContainerBase
         }
         Destroy(gameObject);
     }
+    public override bool CanInteract()
+    {
+        bool canInteract = deathBoxData != null && deathBoxData.HasItems;
+        Debug.Log($"[WorldDeathBox] CanInteract: {canInteract} (data: {deathBoxData != null}, hasItems: {deathBoxData?.HasItems})");
+        return canInteract;
+    }
+    public override void Interact(PlayerController player)
+    {
+        Debug.Log($"[WorldDeathBox] Interact 호출됨");
+        Debug.Log($"[WorldDeathBox] deathBoxData: {(deathBoxData != null ? "있음" : "NULL")}");
+        Debug.Log($"[WorldDeathBox] playerInventory: {(playerInventory != null ? "있음" : "NULL")}");
 
-    // public override void Interact(PlayerController player)
-    // {
-    //     if (deathBoxData != null)
-    //     {
-    //         Debug.Log($"[WorldDeathBox] 상호작용 - 아이템 수: {deathBoxData.Items.Count}");
-    //     }
-    //     //base.Interact(player);
-    // }
+        if (deathBoxData != null)
+        {
+            Debug.Log($"[WorldDeathBox] HasItems: {deathBoxData.HasItems}");
+            Debug.Log($"[WorldDeathBox] Items.Count: {deathBoxData.Items.Count}");
+        }
+
+        base.Interact(player);
+    }
 
     private void OnDestroy()
     {
