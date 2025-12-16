@@ -13,14 +13,11 @@ public class WorldDeathBox : WorldItemContainerBase
     protected override void Awake()
     {
         base.Awake();
+        base.Awake();
 
 
        deathBoxData = ScriptableObject.CreateInstance<DeathBoxData>();
        highlight.promptFormat = "아이템 회수 [E]";
-    }
-
-    /// <summary>
-    /// 외부에서 초기화 (PlayerDeathHandler에서 호출)
     /// </summary>
     public void Initialize(DeathBoxData data, IItemContainer currentPlayerInventory)
     {

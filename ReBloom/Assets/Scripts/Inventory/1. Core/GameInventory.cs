@@ -63,14 +63,11 @@ public class GameInventory : MonoBehaviour, IGameInventory
     // HasItem 중복 제거 - 하나만 남김
     public bool HasItem(int itemID, int count)
         => inventoryData.HasItem(itemID, count);
-
+   
     public void RemoveItem(int itemID, int count)
         => inventoryData.TryRemoveItem(itemID, count);
-
-    // AddItem 메서드 추가 (필요함!)
-    public int AddItem(int itemID, int count)
-        => inventoryData.TryAddItem(itemID, count);
-
+    //public int AddItem(int itemID, int count)
+    //    => inventoryData.TryAddItem(itemID, count);
     public void Clear()
         => inventoryData.Clear();
 
@@ -101,7 +98,7 @@ public class GameInventory : MonoBehaviour, IGameInventory
 
             if (item.itemID == 4002001 || item.itemID == 4002002)
             {
-                AddItem(4102035, 1); //@??
+                TryAddItemFromWorld(4102035, 1); //@??
             }
         }
         else if (item.canEquip)
