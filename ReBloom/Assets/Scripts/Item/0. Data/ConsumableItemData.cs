@@ -84,6 +84,8 @@ public class ConsumableItemData : ItemBase
         description = Description[entity];
         worldPrefabAddress = Addressable_Key[entity];
 
+        iconAddress = "Assets/Arts/Icon/" + worldPrefabAddress + "_icon";
+
         // 아이콘은 Addressable로 비동기 로드
         LoadIconAsync();
         LoadPrefabAsync();
@@ -209,7 +211,7 @@ public class ConsumableItemData : ItemBase
     private async void LoadIconAsync()
     {
         //string path = ImgPath[entity];
-        string path = "Icon/ConsumableIcon"; // 임시 경로
+        string path = iconAddress; // 임시 경로
 
         // 경로가 비어있으면 기본 아이콘 사용
         if (string.IsNullOrEmpty(path))
