@@ -26,12 +26,6 @@ public class PlayerAnimation : MonoBehaviour
     private float targetLayerWeight = 0f;
     private bool isBlending = false;
 
-    private bool isGathering = false;
-    private Vector3 leftFootPosition;
-    private Vector3 rightFootPosition;
-    private Quaternion leftFootRotation;
-    private Quaternion rightFootRotation;
-
     private void Awake()
     {
         animator = GetComponentInChildren<Animator>();

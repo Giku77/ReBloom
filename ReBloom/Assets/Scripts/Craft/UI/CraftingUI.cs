@@ -60,7 +60,6 @@ public class CraftingUI : UIBase
 
     private void UpdateCraftCountText()
     {
-        SoundManager.I?.PlayUIClick();
         craftingCountText.text = $"{selectedAmount} / {maxCraftable}";
     }
 

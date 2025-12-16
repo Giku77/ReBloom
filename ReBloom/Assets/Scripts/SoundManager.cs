@@ -39,6 +39,10 @@ public class SoundManager : MonoBehaviour
     public AudioClip crafting;
     public AudioClip openCraftingTable;
     public AudioClip closeCraftingTable;
+    private AudioSource gatherSource;
+    public AudioClip gatherHand;
+    public AudioClip gatherShovel;
+    public AudioClip gatherHammer;
 
     [Header("Volume")]
     [SerializeField, Range(0f, 1f)] private float bgmVolume = 0.5f;
@@ -75,6 +79,11 @@ public class SoundManager : MonoBehaviour
         breathingHeavySource.playOnAwake = false;
         breathingHeavySource.loop = true;
         breathingHeavySource.volume = 0.5f;
+
+        gatherSource = gameObject.AddComponent<AudioSource>();
+        gatherSource.playOnAwake = false;
+        gatherSource.loop = true;
+        gatherSource.volume = sfxVolume;
     }
 
     private void Update()
@@ -204,6 +213,29 @@ public class SoundManager : MonoBehaviour
         }
     }
 
+    public void PlayGather(int toolType)
+    {
+        if (gatherSource.isPlaying) return;
+
+        gatherSource.loop = true;
+
+        switch (toolType)
+        {
+            case 0: gatherSource.clip = gatherHand; break;
+            case 1: gatherSource.clip = gatherShovel; break;
+            case 2: gatherSource.clip = gatherHammer; break;
+        }
+
+        gatherSource.Play();
+    }
+
+    public void StopGather()
+    {
+        if (!gatherSource.isPlaying) return;
+        gatherSource.Stop();
+        gatherSource.clip = null;
+    }
+
     public void PlayGetDamage()
     {
         if (getDamageSounds == null || getDamageSounds.Length == 0) return;
@@ -225,4 +257,7 @@ public class SoundManager : MonoBehaviour
     public void PlayTextBlip() => PlaySFX(textBlip);
     public void PlayNextMission() => PlaySFX(nextMission);
     public void PlayMissionClear() => PlaySFX(missionClear);
+    public void PlayGatherHand() => PlaySFX(gatherHand);
+    public void PlayGatherShovel() => PlaySFX(gatherShovel);
+    public void PlayGatherHammer() => PlaySFX(gatherHammer);
 }
