@@ -35,9 +35,25 @@ public class WorldDeathBox : WorldItemContainerBase
     // 시체박스 전용: 회수 후 오브젝트 제거
     protected override void OnTransferComplete()
     {
+        Debug.Log($"[WorldDeathBox] BEFORE base: hasItems={deathBoxData?.HasItems} count={deathBoxData?.Items.Count}");
         base.OnTransferComplete();
+        Debug.Log($"[WorldDeathBox] AFTER  base: hasItems={deathBoxData?.HasItems} count={deathBoxData?.Items.Count}");
+        if (deathBoxData != null && deathBoxData.HasItems)
+        {
+            ToastMessageUI.Instance?.Show("인벤토리가 가득 찼습니다. 남은 아이템이 있습니다.");
+            return;
+        }
         Destroy(gameObject);
     }
+
+    // public override void Interact(PlayerController player)
+    // {
+    //     if (deathBoxData != null)
+    //     {
+    //         Debug.Log($"[WorldDeathBox] 상호작용 - 아이템 수: {deathBoxData.Items.Count}");
+    //     }
+    //     //base.Interact(player);
+    // }
 
     private void OnDestroy()
     {

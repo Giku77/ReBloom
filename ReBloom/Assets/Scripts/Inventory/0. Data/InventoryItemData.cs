@@ -21,7 +21,8 @@ public class InventoryItemData : ScriptableObject, IItemContainer
 
     public IReadOnlyList<ItemSlotData> Items => GetValidSlots();
 
-    public bool HasItems => slots != null;
+    public bool HasItems =>
+    slots != null && slots.Take(SlotCount).Any(s => s != null && s.itemID > 0 && s.count > 0);
     public bool HasItem(int itemID, int count)
     {
         return GetItemCount(itemID) >= count;
@@ -240,6 +241,7 @@ public class InventoryItemData : ScriptableObject, IItemContainer
 
     public void Initialize()
     {
+        Clear();
         // 슬롯 배열만 초기화
         if (slots == null || slots.Length != 40)
         {

@@ -13,7 +13,8 @@ public class InventoryMessageService : MonoBehaviour
             ? $"{item.itemName} +{count}"
             : $"{item.itemName} 획득";
 
-        itemToastUI.Show(text, item.icon);
+        //itemToastUI.Show(text, item.icon);
+        itemToastUI.Show(text, null);
     }
 
     public void ShowInventoryFull(int added, int requested)

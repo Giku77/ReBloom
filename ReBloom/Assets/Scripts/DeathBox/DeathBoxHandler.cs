@@ -44,7 +44,17 @@ public class DeathBoxHandler : MonoBehaviour
         // 강아지
         if (poppi == null)
         {
-            poppi = Object.FindFirstObjectByType<InventoryRobotPet>();
+            poppi = FindFirstObjectByType<InventoryRobotPet>();
+        }
+    }
+
+    private void DumpContainer(string label, IItemContainer c)
+    {
+        Debug.Log($"[{label}] HasItems={c.HasItems}, Items.Count={c.Items.Count}");
+        foreach (var s in c.Items)
+        {
+            if (s != null && s.itemID > 0 && s.count > 0)
+                Debug.Log($"[{label}] itemID={s.itemID}, count={s.count}");
         }
     }
 
@@ -60,10 +70,12 @@ public class DeathBoxHandler : MonoBehaviour
         if (playerEquipManager != null)
         {
             AddEquippedItemsToDeathBox(newDeathBoxData);
+            DumpContainer("After Equip Added", newDeathBoxData);
         }
 
         // 3. 인벤토리 아이템 추가
         newDeathBoxData.AddItemsFromInventory(playerInventory.Container);
+        DumpContainer("After Inventory Added", newDeathBoxData);
 
         // 4. 원본 클리어
         if (clearInventoryOnDeath)

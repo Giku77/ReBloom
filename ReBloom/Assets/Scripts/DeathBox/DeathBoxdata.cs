@@ -14,6 +14,12 @@ public class DeathBoxData : ItemContainerBase
     public Vector3 DeathPosition => deathPosition;
     public DateTime DeathTime => deathTime;
 
+
+    private void OnEnable()
+    {
+        maxSlots = 50;
+    }
+
     // 시체박스 전용: 인벤토리에서 아이템 받아오기
 
     /// <summary>
