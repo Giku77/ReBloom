@@ -60,6 +60,7 @@ public class CraftingUI : UIBase
 
     private void UpdateCraftCountText()
     {
+        SoundManager.I?.PlayUIClick();
         craftingCountText.text = $"{selectedAmount} / {maxCraftable}";
     }
 
@@ -121,12 +122,14 @@ public class CraftingUI : UIBase
     {
         if (selectedAmount <= 0 && maxCraftable > 0)
         {
+            SoundManager.I?.PlayError();
             setResultText("제작 수량을 선택해주세요.");
             return;
         }
 
         if (selectedAmount <= 0)
         {
+            SoundManager.I?.PlayError();
             setResultText("재료가 부족합니다.");
             return;
         }
@@ -138,10 +141,12 @@ public class CraftingUI : UIBase
             switch (check.failReason)
             {
                 case CraftFailReason.NotEnoughMaterials:
+                    SoundManager.I?.PlayError();
                     setResultText("재료가 부족합니다.");
                     // check.missingMaterials 써서 상세 메시지 가능
                     break;
                 case CraftFailReason.NoOutputSpace:
+                    SoundManager.I?.PlayError();
                     setResultText("인벤토리에 공간이 부족합니다.");
                     break;
                 // ...
@@ -215,7 +220,6 @@ public class CraftingUI : UIBase
             selectedAmount = 0;
             craftingCountSlider.value = selectedAmount;
         }
-
         UpdateCraftCountText();
         RefreshMaterialText();
     }
@@ -284,9 +288,12 @@ public class CraftingUI : UIBase
     protected override void OnShow()
     {
         backgroundImage.gameObject.SetActive(true);
+        SoundManager.I?.PlayOpenCraftingTable();
     }
     protected override void OnHide()
     {
         backgroundImage.gameObject.SetActive(false);
+        SoundManager.I?.PlayCloseCraftingTable();
+
     }
 }
