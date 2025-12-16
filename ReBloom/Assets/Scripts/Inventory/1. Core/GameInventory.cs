@@ -115,7 +115,7 @@ public class GameInventory : MonoBehaviour, IGameInventory
     /// </summary>
     /// <param name="itemId"></param>
     /// <param name="amount"></param>
-    public int AddItemFromWorld(int itemID, int count)
+    public int AddItemFromWorld(int itemID, int count, bool drop = false)
     {
         int added = inventoryData.TryAddItem(itemID, count);  // TryAddItem 사용
         int overflow = count - added;
@@ -129,8 +129,16 @@ public class GameInventory : MonoBehaviour, IGameInventory
 
         if (overflow > 0)
         {
-            dropService?.DropItem(itemID, overflow);
-            uiService?.ShowWarning($"인벤토리 부족! {added}/{count}개만 획득");
+            if (added > 0 || drop)
+            {
+                dropService?.DropItem(itemID, overflow);
+                uiService?.ShowWarning($"인벤토리가 가득 차서 {overflow}개는 드랍되었습니다.");
+            }
+            else
+            {
+                uiService?.ShowWarning("인벤토리가 가득 찼습니다!");
+            }
+
             InventroyEventSystem.InventoryFull();
         }
 

@@ -9,11 +9,13 @@ public class FarmCellInfoPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private TextMeshProUGUI stateText;
     [SerializeField] private TextMeshProUGUI remainText;
+    [SerializeField] private TextMeshProUGUI fertilizerText;
     [SerializeField] private TextMeshProUGUI waterText;
 
     [SerializeField] private Button waterBtn;
     [SerializeField] private Button harvestBtn;
     [SerializeField] private Button uprootBtn; // “파종(뽑기)” 같은 의미로 쓰면 됨
+    [SerializeField] private Button fertilizeBtn;
     [SerializeField] private Button closeBtn;
 
     private int currentIndex = -1;
@@ -22,6 +24,7 @@ public class FarmCellInfoPanel : MonoBehaviour
     public event Action<int> OnWaterClicked;
     public event Action<int> OnHarvestClicked;
     public event Action<int> OnUprootClicked;
+    public event Action<int> OnFertilizeClicked;
 
     private float _nextRefreshTime;
     private void Update()
@@ -58,7 +61,15 @@ public class FarmCellInfoPanel : MonoBehaviour
         if (waterBtn) waterBtn.onClick.AddListener(() => { if (currentIndex >= 0) OnWaterClicked?.Invoke(currentIndex); });
         if (harvestBtn) harvestBtn.onClick.AddListener(() => { if (currentIndex >= 0) OnHarvestClicked?.Invoke(currentIndex); });
         if (uprootBtn) uprootBtn.onClick.AddListener(() => { if (currentIndex >= 0) OnUprootClicked?.Invoke(currentIndex); });
+        if (fertilizeBtn) fertilizeBtn.onClick.AddListener(() => { if (currentIndex >= 0) OnFertilizeClicked?.Invoke(currentIndex); });
         if (closeBtn) closeBtn.onClick.AddListener(Hide);
+    }
+
+    private InventoryItemData inventory;
+
+    public void BindInventory(InventoryItemData inv)
+    {
+        inventory = inv;
     }
 
     public void Show(int cellIndex, FarmBed plot)
@@ -129,9 +140,27 @@ public class FarmCellInfoPanel : MonoBehaviour
                     waterText.text = $"물 필요량 : -";
                 }
             }
+            if (fertilizerText)
+            {
+                if (cell.state == CropSlotState.Growing)
+                {
+                    fertilizerText.text = $"비료 시간 : {Mathf.CeilToInt(cell.fertilizerRemain)}초";
+                }
+                else
+                {
+                    fertilizerText.text = $"비료 시간 : -";
+                }
+            }
         }
         if (waterBtn) waterBtn.gameObject.SetActive(cell.state == CropSlotState.Growing);
         if (harvestBtn) harvestBtn.gameObject.SetActive(cell.state == CropSlotState.Mature);
         if (uprootBtn) uprootBtn.gameObject.SetActive(cell.state != CropSlotState.Empty);
+        bool hasFertilizer = inventory != null && inventory.GetItemCount(FarmConst.FertilizerItemId) > 0;
+        bool canFertilize = cell.state == CropSlotState.Growing;
+
+        if (fertilizeBtn)
+        {
+            fertilizeBtn.gameObject.SetActive(canFertilize && hasFertilizer);
+        }
     }
 }

@@ -18,6 +18,8 @@ public class CropSlot
     public float stageTimer;
 
     public int wateredCount;    
+    public float fertilizerRemain;  
+    public float growSpeedMultiplier = 1f; // 기본 1, 비료면 2
     // 시각화용
     public GameObject visualRoot;
     [HideInInspector] public CropVisual visual;

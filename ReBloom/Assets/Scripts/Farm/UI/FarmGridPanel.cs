@@ -11,13 +11,14 @@ public class FarmGridPanel : MonoBehaviour
 
     private Action<int> onCellClicked;
     private Action<int, int> onSeedDroppedToCell; 
+    private Action<int, bool> onCellHoverChanged;
 
-    public void Bind(FarmBed plot, Action<int> onCellClicked, Action<int, int> onSeedDroppedToCell)
+    public void Bind(FarmBed plot, Action<int> onCellClicked, Action<int, int> onSeedDroppedToCell, Action<int, bool> onCellHoverChanged)
     {
         boundPlot = plot;
         this.onCellClicked = onCellClicked;
         this.onSeedDroppedToCell = onSeedDroppedToCell;
-
+        this.onCellHoverChanged = onCellHoverChanged;
         //EnsurePool(plot.Slots.Length);
 
         Debug.Log($"[FarmGridPanel] Bind plot with {cells.Length} slots.");
@@ -36,7 +37,8 @@ public class FarmGridPanel : MonoBehaviour
                 index: idx,
                 slot: plot.Slots[idx],              
                 onClick: () => this.onCellClicked?.Invoke(idx),
-                onSeedDrop: (seedId) => this.onSeedDroppedToCell?.Invoke(seedId, idx)
+                onSeedDrop: (seedId) => this.onSeedDroppedToCell?.Invoke(seedId, idx),
+                onHoverChanged: (cellIndex, isHovering) => this.onCellHoverChanged?.Invoke(cellIndex, isHovering)
             );
         }
     }

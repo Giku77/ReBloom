@@ -26,8 +26,8 @@ public class FarmUI : UIBase
         currentPlayer = player;
 
 
-        //if (inventoryItemData != null)
-        //    inventoryItemData.OnInventoryChanged += RefreshSeeds;
+        if (inventoryItemData != null)
+            inventoryItemData.OnContainerChanged += RefreshSeeds;
 
         if (currentPlot != null)
         {
@@ -38,7 +38,10 @@ public class FarmUI : UIBase
         BindInfoPanelEvents();
 
         if (infoPanel != null)
+        {
+            infoPanel.BindInventory(inventoryItemData);
             infoPanel.Hide();
+        }
 
         RefreshSeeds();
         RefreshGrid();
@@ -57,6 +60,11 @@ public class FarmUI : UIBase
 
         Unbind();
         infoPanel.Hide();
+
+        if (currentPlot != null && _hoveredIndex != -1)
+            currentPlot.SetSlotHighlighted(_hoveredIndex, false);
+
+        _hoveredIndex = -1;
         base.Hide();
         UIManager.Instance.HideUI(UIType.Farm);
     }
@@ -71,8 +79,8 @@ public class FarmUI : UIBase
 
     private void Unbind()
     {
-        // if (inventoryItemData != null)
-        // inventoryItemData.OnInventoryChanged -= RefreshSeeds;
+        if (inventoryItemData != null)
+            inventoryItemData.OnContainerChanged -= RefreshSeeds;
 
         if (currentPlot != null && _plotChangedHandler != null)
             currentPlot.OnChanged -= _plotChangedHandler;
@@ -82,6 +90,7 @@ public class FarmUI : UIBase
             infoPanel.OnWaterClicked -= HandleWaterClicked;
             infoPanel.OnHarvestClicked -= HandleHarvestClicked;
             infoPanel.OnUprootClicked -= HandleUprootClicked;
+            infoPanel.OnFertilizeClicked -= HandleFertilizeClicked;
             _infoPanelBound = false;
         }
 
@@ -102,11 +111,32 @@ public class FarmUI : UIBase
         seedListPanel.Bind(stacks, OnSeedClicked); 
     }
 
+    private int _hoveredIndex = -1;
     private void RefreshGrid()
     {
         if (currentPlot == null) return;
 
-        gridPanel.Bind(currentPlot, OnCellClicked, OnSeedDroppedToCell);
+        gridPanel.Bind(currentPlot, OnCellClicked, OnSeedDroppedToCell, OnCellHoverChanged);
+    }
+
+    
+    private void OnCellHoverChanged(int idx, bool enter)
+    {
+        if (currentPlot == null) return;
+
+        if (_hoveredIndex != -1 && _hoveredIndex != idx)
+            currentPlot.SetSlotHighlighted(_hoveredIndex, false);
+
+        if (enter)
+        {
+            currentPlot.SetSlotHighlighted(idx, true);
+            _hoveredIndex = idx;
+        }
+        else
+        {
+            currentPlot.SetSlotHighlighted(idx, false);
+            if (_hoveredIndex == idx) _hoveredIndex = -1;
+        }
     }
 
     public void OnCellClicked(int cellIndex)
@@ -123,6 +153,7 @@ public class FarmUI : UIBase
         infoPanel.OnWaterClicked += HandleWaterClicked;
         infoPanel.OnHarvestClicked += HandleHarvestClicked;
         infoPanel.OnUprootClicked += HandleUprootClicked;
+        infoPanel.OnFertilizeClicked += HandleFertilizeClicked;
 
         _infoPanelBound = true;
     }
@@ -233,4 +264,39 @@ public class FarmUI : UIBase
 
         ToastMessageUI.Instance?.Show($"{cropRow.cropName} 심기 완료!");
     }
+
+    private void HandleFertilizeClicked(int cellIndex)
+    {
+        if (currentPlot == null || inventoryItemData == null) return;
+
+        var slot = currentPlot.GetSlot(cellIndex);
+        if (slot == null || slot.state != CropSlotState.Growing)
+        {
+            ToastMessageUI.Instance?.Show("지금은 비료를 사용할 수 없습니다.");
+            return;
+        }
+
+        if (inventoryItemData.GetItemCount(FarmConst.FertilizerItemId) <= 0)
+        {
+            ToastMessageUI.Instance?.Show("비료가 없습니다.");
+            return;
+        }
+
+        if (!inventoryItemData.TryRemoveItem(FarmConst.FertilizerItemId, 1))
+        {
+            ToastMessageUI.Instance?.Show("비료 소모에 실패했습니다.");
+            return;
+        }
+
+        if (!currentPlot.TryApplyFertilizer(cellIndex, FarmConst.FertilizerDuration))
+        {
+            inventoryItemData.TryAddItem(FarmConst.FertilizerItemId, 1);
+            ToastMessageUI.Instance?.Show("비료를 사용할 수 없습니다.");
+            return;
+        }
+
+        ToastMessageUI.Instance?.Show("비료를 사용했습니다! (성장 2배 / 600초)");
+        infoPanel.Refresh();
+    }
+
 }

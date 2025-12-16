@@ -6,7 +6,7 @@
 public interface IGameInventory
 {
     // 외부 공개 API만 정의
-    int AddItemFromWorld(int itemID, int count);
+    int AddItemFromWorld(int itemID, int count, bool drop);
     bool TryAddItemFromWorld(int itemID, int count);
     bool CanUnequip(int itemID);
     bool UseItem(int itemID);

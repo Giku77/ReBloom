@@ -58,8 +58,19 @@ public class FarmBed : MonoBehaviour
         // 단계별 물 요구: 물이 부족하면 시간 진행 안함(너가 원하면 '말라죽기'로 바꿔도 됨)
         if (stage.needWater > 0 && slot.wateredCount < stage.needWater)
             return;
+    
+        if (slot.fertilizerRemain > 0f)
+        {
+            slot.fertilizerRemain -= dt;
+            if (slot.fertilizerRemain <= 0f)
+            {
+                slot.fertilizerRemain = 0f;
+                slot.growSpeedMultiplier = 1f;
+            }
+        }    
 
-        slot.stageTimer += dt;
+        float growDt = dt * Mathf.Max(1f, slot.growSpeedMultiplier);
+        slot.stageTimer += growDt;
 
         // needTime 단위가 테이블에서 864, 1728 이런 값이면
         // "초인지/분인지/게임틱인지" 기준을 하나 정해야 함 (지금은 dt가 Time.deltaTime 기준이므로 초라고 가정)
@@ -77,6 +88,19 @@ public class FarmBed : MonoBehaviour
             OnChanged?.Invoke();
         }
     }
+    public bool TryApplyFertilizer(int slotIndex, float duration = FarmConst.FertilizerDuration)
+    {
+        var slot = GetSlot(slotIndex);
+        if (slot == null) return false;
+        if (slot.state != CropSlotState.Growing) return false;
+
+        slot.growSpeedMultiplier = FarmConst.FertilizerSpeedMul;
+        slot.fertilizerRemain = Mathf.Max(slot.fertilizerRemain, duration); 
+
+        OnChanged?.Invoke();
+        return true;
+    }
+
     private async UniTaskVoid UpdateSlotVisualAsync(int index)
     {
         // 이전 로딩 취소
@@ -201,7 +225,7 @@ public class FarmBed : MonoBehaviour
         foreach (var d in row.drops)
         {
             if (d.rate >= 1f || UnityEngine.Random.value <= d.rate)
-                player.Inventory.AddItemFromWorld(d.itemId, d.count);
+                player.Inventory.AddItemFromWorld(d.itemId, d.count, true);
         }
 
         // 슬롯 초기화

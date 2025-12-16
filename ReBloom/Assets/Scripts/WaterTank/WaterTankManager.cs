@@ -60,7 +60,7 @@ public class WaterTankManager
         }
 
         inventoryItemData.RemoveItem(4002002, 1);
-        inventoryItemData.AddItemFromWorld(4102035, 1);
+        inventoryItemData.AddItemFromWorld(4102035, 1, true);
 
         AddWater(ManualStep);
     }
@@ -82,7 +82,7 @@ public class WaterTankManager
         }
 
         inventoryItemData.RemoveItem(4102035, 1);
-        inventoryItemData.AddItemFromWorld(4002002, 1);
+        inventoryItemData.AddItemFromWorld(4002002, 1, true);
 
         AddWater(-ManualStep);
         Debug.Log("[WaterTankManager] 물 회수 성공");
