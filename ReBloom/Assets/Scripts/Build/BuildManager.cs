@@ -388,6 +388,7 @@ public class BuildManager : MonoBehaviour
             return false;
         }
         var p = Instantiate(buildprefab, adjustedPos, rot);
+        SoundManager.I?.PlayBuild();
         var bInstance = p.GetComponent<BuildingInstance>();
         bInstance.arcId = arc.arcId;
         RegisterBuilding(bInstance);

@@ -121,6 +121,8 @@ public class CraftingManager
         int totalProductCount = recipe.productCount * amount;
         int addedCount = _inventory.AddItem(recipe.productId, totalProductCount);
 
+        SoundManager.I?.PlayCrafting();
+
         if (addedCount < totalProductCount)
         {
             // 일부만 인벤토리에 들어감

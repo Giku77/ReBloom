@@ -130,5 +130,12 @@ public class BuildUI : UIBase
     protected override void OnShow()
     {
         BuildPlacementController.I?.CancelPlacement();
+        SoundManager.I?.PlayOpenInventory();
+    }
+
+    protected override void OnHide()
+    {
+        base.OnHide();
+        SoundManager.I?.PlayCloseInventory();
     }
 }

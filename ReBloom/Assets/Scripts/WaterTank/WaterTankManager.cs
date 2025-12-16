@@ -85,6 +85,7 @@ public class WaterTankManager
         inventoryItemData.AddItem(4002002, 1);
 
         AddWater(-ManualStep);
+        Debug.Log("[WaterTankManager] 물 회수 성공");
     }
 
     public void Tick(float deltaTime)

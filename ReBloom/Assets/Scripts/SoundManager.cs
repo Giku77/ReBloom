@@ -29,6 +29,8 @@ public class SoundManager : MonoBehaviour
 
     [Header("상호작용 사운드")]
     public AudioClip getWorldItem;
+    public AudioClip build;
+    public AudioClip crafting;
 
     [Header("Volume")]
     [SerializeField, Range(0f, 1f)] private float bgmVolume = 0.5f;
@@ -205,5 +207,7 @@ public class SoundManager : MonoBehaviour
     public void PlayOpenInventory() => PlaySFX(openInventory);
     public void PlayCloseInventory() => PlaySFX(closeInventory);
     public void PlayGetWorldItem() => PlaySFX(getWorldItem);
+    public void PlayBuild() => PlaySFX(build);
+    public void PlayCrafting() => PlaySFX(crafting);
 
 }
