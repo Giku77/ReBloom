@@ -17,6 +17,8 @@ public class UIManager : MonoBehaviour
 
     public bool IsBlockedInput => isBlockedInput;
 
+    public bool IsGamePaused { get; private set; }
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -74,6 +76,12 @@ public class UIManager : MonoBehaviour
 
     public void ShowUI(UIType type)
     {
+        if (IsGamePaused && !IsPauseUI(type))
+        {
+            Debug.Log($"[UIManager] Pause 중 UI 차단: {type}");
+            return;
+        }
+
         if (!uiDict.TryGetValue(type, out var ui)) return;
 
         if (ui.Layer == UILayer.Modal)
@@ -81,6 +89,7 @@ public class UIManager : MonoBehaviour
             CloseAllModalsExcept(type);
         }
 
+        Debug.Log("[UIManager] UI 매니저 SHOW UI 호출");
         ui.Show();
 
         if (ui.BlocksGameplayInput)
@@ -140,8 +149,8 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            // 아무 모달도 안 열려 있을 때 ESC 정책 (예: 일시정지 열기)
-            // ShowUI(UIType.Settings);
+            Debug.Log("[UIManager] 게임 일시정지 ESC 호출");
+            ShowUI(UIType.GamePause);
         }
     }
 
@@ -239,5 +248,15 @@ public class UIManager : MonoBehaviour
             return ui.IsOpen;
         }
         return false;
+    }
+
+    private bool IsPauseUI(UIType type)
+    {
+        return type == UIType.GamePause;
+    }
+
+    public void SetPaused(bool paused)
+    {
+        IsGamePaused = paused;
     }
 }

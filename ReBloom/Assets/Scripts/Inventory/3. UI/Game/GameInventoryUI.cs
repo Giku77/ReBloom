@@ -175,7 +175,13 @@ public class GameInventoryUI : UIBase
     }
     protected override void OnShow()
     {
-       RefreshUI();
+        RefreshUI();
+        SoundManager.I?.PlayOpenInventory();
+    }
+
+    protected override void OnHide()
+    {
+        SoundManager.I?.PlayCloseInventory();
     }
 
     private void OnTabClicked(InventorySlotType inventoryType)

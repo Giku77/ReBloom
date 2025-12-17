@@ -107,12 +107,10 @@ public class GameInventoryInput : MonoBehaviour
         if (isInventoryOpen)
         {
             gameInventory.OpenInventory();
-            SoundManager.I?.PlayOpenInventory();
         }
         else
         {
             gameInventory.CloseInventory();
-            SoundManager.I?.PlayCloseInventory();
 
         }
 
