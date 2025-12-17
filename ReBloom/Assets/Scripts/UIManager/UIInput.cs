@@ -44,6 +44,8 @@ public class UIInput : MonoBehaviour
 
     private void OnEsc(InputAction.CallbackContext ctx)
     {
+        Debug.Log("[UIInput] ESC pressed");
+
         UIManager.Instance.OnEscPressed();
     }
 
@@ -94,7 +96,10 @@ public class UIInput : MonoBehaviour
 
         if (!skipTriggered)
         {
-            UIManager.Instance.OnEscPressed();
+            if (cutSceneManager != null && cutSceneManager.IsPlaying)
+            {
+                UIManager.Instance.OnEscPressed();
+            }
         }
         if (skipHoldFill != null)
         {

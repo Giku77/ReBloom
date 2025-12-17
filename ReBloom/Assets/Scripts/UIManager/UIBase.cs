@@ -28,6 +28,8 @@ public abstract class UIBase : MonoBehaviour, IGameUI
         IsOpen = true;
         root.SetActive(true);
         OnShow();
+
+        Debug.Log("[UIBase] UIBase SHOW 호출");
     }
 
     public virtual void Hide()
