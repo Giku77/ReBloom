@@ -1012,23 +1012,6 @@ MonoBehaviour:
   storeContaminatedWaterButton: {fileID: 4657088396888027321}
   waterLevelText: {fileID: 9113296072546440942}
   waterTankSlider: {fileID: 4532134193666300501}
-  cancelAction:
-    m_Name: Cancel
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: c54ca067-7c96-4140-a228-5d3c9b9043f7
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: 
-      m_Id: 6949695a-7bd1-4566-a8b9-6e9bfdee1184
-      m_Path: <Keyboard>/escape
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Cancel
-      m_Flags: 0
-    m_Flags: 0
 --- !u!1 &1309261628671141567
 GameObject:
   m_ObjectHideFlags: 0
@@ -2184,7 +2167,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 590.31433, y: -200}
+  m_AnchoredPosition: {x: 440.22028, y: -200}
   m_SizeDelta: {x: 200, y: 280}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3904800735613447613
@@ -3733,6 +3716,7 @@ GameObject:
   - component: {fileID: 1227136218497501039}
   - component: {fileID: 1097723878453359439}
   - component: {fileID: 3805964265411450687}
+  - component: {fileID: 2571494714614926799}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -4478,6 +4462,19 @@ MonoBehaviour:
   ringSpeed: 15
   highlightDuration: 2
   cooldown: 0
+--- !u!114 &2571494714614926799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3915509196807712028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eeec78d96b383704d8d8914d87363100, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inventoryData: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
 --- !u!1 &3951941231071691645
 GameObject:
   m_ObjectHideFlags: 0
@@ -12723,7 +12720,7 @@ PrefabInstance:
     - target: {fileID: 7525951092544635978, guid: 4eccaeb1939f0604c9626d481b0a9475, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: -6734620852318575487, guid: d22c3060bafc13e4da82ba0b757365a0, type: 3}
     - target: {fileID: 8851003960474436401, guid: 4eccaeb1939f0604c9626d481b0a9475, type: 3}
       propertyPath: m_Name
       value: PlayerModel2

@@ -2,8 +2,6 @@
 
 public class WaterPurificationFacilityInteractable : BuildingInteractableBase
 {
-    [Header ("Reference")]
-    [SerializeField] private GameInventory inventory;
 
     private ArcData arcData;
 
@@ -14,6 +12,7 @@ public class WaterPurificationFacilityInteractable : BuildingInteractableBase
 
     public override void Interact(PlayerController player)
     {
+        var inventory = player?.Inventory;
         if (inventory == null && player == null) return;
         if (!inventory.HasItem(4002001, 1))
         {
