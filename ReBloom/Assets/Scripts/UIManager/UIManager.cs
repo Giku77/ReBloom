@@ -76,11 +76,11 @@ public class UIManager : MonoBehaviour
 
     public void ShowUI(UIType type)
     {
-        //if (IsGamePaused && !IsPauseUI(type))
-        //{
-        //    Debug.Log($"[UIManager] Pause 중 UI 차단: {type}");
-        //    return;
-        //}
+        if (IsGamePaused && !IsPauseUI(type))
+        {
+            Debug.Log($"[UIManager] Pause 중 UI 차단: {type}");
+            return;
+        }
 
         if (!uiDict.TryGetValue(type, out var ui)) return;
 
