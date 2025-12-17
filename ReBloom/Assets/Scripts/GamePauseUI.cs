@@ -32,23 +32,26 @@ public class GamePauseUI : UIBase
     protected override void OnShow()
     {
         Time.timeScale = 0f;
-        UIManager.Instance.SetPaused(true);
+        SoundManager.I?.PlayOpenInventory();
+        UIManager.Instance?.SetPaused(true);
     }
 
     protected override void OnHide()
     {
         Time.timeScale = 1f;
-        UIManager.Instance.SetPaused(false);
+        SoundManager.I?.PlayCloseInventory();
+        UIManager.Instance?.SetPaused(false);
     }
 
     private void OnGameResumeButtonClicked()
     {
-        UIManager.Instance.HideUI(Type);
+        UIManager.Instance?.HideUI(Type);
     }
 
     private void OnSettingButtonClicked()
     {
         Debug.Log("[GamePauseUI] 세팅버튼 클릭");
+        UIManager.Instance?.ShowUI(UIType.Setting);
     }
 
     private void OnTitleButtonClicked()

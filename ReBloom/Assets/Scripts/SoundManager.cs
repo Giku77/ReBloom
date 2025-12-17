@@ -98,9 +98,25 @@ public class SoundManager : MonoBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        if (SettingManager.I == null) return;
+
+        SettingManager.I.OnBGMVolumeChanged += SetBGMVolume;
+        SettingManager.I.OnSFXVolumeChanged += SetSFXVolume;
+
+        SetBGMVolume(SettingManager.I.BGMVolume);
+        SetSFXVolume(SettingManager.I.SFXVolume);
+    }
+
     private void OnDestroy()
     {
         ReleaseCurrentBGM();
+
+        if (SettingManager.I == null) return;
+
+        SettingManager.I.OnBGMVolumeChanged -= SetBGMVolume;
+        SettingManager.I.OnSFXVolumeChanged -= SetSFXVolume;
     }
 
     //private void PlayBGM(AssetReferenceT<AudioClip> bgmRef, bool loop)

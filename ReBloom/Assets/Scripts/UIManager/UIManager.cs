@@ -89,7 +89,6 @@ public class UIManager : MonoBehaviour
             CloseAllModalsExcept(type);
         }
 
-        Debug.Log("[UIManager] UI 매니저 SHOW UI 호출");
         ui.Show();
 
         if (ui.BlocksGameplayInput)
@@ -252,7 +251,7 @@ public class UIManager : MonoBehaviour
 
     private bool IsPauseUI(UIType type)
     {
-        return type == UIType.GamePause;
+        return type == UIType.GamePause || type == UIType.Setting;
     }
 
     public void SetPaused(bool paused)

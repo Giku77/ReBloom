@@ -17,7 +17,6 @@ public class WaterTankUI : UIBase
     [SerializeField] private Button storeContaminatedWaterButton;
     [SerializeField] private TextMeshProUGUI waterLevelText;
     [SerializeField] private Slider waterTankSlider;
-    [SerializeField] private InputAction cancelAction;
     //[SerializeField] private GameObject StoreRainTextBox;
 
     protected override void Awake()
@@ -38,16 +37,11 @@ public class WaterTankUI : UIBase
     private void OnEnable()
     {
         WaterTankManager.OnWaterLevelChange += ChangeWaterLevelUI;
-
-        cancelAction.Enable();
-        cancelAction.performed += OnCancel;
     }
 
     private void OnDisable()
     {
         WaterTankManager.OnWaterLevelChange -= ChangeWaterLevelUI;
-        cancelAction.performed -= OnCancel;
-        cancelAction.Disable();
     }
 
     public void Toggle()
@@ -110,16 +104,5 @@ public class WaterTankUI : UIBase
     private void OnstoreContaminatedWaterButtonClicked()
     {
         ToastMessageUI.Instance.Show("온실 업그레이드 컨텐츠 추가 이후 사용 가능합니다.");
-    }
-
-    private void OnCancel(InputAction.CallbackContext ctx)
-    {
-        if (!ctx.performed)
-            return;
-
-        if (!backgroundImage.gameObject.activeSelf)
-            return;
-
-        Toggle();
     }
 }
