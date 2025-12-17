@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class QuestManager : MonoBehaviour
 {
@@ -19,13 +20,24 @@ public class QuestManager : MonoBehaviour
     [SerializeField] private QuestTextSwitcher questTextSwitcher;
     [SerializeField] private QuestUI questUI;
 
+    public event Action OnQuestStateChanged;
 
+    private void RaiseQuestChanged()
+    {
+        OnQuestStateChanged?.Invoke();
+    }
 
     public void Init(QuestDB db, GameInventory inventory, StageDetector stageDetector)
     {
+        if (_inventory != null && _inventory.Container != null)
+            _inventory.Container.OnContainerChanged -= HandleInventoryChanged;
+
         _db = db;
         _inventory = inventory;
         _stageDetector = stageDetector;
+
+        if (_inventory != null)
+            _inventory.Container.OnContainerChanged += HandleInventoryChanged;
 
         foreach (var kv in db.GetAll())   
         {
@@ -35,6 +47,19 @@ public class QuestManager : MonoBehaviour
                 break;
             }
         }
+    }
+
+    private void HandleInventoryChanged()
+    {
+        RaiseQuestChanged();
+    }
+
+    private void OnDestroy()
+    {
+        if (_inventory != null && _inventory.Container != null)
+            _inventory.Container.OnContainerChanged -= HandleInventoryChanged;
+
+        if (I == this) I = null;
     }
 
     public void SetCurrent(int questId)
@@ -49,7 +74,10 @@ public class QuestManager : MonoBehaviour
 
         SyncBuildGoalsWithWorld(_current);
 
-        questUI?.Refresh();
+        questUI?.SetShowPathGuide(false);
+        questUI?.ClearPathGuide(); 
+        RaiseQuestChanged();
+        //questUI?.Refresh();
     }
 
     private void SyncBuildGoalsWithWorld(QuestData quest)
@@ -145,6 +173,7 @@ public class QuestManager : MonoBehaviour
                 PlayQuestCompleteAnimation();
             }
         }
+        AutoSaveService.I?.RequestSave("QuestProgress");
         if (questUI != null && questUI.GetShowPathGuide())
         {
               //questUI.TargetIndex = Mathf.Clamp(questUI.TargetIndex + 1, 0, questUI.GetPathTransformCount() - 1);

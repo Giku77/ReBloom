@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,6 +14,7 @@ public class SaveGameDTO
     public SaveMetaDTO meta = new SaveMetaDTO();
     public PlayerSaveDTO player = new PlayerSaveDTO();
     public WorldSaveDTO world = new WorldSaveDTO();
+    public QuestSaveDTO quest = new QuestSaveDTO();
 }
 
 [Serializable]
@@ -24,6 +25,12 @@ public class SaveMetaDTO
     public long savedAtUtcTicks;
     public string sceneName;
     public string commitId; // 부분 저장 방지/디버깅용
+}
+
+[Serializable]
+public class QuestSaveDTO
+{
+    public int currentQuestId; // 0이면 없음
 }
 
 // ---- Player ----
