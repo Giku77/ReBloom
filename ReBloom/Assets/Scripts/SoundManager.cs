@@ -1,15 +1,20 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using Cysharp.Threading.Tasks;
+using System.Threading;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class SoundManager : MonoBehaviour
 {
     public static SoundManager I { get; private set; }
 
     [Header("BGM")]
-    [SerializeField] private AudioClip titleBGM;
-    [SerializeField] private AudioClip[] mainBGMs;
+    [SerializeField] private AssetReferenceT<AudioClip> titleBGM;
+    [SerializeField] private AssetReferenceT<AudioClip>[] mainBGMs;
     private AudioSource bgmSource;
     private bool isPlayingMainBGM = false;
+    private AsyncOperationHandle<AudioClip>? currentBGMHandle;
+    private bool isLoadingBGM = false;
 
     [Header("SFX")]
     [SerializeField] private AudioSource sfxSource;
@@ -26,11 +31,23 @@ public class SoundManager : MonoBehaviour
     [Header("UI 사운드")]
     public AudioClip openInventory;
     public AudioClip closeInventory;
+    public AudioClip uiClick;
+    public AudioClip error;
+    public AudioClip cutSceneNext;
+    public AudioClip textBlip;
+    public AudioClip missionClear;
+    public AudioClip nextMission;
 
     [Header("상호작용 사운드")]
     public AudioClip getWorldItem;
     public AudioClip build;
     public AudioClip crafting;
+    public AudioClip openCraftingTable;
+    public AudioClip closeCraftingTable;
+    private AudioSource gatherSource;
+    public AudioClip gatherHand;
+    public AudioClip gatherShovel;
+    public AudioClip gatherHammer;
 
     [Header("Volume")]
     [SerializeField, Range(0f, 1f)] private float bgmVolume = 0.5f;
@@ -40,101 +57,127 @@ public class SoundManager : MonoBehaviour
 
     private void Awake()
     {
-        if (I == null)
-        {
-            I = this;
-            DontDestroyOnLoad(gameObject);
-
-            bgmSource = gameObject.AddComponent<AudioSource>();
-            bgmSource.loop = false;
-            bgmSource.volume = 0.5f;
-            bgmSource.playOnAwake = false;
-
-            sfxPool = new AudioSource[sfxPoolSize];
-            for (int i = 0; i < sfxPoolSize; i++)
-            {
-                sfxPool[i] = gameObject.AddComponent<AudioSource>();
-                sfxPool[i].playOnAwake = false;
-                sfxPool[i].volume = sfxVolume;
-            }
-        }
-        else
+        if (I != null)
         {
             Destroy(gameObject);
+            return;
+        }
+
+        I = this;
+        DontDestroyOnLoad(gameObject);
+
+        bgmSource = gameObject.AddComponent<AudioSource>();
+        bgmSource.loop = false;
+        bgmSource.playOnAwake = false;
+        bgmSource.volume = bgmVolume;
+
+        sfxPool = new AudioSource[sfxPoolSize];
+        for (int i = 0; i < sfxPoolSize; i++)
+        {
+            sfxPool[i] = gameObject.AddComponent<AudioSource>();
+            sfxPool[i].playOnAwake = false;
+            sfxPool[i].volume = sfxVolume;
         }
 
         breathingHeavySource = gameObject.AddComponent<AudioSource>();
         breathingHeavySource.playOnAwake = false;
         breathingHeavySource.loop = true;
         breathingHeavySource.volume = 0.5f;
+
+        gatherSource = gameObject.AddComponent<AudioSource>();
+        gatherSource.playOnAwake = false;
+        gatherSource.loop = true;
+        gatherSource.volume = sfxVolume;
     }
 
     private void Update()
     {
-        if (isPlayingMainBGM && !bgmSource.isPlaying)
+        if (isPlayingMainBGM && !bgmSource.isPlaying && !isLoadingBGM)
         {
-            PlayRandomMainBGM();
+            PlayRandomMainBGMAsync().Forget();
+        }
+    }
+
+    private void OnDestroy()
+    {
+        ReleaseCurrentBGM();
+    }
+
+    //private void PlayBGM(AssetReferenceT<AudioClip> bgmRef, bool loop)
+    //{
+    //    if (bgmRef == null) return;
+
+    //    ReleaseCurrentBGM();
+
+    //    bgmSource.loop = loop;
+
+    //    currentBGMHandle = bgmRef.LoadAssetAsync();
+    //    currentBGMHandle.Value.Completed += handle =>
+    //    {
+    //        if (handle.Status != AsyncOperationStatus.Succeeded) return;
+
+    //        bgmSource.clip = handle.Result;
+    //        bgmSource.Play();
+    //    };
+    //}
+
+    private void ReleaseCurrentBGM()
+    {
+        if (currentBGMHandle.HasValue && currentBGMHandle.Value.IsValid())
+        {
+            Addressables.Release(currentBGMHandle.Value);
+            currentBGMHandle = null;
         }
     }
 
     public void PlayTitleBGM()
     {
         isPlayingMainBGM = false;
-
-        if (titleBGM == null)
-        {
-            Debug.LogWarning("[SoundManager] Title BGM이 할당되지 않았습니다!");
-            return;
-        }
-
-        if (bgmSource.clip != titleBGM)
-        {
-            bgmSource.loop = true;
-            bgmSource.clip = titleBGM;
-            bgmSource.Play();
-            Debug.Log($"[SoundManager] Title BGM 재생");
-        }
+        PlayBGMAsync(titleBGM, true).Forget();
     }
 
     public void PlayMainBGM()
     {
-        if (mainBGMs == null || mainBGMs.Length == 0)
-        {
-            Debug.LogWarning("[SoundManager] Main BGM이 할당되지 않았습니다!");
-            return;
-        }
+        if (mainBGMs == null || mainBGMs.Length == 0) return;
 
         isPlayingMainBGM = true;
         bgmSource.loop = false;
-        PlayRandomMainBGM();
+        PlayRandomMainBGMAsync().Forget();
     }
 
-    private void PlayRandomMainBGM()
+    private async UniTask PlayBGMAsync(AssetReferenceT<AudioClip> bgmRef, bool loop)
     {
-        if (mainBGMs == null || mainBGMs.Length == 0) return;
+        if (bgmRef == null || isLoadingBGM) return;
 
-        AudioClip randomClip = mainBGMs[Random.Range(0, mainBGMs.Length)];
+        isLoadingBGM = true;
+        ReleaseCurrentBGM();
 
-        if (randomClip == null)
+        currentBGMHandle = bgmRef.LoadAssetAsync();
+        await currentBGMHandle.Value.ToUniTask();
+
+        if (currentBGMHandle.HasValue && currentBGMHandle.Value.Status == AsyncOperationStatus.Succeeded)
         {
-            Debug.LogWarning("[SoundManager] 선택된 BGM이 null입니다!");
-            return;
+            bgmSource.clip = currentBGMHandle.Value.Result;
+            bgmSource.loop = loop;
+            bgmSource.Play();
         }
 
-        bgmSource.clip = randomClip;
-        bgmSource.Play();
-        Debug.Log($"[SoundManager] Main BGM 재생: {randomClip.name}");
+        isLoadingBGM = false;
     }
 
-    public void SetVolume(float volume)
+    private async UniTask PlayRandomMainBGMAsync()
     {
-        bgmSource.volume = Mathf.Clamp01(volume);
+        if (mainBGMs == null || mainBGMs.Length == 0 || isLoadingBGM) return;
+
+        int index = Random.Range(0, mainBGMs.Length);
+        await PlayBGMAsync(mainBGMs[index], false);
     }
 
     public void StopBGM()
     {
         isPlayingMainBGM = false;
         bgmSource.Stop();
+        ReleaseCurrentBGM();
     }
 
     public void SetBGMVolume(float volume)
@@ -160,6 +203,8 @@ public class SoundManager : MonoBehaviour
         {
             source.volume = sfxVolume;
         }
+
+        gatherSource.volume = sfxVolume;
     }
 
     public void StartBreathingHeavy()
@@ -196,6 +241,29 @@ public class SoundManager : MonoBehaviour
         }
     }
 
+    public void PlayGather(int toolType)
+    {
+        if (gatherSource.isPlaying) return;
+
+        gatherSource.loop = true;
+
+        switch (toolType)
+        {
+            case 0: gatherSource.clip = gatherHand; break;
+            case 1: gatherSource.clip = gatherShovel; break;
+            case 2: gatherSource.clip = gatherHammer; break;
+        }
+
+        gatherSource.Play();
+    }
+
+    public void StopGather()
+    {
+        if (!gatherSource.isPlaying) return;
+        gatherSource.Stop();
+        gatherSource.clip = null;
+    }
+
     public void PlayGetDamage()
     {
         if (getDamageSounds == null || getDamageSounds.Length == 0) return;
@@ -209,5 +277,15 @@ public class SoundManager : MonoBehaviour
     public void PlayGetWorldItem() => PlaySFX(getWorldItem);
     public void PlayBuild() => PlaySFX(build);
     public void PlayCrafting() => PlaySFX(crafting);
-
+    public void PlayOpenCraftingTable() => PlaySFX(openCraftingTable);
+    public void PlayCloseCraftingTable() => PlaySFX(closeCraftingTable);
+    public void PlayUIClick() => PlaySFX(uiClick);
+    public void PlayError() => PlaySFX(error);
+    public void PlayCutSceneNext() => PlaySFX(cutSceneNext);
+    public void PlayTextBlip() => PlaySFX(textBlip);
+    public void PlayNextMission() => PlaySFX(nextMission);
+    public void PlayMissionClear() => PlaySFX(missionClear);
+    public void PlayGatherHand() => PlaySFX(gatherHand);
+    public void PlayGatherShovel() => PlaySFX(gatherShovel);
+    public void PlayGatherHammer() => PlaySFX(gatherHammer);
 }

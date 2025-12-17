@@ -1,4 +1,5 @@
 ﻿using BansheeGz.BGDatabase;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -14,6 +15,8 @@ public class PlayerEquipManager : MonoBehaviour
     [SerializeField] private GameInventory inventoryItemData;
 
     private PlayerAnimation anim;
+
+    public static event Action<int> OnToolTypeChange;
 
     private void Awake()
     {
@@ -72,14 +75,12 @@ public class PlayerEquipManager : MonoBehaviour
             case GearType.Clothing:
                 if (player.currentClothEquip != null)
                     UnEquip(GearType.Clothing);
-
                 player.currentClothEquip = item;
                 break;
 
             case GearType.Shoes:
                 if (player.currentShoesEquip != null)
                     UnEquip(GearType.Shoes);
-
                 player.currentShoesEquip = item;
                 break;
             case GearType.None:
@@ -122,6 +123,7 @@ public class PlayerEquipManager : MonoBehaviour
             anim.EquipToolLayerChange();
 
             anim.SetToolType((int)item.toolCategory);
+            OnToolTypeChange?.Invoke((int)item.toolCategory);
         }
         else
         {
@@ -254,6 +256,7 @@ public class PlayerEquipManager : MonoBehaviour
                 }
                 player.currentToolEquip = null;
                 anim.SetToolType(0);
+                OnToolTypeChange?.Invoke(0);
                 anim.HandLayerChange();
                 
                 // ToolEquipManager를 통해 프리팹 제거

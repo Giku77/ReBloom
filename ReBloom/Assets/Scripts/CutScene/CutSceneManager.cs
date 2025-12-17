@@ -131,6 +131,7 @@ public class CutSceneManager : MonoBehaviour
                     break;
 
                 currentId = data.NextCutSceneID;
+                SoundManager.I?.PlayCutSceneNext();
             }
         }
         catch (OperationCanceledException)

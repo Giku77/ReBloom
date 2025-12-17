@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
@@ -28,6 +28,7 @@ public class CraftingSlotUI : MonoBehaviour
     {
         if (craftingUI == null) return;
 
+        SoundManager.I?.PlayUIClick();
         craftingUI.SelectRecipe(recipeId);
     }
 

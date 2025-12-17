@@ -155,6 +155,7 @@ public class DialogueUI : UIBase
             token.ThrowIfCancellationRequested();
 
             messageText.text += ch;
+            SoundManager.I?.PlayTextBlip();
 
             if (nextRequested)
                 break;

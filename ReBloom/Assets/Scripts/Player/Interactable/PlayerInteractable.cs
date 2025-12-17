@@ -20,10 +20,22 @@ public class PlayerInteractable : MonoBehaviour
 
     private string saveprompt = string.Empty;
 
+    public int toolType = 0;
+
     private void Awake()
     {
         player = GetComponent<PlayerController>();
         anim = GetComponent<PlayerAnimation>();
+    }
+
+    private void OnEnable()
+    {
+        PlayerEquipManager.OnToolTypeChange += ToolTypeChange;
+    }
+
+    private void OnDisable()
+    {
+        PlayerEquipManager.OnToolTypeChange -= ToolTypeChange;
     }
 
     public void OnInteract(InputAction.CallbackContext context)
@@ -123,6 +135,7 @@ public class PlayerInteractable : MonoBehaviour
                     {
                         msg = "조사";
                         anim.SetGathering(true);
+                        SoundManager.I?.PlayGather(toolType);
                     }
                     else if (isBuildingInteractable) msg = "상호작용";
                     else if (isDeathBox)
@@ -165,7 +178,7 @@ public class PlayerInteractable : MonoBehaviour
                 }
                 closestInteractable.Interact(player);
                 anim.SetGathering(false);
-
+                SoundManager.I?.StopGather();
                 player.isInteracting = false;
             }
         }
@@ -180,6 +193,7 @@ public class PlayerInteractable : MonoBehaviour
             hilight.HoldPromptUI?.Hide(); // 취소 시에도 UI 숨기기
             anim.SetGathering(false);
             player.isInteracting = false;
+            SoundManager.I?.StopGather();
             CancelInteract();
         }
     }
@@ -245,5 +259,10 @@ public class PlayerInteractable : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void ToolTypeChange(int value)
+    { 
+        toolType = value;
     }
 }
