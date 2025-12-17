@@ -84,7 +84,7 @@ public class ConsumableItemData : ItemBase
         description = Description[entity];
         worldPrefabAddress = Addressable_Key[entity];
 
-        iconAddress = "Assets/Arts/Icon/" + worldPrefabAddress + "_icon";
+        iconAddress = "Assets/Arts/Icon/" + worldPrefabAddress + "_icon.png";
 
         // 아이콘은 Addressable로 비동기 로드
         LoadIconAsync();
@@ -210,11 +210,11 @@ public class ConsumableItemData : ItemBase
     /// </summary>
     private async void LoadIconAsync()
     {
-        //string path = ImgPath[entity];
-        string path = iconAddress; // 임시 경로
+        //string path = ImgPath[entity];  // 임시 경로
+        string path = iconAddress;
 
         // 경로가 비어있으면 기본 아이콘 사용
-        if (string.IsNullOrEmpty(path))
+        if (string.IsNullOrEmpty(path) || worldPrefabAddress == null)
         {
             path = "Icon/ItemIcon"; // 기본 경로
         }
@@ -222,27 +222,18 @@ public class ConsumableItemData : ItemBase
         try
         {
             // GameObject(Prefab)로 로드
-            var handle = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<UnityEngine.GameObject>(path);
+            var handle = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<UnityEngine.Sprite>(path);
             await handle.Task;
 
             if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
             {
-                UnityEngine.GameObject prefab = handle.Result;
+                UnityEngine.Sprite sprite = handle.Result;
 
                 // Image 컴포넌트에서 Sprite 추출 (루트)
-                var image = prefab.GetComponent<UnityEngine.UI.Image>();
-                if (image != null && image.sprite != null)
-                {
-                    icon = image.sprite;
-                    return;
-                }
 
-                // Image가 자식에 있는 경우
-                image = prefab.GetComponentInChildren<UnityEngine.UI.Image>();
-                if (image != null && image.sprite != null)
+                if (sprite != null)
                 {
-                    icon = image.sprite;
-                    Debug.Log($"[ConsumableItemData] 아이콘 로드 성공 (자식): {itemName}");
+                    icon = sprite;
                     return;
                 }
 
