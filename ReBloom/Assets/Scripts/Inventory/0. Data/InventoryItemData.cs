@@ -241,7 +241,9 @@ public class InventoryItemData : ScriptableObject, IItemContainer
 
     public void Initialize()
     {
-        Clear();
+        // Clear();
+        // if (SaveManager.I != null)
+        //     SaveManager.I.LoadAsync("slot1").Forget();
         // 슬롯 배열만 초기화
         if (slots == null || slots.Length != 40)
         {
@@ -255,4 +257,22 @@ public class InventoryItemData : ScriptableObject, IItemContainer
         if (slots == null || slots.Length != 40)
             slots = new ItemSlotData[40];
     }
+
+    public void SetSlotRaw(int index, int itemId, int count)
+    {
+        if (index < 0 || index >= SlotCount) return;
+
+        if (itemId <= 0 || count <= 0)
+            slots[index] = null;
+        else
+            slots[index] = new ItemSlotData { itemID = itemId, count = count };
+    }
+
+    public int GetSlotCountForSave() => SlotCount;
+
+    public void NotifyChanged()
+    {
+        OnContainerChanged?.Invoke();
+    }
+
 }
