@@ -282,6 +282,7 @@ public class BuildManager : MonoBehaviour
         SetupTemporaryPassThrough(inst.gameObject);
 
         errorCode = null;
+        AutoSaveService.I?.RequestSave("MoveBuilding");     
         return true;
     }
 
@@ -337,6 +338,7 @@ public class BuildManager : MonoBehaviour
         if (spawned)
         {
             QuestManager.I?.NotifyBuildingBuilt(arc.arcId);
+            AutoSaveService.I?.RequestSave("Build");
         }
 
         return spawned;
@@ -441,6 +443,8 @@ public class BuildManager : MonoBehaviour
 
         UnregisterBuilding(inst);
         Destroy(inst.gameObject);
+
+        AutoSaveService.I?.RequestSave("RemoveBuilding");
         return true;
     }
 
@@ -456,4 +460,51 @@ public class BuildManager : MonoBehaviour
         // 필요하면 다시 바닥 맞추기 or 규칙 체크
         inst.transform.SetPositionAndRotation(newPos, newRot);
     }
+
+    public IEnumerable<BuildingInstance> EnumerateAllInstances()
+    {
+        foreach (var kv in instancesByArcId)
+        {
+            foreach (var inst in kv.Value)
+            {
+                if (inst != null) yield return inst;
+            }
+        }
+    }
+
+    public void ClearAllBuildings()
+    {
+        // 컬렉션 수정 위험 때문에 복사해서 삭제
+        var list = new List<BuildingInstance>(EnumerateAllInstances());
+        foreach (var inst in list)
+            TryRemoveBuilding(inst);
+    }
+
+    public BuildingInstance SpawnForLoad(int arcId, Vector3 pos, Quaternion rot, string guid)
+    {
+        if (!arcDB.TryGet(arcId, out var arc) || arc.buildPrefab == null)
+            return null;
+
+        // 기존 Spawn과 동일하게 바닥 맞추기까지 하고 싶으면 TryAdjustToGround 로직 재사용
+        var p = Instantiate(arc.buildPrefab, pos, rot);
+
+        var bi = p.GetComponent<BuildingInstance>();
+        if (bi != null) bi.arcId = arcId;
+
+        var idComp = p.GetComponent<SaveableEntity>();
+        if (idComp != null) idComp.ForceSetId(guid);
+
+        RegisterBuilding(bi);
+
+        // corridor/패스스루 등도 Spawn과 동일 처리
+        if (p.TryGetComponent<CorridorNode>(out var corridorNode))
+        {
+            var cell = CorridorGrid.WorldToCell(p.transform.position);
+            corridorNode.Cell = cell;
+            CorridorConnectionManager.I.Register(corridorNode);
+        }
+        SetupTemporaryPassThrough(p);
+        return bi;
+    }
+
 }

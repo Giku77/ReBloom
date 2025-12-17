@@ -29,6 +29,22 @@ public class GameStartSequence : MonoBehaviour
 
     private async void Start()
     {
+        bool loaded = false;
+        if (SaveManager.I != null)
+        loaded = await SaveManager.I.LoadAsync("slot1");
+        if (loaded)
+        {
+            // 필요한 최소 상태만 정리 (입력 해제, 카메라 잠금 해제 등)
+            // if (thirdPersonCamera != null) thirdPersonCamera.isSequenceLocked = false;
+            // if (robotPet != null) robotPet.StopOrbitingPlayer();
+
+            // if (tutorialManager != null) tutorialManager.enabled = true;
+            // if (playerController != null) playerController.SetBlocked(false);
+
+            cutSceneManager?.isDebugModeSkipCutScene();
+            return;
+        }
+
         if (isDebug)
         {
             cutSceneManager?.isDebugModeSkipCutScene();

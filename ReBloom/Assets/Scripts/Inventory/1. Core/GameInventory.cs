@@ -53,7 +53,18 @@ public class GameInventory : MonoBehaviour, IGameInventory
     }
     private void OnEnable()
     {
-        //quickSlot?.SyncInventoryQuickSlots();
+        if (inventoryData != null)
+            inventoryData.OnContainerChanged += OnInvChanged;
+    }
+    private void OnDisable()
+    {
+        if (inventoryData != null)
+            inventoryData.OnContainerChanged -= OnInvChanged;
+    }
+
+    private void OnInvChanged()
+    {
+        AutoSaveService.I?.RequestSave("InventoryChanged");
     }
 
     #region 단순 위임 메서드들

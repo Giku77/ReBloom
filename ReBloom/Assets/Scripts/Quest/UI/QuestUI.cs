@@ -9,6 +9,28 @@ public class QuestUI : MonoBehaviour
 
     [SerializeField] private QuestPathGuide pathGuide;
 
+    [SerializeField] private InventoryItemData inventoryData;
+
+
+    private bool _alive;
+    private async void OnEnable()
+    {
+        _alive = true;
+        while (QuestManager.I == null) await Cysharp.Threading.Tasks.UniTask.Yield();
+        if (!_alive) return;
+        QuestManager.I.OnQuestStateChanged += Refresh;
+
+        Refresh();
+    }
+
+    private void OnDisable()
+    {
+        _alive = false;
+        if (QuestManager.I != null)
+            QuestManager.I.OnQuestStateChanged -= Refresh;
+    }
+
+
     public int GetPathTransformCount()
     {
         return pathGuide.Target.Length;
