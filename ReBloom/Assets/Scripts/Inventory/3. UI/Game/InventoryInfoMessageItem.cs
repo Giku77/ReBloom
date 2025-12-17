@@ -1,9 +1,11 @@
 ﻿using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class InventoryInfoMessageItem : MonoBehaviour
 {
     public TextMeshProUGUI infoTxt;
+    public Image itemIcon;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {

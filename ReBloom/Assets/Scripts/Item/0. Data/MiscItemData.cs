@@ -64,6 +64,8 @@ public class MiscItemData : ItemBase
         canUseable = false;
         worldPrefabAddress = Addressable_Key[entity];
 
+        iconAddress = "Assets/Arts/Icon/" + worldPrefabAddress + "_icon.png";
+
         LoadIconAsync();
         LoadPrefabAsync();
     }
@@ -125,11 +127,11 @@ public class MiscItemData : ItemBase
     /// </summary>
     private async void LoadIconAsync()
     {
-        //string path = Imgpath[entity];
-        string path = "Icon/EtcIcon"; // 임시 경로
+        //string path = ImgPath[entity];  // 임시 경로
+        string path = iconAddress;
 
         // 경로가 비어있으면 기본 아이콘 사용
-        if (string.IsNullOrEmpty(path))
+        if (string.IsNullOrEmpty(path) || worldPrefabAddress == null)
         {
             path = "Icon/ItemIcon"; // 기본 경로
         }
@@ -137,39 +139,31 @@ public class MiscItemData : ItemBase
         try
         {
             // GameObject(Prefab)로 로드
-            var handle = Addressables.LoadAssetAsync<GameObject>(path);
+            var handle = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<UnityEngine.Sprite>(path);
             await handle.Task;
 
             if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
             {
-                GameObject prefab = handle.Result;
+                UnityEngine.Sprite sprite = handle.Result;
 
                 // Image 컴포넌트에서 Sprite 추출 (루트)
-                var image = prefab.GetComponent<Image>();
-                if (image != null && image.sprite != null)
+
+                if (sprite != null)
                 {
-                    icon = image.sprite;
+                    icon = sprite;
                     return;
                 }
 
-                image = prefab.GetComponentInChildren<Image>();
-                if (image != null && image.sprite != null)
-                {
-                    icon = image.sprite;
-                    Debug.Log($"[MiscItemData] 아이콘 로드 성공 (자식): {itemName}");
-                    return;
-                }
-
-                Debug.LogWarning($"[MiscItemData] Prefab에 Image 컴포넌트가 없거나 Sprite가 없음: {path}");
+                Debug.LogWarning($"[ConsumableItemData] Prefab에 Image 컴포넌트가 없거나 Sprite가 없음: {path}");
             }
             else
             {
-                Debug.LogWarning($"[MiscItemData] 아이콘 로드 실패: {path}");
+                Debug.LogWarning($"[ConsumableItemData] 아이콘 로드 실패: {path}");
             }
         }
         catch (System.Exception e)
         {
-            Debug.LogWarning($"[MiscItemData] 아이콘 로드 예외: {path}\n{e.Message}");
+            Debug.LogWarning($"[ConsumableItemData] 아이콘 로드 예외: {path}\n{e.Message}");
         }
     }
 
