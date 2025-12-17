@@ -14,7 +14,7 @@ public class InventoryMessageService : MonoBehaviour
             : $"{item.itemName} 획득";
 
         //itemToastUI.Show(text, item.icon);
-        itemToastUI.Show(text, null);
+        itemToastUI.Show(text, item.icon);
     }
 
     public void ShowInventoryFull(int added, int requested)

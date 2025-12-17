@@ -46,15 +46,14 @@ public class ItemToastMessageUI : MonoBehaviour
 
     private void SetupUI(GameObject obj, string message, Sprite icon = null)
     {
-        var text = obj.GetComponentInChildren<TextMeshProUGUI>();
-        var image = obj.GetComponentInChildren<Image>();
+        var messageItem = obj.GetComponent<InventoryInfoMessageItem>();
 
-        text.text = message;
+        messageItem.infoTxt.text = message;
 
-        if (image != null && icon != null)
+        if (messageItem != null && icon != null)
         {
-            image.sprite = icon;
-            image.enabled = true;
+            messageItem.itemIcon.sprite = icon;
+            messageItem.enabled = true;
         }
     }
 

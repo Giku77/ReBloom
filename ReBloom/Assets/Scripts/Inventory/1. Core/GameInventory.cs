@@ -153,7 +153,8 @@ public class GameInventory : MonoBehaviour, IGameInventory
     /// <param name="amount"></param>
     public bool TryAddItemFromWorld(int itemID, int count)
     {
-        inventoryData.AddItemWithOverflow(itemID, count, out int overflow);
+        var result = inventoryData.AddItemWithOverflow(itemID, count, out int overflow);
+        uiService?.ShowItemAcquired(ItemDatabase.I.GetItem(itemID), result);
         return overflow == 0;
     }
     public bool CanUnequip(int itemID)
