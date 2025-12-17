@@ -20,6 +20,9 @@ public class InventoryRobotPet : MonoBehaviour
     [SerializeField] private float teleportDistance = 15f;   // 이 거리 이상 떨어지면 텔레포트
     [SerializeField] private float teleportCooldown = 1.0f;  // 텔포 최소 간격
 
+    [Header("텔레포트 효과")]
+    [SerializeField] private SpawnEffect teleport;
+
     public bool IsNearPlayer;
     private float lastTeleportTime = -999f;
 
@@ -190,7 +193,14 @@ public class InventoryRobotPet : MonoBehaviour
 
         // 속도/플로팅 타이머 리셋
         rb.linearVelocity = Vector3.zero;
+
+        Vector3 dir = (player.transform.position - transform.position).normalized;
+        dir.y = 0.3f;
+        rb.MoveRotation(Quaternion.LookRotation(dir));
+
         floatTimer = 0f;
+
+        teleport.PlayEffect();
 
         // 상태도 정리
         isOrbiting = false;
@@ -255,7 +265,7 @@ public class InventoryRobotPet : MonoBehaviour
         if (distToPlayerWorld > teleportDistance && Time.time - lastTeleportTime > teleportCooldown)
         {
             IsNearPlayer = false;
-            animController.PlayAnimation("JumpForward");
+            //animController.PlayAnimation("JumpForward");
             TeleportToPlayer();
             return;
         }

@@ -826,6 +826,7 @@ GameObject:
   - component: {fileID: 5214244777827073110}
   - component: {fileID: 3790076886564128108}
   - component: {fileID: 8862103410772600576}
+  - component: {fileID: 3755311237584492920}
   m_Layer: 0
   m_Name: InventRobot
   m_TagString: Untagged
@@ -938,6 +939,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21eb34d721afbb04ca38b2dc12c61886, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  followTarget: {fileID: 0}
   player: {fileID: 0}
   idleDistance: 1
   runDistance: 3
@@ -953,6 +955,15 @@ MonoBehaviour:
   animController: {fileID: 5214244777827073110}
   emotionManager: {fileID: 1022802606940843610}
   colorManager: {fileID: 9142656489697227612}
+  flashlight: {fileID: 0}
+  lightSource: {fileID: 0}
+  lightRange: 20
+  lightIntensity: 2
+  lightSpotAngle: 60
+  pathRecalcInterval: 0.25
+  cornerReachDist: 0.6
+  navSampleRadius: 2
+  navAreaMask: -1
 --- !u!114 &1022802606940843610
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1030,6 +1041,23 @@ CapsuleCollider:
   m_Height: 0.5
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3755311237584492920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6817195689054840483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54ac97ddb830fc2458baa855940075f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _renderer: {fileID: 3326519418522874928}
+  mtrlOrg: {fileID: 2100000, guid: 0bce8dcc98bcbe44999e9f9cebcf0a07, type: 2}
+  mtrlDissolve: {fileID: -876546973899608171, guid: d96977bad35e3824c8dbbd745c79c79c, type: 3}
+  mtrlPhase: {fileID: -876546973899608171, guid: 9d20d6e8073300240ae8869dbf5cbd39, type: 3}
+  fadeTime: 2
 --- !u!1 &7885217818033283618
 GameObject:
   m_ObjectHideFlags: 0
