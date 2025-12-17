@@ -8,7 +8,7 @@ public class ThirdPersonCamera : MonoBehaviour
     [SerializeField] private Transform target;
     public float distance = 10f;
     [SerializeField] private float height = 2f;
-    [SerializeField] private float mouseSensitivity = 100f;
+    [SerializeField] private float mouseSensitivity = 3f;
     [SerializeField] private float minVerticalAngle = -30f;
     [SerializeField] private float maxVerticalAngle = 60f;
     [SerializeField] private float zoomSpeed = 0.5f;
@@ -36,6 +36,8 @@ public class ThirdPersonCamera : MonoBehaviour
     {
         var cam = Camera.main;
         cam.farClipPlane = 150f;
+
+        SettingManager.I.OnMouseSensitivityChanged += UpdateSensitivity;
     }
 
     private void LateUpdate()
@@ -51,11 +53,13 @@ public class ThirdPersonCamera : MonoBehaviour
     private void OnEnable()
     {
         StageDetector.OnEnterDoor += EnterInside;
+        SettingManager.I.OnMouseSensitivityChanged += UpdateSensitivity;
     }
 
     private void OnDisable()
     {
         StageDetector.OnEnterDoor -= EnterInside;
+        SettingManager.I.OnMouseSensitivityChanged -= UpdateSensitivity;
     }
 
     private void EnterInside(bool isInside)
@@ -246,5 +250,10 @@ public class ThirdPersonCamera : MonoBehaviour
     private void LookImmediate()
     {
         Look();
+    }
+
+    private void UpdateSensitivity(float sensitivity)
+    {
+        mouseSensitivity = sensitivity;
     }
 }

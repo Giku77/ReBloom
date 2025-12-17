@@ -15,6 +15,20 @@ public class SettingUI : UIBase
     [SerializeField] private Toggle fullscreenToggle;
     [SerializeField] private Toggle vsyncToggle;
 
+    [Header("조작 설정")]
+    [SerializeField] private Slider mouseSensitivitySlider;
+
+    [Header("Buttons")]
+    [SerializeField] private Button soundSettingButton;
+    [SerializeField] private Button graphicSettingButton;
+    [SerializeField] private Button controlSettingButton;
+    [SerializeField] private Button backButton;
+
+    [Header("Panels")]
+    [SerializeField] private GameObject soundSettingPanel;
+    [SerializeField] private GameObject graphicSettingPanel;
+    [SerializeField] private GameObject controlSettingPanel;
+
     private Resolution[] resolutions;
 
     protected override void Awake()
@@ -22,6 +36,11 @@ public class SettingUI : UIBase
         base.Awake();
 
         InitResolutionDropdown();
+
+        soundSettingButton.onClick.AddListener(() => ShowPanel(soundSettingPanel));
+        graphicSettingButton.onClick.AddListener(() => ShowPanel(graphicSettingPanel));
+        controlSettingButton.onClick.AddListener(() => ShowPanel(controlSettingPanel));
+        backButton.onClick.AddListener(OnHide);
     }
 
     protected override void OnShow()
@@ -29,6 +48,8 @@ public class SettingUI : UIBase
         Time.timeScale = 0f;
         SoundManager.I?.PlayOpenInventory();
         UIManager.Instance?.SetPaused(true);
+
+        ShowPanel(soundSettingPanel);
 
         masterSlider.SetValueWithoutNotify(SettingManager.I.MasterVolume);
         bgmSlider.SetValueWithoutNotify(SettingManager.I.BGMVolume);
@@ -44,6 +65,9 @@ public class SettingUI : UIBase
         resolutionDropdown.onValueChanged.AddListener(OnResolutionChanged);
         fullscreenToggle.onValueChanged.AddListener(OnFullscreenToggle);
         vsyncToggle.onValueChanged.AddListener(OnVSyncToggle);
+
+        mouseSensitivitySlider.SetValueWithoutNotify(SettingManager.I.MouseSensitivity);
+        mouseSensitivitySlider.onValueChanged.AddListener(OnMouseSensitivityChanged);
     }
 
     protected override void OnHide()
@@ -58,6 +82,8 @@ public class SettingUI : UIBase
         resolutionDropdown.onValueChanged.RemoveAllListeners();
         fullscreenToggle.onValueChanged.RemoveAllListeners();
         vsyncToggle.onValueChanged.RemoveAllListeners();
+
+        mouseSensitivitySlider.onValueChanged.RemoveAllListeners();
     }
 
     private void OnMasterChanged(float value)
@@ -115,5 +141,21 @@ public class SettingUI : UIBase
     private void OnVSyncToggle(bool enabled)
     {
         SettingManager.I.SetVSync(enabled);
+    }
+
+    private void OnMouseSensitivityChanged(float value)
+    {
+        SettingManager.I.SetMouseSensitivity(value);
+    }
+
+    private void ShowPanel(GameObject targetPanel)
+    {
+        soundSettingPanel.SetActive(false);
+        graphicSettingPanel.SetActive(false);
+        controlSettingPanel.SetActive(false);
+
+        targetPanel.SetActive(true);
+
+        SoundManager.I?.PlayUIClick();
     }
 }

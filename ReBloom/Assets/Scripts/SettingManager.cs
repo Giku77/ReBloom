@@ -13,7 +13,7 @@ public class SettingManager : MonoBehaviour
     public Resolution CurrentResolution { get; private set; }
     public bool IsFullScreen { get; private set; } = true;
     public bool IsVSyncEnabled { get; private set; } = true;
-
+    public float MouseSensitivity { get; private set; } = 3f;
 
     public event Action<float> OnMasterVolumeChanged;
     public event Action<float> OnBGMVolumeChanged;
@@ -21,6 +21,7 @@ public class SettingManager : MonoBehaviour
     public event Action<Resolution> OnResolutionChanged;
     public event Action<bool> OnFullScreenChanged;
     public event Action<bool> OnVSyncChanged;
+    public event Action<float> OnMouseSensitivityChanged;
 
     private void Awake()
     {
@@ -77,5 +78,11 @@ public class SettingManager : MonoBehaviour
         // VSync: 0 = 끔, 1 = 60fps 제한, 2 = 30fps 제한 
         QualitySettings.vSyncCount = enabled ? 1 : 0;
         OnVSyncChanged?.Invoke(enabled);
+    }
+
+    public void SetMouseSensitivity(float value)
+    {
+        MouseSensitivity = Mathf.Clamp(value, 1f, 10f);
+        OnMouseSensitivityChanged?.Invoke(MouseSensitivity);
     }
 }
