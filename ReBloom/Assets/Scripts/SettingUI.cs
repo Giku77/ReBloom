@@ -14,6 +14,8 @@ public class SettingUI : UIBase
     [SerializeField] private TMP_Dropdown resolutionDropdown;
     [SerializeField] private Toggle fullscreenToggle;
     [SerializeField] private Toggle vsyncToggle;
+    [SerializeField] private TMP_Dropdown graphicsQualityDropdown;
+    [SerializeField] private TMP_Dropdown frameRateDropdown;
 
     [Header("조작 설정")]
     [SerializeField] private Slider mouseSensitivitySlider;
@@ -36,6 +38,8 @@ public class SettingUI : UIBase
         base.Awake();
 
         InitResolutionDropdown();
+        InitGraphicsQualityDropdown();
+        InitFrameRateDropdown();
 
         soundSettingButton.onClick.AddListener(() => ShowPanel(soundSettingPanel));
         graphicSettingButton.onClick.AddListener(() => ShowPanel(graphicSettingPanel));
@@ -61,10 +65,14 @@ public class SettingUI : UIBase
 
         fullscreenToggle.SetIsOnWithoutNotify(SettingManager.I.IsFullScreen);
         vsyncToggle.SetIsOnWithoutNotify(SettingManager.I.IsVSyncEnabled);
+        graphicsQualityDropdown.SetValueWithoutNotify(SettingManager.I.GraphicsQuality);
+        frameRateDropdown.SetValueWithoutNotify(GetFrameRateDropdownIndex(SettingManager.I.TargetFrameRate));
 
         resolutionDropdown.onValueChanged.AddListener(OnResolutionChanged);
         fullscreenToggle.onValueChanged.AddListener(OnFullscreenToggle);
         vsyncToggle.onValueChanged.AddListener(OnVSyncToggle);
+        graphicsQualityDropdown.onValueChanged.AddListener(OnGraphicsQualityChanged);
+        frameRateDropdown.onValueChanged.AddListener(OnFrameRateChanged);
 
         mouseSensitivitySlider.SetValueWithoutNotify(SettingManager.I.MouseSensitivity);
         mouseSensitivitySlider.onValueChanged.AddListener(OnMouseSensitivityChanged);
@@ -82,6 +90,8 @@ public class SettingUI : UIBase
         resolutionDropdown.onValueChanged.RemoveAllListeners();
         fullscreenToggle.onValueChanged.RemoveAllListeners();
         vsyncToggle.onValueChanged.RemoveAllListeners();
+        graphicsQualityDropdown.onValueChanged.RemoveAllListeners();
+        frameRateDropdown.onValueChanged.RemoveAllListeners();
 
         mouseSensitivitySlider.onValueChanged.RemoveAllListeners();
     }
@@ -127,6 +137,62 @@ public class SettingUI : UIBase
         resolutionDropdown.RefreshShownValue();
     }
 
+    private void InitGraphicsQualityDropdown()
+    {
+        graphicsQualityDropdown.ClearOptions();
+
+        List<string> options = new List<string>();
+        string[] qualityNames = QualitySettings.names;
+
+        foreach (string name in qualityNames)
+        {
+            options.Add(name);
+        }
+
+        graphicsQualityDropdown.AddOptions(options);
+    }
+
+    private void InitFrameRateDropdown()
+    {
+        frameRateDropdown.ClearOptions();
+
+        List<string> options = new List<string>
+        {
+            "30 FPS",
+            "60 FPS",
+            "120 FPS",
+            "144 FPS",
+            "무제한"
+        };
+
+        frameRateDropdown.AddOptions(options);
+    }
+
+    private int GetFrameRateDropdownIndex(int fps)
+    {
+        switch (fps)
+        {
+            case 30: return 0;
+            case 60: return 1;
+            case 120: return 2;
+            case 144: return 3;
+            default: return 4;
+        }
+    }
+
+    private int GetFrameRateFromDropdownIndex(int index)
+    {
+        switch (index)
+        {
+            case 0: return 30;
+            case 1: return 60;
+            case 2: return 120;
+            case 3: return 144;
+            case 4: return -1; // 무제한
+            default: return -1;
+        }
+    }
+
     private void OnResolutionChanged(int index)
     {
         Resolution r = resolutions[index];
@@ -146,6 +212,17 @@ public class SettingUI : UIBase
     private void OnMouseSensitivityChanged(float value)
     {
         SettingManager.I.SetMouseSensitivity(value);
+    }
+
+    private void OnGraphicsQualityChanged(int index)
+    {
+        SettingManager.I.SetGraphicsQuality(index);
+    }
+
+    private void OnFrameRateChanged(int index)
+    {
+        int fps = GetFrameRateFromDropdownIndex(index);
+        SettingManager.I.SetTargetFrameRate(fps);
     }
 
     private void ShowPanel(GameObject targetPanel)

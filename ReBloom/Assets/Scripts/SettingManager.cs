@@ -14,6 +14,8 @@ public class SettingManager : MonoBehaviour
     public bool IsFullScreen { get; private set; } = true;
     public bool IsVSyncEnabled { get; private set; } = true;
     public float MouseSensitivity { get; private set; } = 3f;
+    public int GraphicsQuality { get; private set; } = 2; // 0=Low, 1=Medium, 2=High, 3=Ultra
+    public int TargetFrameRate { get; private set; } = -1; // -1=무제한
 
     public event Action<float> OnMasterVolumeChanged;
     public event Action<float> OnBGMVolumeChanged;
@@ -22,6 +24,8 @@ public class SettingManager : MonoBehaviour
     public event Action<bool> OnFullScreenChanged;
     public event Action<bool> OnVSyncChanged;
     public event Action<float> OnMouseSensitivityChanged;
+    public event Action<int> OnGraphicsQualityChanged;
+    public event Action<int> OnTargetFrameRateChanged;
 
     private void Awake()
     {
@@ -37,6 +41,10 @@ public class SettingManager : MonoBehaviour
         CurrentResolution = Screen.currentResolution;
         IsFullScreen = true;
         IsVSyncEnabled = QualitySettings.vSyncCount > 0;
+        GraphicsQuality = QualitySettings.GetQualityLevel();
+        int currentFPS = Application.targetFrameRate;
+        TargetFrameRate = currentFPS <= 0 ? -1 : currentFPS;
+
     }
 
     public void SetMasterVolume(float value)
@@ -78,6 +86,22 @@ public class SettingManager : MonoBehaviour
         // VSync: 0 = 끔, 1 = 60fps 제한, 2 = 30fps 제한 
         QualitySettings.vSyncCount = enabled ? 1 : 0;
         OnVSyncChanged?.Invoke(enabled);
+    }
+
+    public void SetGraphicsQuality(int level)
+    {
+        // 0 = Low, 1 = Medium, 2 = High, 3 = Ultra
+        GraphicsQuality = Mathf.Clamp(level, 0, QualitySettings.names.Length - 1);
+        QualitySettings.SetQualityLevel(GraphicsQuality);
+        OnGraphicsQualityChanged?.Invoke(GraphicsQuality);
+    }
+
+    public void SetTargetFrameRate(int fps)
+    {
+        // -1 = 무제한, 30, 60, 120, 144 등
+        TargetFrameRate = fps;
+        Application.targetFrameRate = fps;
+        OnTargetFrameRateChanged?.Invoke(fps);
     }
 
     public void SetMouseSensitivity(float value)
