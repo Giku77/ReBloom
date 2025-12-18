@@ -24,21 +24,16 @@ public class EquipmentUI : MonoBehaviour
     private EquipmentSlotUI clothSlotUI;
     private EquipmentSlotUI shoesSlotUI;
     private EquipmentSlotUI toolSlotUI;
-
     private void Awake()
     {
         ValidateReferences();
     }
-
     private void Start()
     {
         InitializeSlotUIs();
         
         RefreshAllSlots();
-
-
     }
-
     private void ValidateReferences()
     {
         if (equipManager == null)
@@ -80,7 +75,7 @@ public class EquipmentUI : MonoBehaviour
         }
     }
 
-private void InitializeSlotUIs()
+    private void InitializeSlotUIs()
     {
         if (slotUIPrefab == null) return;
 
@@ -103,7 +98,7 @@ private void InitializeSlotUIs()
         }
     }
 
-private EquipmentSlotUI CreateSlotUI(Transform parent, GearType gearType)
+    private EquipmentSlotUI CreateSlotUI(Transform parent, GearType gearType)
     {
         EquipmentSlotUI newSlotUI = Instantiate(
             slotUIPrefab,
