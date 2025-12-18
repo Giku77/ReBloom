@@ -497,7 +497,7 @@ Camera:
   m_AllowMSAA: 1
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
-  m_OcclusionCulling: 1
+  m_OcclusionCulling: 0
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
 --- !u!4 &366669685
@@ -2738,6 +2738,10 @@ PrefabInstance:
     - target: {fileID: 2839666911195469817, guid: 4a4b61fa5481e814484a96b74d44d1f1, type: 3}
       propertyPath: m_Layer
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 2839666911195469817, guid: 4a4b61fa5481e814484a96b74d44d1f1, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3908658472130696866, guid: 4a4b61fa5481e814484a96b74d44d1f1, type: 3}
       propertyPath: m_IsActive
@@ -5656,6 +5660,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 165295737303544116, guid: e4812f1c82686884496da1555eea261d, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 226080291483224965, guid: e4812f1c82686884496da1555eea261d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 624731870315601592, guid: e4812f1c82686884496da1555eea261d, type: 3}
       propertyPath: m_Name
       value: DemoMap
@@ -5704,6 +5716,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7000784940134286191, guid: e4812f1c82686884496da1555eea261d, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7326480425781238674, guid: e4812f1c82686884496da1555eea261d, type: 3}
       propertyPath: inventoryItemData
       value: 
@@ -5712,7 +5728,9 @@ PrefabInstance:
       propertyPath: inventoryItemData
       value: 
       objectReference: {fileID: 847822719}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 6969794287858261487, guid: e4812f1c82686884496da1555eea261d, type: 3}
+    - {fileID: 8337096952358089426, guid: e4812f1c82686884496da1555eea261d, type: 3}
     m_RemovedGameObjects:
     - {fileID: 1348956317404436139, guid: e4812f1c82686884496da1555eea261d, type: 3}
     m_AddedGameObjects: []
