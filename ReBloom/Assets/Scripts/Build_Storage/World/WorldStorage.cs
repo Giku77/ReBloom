@@ -89,7 +89,7 @@ public class WorldStorage : WorldItemContainerBase
     {
         if (sharedStorageUI != null)
         {
-            sharedStorageUI.CloseUI();
+            sharedStorageUI.Toggle();
         }
     }
 

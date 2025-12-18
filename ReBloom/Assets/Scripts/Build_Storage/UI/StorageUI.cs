@@ -293,60 +293,40 @@ public class StorageUI : UIBase
     #region UI 토글
     public void Toggle()
     {
-        if (storageUIRoot == null) return;
-
-        bool isActive = !storageUIRoot.activeSelf;
-        storageUIRoot.SetActive(isActive);
-
-        if (isActive)
-        {
-            // 창고 UI 갱신
-            RefreshUI();
-
-            // 인벤토리 패널 바인딩 및 표시
-            if (inventoryPanel != null && inventoryData != null)
-            {
-                inventoryPanel.Bind(inventoryData);
-                Debug.Log("[StorageUI] 인벤토리 패널 바인딩 완료");
-            }
-
-            DragDropManager.I.SetCurrentStorage(worldStorage);
-            Debug.Log("[StorageUI] 창고 UI 열림 (인벤토리 패널 포함)");
-        }
-        else
-        {
-            // 인벤토리 패널 언바인딩
-            if (inventoryPanel != null)
-            {
-                inventoryPanel.Unbind();
-            }
-
-            DragDropManager.I?.SetCurrentStorage(null);
-            Debug.Log("[StorageUI] 창고 UI 닫힘");
-        }
+        if (UIManager.Instance != null && UIManager.Instance.IsBlockedInput)
+            return;
+        Debug.Log($"[StorageUI] Toggle 호출됨 - Type: {Type}");
+        UIManager.Instance?.ToggleUI(Type);
     }
 
-    public void CloseUI()
+    // UIBase의 OnShow/OnHide 오버라이드로 로직 이동
+    protected override void OnShow()
     {
-        if (storageUIRoot != null)
+        base.OnShow();
+        RefreshUI();
+
+        // 인벤토리 패널 바인딩
+        if (inventoryPanel != null && inventoryData != null)
         {
-            storageUIRoot.SetActive(false);
-
-            // 인벤토리 패널 언바인딩
-            if (inventoryPanel != null)
-            {
-                inventoryPanel.Unbind();
-            }
-
-            DragDropManager.I?.SetCurrentStorage(null);
-
-            // 플레이어 참조 정리
-            var player = FindFirstObjectByType<PlayerController>();
-            if (player != null)
-            {
-                player.SetCurrentStorage(null);
-            }
+            inventoryPanel.Bind(inventoryData);
         }
+
+        DragDropManager.I?.SetCurrentStorage(worldStorage);
+        Debug.Log("[StorageUI] 창고 UI 열림");
+    }
+
+    protected override void OnHide()
+    {
+        base.OnHide();
+        // 인벤토리 패널 언바인딩
+        inventoryPanel?.Unbind();
+
+        DragDropManager.I?.SetCurrentStorage(null);
+
+        var player = FindFirstObjectByType<PlayerController>();
+        player?.SetCurrentStorage(null);
+
+        Debug.Log("[StorageUI] 창고 UI 닫힘");
     }
     #endregion
 }
