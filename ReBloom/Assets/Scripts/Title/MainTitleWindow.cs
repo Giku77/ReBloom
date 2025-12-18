@@ -1,23 +1,55 @@
 ﻿using Cysharp.Threading.Tasks;
-using Cysharp.Threading.Tasks.Triggers;
 using System;
 using System.Threading;
 using TMPro;
-using Unity.VisualScripting.Antlr3.Runtime;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class MainTitleWindow : Window
 {
     [SerializeField] private TextMeshProUGUI toastMessage;
+    [SerializeField] private Button newGameButton;
+    [SerializeField] private Button continueGameButton;
+    [SerializeField] private Button settingButton;
+    [SerializeField] private Button quitGameButton;
 
-    private CancellationTokenSource cts = new CancellationTokenSource();
+    [SerializeField] private WindowManager manager;
+    [SerializeField] private Window settingWindow;
+
+    public bool initialized = false;
+
+    private CancellationTokenSource cts;
+
+    private void Awake()
+    {
+        newGameButton.onClick.AddListener(OnGameStartButtonClicked);
+        continueGameButton.onClick.AddListener(OnContinueButtonClicekd);
+        settingButton.onClick.AddListener(OnSettingButtonClicked);
+        quitGameButton.onClick.AddListener(OnQuitButtonClicked);
+
+
+    }
+
+    private void OnEnable()
+    {
+        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.SetSelectedGameObject(newGameButton.gameObject);
+
+        cts = new CancellationTokenSource();
+    }
 
     private void OnDisable()
     {
         cts?.Cancel();
         cts?.Dispose();
+
+        //newGameButton.onClick?.RemoveAllListeners();
+        //continueGameButton.onClick?.RemoveAllListeners();
+        //settingButton.onClick?.RemoveAllListeners();
+        //quitGameButton.onClick?.RemoveAllListeners();
     }
 
     private void Start()
@@ -27,19 +59,45 @@ public class MainTitleWindow : Window
         SoundManager.I.PlayTitleBGM();
     }
 
+    private void Update()
+    {
+        if (UIButtonHoverDeselect.IsMouseHoveringButton)
+            return;
+
+        if (Keyboard.current == null)
+            return;
+
+        bool navigationKeyPressed =
+            Keyboard.current.upArrowKey.wasPressedThisFrame ||
+            Keyboard.current.downArrowKey.wasPressedThisFrame ||
+            Keyboard.current.leftArrowKey.wasPressedThisFrame ||
+            Keyboard.current.rightArrowKey.wasPressedThisFrame ||
+            Keyboard.current.enterKey.wasPressedThisFrame;
+
+        if (navigationKeyPressed)
+        {
+            initialized = true;
+
+            if (EventSystem.current.currentSelectedGameObject == null)
+            {
+                EventSystem.current.SetSelectedGameObject(newGameButton.gameObject);
+            }
+        }
+    }
+
     public void OnGameStartButtonClicked()
     {
         SceneManager.LoadScene("LoadingScene");
     }
 
-    public void OnLoadGameButtonClicekd()
+    public void OnContinueButtonClicekd()
     { 
         OnNotImplementedButtonClickeddAsync().Forget();
     }
 
     public void OnSettingButtonClicked()
     {
-        OnNotImplementedButtonClickeddAsync().Forget();
+        manager.ChangeWindow(settingWindow);
     }
 
     private async UniTask OnNotImplementedButtonClickeddAsync()
