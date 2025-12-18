@@ -36,6 +36,12 @@ public class SaveManager : MonoBehaviour
         ready = true;
     }
 
+    public async UniTask<bool> HasSaveAsync(string slotId = "slot1")
+    {
+        await WaitReadyAsync();
+        return await storage.ExistsAsync(slotId);
+    }
+
     public async UniTask<bool> SaveAsync(string slotId = "slot1")
     {
         await WaitReadyAsync();

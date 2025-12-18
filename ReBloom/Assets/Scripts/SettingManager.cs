@@ -14,7 +14,7 @@ public class SettingManager : MonoBehaviour
     public bool IsFullScreen { get; private set; } = true;
     public bool IsVSyncEnabled { get; private set; } = true;
     public float MouseSensitivity { get; private set; } = 3f;
-    public int GraphicsQuality { get; private set; } = 2; // 0=Low, 1=Medium, 2=High, 3=Ultra
+    public int GraphicsQuality { get; private set; } = 0;
     public int TargetFrameRate { get; private set; } = 120; // -1=무제한
 
     public event Action<float> OnMasterVolumeChanged;
@@ -43,8 +43,10 @@ public class SettingManager : MonoBehaviour
         CurrentResolution = Screen.currentResolution;
         IsFullScreen = true;
         IsVSyncEnabled = QualitySettings.vSyncCount > 0;
-        GraphicsQuality = QualitySettings.GetQualityLevel();
-        int currentFPS = Application.targetFrameRate;
+        SetGraphicsQuality(GraphicsQuality);
+        SetTargetFrameRate(TargetFrameRate);
+        //GraphicsQuality = QualitySettings.GetQualityLevel();
+        //int currentFPS = Application.targetFrameRate;
         //TargetFrameRate = currentFPS <= 0 ? -1 : currentFPS;
 
     }
@@ -92,7 +94,7 @@ public class SettingManager : MonoBehaviour
 
     public void SetGraphicsQuality(int level)
     {
-        // 0 = Low, 1 = Medium, 2 = High, 3 = Ultra
+        //0 = Default, 1 = Low, 2 = Medium, 3 = High, 4 = Ultra
         GraphicsQuality = Mathf.Clamp(level, 0, QualitySettings.names.Length - 1);
         QualitySettings.SetQualityLevel(GraphicsQuality);
         OnGraphicsQualityChanged?.Invoke(GraphicsQuality);

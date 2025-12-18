@@ -57,6 +57,16 @@ public class MainTitleWindow : Window
         toastMessage.gameObject.SetActive(false);
 
         SoundManager.I.PlayTitleBGM();
+
+        RefreshContinueButtonStateAsync().Forget();
+    }
+
+    private async UniTaskVoid RefreshContinueButtonStateAsync()
+    {
+        bool hasSave = await SaveManager.I.HasSaveAsync("slot1");
+
+        continueGameButton.interactable = hasSave; 
+                                                   
     }
 
     private void Update()
@@ -87,12 +97,21 @@ public class MainTitleWindow : Window
 
     public void OnGameStartButtonClicked()
     {
+        GameStartContext.StartMode = GameStartContext.Mode.NewGame;
+        SaveManager.I?.ResetSlotAsync("slot1", saveDefaultImmediately: false).Forget();
+        SceneManager.LoadScene("LoadingScene");
+    }
+
+    private async UniTaskVoid StartNewGameAsync()
+    {
+        await SaveManager.I.ResetSlotAsync("slot1", saveDefaultImmediately: false);
         SceneManager.LoadScene("LoadingScene");
     }
 
     public void OnContinueButtonClicekd()
-    { 
-        OnNotImplementedButtonClickeddAsync().Forget();
+    {
+        GameStartContext.StartMode = GameStartContext.Mode.Continue;
+        SceneManager.LoadScene("LoadingScene");
     }
 
     public void OnSettingButtonClicked()
@@ -100,11 +119,23 @@ public class MainTitleWindow : Window
         manager.ChangeWindow(settingWindow);
     }
 
+    private async UniTaskVoid LoadContinueAsync()
+    {
+        bool hasSave = await SaveManager.I.HasSaveAsync("slot1");
+        if (!hasSave)
+        {
+            await OnNotImplementedButtonClickeddAsync();
+            return;
+        }
+
+        SceneManager.LoadScene("LoadingScene");
+    }
+
     private async UniTask OnNotImplementedButtonClickeddAsync()
     {
         toastMessage.gameObject.SetActive(true);
 
-        toastMessage.text = "추후 구현 예정입니다.";
+        toastMessage.text = "저장 데이터가 없습니다.";
 
         try
         {

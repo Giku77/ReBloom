@@ -16,8 +16,8 @@ public class GameStartSequence : MonoBehaviour
 
     private float initialDelay = 3f;
 
-    [Header("디버그 모드")]
-    [SerializeField] private bool isDebug = false;
+    //[Header("디버그 모드")]
+    //[SerializeField] private bool isDebug = false;
 
     private void Awake()
     {
@@ -30,22 +30,19 @@ public class GameStartSequence : MonoBehaviour
     private async void Start()
     {
         bool loaded = false;
-        if (SaveManager.I != null)
-        loaded = await SaveManager.I.LoadAsync("slot1");
+        if (GameStartContext.StartMode == GameStartContext.Mode.Continue)
+        {
+            if (SaveManager.I != null)
+                loaded = await SaveManager.I.LoadAsync(GameStartContext.SlotId);
+        }
+
         if (loaded)
         {
-            // 필요한 최소 상태만 정리 (입력 해제, 카메라 잠금 해제 등)
-            // if (thirdPersonCamera != null) thirdPersonCamera.isSequenceLocked = false;
-            // if (robotPet != null) robotPet.StopOrbitingPlayer();
-
-            // if (tutorialManager != null) tutorialManager.enabled = true;
-            // if (playerController != null) playerController.SetBlocked(false);
-
             cutSceneManager?.isDebugModeSkipCutScene();
             return;
         }
 
-        if (isDebug)
+        if (GameStartContext.StartMode == GameStartContext.Mode.Debug)
         {
             cutSceneManager?.isDebugModeSkipCutScene();
             return;
