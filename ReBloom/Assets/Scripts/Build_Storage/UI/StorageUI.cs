@@ -5,7 +5,7 @@ using UnityEngine;
 /// 스토리지 UI - View만 담당 (표시만)
 /// 비즈니스 로직은 IItemContainer.TransferTo 활용
 /// </summary>
-public class StorageUI : MonoBehaviour
+public class StorageUI : UIBase
 {
     [Header("Data References")]
     [SerializeField] private InventoryItemData inventoryData; // 인벤토리 참조
@@ -14,14 +14,17 @@ public class StorageUI : MonoBehaviour
 
     [Header("UI Settings")]
     [SerializeField] private Transform slotContainer;
-    [SerializeField] private GameObject emptySlotPrefab; // EmptySlot 프리팹 (DropZone 포함)
-    [SerializeField] private GameObject storageSlotPrefab; // StorageSlot 프리팹 (실제 아이템 표시)
+    [SerializeField] private GameObject emptySlotPrefab;
+    [SerializeField] private GameObject storageSlotPrefab;
 
     [Header("UI Root")]
     [SerializeField] private GameObject storageUIRoot;
 
-    private readonly List<Transform> emptySlots = new List<Transform>(); // EmptySlot 참조
-    private readonly List<StorageSlot> activeSlots = new List<StorageSlot>(); // 활성 StorageSlot 참조
+    [Header("Inventory Panel (창고 열 때 같이 표시)")]
+    [SerializeField] private ContainerSlotsUI inventoryPanel;
+
+    private readonly List<Transform> emptySlots = new List<Transform>();
+    private readonly List<StorageSlot> activeSlots = new List<StorageSlot>();
 
     #region Unity 생명주기
     private void Start()
@@ -31,10 +34,6 @@ public class StorageUI : MonoBehaviour
             storageUIRoot.SetActive(false);
         }
     }
-    //private void OnEnable()
-    //{
-    //    RefreshUI();
-    //}
 
     private void OnDestroy()
     {
@@ -179,6 +178,7 @@ public class StorageUI : MonoBehaviour
         Debug.Log($"[StorageUI] UI 갱신 완료 - {slotIndex}개 아이템 표시");
     }
     #endregion
+
     /// <summary>
     /// 활성화된 StorageSlot 정리
     /// </summary>
@@ -208,8 +208,8 @@ public class StorageUI : MonoBehaviour
         // EmptySlot의 자식으로 StorageSlot 생성
         GameObject slotObj = Instantiate(storageSlotPrefab, emptySlots[slotIndex]);
         slotObj.transform.localScale = Vector3.one;
-        slotObj.name = $"StorageSlot_{slotIndex}"; // 이름 설정
-        Debug.Log($"[StorageUI] StorageSlot 생성: {slotObj.name}, 부모: {emptySlots[slotIndex].name}");
+        slotObj.name = $"StorageSlot_{slotIndex}";
+       //Debug.Log($"[StorageUI] StorageSlot 생성: {slotObj.name}, 부모: {emptySlots[slotIndex].name}");
 
         if (!slotObj.TryGetComponent(out StorageSlot slot))
         {
@@ -221,19 +221,19 @@ public class StorageUI : MonoBehaviour
         // IDragSource 구현 확인
         if (slot is IDragSource dragSource)
         {
-             Debug.Log($"[StorageUI] StorageSlot은 IDragSource를 구현하고 있습니다. SourceType: {dragSource.SourceType}");
+           // Debug.Log($"[StorageUI] StorageSlot은 IDragSource를 구현하고 있습니다. SourceType: {dragSource.SourceType}");
         }
         else
         {
-           Debug.LogError("[StorageUI] StorageSlot이 IDragSource를 구현하지 않았습니다!");
+            Debug.LogError("[StorageUI] StorageSlot이 IDragSource를 구현하지 않았습니다!");
         }
 
         // ItemIconDragHandler 확인
         var dragHandler = slotObj.GetComponentInChildren<ItemIconDragHandler>();
         if (dragHandler != null)
         {
-            Debug.Log($"[StorageUI] ItemIconDragHandler 찾음: {dragHandler.name}");
-            dragHandler.SetItemData(item); // 아이템 데이터 설정
+           // Debug.Log($"[StorageUI] ItemIconDragHandler 찾음: {dragHandler.name}");
+            dragHandler.SetItemData(item);
         }
         else
         {
@@ -252,7 +252,6 @@ public class StorageUI : MonoBehaviour
 
     /// <summary>
     /// 스토리지에서 아이템 회수 (인벤토리로)
-    /// StorageSlot의 더블클릭에서 호출 // TODO: 수량 분할 회수 구현, RemovePopUP 리팩토링 검토
     /// </summary>
     public void WithdrawItem(int slotIndex)
     {
@@ -283,7 +282,6 @@ public class StorageUI : MonoBehaviour
         if (success)
         {
             Debug.Log($"[StorageUI] 아이템 회수 성공: {item.itemName}");
-            // RefreshUI는 OnStorageChanged 이벤트로 자동 호출됨
         }
         else
         {
@@ -302,12 +300,27 @@ public class StorageUI : MonoBehaviour
 
         if (isActive)
         {
+            // 창고 UI 갱신
             RefreshUI();
+
+            // 인벤토리 패널 바인딩 및 표시
+            if (inventoryPanel != null && inventoryData != null)
+            {
+                inventoryPanel.Bind(inventoryData);
+                Debug.Log("[StorageUI] 인벤토리 패널 바인딩 완료");
+            }
+
             DragDropManager.I.SetCurrentStorage(worldStorage);
-            Debug.Log("[StorageUI] 창고 UI 열림");
+            Debug.Log("[StorageUI] 창고 UI 열림 (인벤토리 패널 포함)");
         }
         else
         {
+            // 인벤토리 패널 언바인딩
+            if (inventoryPanel != null)
+            {
+                inventoryPanel.Unbind();
+            }
+
             DragDropManager.I?.SetCurrentStorage(null);
             Debug.Log("[StorageUI] 창고 UI 닫힘");
         }
@@ -318,6 +331,13 @@ public class StorageUI : MonoBehaviour
         if (storageUIRoot != null)
         {
             storageUIRoot.SetActive(false);
+
+            // 인벤토리 패널 언바인딩
+            if (inventoryPanel != null)
+            {
+                inventoryPanel.Unbind();
+            }
+
             DragDropManager.I?.SetCurrentStorage(null);
 
             // 플레이어 참조 정리

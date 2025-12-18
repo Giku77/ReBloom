@@ -9,7 +9,7 @@ public class StorageSlot : MonoBehaviour,
 {
     [Header("UI References")]
     [SerializeField] private Image iconImage;
-    [SerializeField] private Image quantityFrame;
+    //[SerializeField] private Image quantityFrame;
     [SerializeField] private TextMeshProUGUI quantityText;
     [SerializeField] private TextMeshProUGUI itemName;
     [SerializeField] private GameObject emptyIndicator;
@@ -112,10 +112,10 @@ public class StorageSlot : MonoBehaviour,
             }
         }
 
-        if (quantityFrame != null)
-        {
-            quantityFrame.enabled = hasItem && quantity > 1;
-        }
+        //if (quantityFrame != null)
+        //{
+        //    quantityFrame.enabled = hasItem && quantity > 1;
+        //}
 
         if (quantityText != null)
         {

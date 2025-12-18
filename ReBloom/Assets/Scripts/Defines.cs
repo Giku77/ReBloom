@@ -61,6 +61,7 @@ public enum UIType
     EditBuild,
     WaterTank,
     Farm,
+    Storage,
     Cultivation,
     GamePause,
     Setting
