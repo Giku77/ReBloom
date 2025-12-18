@@ -3,7 +3,4 @@
 public abstract class Window : MonoBehaviour
 {
     
-
-
-
 }

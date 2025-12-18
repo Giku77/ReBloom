@@ -38,6 +38,8 @@ public class SettingManager : MonoBehaviour
         I = this;
         DontDestroyOnLoad(gameObject);
 
+
+
         CurrentResolution = Screen.currentResolution;
         IsFullScreen = true;
         IsVSyncEnabled = QualitySettings.vSyncCount > 0;
