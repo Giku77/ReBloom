@@ -35,7 +35,7 @@ public class WorldItem : MonoBehaviour, IInteractable
         {
             highlight.promptFormat = $"{item.itemName} 줍기 [E]";
             highlight.isPermanent = true;
-            highlight.ShowHighlightOnly(); // 항시 불빛
+            //highlight.ShowHighlightOnly(); // 항시 불빛
         }
 
         // 드랍 아이템이면 타이머 시작

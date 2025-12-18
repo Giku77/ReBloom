@@ -337,7 +337,7 @@ public class ItemSpawner : MonoBehaviour
         {
             rb.linearVelocity = Vector3.zero;
             rb.angularVelocity = Vector3.zero;
-            rb.isKinematic = true;
+            //rb.isKinematic = true;
         }
 
         // 통계 업데이트
