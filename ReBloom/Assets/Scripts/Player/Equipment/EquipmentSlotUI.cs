@@ -67,7 +67,7 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerClickHandler, IDragSource,
     {
         if (itemData == null)
         {
-            //Debug.Log("[EquipmentSlotUI] 아이템데이터가 없습니다.");
+            Debug.Log("[EquipmentSlotUI] 아이템데이터가 없습니다.");
             ClearSlot();
             return;
         }
@@ -78,25 +78,10 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerClickHandler, IDragSource,
         {
             if (itemData.icon != null)
             {
+                slotIcon.gameObject.SetActive(true);
                 slotIcon.sprite = itemData.icon;
                 slotIcon.enabled = true;
                 slotIcon.color = Color.white;
-            }
-            else
-            {
-                // 아이콘이 없으면 기본 아이콘 사용
-                if (defaultIcon != null)
-                {
-                    slotIcon.sprite = defaultIcon;
-                    slotIcon.enabled = true;
-                    slotIcon.color = Color.gray;
-                    Debug.LogWarning($"[EquipmentSlotUI] {itemData.itemName} 아이콘이 없어 기본 아이콘 사용");
-                }
-                else
-                {
-                    slotIcon.enabled = false;
-                    Debug.LogWarning($"[EquipmentSlotUI] {itemData.itemName} 아이콘 없음 (비활성화)");
-                }
             }
         }
 
@@ -121,10 +106,7 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerClickHandler, IDragSource,
     /// </summary>
     public void ClearSlot()
     {
-        if (slotIcon != null)
-        {
-            slotIcon.enabled = false;
-        }
+        slotIcon.gameObject.SetActive(false);
 
         if (itemName != null)
         {
@@ -159,7 +141,6 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerClickHandler, IDragSource,
 
         equipManager.UnEquip(slotType); 
     }
-
     public void OnDragSuccess()
     {
         Debug.Log("[EquipmentSlotUI] 드래그 성공");
