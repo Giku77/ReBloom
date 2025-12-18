@@ -29,10 +29,10 @@ public class StorageUI : UIBase
     #region Unity 생명주기
     private void Start()
     {
-        if (storageUIRoot != null)
-        {
-            storageUIRoot.SetActive(false);
-        }
+        //if (storageUIRoot != null)
+        //{
+        //    storageUIRoot.SetActive(false);
+        //}
     }
 
     private void OnDestroy()

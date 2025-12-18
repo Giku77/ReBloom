@@ -61,10 +61,10 @@ public enum UIType
     EditBuild,
     WaterTank,
     Farm,
-    Storage,
     Cultivation,
     GamePause,
-    Setting
+    Setting,
+    Storage
 }
 
 public enum UILayer
