@@ -50,6 +50,7 @@ public class SoundManager : MonoBehaviour
     public AudioClip gatherHammer;
 
     [Header("Volume")]
+    [SerializeField, Range(0f, 1f)] private float masterVolume = 1f;
     [SerializeField, Range(0f, 1f)] private float bgmVolume = 0.5f;
     [SerializeField, Range(0f, 1f)] private float sfxVolume = 1f;
 
@@ -102,9 +103,11 @@ public class SoundManager : MonoBehaviour
     {
         if (SettingManager.I == null) return;
 
+        SettingManager.I.OnMasterVolumeChanged += SetMasterVolume;
         SettingManager.I.OnBGMVolumeChanged += SetBGMVolume;
         SettingManager.I.OnSFXVolumeChanged += SetSFXVolume;
 
+        SetMasterVolume(SettingManager.I.MasterVolume);
         SetBGMVolume(SettingManager.I.BGMVolume);
         SetSFXVolume(SettingManager.I.SFXVolume);
     }
@@ -115,6 +118,7 @@ public class SoundManager : MonoBehaviour
 
         if (SettingManager.I == null) return;
 
+        SettingManager.I.OnMasterVolumeChanged -= SetMasterVolume;
         SettingManager.I.OnBGMVolumeChanged -= SetBGMVolume;
         SettingManager.I.OnSFXVolumeChanged -= SetSFXVolume;
     }
@@ -199,7 +203,7 @@ public class SoundManager : MonoBehaviour
     public void SetBGMVolume(float volume)
     {
         bgmVolume = Mathf.Clamp01(volume);
-        bgmSource.volume = bgmVolume;
+        bgmSource.volume = bgmVolume * masterVolume;
     }
 
     public void PlaySFX(AudioClip clip, float volumeScale = 1f)
@@ -209,7 +213,7 @@ public class SoundManager : MonoBehaviour
         AudioSource source = sfxPool[currentSfxIndex];
         currentSfxIndex = (currentSfxIndex + 1) % sfxPoolSize;
 
-        source.PlayOneShot(clip, sfxVolume * volumeScale);
+        source.PlayOneShot(clip, sfxVolume * masterVolume * volumeScale);
     }
 
     public void SetSFXVolume(float volume)
@@ -217,10 +221,23 @@ public class SoundManager : MonoBehaviour
         sfxVolume = Mathf.Clamp01(volume);
         foreach (var source in sfxPool)
         {
-            source.volume = sfxVolume;
+            source.volume = sfxVolume * masterVolume;
         }
 
-        gatherSource.volume = sfxVolume;
+        gatherSource.volume = sfxVolume * masterVolume;
+    }
+
+    public void SetMasterVolume(float volume)
+    {
+        masterVolume = Mathf.Clamp01(volume);
+        bgmSource.volume = bgmVolume * masterVolume;
+        breathingHeavySource.volume = 0.5f * masterVolume;
+        gatherSource.volume = sfxVolume * masterVolume;
+
+        foreach (var source in sfxPool)
+        {
+            source.volume = sfxVolume * masterVolume;
+        }
     }
 
     public void StartBreathingHeavy()

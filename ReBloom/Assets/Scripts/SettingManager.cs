@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
+[Serializable]
 public class SettingManager : MonoBehaviour
 {
     public static SettingManager I { get; private set; }
@@ -9,9 +10,22 @@ public class SettingManager : MonoBehaviour
     public float BGMVolume { get; private set; } = 0.5f;
     public float SFXVolume { get; private set; } = 1f;
 
+    public Resolution CurrentResolution { get; private set; }
+    public bool IsFullScreen { get; private set; } = true;
+    public bool IsVSyncEnabled { get; private set; } = true;
+    public float MouseSensitivity { get; private set; } = 3f;
+    public int GraphicsQuality { get; private set; } = 2; // 0=Low, 1=Medium, 2=High, 3=Ultra
+    public int TargetFrameRate { get; private set; } = -1; // -1=무제한
+
     public event Action<float> OnMasterVolumeChanged;
     public event Action<float> OnBGMVolumeChanged;
     public event Action<float> OnSFXVolumeChanged;
+    public event Action<Resolution> OnResolutionChanged;
+    public event Action<bool> OnFullScreenChanged;
+    public event Action<bool> OnVSyncChanged;
+    public event Action<float> OnMouseSensitivityChanged;
+    public event Action<int> OnGraphicsQualityChanged;
+    public event Action<int> OnTargetFrameRateChanged;
 
     private void Awake()
     {
@@ -23,6 +37,14 @@ public class SettingManager : MonoBehaviour
 
         I = this;
         DontDestroyOnLoad(gameObject);
+
+        CurrentResolution = Screen.currentResolution;
+        IsFullScreen = true;
+        IsVSyncEnabled = QualitySettings.vSyncCount > 0;
+        GraphicsQuality = QualitySettings.GetQualityLevel();
+        int currentFPS = Application.targetFrameRate;
+        TargetFrameRate = currentFPS <= 0 ? -1 : currentFPS;
+
     }
 
     public void SetMasterVolume(float value)
@@ -41,5 +63,50 @@ public class SettingManager : MonoBehaviour
     {
         SFXVolume = Mathf.Clamp01(value);
         OnSFXVolumeChanged?.Invoke(SFXVolume);
+    }
+
+    public void SetResolution(Resolution resolution)
+    {
+        CurrentResolution = resolution;
+        Screen.SetResolution(resolution.width, resolution.height, IsFullScreen);
+        OnResolutionChanged?.Invoke(resolution);
+    }
+
+    public void SetFullScreen(bool isFullScreen)
+    {
+        IsFullScreen = isFullScreen;
+        Screen.fullScreen = isFullScreen;
+        Screen.SetResolution(CurrentResolution.width, CurrentResolution.height, isFullScreen);
+        OnFullScreenChanged?.Invoke(isFullScreen);
+    }
+
+    public void SetVSync(bool enabled)
+    {
+        IsVSyncEnabled = enabled;
+        // VSync: 0 = 끔, 1 = 60fps 제한, 2 = 30fps 제한 
+        QualitySettings.vSyncCount = enabled ? 1 : 0;
+        OnVSyncChanged?.Invoke(enabled);
+    }
+
+    public void SetGraphicsQuality(int level)
+    {
+        // 0 = Low, 1 = Medium, 2 = High, 3 = Ultra
+        GraphicsQuality = Mathf.Clamp(level, 0, QualitySettings.names.Length - 1);
+        QualitySettings.SetQualityLevel(GraphicsQuality);
+        OnGraphicsQualityChanged?.Invoke(GraphicsQuality);
+    }
+
+    public void SetTargetFrameRate(int fps)
+    {
+        // -1 = 무제한, 30, 60, 120, 144 등
+        TargetFrameRate = fps;
+        Application.targetFrameRate = fps;
+        OnTargetFrameRateChanged?.Invoke(fps);
+    }
+
+    public void SetMouseSensitivity(float value)
+    {
+        MouseSensitivity = Mathf.Clamp(value, 1f, 10f);
+        OnMouseSensitivityChanged?.Invoke(MouseSensitivity);
     }
 }
