@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using System;
 using UnityEngine;
 
@@ -30,7 +30,13 @@ public class AutoSaveService : MonoBehaviour
         lastRequestTime = Time.unscaledTime;
 
         // 디버그용
-        // Debug.Log($"[AutoSave] Request: {reason}");
+        Debug.Log($"[AutoSave] Request: {reason}");
+    }
+
+    public void MarkClean()
+    {
+        dirty = false;
+        lastSaveTime = Time.unscaledTime;
     }
 
     private void Update()
@@ -39,6 +45,9 @@ public class AutoSaveService : MonoBehaviour
         if (saving) return;
         if (SaveManager.I == null) return;
 
+        if (SaveManager.I.IsLoading) return;
+
+
         float now = Time.unscaledTime;
 
         bool debounceOk = (now - lastRequestTime) >= debounceSeconds;
@@ -46,7 +55,7 @@ public class AutoSaveService : MonoBehaviour
         bool intervalOk = (now - lastSaveTime) >= intervalSeconds;
 
         if (debounceOk || intervalOk)
-        {
+        {   
             SaveInternal().Forget();
         }
     }
@@ -63,7 +72,7 @@ public class AutoSaveService : MonoBehaviour
             {
                 dirty = false;
                 lastSaveTime = Time.unscaledTime;
-                // Debug.Log("[AutoSave] Saved");
+                Debug.Log("[AutoSave] Saved");
             }
         }
         catch (Exception e)

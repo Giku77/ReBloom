@@ -15,7 +15,7 @@ public class SettingManager : MonoBehaviour
     public bool IsVSyncEnabled { get; private set; } = true;
     public float MouseSensitivity { get; private set; } = 3f;
     public int GraphicsQuality { get; private set; } = 2; // 0=Low, 1=Medium, 2=High, 3=Ultra
-    public int TargetFrameRate { get; private set; } = -1; // -1=무제한
+    public int TargetFrameRate { get; private set; } = 120; // -1=무제한
 
     public event Action<float> OnMasterVolumeChanged;
     public event Action<float> OnBGMVolumeChanged;
@@ -45,7 +45,7 @@ public class SettingManager : MonoBehaviour
         IsVSyncEnabled = QualitySettings.vSyncCount > 0;
         GraphicsQuality = QualitySettings.GetQualityLevel();
         int currentFPS = Application.targetFrameRate;
-        TargetFrameRate = currentFPS <= 0 ? -1 : currentFPS;
+        //TargetFrameRate = currentFPS <= 0 ? -1 : currentFPS;
 
     }
 

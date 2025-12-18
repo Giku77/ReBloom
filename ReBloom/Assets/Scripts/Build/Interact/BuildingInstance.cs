@@ -18,6 +18,7 @@ public class BuildingInstance : MonoBehaviour
         }
         if (BuildManager.I != null)
         {
+            Debug.Log($"[BuildingInstance] Registering building instance with ArcId={arcId}");
             BuildManager.I.RegisterBuilding(this);
         }
     }

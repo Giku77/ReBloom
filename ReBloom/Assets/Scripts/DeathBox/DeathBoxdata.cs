@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEditor.Rendering;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "DeathBox", menuName = "ReBloom/Container/DeathBox")]

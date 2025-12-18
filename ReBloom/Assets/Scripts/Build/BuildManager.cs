@@ -393,7 +393,7 @@ public class BuildManager : MonoBehaviour
         SoundManager.I?.PlayBuild();
         var bInstance = p.GetComponent<BuildingInstance>();
         bInstance.arcId = arc.arcId;
-        RegisterBuilding(bInstance);
+        //RegisterBuilding(bInstance);
         if (p.TryGetComponent<CorridorNode>(out var corridorNode))
         {
             var cell = CorridorGrid.WorldToCell(adjustedPos);
@@ -472,13 +472,22 @@ public class BuildManager : MonoBehaviour
         }
     }
 
-    public void ClearAllBuildings()
+    public void ClearAllBuildingsForLoad()
     {
-        // 컬렉션 수정 위험 때문에 복사해서 삭제
         var list = new List<BuildingInstance>(EnumerateAllInstances());
+
         foreach (var inst in list)
-            TryRemoveBuilding(inst);
+        {
+            if (inst == null) continue;
+
+            if (inst.TryGetComponent<CorridorNode>(out var node))
+                CorridorConnectionManager.I.Unregister(node);
+
+            UnregisterBuilding(inst);
+            Destroy(inst.gameObject);
+        }
     }
+
 
     public BuildingInstance SpawnForLoad(int arcId, Vector3 pos, Quaternion rot, string guid)
     {
@@ -494,7 +503,7 @@ public class BuildManager : MonoBehaviour
         var idComp = p.GetComponent<SaveableEntity>();
         if (idComp != null) idComp.ForceSetId(guid);
 
-        RegisterBuilding(bi);
+        //RegisterBuilding(bi);
 
         // corridor/패스스루 등도 Spawn과 동일 처리
         if (p.TryGetComponent<CorridorNode>(out var corridorNode))

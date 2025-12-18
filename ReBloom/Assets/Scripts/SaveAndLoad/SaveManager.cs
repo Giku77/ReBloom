@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -10,6 +10,9 @@ public class SaveManager : MonoBehaviour
 
     [SerializeField] private bool compressGzip = true;
     [SerializeField] private bool usePlayFab = true;
+
+    public bool IsLoading { get; private set; }
+    public bool HasLoadedOnce { get; private set; }
 
     private ISaveStorage storage;
     private bool ready;
@@ -36,6 +39,14 @@ public class SaveManager : MonoBehaviour
     public async UniTask<bool> SaveAsync(string slotId = "slot1")
     {
         await WaitReadyAsync();
+
+        if (IsLoading)
+        {
+            Debug.LogWarning($"[SaveAsync] blocked IsLoading={IsLoading} HasLoadedOnce={HasLoadedOnce}");
+            return false;
+        }
+
+        Debug.Log("[SaveAsync] Start");
 
         var save = new SaveGameDTO
         {
@@ -71,36 +82,53 @@ public class SaveManager : MonoBehaviour
     {
         await WaitReadyAsync();
 
-        var bytes = await storage.LoadAsync(slotId);
-        if (bytes == null || bytes.Length == 0)
+        IsLoading = true;
+        try
         {
-            Debug.LogWarning($"[LoadAsync] No data slot={slotId}");
-            return false;
+
+            var bytes = await storage.LoadAsync(slotId);
+            if (bytes == null || bytes.Length == 0)
+            {
+                Debug.LogWarning($"[LoadAsync] No data slot={slotId}");
+                return false;
+            }
+
+            var save = SaveSerializerNewtonsoft.FromBytes<SaveGameDTO>(bytes, compressGzip);
+
+            // (선택) 저장된 씬과 다르면 씬 로드 후 Restore 해야 함
+            if (!string.IsNullOrEmpty(save.meta.sceneName) &&
+                SceneManager.GetActiveScene().name != save.meta.sceneName)
+            {
+                await SceneManager.LoadSceneAsync(save.meta.sceneName);
+            }
+
+            await UniTask.WaitUntil(() => BuildManager.I != null && BuildManager.I.ArcDB != null);
+            await UniTask.DelayFrame(1);
+
+            var saveables = SaveRegistry.FindAllSaveablesInScene();
+            foreach (var s in saveables)
+                s.Restore(save);
+
+            HasLoadedOnce = true;
+
+            AutoSaveService.I?.MarkClean();
+
+            Debug.Log($"[LoadAsync] slot={slotId} commit={save.meta.commitId}");
+            return true;
         }
-
-        var save = SaveSerializerNewtonsoft.FromBytes<SaveGameDTO>(bytes, compressGzip);
-
-        // (선택) 저장된 씬과 다르면 씬 로드 후 Restore 해야 함
-        if (!string.IsNullOrEmpty(save.meta.sceneName) &&
-            SceneManager.GetActiveScene().name != save.meta.sceneName)
+        finally
         {
-            await SceneManager.LoadSceneAsync(save.meta.sceneName);
+            IsLoading = false;
         }
-
-        await UniTask.WaitUntil(() => BuildManager.I != null && BuildManager.I.ArcDB != null);
-        await UniTask.DelayFrame(1);
-
-        var saveables = SaveRegistry.FindAllSaveablesInScene();
-        foreach (var s in saveables)
-            s.Restore(save);
-
-        Debug.Log($"[LoadAsync] slot={slotId} commit={save.meta.commitId}");
-        return true;
     }
 
     private void OnApplicationPause(bool pause)
     {
-        if (pause) SaveAsync("slot1").Forget(); // 모바일 백그라운드 저장
+        #if UNITY_EDITOR
+            return;
+        #else
+            if (pause) AutoSaveService.I?.FlushAsync().Forget(); // 또는 SaveAsync
+        #endif
     }
 
     private void OnApplicationQuit()

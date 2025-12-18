@@ -6,7 +6,7 @@ public class QuestTest : MonoBehaviour
 
     private void Awake()
     {
-        Application.targetFrameRate = 120;
+        //Application.targetFrameRate = 120;
         QualitySettings.vSyncCount = 0;
     }
     private void Start()

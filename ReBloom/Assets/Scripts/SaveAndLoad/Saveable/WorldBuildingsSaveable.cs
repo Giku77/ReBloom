@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using UnityEngine;
 
 public class WorldBuildingsSaveable : MonoBehaviour, ISaveable
@@ -7,10 +7,10 @@ public class WorldBuildingsSaveable : MonoBehaviour, ISaveable
 
     public void Capture(SaveGameDTO save)
     {
-        save.world.placedBuildings.Clear();
-
         var bm = BuildManager.I;
         if (bm == null) return;
+
+        save.world.placedBuildings.Clear();
 
         foreach (var inst in bm.EnumerateAllInstances())
         {
@@ -35,7 +35,7 @@ public class WorldBuildingsSaveable : MonoBehaviour, ISaveable
         var bm = BuildManager.I;
         if (bm == null) return;
 
-        bm.ClearAllBuildings();
+        bm.ClearAllBuildingsForLoad();
 
         foreach (var b in save.world.placedBuildings)
         {
