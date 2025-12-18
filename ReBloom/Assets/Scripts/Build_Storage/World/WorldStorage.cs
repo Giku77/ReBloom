@@ -79,7 +79,26 @@ public class WorldStorage : WorldItemContainerBase
         DragDropManager.I.SetCurrentStorage(this);
 
         // 3. UI 열기
-        sharedStorageUI.Toggle();
+        Debug.Log($"[WorldStorage] IsOpen: {sharedStorageUI.IsOpen}, Type: {sharedStorageUI.Type}");
+
+        if (!sharedStorageUI.IsOpen)
+        {
+            // UIManager 확인
+            if (UIManager.Instance != null)
+            {
+                Debug.Log("[WorldStorage] UIManager.ShowUI 호출");
+                UIManager.Instance.ShowUI(sharedStorageUI.Type);
+            }
+            else
+            {
+                Debug.LogError("[WorldStorage] UIManager.Instance가 null!");
+                sharedStorageUI.Show();  // fallback
+            }
+        }
+        else
+        {
+            sharedStorageUI.RefreshUI();
+        }
     }
 
     /// <summary>

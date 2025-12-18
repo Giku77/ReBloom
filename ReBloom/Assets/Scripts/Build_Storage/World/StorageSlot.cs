@@ -18,9 +18,9 @@ public class StorageSlot : MonoBehaviour,
     [Header("Settings")]
     [SerializeField] private float doubleClickDelay = 0.25f;
 
-    [Header("Colors")]
-    [SerializeField] private Color normalColor = Color.white;
-    [SerializeField] private Color hoverColor = new Color(0.9f, 0.9f, 1f, 1f);
+    //[Header("Colors")]
+    //[SerializeField] private Color normalColor = Color.white;
+    [SerializeField] private GameObject hoverPrefab;
 
     private ItemBase itemData;
     private int quantity;
@@ -101,6 +101,8 @@ public class StorageSlot : MonoBehaviour,
     #region UI 업데이트
     private void UpdateUI()
     {
+        hoverPrefab.SetActive(false);
+        itemName.gameObject.SetActive(true);
         bool hasItem = itemData != null && quantity > 0;
 
         if (iconImage != null)
@@ -109,6 +111,7 @@ public class StorageSlot : MonoBehaviour,
             if (hasItem)
             {
                 iconImage.sprite = itemData.icon;
+                itemName.gameObject.SetActive(false);
             }
         }
 
@@ -135,7 +138,9 @@ public class StorageSlot : MonoBehaviour,
 
         if (background != null)
         {
-            background.color = normalColor;
+            Color color = GameInventoryToolTip.GetTierColor(itemData.tier); ;
+            color.a = 0.1f;
+            background.color = color;
         }
     }
 
@@ -190,18 +195,18 @@ public class StorageSlot : MonoBehaviour,
     {
         if (itemData != null)
         {
-            if (background != null)
+            if (hoverPrefab != null)
             {
-                background.color = hoverColor;
+                hoverPrefab.SetActive(true);
             }
         }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (background != null)
+        if (hoverPrefab != null)
         {
-            background.color = normalColor;
+            hoverPrefab.SetActive(false);
         }
     }
     #endregion

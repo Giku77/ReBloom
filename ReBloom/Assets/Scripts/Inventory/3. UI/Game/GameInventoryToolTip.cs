@@ -248,7 +248,7 @@ public class GameInventoryToolTip : MonoBehaviour
         );
     }
 
-    private Color GetTierColor(int tier)
+    public static Color GetTierColor(int tier)
     {
         return tier switch
         {

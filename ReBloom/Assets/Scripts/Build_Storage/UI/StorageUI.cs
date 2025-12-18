@@ -8,7 +8,7 @@ using UnityEngine;
 public class StorageUI : UIBase
 {
     [Header("Data References")]
-    [SerializeField] private InventoryItemData inventoryData; // 인벤토리 참조
+    [SerializeField] private GameInventory inventoryData; // 인벤토리 참조
     private StorageData storageData; // 런타임 인스턴스
     private WorldStorage worldStorage; // 상호작용 대상
 
@@ -277,7 +277,7 @@ public class StorageUI : UIBase
         }
 
         // TransferTo 사용 (Storage -> Inventory) - 1개만
-        bool success = storageData.TransferTo(inventoryData, item.itemID, 1);
+        bool success = storageData.TransferTo(inventoryData.Container, item.itemID, 1);
 
         if (success)
         {
@@ -289,7 +289,38 @@ public class StorageUI : UIBase
         }
     }
     #endregion
+    #region 전체 이동 버튼
 
+    /// <summary>
+    /// 창고 → 인벤토리 (전부 가져오기)
+    /// </summary>
+    public void OnClickWithdrawAll()
+    {
+        if (storageData == null || inventoryData == null)
+            return;
+
+        bool success = inventoryData.WithdrawAllFrom(storageData);
+
+        if (success)
+            Debug.Log("[StorageUI] 전체 회수 완료!");
+        else
+            Debug.LogWarning("[StorageUI] 일부만 회수됨");
+    }
+
+    public void OnClickDepositAll()
+    {
+        if (storageData == null || inventoryData == null)
+            return;
+
+        bool success = inventoryData.DepositAllTo(storageData);
+
+        if (success)
+            Debug.Log("[StorageUI] 전체 보관 완료!");
+        else
+            Debug.LogWarning("[StorageUI] 일부만 보관됨");
+    }
+
+    #endregion
     #region UI 토글
     public void Toggle()
     {
@@ -306,9 +337,9 @@ public class StorageUI : UIBase
         RefreshUI();
 
         // 인벤토리 패널 바인딩
-        if (inventoryPanel != null && inventoryData != null)
+        if (inventoryPanel != null && inventoryData != null && inventoryData.Container is InventoryItemData)
         {
-            inventoryPanel.Bind(inventoryData);
+            inventoryPanel.Bind((InventoryItemData)inventoryData.Container);
         }
 
         DragDropManager.I?.SetCurrentStorage(worldStorage);
