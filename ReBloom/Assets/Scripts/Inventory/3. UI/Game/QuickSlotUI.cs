@@ -84,6 +84,7 @@ public class QuickSlotUI : MonoBehaviour, IItemSlot, IDragSource
     /// </summary>
     public void OnUpdateSlotInfo(ItemBase item, int quantity)
     {
+        itemName.gameObject.SetActive(true);
         currentItem = item;
         currentQuantity = quantity;
 
@@ -107,6 +108,7 @@ public class QuickSlotUI : MonoBehaviour, IItemSlot, IDragSource
                 slotIcon.sprite = defaultIcon;
                 slotIcon.enabled = true;
                 slotIcon.color = Color.gray;
+                itemName.gameObject.SetActive(false);
                 Debug.LogWarning($"[QuickSlotUI] {item.itemName} 아이콘 없음");
             }
         }

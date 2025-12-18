@@ -11,13 +11,18 @@ public class GameInventorySlot : MonoBehaviour, IItemSlot, IDragSource,
     IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     [Header("UI References")]
+    [SerializeField] private Image backgroundColor;
     [SerializeField] private Image itemIcon;
     [SerializeField] private TextMeshProUGUI quantityText;
     [SerializeField] private Image quantityFrame;
     [SerializeField] private TextMeshProUGUI itemNameText;
+    [SerializeField] private GameObject hoverPrefab;
 
     [Header("Optional")]
     [SerializeField] private GameInventoryToolTip tooltip;
+
+    //[Header("Material Settings")]
+    //[SerializeField] private Material overlayMaterial;
 
     private ItemBase itemData;
 
@@ -50,14 +55,6 @@ public class GameInventorySlot : MonoBehaviour, IItemSlot, IDragSource,
 
         if (item != null)
         {
-            // 아이콘
-            if (itemIcon != null)
-            {
-                itemIcon.sprite = item.icon;
-                itemIcon.enabled = true;
-                itemIcon.color = Color.white;
-            }
-
             // 수량
             if (quantityText != null)
             {
@@ -71,6 +68,17 @@ public class GameInventorySlot : MonoBehaviour, IItemSlot, IDragSource,
             {
                 itemNameText.text = item.itemName;
             }
+            // 아이콘
+            if (itemIcon != null)
+            {
+                itemIcon.sprite = item.icon;
+                itemIcon.enabled = true;
+                itemIcon.color = Color.white;
+                itemNameText.gameObject.SetActive(false);
+            }
+            Color color = GameInventoryToolTip.GetTierColor(itemData.tier); ;
+            color.a = 0.1f;
+            backgroundColor.color = color;
         }
         else
         {
@@ -154,6 +162,7 @@ public class GameInventorySlot : MonoBehaviour, IItemSlot, IDragSource,
         {
             Debug.Log($"[OnPointerEnter] 툴팁 Show 호출!");
             tooltip.Show(itemData);
+            hoverPrefab.SetActive(true);
         }
         else
         {
@@ -168,6 +177,7 @@ public class GameInventorySlot : MonoBehaviour, IItemSlot, IDragSource,
         {
             tooltip.Hide();
         }
+        hoverPrefab.SetActive(false);
     }
     #endregion
 

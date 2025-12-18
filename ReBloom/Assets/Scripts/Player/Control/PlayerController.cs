@@ -167,11 +167,11 @@ public class PlayerController : MonoBehaviour
             CurrentOpenedStorage.transform.position
         );
 
-        Debug.Log($"[PlayerController] 창고 거리: {dist:F2}m");
+        //Debug.Log($"[PlayerController] 창고 거리: {dist:F2}m");
 
         if (dist > storageCloseDistance)
         {
-            Debug.Log($"[PlayerController] 창고가 너무 멀어짐! UI 닫기");
+            //Debug.Log($"[PlayerController] 창고가 너무 멀어짐! UI 닫기");
 
             // WorldStorage에게 닫으라고 요청
             CurrentOpenedStorage.CloseUI();

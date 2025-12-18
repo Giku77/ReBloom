@@ -82,11 +82,10 @@ public class UIManager : MonoBehaviour
             return;
         }
 
-        if (!uiDict.TryGetValue(type, out var ui)) return;
-
-        if (ui.Layer == UILayer.Modal)
+        if (!uiDict.TryGetValue(type, out var ui))
         {
-            CloseAllModalsExcept(type);
+            Debug.LogError($"[UIManager] UIType {type}이 uiDict에 없음!");
+            return;
         }
 
         ui.Show();

@@ -124,8 +124,8 @@ public class GameInventory : MonoBehaviour, IGameInventory
     /// add 아이템 시도 후 overflow 만큼 월드에 드롭
     /// 실제 추가된 수량 반환
     /// </summary>
-    /// <param name="itemId"></param>
-    /// <param name="amount"></param>
+    /// <param name="itemID"></param>
+    /// <param name="count"></param>
     public int AddItemFromWorld(int itemID, int count, bool drop = false)
     {
         int added = inventoryData.TryAddItem(itemID, count);  // TryAddItem 사용
@@ -160,8 +160,8 @@ public class GameInventory : MonoBehaviour, IGameInventory
     /// 드롭 없이 가득 찰 때까지만 Add 하고 끝내는 경우
     /// 하나라도 overflow 발생 시 false
     /// </summary>
-    /// <param name="itemId"></param>
-    /// <param name="amount"></param>
+    /// <param name="itemID"></param>
+    /// <param name="count"></param>
     public bool TryAddItemFromWorld(int itemID, int count)
     {
         var result = inventoryData.AddItemWithOverflow(itemID, count, out int overflow);
@@ -314,7 +314,65 @@ public class GameInventory : MonoBehaviour, IGameInventory
         return result;
     }
     #endregion
+    /// <summary>
+    /// 외부 컨테이너에서 전체 가져오기
+    /// </summary>
+    public bool WithdrawAllFrom(IItemContainer source)
+    {
+        if (source == null || !source.HasItems)
+            return false;
 
+        var items = source.Items
+            .Where(s => s != null && s.itemID > 0 && s.count > 0)
+            .ToList();
+
+        bool allTransferred = true;
+
+        foreach (var slot in items)
+        {
+            int added = inventoryData.TryAddItem(slot.itemID, slot.count);
+            if (added > 0)
+            {
+                source.TryRemoveItem(slot.itemID, added);
+            }
+            if (added < slot.count)
+            {
+                allTransferred = false;
+            }
+        }
+
+        return allTransferred;
+    }
+
+    /// <summary>
+    /// 외부 컨테이너로 전체 보내기
+    /// </summary>
+    public bool DepositAllTo(IItemContainer target)
+    {
+        if (target == null || !inventoryData.HasItems)
+            return false;
+
+        var items = inventoryData.Items
+            .Where(s => s != null && s.itemID > 0 && s.count > 0)
+            .ToList();
+
+        bool allTransferred = true;
+
+        foreach (var slot in items)
+        {
+            int added = target.TryAddItem(slot.itemID, slot.count);
+            if (added > 0)
+            {
+                inventoryData.TryRemoveItem(slot.itemID, added);
+            }
+            if (added < slot.count)
+            {
+                allTransferred = false;
+            }
+        }
+
+        return allTransferred;
+    }
     #region UI 제어
     public void OpenInventory() {
         inventoryUI.ToggleInventory();
