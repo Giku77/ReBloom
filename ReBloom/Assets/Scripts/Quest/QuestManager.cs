@@ -25,6 +25,7 @@ public class QuestManager : MonoBehaviour
     private void RaiseQuestChanged()
     {
         OnQuestStateChanged?.Invoke();
+        PlayQuestCompleteAnimation();
     }
 
     public void Init(QuestDB db, GameInventory inventory, StageDetector stageDetector)

@@ -335,11 +335,11 @@ public class BuildManager : MonoBehaviour
         // }
 
         bool spawned = Spawn(arc, pos, rot);
-        if (spawned)
-        {
-            QuestManager.I?.NotifyBuildingBuilt(arc.arcId);
-            AutoSaveService.I?.RequestSave("Build");
-        }
+        //if (spawned)
+        //{
+        //    QuestManager.I?.NotifyBuildingBuilt(arc.arcId);
+        //    AutoSaveService.I?.RequestSave("Build");
+        //}
 
         return spawned;
     }
@@ -393,7 +393,7 @@ public class BuildManager : MonoBehaviour
         SoundManager.I?.PlayBuild();
         var bInstance = p.GetComponent<BuildingInstance>();
         bInstance.arcId = arc.arcId;
-        //RegisterBuilding(bInstance);
+        RegisterBuilding(bInstance);
         if (p.TryGetComponent<CorridorNode>(out var corridorNode))
         {
             var cell = CorridorGrid.WorldToCell(adjustedPos);
@@ -403,6 +403,8 @@ public class BuildManager : MonoBehaviour
         if (p.TryGetComponent<InteractionHighlight>(out var highlight))
           highlight.promptFormat = $"상호작용 [E] : {arc.name}";
         SetupTemporaryPassThrough(p);
+        QuestManager.I?.NotifyBuildingBuilt(arc.arcId);
+        AutoSaveService.I?.RequestSave("Build");
         return true;
     }
 
@@ -503,7 +505,7 @@ public class BuildManager : MonoBehaviour
         var idComp = p.GetComponent<SaveableEntity>();
         if (idComp != null) idComp.ForceSetId(guid);
 
-        //RegisterBuilding(bi);
+        RegisterBuilding(bi);
 
         // corridor/패스스루 등도 Spawn과 동일 처리
         if (p.TryGetComponent<CorridorNode>(out var corridorNode))
