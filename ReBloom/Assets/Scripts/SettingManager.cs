@@ -27,6 +27,13 @@ public class SettingManager : MonoBehaviour
     public event Action<int> OnGraphicsQualityChanged;
     public event Action<int> OnTargetFrameRateChanged;
 
+    [SerializeField]
+    private Resolution windowedResolution = new Resolution
+    {
+        width = 1600,
+        height = 900
+    };
+
     private void Awake()
     {
         if (I != null)
@@ -76,11 +83,27 @@ public class SettingManager : MonoBehaviour
         OnResolutionChanged?.Invoke(resolution);
     }
 
+    //public void SetFullScreen(bool isFullScreen)
+    //{
+    //    IsFullScreen = isFullScreen;
+    //    Screen.fullScreen = isFullScreen;
+    //    Screen.SetResolution(CurrentResolution.width, CurrentResolution.height, isFullScreen);
+    //    OnFullScreenChanged?.Invoke(isFullScreen);
+    //}
+
     public void SetFullScreen(bool isFullScreen)
     {
         IsFullScreen = isFullScreen;
-        Screen.fullScreen = isFullScreen;
-        Screen.SetResolution(CurrentResolution.width, CurrentResolution.height, isFullScreen);
+
+        if (isFullScreen)
+        {
+            Screen.SetResolution(CurrentResolution.width, CurrentResolution.height, FullScreenMode.ExclusiveFullScreen);
+        }
+        else
+        {
+            Screen.SetResolution(windowedResolution.width, windowedResolution.height, FullScreenMode.Windowed);
+        }
+
         OnFullScreenChanged?.Invoke(isFullScreen);
     }
 

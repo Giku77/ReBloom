@@ -9,6 +9,8 @@ public class LoadingSceneManager : MonoBehaviour
 
     private async void Start()
     {
+        Time.timeScale = 1f;
+
         await UniTask.Delay(100);
 
         await LoadSceneAsync("MainScene");
