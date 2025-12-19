@@ -17,11 +17,12 @@ public class CraftingSlotUI : MonoBehaviour
         slotButton.onClick.AddListener(OnClickSlot);
     }
 
-    public void Init(int id, string displayName, CraftingUI ui)
+    public void Init(int id, int productId, string displayName, CraftingUI ui)
     {
         recipeId = id;
         craftingUI = ui;
         slotNameText.text = displayName;
+        slotIcon.sprite = ItemDatabase.I.GetItem(productId).icon;
     }
 
     private void OnClickSlot()

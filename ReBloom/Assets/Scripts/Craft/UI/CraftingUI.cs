@@ -107,7 +107,7 @@ public class CraftingUI : UIBase
             var slot = Instantiate(slotPrefab, slotParent);
             if (firstslot == null)
                 firstslot = slot;
-            slot.Init(recipe.Value.recipeId, recipe.Value.productName, this);
+            slot.Init(recipe.Value.recipeId, recipe.Value.productId, recipe.Value.productName, this);
         }
         firstslot?.Select();
     }
