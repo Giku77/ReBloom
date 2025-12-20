@@ -27,11 +27,10 @@ public class EquipmentUI : MonoBehaviour
     private void Awake()
     {
         ValidateReferences();
+        InitializeSlotUIs();
     }
     private void Start()
     {
-        InitializeSlotUIs();
-        
         RefreshAllSlots();
     }
     private void ValidateReferences()
