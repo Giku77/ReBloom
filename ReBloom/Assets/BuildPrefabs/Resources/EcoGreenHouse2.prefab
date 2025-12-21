@@ -757,6 +757,8 @@ GameObject:
   - component: {fileID: 4565165347843757173}
   - component: {fileID: 8741126869296711014}
   - component: {fileID: 7288159353775914190}
+  - component: {fileID: 782749621579630239}
+  - component: {fileID: -1653614957043365535}
   m_Layer: 9
   m_Name: EcoGreenHouse2
   m_TagString: Untagged
@@ -837,8 +839,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: faa2f25e1c37cd548a6c707ef5afb20a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  arcId: 3101001
-  depthOffset: 2.3
+  arcId: 0
+  depthOffset: 1
 --- !u!65 &4565165347843757173
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -888,6 +890,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   persistentId: 6ecfef95f8cc435ba95c0dc22840939d
+--- !u!114 &782749621579630239
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3444027433931962851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 455ca9a4175889f40bf91db613f9d915, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  openings: 4
+--- !u!114 &-1653614957043365535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3444027433931962851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc601b7604a99454f97a9ab4640cd909, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sockets:
+  - cellOffset: {x: 0, y: 0}
+    direction: 4
 --- !u!1 &4623256307439603667
 GameObject:
   m_ObjectHideFlags: 0

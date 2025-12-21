@@ -265,7 +265,8 @@ public class BuildPlacementController : MonoBehaviour
         movingBuilding.transform.SetPositionAndRotation(pos, rot);
 
         // 새 위치가 유효한지 BuildManager 규칙 재사용
-        moveCanBuild = BuildManager.I.CanBuildAt(currentArc, pos, rot, out moveError);
+        //moveCanBuild = BuildManager.I.CanBuildAt(currentArc, pos, rot, out moveError, true);
+        moveCanBuild = BuildManager.I.CanMoveAt(movingBuilding, pos, rot, out moveError);
         previewVisual?.SetValid(moveCanBuild);
 
         // 왼쪽 클릭 → 이동 확정
