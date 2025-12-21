@@ -1,10 +1,27 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 
 public class DayNightCycle : MonoBehaviour
 {
     public static DayNightCycle Instance { get; private set; }
-    
+
+    [Header("Environment Lighting (Runtime)")]
+    [SerializeField] private bool useFlatAmbient = true;
+
+    // 밤에도 외관 안 죽게 하는 "채움광"
+    private Color nightAmbientColor = new Color(0.03f, 0.04f, 0.06f, 1f);
+    [SerializeField] private float nightAmbientIntensity = 1.2f;
+
+    [SerializeField] private Color dayAmbientColor = new Color(0.75f, 0.78f, 0.82f, 1f);
+    [SerializeField] private float dayAmbientIntensity = 1.0f;
+
+    // 반사(재질이 죽어보이는 거 방지)
+    [SerializeField] private float dayReflectionIntensity = 1.0f;
+    [SerializeField] private float nightReflectionIntensity = 1.25f;
+
+    // 밤/낮 전환용(0=밤, 1=낮)
+    [SerializeField] private AnimationCurve dayFactorCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
     [Header("Light")]
     public Light sun;
@@ -101,6 +118,26 @@ public class DayNightCycle : MonoBehaviour
         }
     }
 
+    private float GetDayFactorByHour()
+    {
+        int h = GetCurrentHour();
+        int m = GetCurrentMinute();
+        float hour = h + m / 60f;
+
+        // 05~07: 0 -> 1
+        if (hour >= 5f && hour < 7f) return Mathf.InverseLerp(5f, 7f, hour);
+
+        // 07~17: 1
+        if (hour >= 7f && hour < 17f) return 1f;
+
+        // 17~19: 1 -> 0
+        if (hour >= 17f && hour < 19f) return 1f - Mathf.InverseLerp(17f, 19f, hour);
+
+        // 나머지: 0
+        return 0f;
+    }
+
+
     private void Update()
     {
         currentTime += Time.deltaTime;
@@ -131,6 +168,7 @@ public class DayNightCycle : MonoBehaviour
         UpdateSun();
         UpdateMoon();
         UpdateCloudAlpha();
+        ApplyEnvironment();
 
         //아포칼립스 스카이박스일때만 적용
         //UpdateSkybox();
@@ -211,6 +249,41 @@ public class DayNightCycle : MonoBehaviour
         float totalMinutes = (currentTime / dayLengthInSeconds) * 1440f + 300f;
         totalMinutes %= 1440f;
         return Mathf.FloorToInt(totalMinutes % 60f);
+    }
+
+
+    [SerializeField] private float giUpdateInterval = 1f;
+    private float _nextGIUpdateTime;
+    private void ApplyEnvironment()
+    {
+        float t = currentTime / dayLengthInSeconds;
+        //float dayFactor = dayFactorCurve.Evaluate(t);
+        float dayFactor = GetDayFactorByHour();
+        float nightFloor = 0.08f;               
+        dayFactor = Mathf.Lerp(nightFloor, 1f, dayFactor);
+
+        RenderSettings.sun = sun;
+
+        if (useFlatAmbient)
+        {
+            RenderSettings.ambientMode = AmbientMode.Flat;
+            RenderSettings.ambientLight = Color.Lerp(nightAmbientColor, dayAmbientColor, dayFactor);
+            RenderSettings.ambientIntensity = Mathf.Lerp(nightAmbientIntensity, dayAmbientIntensity, dayFactor);
+        }
+        else
+        {
+            RenderSettings.ambientMode = AmbientMode.Skybox;
+            RenderSettings.ambientIntensity = Mathf.Lerp(nightAmbientIntensity, dayAmbientIntensity, dayFactor);
+        }
+
+        RenderSettings.reflectionIntensity =
+            Mathf.Lerp(nightReflectionIntensity, dayReflectionIntensity, dayFactor);
+
+        if (Time.time >= _nextGIUpdateTime)
+        {
+            _nextGIUpdateTime = Time.time + giUpdateInterval;
+            DynamicGI.UpdateEnvironment();
+        }
     }
 
     private void PrintDebugInfo()

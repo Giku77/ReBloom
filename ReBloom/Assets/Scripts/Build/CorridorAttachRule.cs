@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class CorridorAttachRule : IBuildRule
 {
@@ -41,6 +41,19 @@ public class CorridorAttachRule : IBuildRule
             // 2) 둘 중 하나라도 opening이 없다
             // => 이 방향으로는 "막힌 벽끼리 맞닥뜨리는" 상황이니 설치 금지
             if (!(hasOpeningLocal && neighborHasOpening))
+            {
+                errorCode = "CORRIDOR_BLOCKED_SIDE";
+                return false;
+            }
+
+            // 2) 이웃이 통로가 아니면 "소켓"을 본다
+            // 이웃 셀에 소켓이 있고, 그 소켓이 우리를 향해 열려있다면 연결 가능
+            var needSocketDir = CorridorNode.Opposite(worldDir); // 이웃(온실) 입장에선 우리 쪽 방향
+            bool neighborHasSocket = CorridorSocketManager.I != null &&
+                                     CorridorSocketManager.I.HasSocket(neighborCell, needSocketDir);
+
+            // 소켓이 존재하는데, 우리 쪽 opening이 없으면 막힌 면이라서 금지
+            if (neighborHasSocket && !hasOpeningLocal)
             {
                 errorCode = "CORRIDOR_BLOCKED_SIDE";
                 return false;

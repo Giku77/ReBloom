@@ -32,4 +32,5 @@ public class ArcContext
     public Transform PlayerTransform;
 
     public float DepthOffset;
+    public BuildingInstance IgnoreOccupancyInstance;
 }

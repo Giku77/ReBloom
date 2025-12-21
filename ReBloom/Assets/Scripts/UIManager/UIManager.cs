@@ -88,6 +88,11 @@ public class UIManager : MonoBehaviour
             return;
         }
 
+        if (ui.Layer == UILayer.Modal)
+        {
+            CloseAllModalsExcept(type);
+        }
+
         ui.Show();
 
         if (ui.BlocksGameplayInput)
@@ -184,46 +189,67 @@ public class UIManager : MonoBehaviour
 
     private void UpdateInputLock()
     {
-        bool uiBlocking = false;
+        bool uiBlocksGameplay = false;
+
+        // 커서 정책 집계
+        UICursorMode cursorMode = UICursorMode.KeepGameplayLock;
+        bool lockZoom = false;
 
         foreach (var kvp in uiDict)
         {
             var ui = kvp.Value;
-            if (ui.IsOpen && ui.BlocksGameplayInput)
-            {
-                uiBlocking = true;
-                break;
-            }
-        }
-
-        foreach (var kvp in uiDict)
-        {
-            var ui = kvp.Value;
+            if (!ui.IsOpen) continue;
 
             if (ui.Layer == UILayer.HUD)
+                continue;
+
+            if (ui.BlocksGameplayInput)
+                uiBlocksGameplay = true;
+
+            // CursorMode: Unlock이 하나라도 있으면 그걸로
+            if (ui is UIBase uibase)
             {
-                if (uiBlocking && ui.IsOpen)
-                {
-                    ui.Hide();  
-                }
-                else if (!uiBlocking && !ui.IsOpen)
-                {
-                    ui.Show(); 
-                }
+                if (uibase.CursorMode == UICursorMode.UnlockAndShow)
+                    cursorMode = UICursorMode.UnlockAndShow;
+
+                if (uibase.LocksCameraZoom)
+                    lockZoom = true;
             }
         }
 
-        // PlayerInput ActionMap 전환
-        // var playerInput = FindFirstObjectByType<PlayerInput>();
-        // if (playerInput != null)
-        // {
-        //     playerInput.SwitchCurrentActionMap(uiBlocking ? "UI" : "Gameplay");
-        // }
+        // HUD 숨김/표시 (원래 로직 유지 가능)
+        foreach (var kvp in uiDict)
+        {
+            var ui = kvp.Value;
+            if (ui.Layer != UILayer.HUD) continue;
 
-        Cursor.lockState = uiBlocking ? CursorLockMode.None : CursorLockMode.Locked;
-        Cursor.visible = uiBlocking;
+            if (uiBlocksGameplay && ui.IsOpen) ui.Hide();
+            else if (!uiBlocksGameplay && !ui.IsOpen) ui.Show();
+        }
 
-        Camera.main.GetComponent<ThirdPersonCamera>().isZoomLocked = uiBlocking;
+        // 커서/락 상태는 CursorMode로 결정
+        switch (cursorMode)
+        {
+            case UICursorMode.KeepGameplayLock:
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+                break;
+
+            case UICursorMode.UnlockAndShow:
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = true;
+                break;
+
+            case UICursorMode.UnlockAndHide:
+                Cursor.lockState = CursorLockMode.None;
+                Cursor.visible = false;
+                break;
+        }
+
+        // 카메라 줌 잠금도 분리
+        var cam = Camera.main ? Camera.main.GetComponent<ThirdPersonCamera>() : null;
+        if (cam != null)
+            cam.isZoomLocked = lockZoom;
     }
 
     public T GetUI<T>(UIType type) where T : class, IGameUI

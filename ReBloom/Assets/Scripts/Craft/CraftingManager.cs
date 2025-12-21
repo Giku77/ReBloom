@@ -127,7 +127,7 @@ public class CraftingManager
         //}
 
         int totalProductCount = recipe.productCount * amount;
-        var overflow = _inventory.AddItemFromWorld(recipe.productId, totalProductCount);
+        var overflow = _inventory.AddItemFromWorld(recipe.productId, totalProductCount, true);
 
         SoundManager.I?.PlayCrafting();
 

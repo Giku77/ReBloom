@@ -69,11 +69,25 @@ public class BuildManager : MonoBehaviour
             else
                 buildingCounts[inst.ArcId] = 1;
         }
+
+        var sp = inst.GetComponent<CorridorSocketProvider>();
+        if (sp != null)
+        {
+            int rotIndex = CorridorGrid.GetRotIndex(inst.transform.rotation);
+
+            // baseCell: 건물 pivot 위치를 기준 셀로 쓰는 방식(가장 단순)
+            Vector2Int baseCell = CorridorGrid.WorldToCell(inst.transform.position);
+            CorridorSocketManager.I?.RegisterSockets(sp, baseCell, rotIndex);
+        }
     }
 
     public void UnregisterBuilding(BuildingInstance inst)
     {
         if (inst == null) return;
+
+        var sp = inst.GetComponent<CorridorSocketProvider>();
+        if (sp != null)
+            CorridorSocketManager.I?.UnregisterSockets(sp);
 
         if (instancesByArcId.TryGetValue(inst.ArcId, out var set))
         {
@@ -102,6 +116,25 @@ public class BuildManager : MonoBehaviour
             return set;
         return Array.Empty<BuildingInstance>();
     }
+
+    private IEnumerable<Vector2Int> GetCellsFromFootprint(BuildingFootprint fp, Vector3 pos, Quaternion rot)
+    {
+        int sx = Mathf.Max(1, Mathf.CeilToInt(fp.sizeX / CorridorGrid.CellSize));
+        int sz = Mathf.Max(1, Mathf.CeilToInt(fp.sizeZ / CorridorGrid.CellSize));
+
+        int rotIndex = CorridorGrid.GetRotIndex(rot);
+        if (rotIndex % 2 == 1) (sx, sz) = (sz, sx);
+
+        Vector2Int baseCell = CorridorGrid.WorldToCell(pos);
+
+        int hx = sx / 2;
+        int hz = sz / 2;
+
+        for (int x = -hx; x < -hx + sx; x++)
+            for (int z = -hz; z < -hz + sz; z++)
+                yield return new Vector2Int(baseCell.x + x, baseCell.y + z);
+    }
+
 
     private bool TryAdjustToGround(ArcContext ctx, out Vector3 adjustedPos, out string errorCode)
     {
@@ -171,6 +204,7 @@ public class BuildManager : MonoBehaviour
         buildRules.Add(new LimitRule(this));
         buildRules.Add(new CorridorAttachRule());
         buildRules.Add(new CorridorCellRule());
+        buildRules.Add(new OccupancyRule());
     }
 
     public void ToggleDebugBuildingMode()
@@ -198,7 +232,7 @@ public class BuildManager : MonoBehaviour
         return true;
     }
 
-    public bool CanBuildAt(ArcData arc, Vector3 pos, Quaternion rot, out string errorCode)
+    public bool CanBuildAt(ArcData arc, Vector3 pos, Quaternion rot, out string errorCode, bool isMove = false)
     {
         float depthOffset = 0.1f; 
 
@@ -217,7 +251,7 @@ public class BuildManager : MonoBehaviour
             ArcPrefab = arc.buildPrefab,
             FootPrint = footprintProvider.GetFootprint(arc),
             PlayerTransform = player.transform,
-            DepthOffset = depthOffset
+            DepthOffset = depthOffset,
         };
 
         if (!Validate(ctx, out errorCode))
@@ -261,7 +295,8 @@ public class BuildManager : MonoBehaviour
             ArcPrefab = arc.buildPrefab,
             FootPrint = footprintProvider.GetFootprint(arc),
             PlayerTransform = player.transform,
-            DepthOffset = depthOffset
+            DepthOffset = depthOffset,
+            IgnoreOccupancyInstance = inst
         };
 
         if (!Validate(ctx, out errorCode))
@@ -282,9 +317,45 @@ public class BuildManager : MonoBehaviour
         SetupTemporaryPassThrough(inst.gameObject);
 
         errorCode = null;
-        AutoSaveService.I?.RequestSave("MoveBuilding");     
+        AutoSaveService.I?.RequestSave("MoveBuilding");
+        GridOccupancyManager.I?.Release(inst);
+        var fp = footprintProvider.GetFootprint(arc);
+        var cells = GetCellsFromFootprint(fp, adjustedPos, desiredRot);
+        GridOccupancyManager.I?.Occupy(inst, cells);
         return true;
     }
+
+    public bool CanMoveAt(BuildingInstance inst, Vector3 pos, Quaternion rot, out string errorCode)
+    {
+        errorCode = null;
+        if (inst == null) { errorCode = "NULL"; return false; }
+        if (!arcDB.TryGet(inst.ArcId, out var arc)) { errorCode = "ARC_NOT_FOUND"; return false; }
+
+        float depthOffset = 0.1f;
+        if (arc.buildPrefab != null && arc.buildPrefab.TryGetComponent<BuildingInstance>(out var bi) && bi.depthOffset != 0f)
+            depthOffset = bi.depthOffset;
+
+        var ctx = new ArcContext
+        {
+            Data = arc,
+            Position = pos,
+            Rotation = rot,
+            ArcPrefab = arc.buildPrefab,
+            FootPrint = footprintProvider.GetFootprint(arc),
+            PlayerTransform = player.transform,
+            DepthOffset = depthOffset,
+            IgnoreOccupancyInstance = inst
+        };
+
+        if (!Validate(ctx, out errorCode))
+            return false;
+
+        if (!TryAdjustToGround(ctx, out _, out errorCode))
+            return false;
+
+        return true;
+    }
+
 
     public bool TryBuild(int arcId, Vector3 pos, Quaternion rot)
     {
@@ -394,6 +465,9 @@ public class BuildManager : MonoBehaviour
         var bInstance = p.GetComponent<BuildingInstance>();
         bInstance.arcId = arc.arcId;
         RegisterBuilding(bInstance);
+        var fp = footprintProvider.GetFootprint(arc);
+        var cells = GetCellsFromFootprint(fp, p.transform.position, p.transform.rotation);
+        GridOccupancyManager.I?.Occupy(bInstance, cells);
         if (p.TryGetComponent<CorridorNode>(out var corridorNode))
         {
             var cell = CorridorGrid.WorldToCell(adjustedPos);
@@ -442,6 +516,8 @@ public class BuildManager : MonoBehaviour
         {
             CorridorConnectionManager.I.Unregister(node);
         }
+
+        GridOccupancyManager.I?.Release(inst);
 
         UnregisterBuilding(inst);
         Destroy(inst.gameObject);

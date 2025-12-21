@@ -23,7 +23,7 @@ RenderSettings:
   m_AmbientSkyColor: {r: 0.212, g: 0.227, b: 0.259, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
-  m_AmbientIntensity: 1
+  m_AmbientIntensity: 1.58
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
   m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionBounces: 1
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
-  m_Sun: {fileID: 0}
+  m_Sun: {fileID: 1981463047}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -93,7 +93,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 112000000, guid: 4e3c57c7f09e3d2418f59476a821b56b, type: 2}
+  m_LightingDataAsset: {fileID: 0}
   m_LightingSettings: {fileID: 4890085278179872738, guid: 26c4646d454941b4c81749465680e599, type: 2}
 --- !u!196 &4
 NavMeshSettings:
@@ -431,6 +431,35 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 23c1debaa2970a648818e91fd4f08bf7, type: 3}
   m_PrefabInstance: {fileID: 1816916304}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &352297775 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6659237993922360964, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
+  m_PrefabInstance: {fileID: 1979078237}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &352297784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 352297775}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42e79582f6d1bf7419930cab0524ac5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &352297785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 352297775}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cabc330df62e3874ca45dec9f8864f59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &366669679
 GameObject:
   m_ObjectHideFlags: 0
@@ -1828,6 +1857,14 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6767319946384473068, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
+      propertyPath: cursorMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6767319946384473068, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
+      propertyPath: locksCameraZoom
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7149759915970249701, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
       propertyPath: m_ActionEvents.Array.data[1].m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -1964,6 +2001,14 @@ PrefabInstance:
       propertyPath: cloudRenderer
       value: 
       objectReference: {fileID: 2038347366}
+    - target: {fileID: 8877487292375089443, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
+      propertyPath: nightAmbientIntensity
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 8877487292375089443, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
+      propertyPath: nightReflectionIntensity
+      value: 0.6
+      objectReference: {fileID: 0}
     - target: {fileID: 8900939463524855383, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
       propertyPath: m_Material
       value: 
@@ -3715,9 +3760,33 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2343580704092054137, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
+      propertyPath: maxSlopeAngle
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2343580704092054137, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
       propertyPath: stageDetector
       value: 
       objectReference: {fileID: 903014005}
+    - target: {fileID: 2559034696601605003, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
+      propertyPath: layer
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2559034696601605003, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
+      propertyPath: cursorMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2559034696601605003, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
+      propertyPath: locksCameraZoom
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2559034696601605003, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
+      propertyPath: blocksGameplayInput
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3822635548090404213, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
+      propertyPath: cursorMode
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4334353796023776682, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -3777,7 +3846,13 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6659237993922360964, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 352297785}
+    - targetCorrespondingSourceObject: {fileID: 6659237993922360964, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 352297784}
   m_SourcePrefab: {fileID: 100100000, guid: 98d15263f22275841b79db16dcbddbc0, type: 3}
 --- !u!114 &1979078238 stripped
 MonoBehaviour:
@@ -3892,7 +3967,7 @@ Light:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingLayerMask: 1
-  m_Lightmapping: 1
+  m_Lightmapping: 4
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
@@ -4555,6 +4630,10 @@ PrefabInstance:
       propertyPath: inventory
       value: 
       objectReference: {fileID: 847822719}
+    - target: {fileID: 6285498267271152618, guid: 10bb1820d378248418298ba1827caabe, type: 3}
+      propertyPath: cursorMode
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6285498267271152618, guid: 10bb1820d378248418298ba1827caabe, type: 3}
       propertyPath: itemSpawner
       value: 
@@ -5693,7 +5772,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5670576108116527666, guid: a1cbfd4a2668d5544b54b417a0ac3775, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.000091552734
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5870735174235585335, guid: a1cbfd4a2668d5544b54b417a0ac3775, type: 3}
       propertyPath: m_AnchorMax.y
@@ -6450,6 +6529,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: -8.33
       objectReference: {fileID: 0}
+    - target: {fileID: 909950395312398080, guid: 8055610cf6f71b84880d4621c0179f57, type: 3}
+      propertyPath: cursorMode
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 959187578719159124, guid: 8055610cf6f71b84880d4621c0179f57, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -6580,6 +6663,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2421545492845075633, guid: 8055610cf6f71b84880d4621c0179f57, type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2453388701824294206, guid: 8055610cf6f71b84880d4621c0179f57, type: 3}
+      propertyPath: locksCameraZoom
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2483571993140955233, guid: 8055610cf6f71b84880d4621c0179f57, type: 3}
@@ -6846,6 +6933,10 @@ PrefabInstance:
       propertyPath: playerController
       value: 
       objectReference: {fileID: 1280483431}
+    - target: {fileID: 3798471586480499454, guid: 8055610cf6f71b84880d4621c0179f57, type: 3}
+      propertyPath: cursorMode
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3878213823209025396, guid: 8055610cf6f71b84880d4621c0179f57, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0

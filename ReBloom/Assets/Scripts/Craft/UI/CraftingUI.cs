@@ -157,14 +157,7 @@ public class CraftingUI : UIBase
 
         if (result.reason == CraftFailReason.None || result.reason == CraftFailReason.NoOutputSpace)
         {
-            if (result.overflowCount > 0)
-            {
-                recipeDb.TryGet(currentRecipeId, out var recipe);
-                var pos = player.transform.position + Vector3.up * 0.5f;
-                SoundManager.I?.PlayCrafting();
-                itemSpawner.DropItemWithQuantity(ItemDatabase.I.GetItem(recipe.productId), pos, result.overflowCount).Forget();
-            }
-
+            SoundManager.I?.PlayCrafting();
             setResultText($"제작 성공! x{selectedAmount}");
 
             maxCraftable = crafting.GetMaxCraftable(currentRecipeId);
