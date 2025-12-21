@@ -100,11 +100,14 @@ public class PlayerController : MonoBehaviour
 
     private bool jumpRequested = false;
 
+    public bool JumpRequested => jumpRequested;
+
     public PlayerAnimation Anim { get; private set; }
 
     private bool isAutoRun = false;
     private bool isGround = false;
     private bool wasJumping = false;
+    public bool WasJumping => wasJumping;
     public bool isInteracting = false;
 
     [Header("Debug")]

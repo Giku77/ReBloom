@@ -65,46 +65,26 @@ public class PlayerInteractable : MonoBehaviour
         Vector3 bottom = transform.position + Vector3.up * 0.5f;
         Vector3 top = transform.position + Vector3.up * 1.5f;
 
-        Collider[] hits = Physics.OverlapCapsule(
-            bottom,
-            top,
-            0.6f,
-            interactLayer
-        );
-
-        if (hits.Length == 0)
-            return false;
-
-        if (Physics.SphereCast(
-            transform.position + Vector3.up * 1.0f,
-            0.4f,
-            transform.forward,
-            out RaycastHit castHit,
-            interactRange,
-            interactLayer
-        ))
-        {
-            foreach (var col in hits)
-            {
-                if (col == castHit.collider &&
-                    col.TryGetComponent<IInteractable>(out interactable))
-                {
-                    highlight = col.GetComponent<InteractionHighlight>();
-                    hitCollider = col;
-                    return true;
-                }
-            }
-        }
+        Collider[] hits = Physics.OverlapCapsule(bottom, top, 0.6f, interactLayer);
+        if (hits.Length == 0) return false;
 
         float closestDist = float.MaxValue;
 
         foreach (var col in hits)
         {
-            if (!col.TryGetComponent<IInteractable>(out var candidate))
-                continue;
+            if (!col.TryGetComponent<IInteractable>(out var candidate)) continue;
 
-            Vector3 closest = col.ClosestPoint(transform.position);
-            float dist = Vector3.Distance(transform.position, closest);
+            Vector3 closestPoint = col.ClosestPoint(transform.position);
+            float dist = Vector3.Distance(transform.position, closestPoint);
+
+            Vector3 dir = (closestPoint - transform.position).normalized;
+            if (Physics.Raycast(transform.position + Vector3.up * 1f, dir, out RaycastHit hit, dist, ~0))
+            {
+                if (hit.collider != col)
+                {
+                    continue;
+                }
+            }
 
             if (dist < closestDist)
             {
@@ -117,6 +97,7 @@ public class PlayerInteractable : MonoBehaviour
 
         return interactable != null;
     }
+
 
     private void CheckForInteractable()
     {
@@ -165,7 +146,35 @@ public class PlayerInteractable : MonoBehaviour
 
     private void Update()
     {
-        CheckForInteractable();
+        //if (player.WasJumping || player.JumpRequested)
+        //{
+        //    CancelInteract();
+        //    ClearHighlight();
+        //    return;
+        //}
+
+        //CheckForInteractable();
+
+        if (player.WasJumping || player.JumpRequested)
+        {
+            CancelInteract();
+            ClearHighlight();
+            return;
+        }
+
+        if (!TryGetInteractable(out _, out InteractionHighlight newHighlight, out _))
+        {
+            CancelInteract();
+            ClearHighlight();
+            return;
+        }
+
+        if (currentHighlight != newHighlight)
+        {
+            ClearHighlight();
+            currentHighlight = newHighlight;
+            currentHighlight.Show();
+        }
     }
 
     //private async UniTask StartInteract()
@@ -376,6 +385,9 @@ public class PlayerInteractable : MonoBehaviour
 
     private async UniTask StartInteract()
     {
+        if (player.WasJumping || player.JumpRequested)
+            return;
+
         CancelInteract();
         cts = new CancellationTokenSource();
 
