@@ -357,11 +357,26 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         bool previousGround = isGround;
-        isGround = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
+        //isGround = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
+
+        isGround = false;
+        if (Physics.Raycast(groundCheck.position, Vector3.down, out RaycastHit hit, groundCheckRadius + 0.1f, groundLayer))
+        {
+            float angle = Vector3.Angle(hit.normal, Vector3.up);
+            if (angle < 60f)
+            {
+                isGround = true;
+            }
+        }
 
         if (wasJumping && rb.linearVelocity.y > 0.1f)
         {
             isGround = false;
+        }
+
+        if (wasJumping && !previousGround && isGround)
+        {
+            Debug.LogError($"[GROUND HIT AFTER JUMP] pos={transform.position}, velocityY={rb.linearVelocity.y}");
         }
 
         if (wasJumping && isGround)
