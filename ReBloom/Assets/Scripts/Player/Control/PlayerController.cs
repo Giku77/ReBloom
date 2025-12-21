@@ -377,20 +377,11 @@ public class PlayerController : MonoBehaviour
             isGround = false;
         }
 
-        if (wasJumping && !previousGround && isGround)
-        {
-            Debug.LogError($"[GROUND HIT AFTER JUMP] pos={transform.position}, velocityY={rb.linearVelocity.y}");
-        }
-
         if (wasJumping && isGround)
         {
             Debug.Log("착지! Jump = false");
             if (Anim != null)
             {
-                if (playerStats.Health.Value / playerStats.Health.MaxValue <= 0.2f)
-                {
-                    SoundManager.I?.StartBreathingHeavy();
-                }
                 Anim.SetSlow(false);
                 Anim.SetJumping(false);
             }
@@ -629,6 +620,12 @@ public class PlayerController : MonoBehaviour
 
         Anim.SetToolType(0);
         Anim.HandLayerChange();
+
+        var equipManager = GetComponent<PlayerEquipManager>();
+        if (equipManager != null)
+        {
+            equipManager.ClearAllEquipData();
+        }
 
         Anim.PlayDeath();
         Anim.SetRootMotion(true);
