@@ -19,6 +19,11 @@ public class MainTitleWindow : Window
     [SerializeField] private WindowManager manager;
     [SerializeField] private Window settingWindow;
 
+    [Header("팝업 UI")]
+    [SerializeField] private GameObject popup;
+    [SerializeField] private Button executeButton;
+    [SerializeField] private Button cancelButton;
+
     public bool initialized = false;
 
     private CancellationTokenSource cts;
@@ -155,5 +160,16 @@ public class MainTitleWindow : Window
         #else
             Application.Quit();
         #endif
+    }
+
+    private void OnExecuteButtonClicked()
+    { 
+        
+    
+    }
+
+    private void OnCancelButtonClicked()
+    { 
+        popup.SetActive(false);
     }
 }
