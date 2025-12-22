@@ -1,14 +1,18 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using BansheeGz.BGDatabase;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class ArcDB
 {
     private Dictionary<int, ArcData> _arcs = new();
-
-    public void LoadFromBG()
+    public bool IsLoaded { get; private set; } = false;
+    public event System.Action OnLoadComplete;
+    public async void LoadFromBG()
     {
         var meta = BGRepo.I.GetMeta("Building");
+        var loadTasks = new List<UniTask>();
+
         foreach (var e in meta.EntitiesToList())
         {
             var d = new ArcData
@@ -33,7 +37,15 @@ public class ArcDB
                 previewPrefab = e.Get<GameObject>("previewPrefab"),
             };
             _arcs[d.arcId] = d;
+
+            loadTasks.Add(d.LoadIconAsync());
         }
+
+        await UniTask.WhenAll(loadTasks);
+
+        IsLoaded = true;
+        OnLoadComplete?.Invoke();
+        Debug.Log("[ArcDB] 모든 아이콘 로드 완료");
     }
 
     public bool TryGet(int arcId, out ArcData data) => _arcs.TryGetValue(arcId, out data);

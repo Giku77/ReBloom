@@ -5,7 +5,7 @@ using UnityEngine;
 public class BuildManager : MonoBehaviour
 {
     public static BuildManager I;
-
+    public bool IsInitialized { get; private set; } = false;
     private void Awake()
     {
         I = this;
@@ -19,6 +19,7 @@ public class BuildManager : MonoBehaviour
         player = GameObject.FindWithTag("Player");
 
         Init(arcDB, arcRecipeDB, inventory);
+        IsInitialized = true;
     }
 
     private BuildingFootprintProvider footprintProvider;

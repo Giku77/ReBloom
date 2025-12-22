@@ -84,7 +84,7 @@ public class ConsumableItemData : ItemBase
         description = Description[entity];
         worldPrefabAddress = Addressable_Key[entity];
 
-        iconAddress = "Assets/Arts/Icon/" + worldPrefabAddress + "_icon.png";
+        iconAddress = "Assets/Rebloom_Arts/Icon/Item/" + worldPrefabAddress + "_icon.png";
 
         // 아이콘은 Addressable로 비동기 로드
         LoadIconAsync();

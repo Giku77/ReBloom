@@ -72,8 +72,7 @@ public class ProtectiveItemData : ItemBase
 
         worldPrefabAddress = Addressable_Key[entity];
 
-        iconAddress = "Assets/Arts/Icon/" + worldPrefabAddress + "_icon.png";
-
+        iconAddress = "Assets/Rebloom_Arts/Icon/Item/" + worldPrefabAddress + "_icon.png";
         LoadIconAsync();
         LoadPrefabAsync();
     }
