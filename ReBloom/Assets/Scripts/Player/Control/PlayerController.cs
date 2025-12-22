@@ -308,6 +308,7 @@ public class PlayerController : MonoBehaviour
             {
                 // 위쪽은 비어있다 = 올라갈 수 있는 작은 턱
                 // 살짝 위로 올려준다
+                Debug.Log($"[StepClimb] 발동 위치={transform.position}, hit={hitLow.collider.name}");
                 rb.position += Vector3.up * stepSmooth;
             }
         }
@@ -396,7 +397,7 @@ public class PlayerController : MonoBehaviour
         RotatePlayer();
         JumpPlayer();
         HandleBuildPlacementMode();
-        GroundStick();
+        //GroundStick();
 
         wasGround = previousGround;
     }
