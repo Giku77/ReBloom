@@ -27,6 +27,16 @@ public class PlayerInteractable : MonoBehaviour
         anim = GetComponent<PlayerAnimation>();
     }
 
+    private void OnEnable()
+    {
+        PlayerEquipManager.OnToolTypeChange += ToolTypeChange;
+    }
+
+    private void OnDisable()
+    {
+        PlayerEquipManager.OnToolTypeChange -= ToolTypeChange;
+    }
+
     public void OnInteract(InputAction.CallbackContext context)
     {
         if (context.started)
@@ -37,6 +47,12 @@ public class PlayerInteractable : MonoBehaviour
 
     private void CancelInteract()
     {
+        if (hilight != null)
+        {
+            hilight.HoldPromptUI?.Hide();
+            hilight.HidePrompt();
+        }
+
         cts?.Cancel();
         cts?.Dispose();
         cts = null;
@@ -64,11 +80,18 @@ public class PlayerInteractable : MonoBehaviour
             if (!col.TryGetComponent<IInteractable>(out var candidate))
                 continue;
 
-            if (!candidate.CanInteract())
-                continue;
+            Vector3 closestPoint = col.ClosestPoint(transform.position);
+            float dist = Vector3.Distance(transform.position, closestPoint);
 
-            Vector3 point = col.ClosestPoint(transform.position);
-            float dist = Vector3.Distance(transform.position, point);
+            // 벽 너머 오브젝트 체크
+            Vector3 dir = (closestPoint - transform.position).normalized;
+            if (Physics.Raycast(transform.position + Vector3.up * 1f, dir, out RaycastHit hit, dist, ~0))
+            {
+                if (hit.collider != col)
+                {
+                    continue; // 중간에 벽이 있으면 스킵
+                }
+            }
 
             if (dist < closestDist)
             {
@@ -93,6 +116,7 @@ public class PlayerInteractable : MonoBehaviour
 
         if (!TryGetInteractable(out _, out InteractionHighlight newHighlight, out _))
         {
+            CancelInteract();
             ClearHighlight();
             return;
         }
@@ -105,8 +129,10 @@ public class PlayerInteractable : MonoBehaviour
 
         if (currentHighlight != null)
         {
+            // 프롬프트만 표시 (불빛 X)
             currentHighlight.ShowPrompt();
 
+            // 외곽선만 켜기
             if (currentHighlight.TryGetComponent<OutlineToggle>(out var outline))
                 outline.SetOutlined(true);
         }
@@ -125,14 +151,25 @@ public class PlayerInteractable : MonoBehaviour
         currentHighlight = null;
     }
 
+    private void ToolTypeChange(int value)
+    {
+        toolType = value;
+    }
+
     private async UniTask StartInteract()
     {
+        if (player.WasJumping || player.JumpRequested)
+            return;
+
         CancelInteract();
         cts = new CancellationTokenSource();
 
         try
         {
             if (!TryGetInteractable(out IInteractable interactable, out hilight, out _))
+                return;
+
+            if (!interactable.CanInteract())
                 return;
 
             float holdTime = interactable.HoldTime;
@@ -144,7 +181,9 @@ public class PlayerInteractable : MonoBehaviour
                 {
                     isPlayingPickupAnim = true;
                     anim.PlayPickUp();
+                    player.isInteracting = true;
                     await UniTask.Delay(800);
+                    player.isInteracting = false;
                     isPlayingPickupAnim = false;
                     SoundManager.I?.PlayGetWorldItem();
                 }
@@ -161,9 +200,11 @@ public class PlayerInteractable : MonoBehaviour
                 hilight?.HoldPromptUI?.Show();
                 savePrompt = hilight ? hilight.promptFormat : string.Empty;
 
+                string msg = GetInteractMessage(interactable);
+
                 if (hilight)
                 {
-                    hilight.promptFormat = $"{GetInteractMessage(interactable)} 중...";
+                    hilight.promptFormat = $"{msg} 중...";
                     hilight.ShowPrompt();
                 }
 
@@ -184,14 +225,21 @@ public class PlayerInteractable : MonoBehaviour
 
             interactable.Interact(player);
         }
-        catch (OperationCanceledException) { }
+        catch (OperationCanceledException)
+        {
+            if (hilight)
+            {
+                hilight.promptFormat = savePrompt;
+                hilight.ShowPrompt();
+                hilight.HoldPromptUI?.Hide();
+            }
+        }
         finally
         {
             anim.SetGathering(false);
             player.isInteracting = false;
             SoundManager.I?.StopGather();
             CancelInteract();
-            ClearHighlight();
         }
     }
 
