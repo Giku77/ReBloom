@@ -352,9 +352,9 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if (waterTankUI.waterTankManager != null)
+        if (WaterTankService.I?.Manager != null)
         {
-            waterTankUI.waterTankManager.Tick(Time.deltaTime);
+            WaterTankService.I.Manager.Tick(Time.deltaTime);
         }
     }
 

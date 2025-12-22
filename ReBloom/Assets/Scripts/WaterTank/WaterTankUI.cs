@@ -9,7 +9,6 @@ public class WaterTankUI : UIBase
 {
     [SerializeField] private Image backgroundImage;
     [SerializeField] private GameInventory inventoryItemData;
-    public WaterTankManager waterTankManager;
 
     [Header("UI")]
     [SerializeField] private Button storeWaterButton;
@@ -22,8 +21,6 @@ public class WaterTankUI : UIBase
     protected override void Awake()
     {
         base.Awake();
-
-        waterTankManager = new WaterTankManager(inventoryItemData);
 
         storeWaterButton.onClick.AddListener(OnStoreWaterButtonClicked);
         retrieveWaterButton.onClick.AddListener(OnRetrieveWaterButtonClicked);
@@ -51,8 +48,8 @@ public class WaterTankUI : UIBase
         UIManager.Instance?.ToggleUI(Type);
         Debug.Log("[WaterTank] 워터탱크 UI 토클 호출");
 
-        if (waterTankManager != null)
-            ChangeWaterLevelUI(waterTankManager.WaterLevel);
+        if (WaterTankService.I?.Manager != null)
+            ChangeWaterLevelUI(WaterTankService.I.Manager.WaterLevel);
 
         //if (waterTankManager.isRaining)
             //StoreRainTextBox.SetActive(true);
@@ -62,8 +59,8 @@ public class WaterTankUI : UIBase
     {
         backgroundImage.gameObject.SetActive(true);
 
-        if (waterTankManager != null)
-            ChangeWaterLevelUI(waterTankManager.WaterLevel);
+        if (WaterTankService.I?.Manager != null)
+            ChangeWaterLevelUI(WaterTankService.I.Manager.WaterLevel);
 
         //if (waterTankManager.isRaining)
         //    StoreRainTextBox.SetActive(true);
@@ -79,13 +76,13 @@ public class WaterTankUI : UIBase
 
     private void OnStoreWaterButtonClicked()
     {
-        waterTankManager?.StoreWater();
+        WaterTankService.I?.Manager.StoreWater();
     }
 
     private void OnRetrieveWaterButtonClicked()
     {
         Debug.Log("[WaterTankUI] 물 회수 버튼 클릭");
-        waterTankManager?.RetrieveWater();
+        WaterTankService.I?.Manager.RetrieveWater();
     }
 
     private void ChangeWaterLevelUI(int value)

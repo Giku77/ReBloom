@@ -64,7 +64,8 @@ public enum UIType
     Cultivation,
     GamePause,
     Setting,
-    Storage
+    Storage,
+    FarmUpgrade
 }
 
 public enum UILayer

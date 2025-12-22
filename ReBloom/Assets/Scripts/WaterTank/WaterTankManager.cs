@@ -88,6 +88,15 @@ public class WaterTankManager
         Debug.Log("[WaterTankManager] 물 회수 성공");
     }
 
+    public bool TryConsumeWater(int amount)
+    {
+        if (amount <= 0) return true;
+        if (waterLevel < amount) return false;
+        AddWater(-amount);
+        return true;
+    }
+
+
     public void Tick(float deltaTime)
     {
         if (BuildManager.I != null)

@@ -101,6 +101,30 @@ public abstract class ItemContainerBase : ScriptableObject, IItemContainer
         return slot?.count ?? 0;
     }
 
+    public bool CanAddItem(int itemID, int count)
+    {
+        if (count <= 0) return true;
+
+        var item = ItemDatabase.I.GetItem(itemID);
+        if (item == null) return false;
+
+        int maxStack = Mathf.Max(1, item.maxCount);
+
+        int capacityInExisting = 0;
+        var existingSlot = items.Find(s => s.itemID == itemID);
+        if (existingSlot != null && maxStack > 1)
+            capacityInExisting = Mathf.Max(0, maxStack - existingSlot.count);
+
+        int remaining = count - capacityInExisting;
+        if (remaining <= 0) return true;
+
+        int freeSlots = Mathf.Max(0, maxSlots - items.Count);
+        int neededNewSlots = Mathf.CeilToInt(remaining / (float)maxStack);
+
+        return neededNewSlots <= freeSlots;
+    }
+
+
     public IReadOnlyList<ItemSlotData> GetAllItems() => Items;
 
     public virtual void Clear()
