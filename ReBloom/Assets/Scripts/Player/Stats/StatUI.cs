@@ -47,6 +47,8 @@ public class StatUI : MonoBehaviour
     [SerializeField] private Vector2 mobilePivot = new Vector2(0.5f, 0);
     [SerializeField] private Vector2 mobileAnchoredPosition;
 
+    [SerializeField] private GameObject protectiveUI;
+
 
     private CancellationTokenSource lowHealthCTS;
 
@@ -118,6 +120,11 @@ public class StatUI : MonoBehaviour
             rectTransform.anchorMax = mobileAnchorMax;
             rectTransform.pivot = mobilePivot;
             rectTransform.anchoredPosition = mobileAnchoredPosition;
+
+            if (protectiveUI != null)
+            {
+                protectiveUI.SetActive(false);
+            }
         }
         else
         {
