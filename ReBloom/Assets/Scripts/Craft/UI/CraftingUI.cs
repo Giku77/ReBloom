@@ -220,10 +220,13 @@ public class CraftingUI : UIBase
         if (recipe == null)
             return;
 
-        recipeNameText.text = recipe.productName;  
-        if(ItemDatabase.I.GetItem(recipe.productId).icon != null)
+        recipeNameText.text = recipe.productName;
+        var item = ItemDatabase.I.GetItem(recipe.productId);
+
+        if (item.icon != null)
         {
             recipeIcon.sprite = ItemDatabase.I.GetItem(recipe.productId).icon;
+            recipeDescText.text = item.description != null ? item.description : "설명이 없습니다.";
         }
         else
         {
