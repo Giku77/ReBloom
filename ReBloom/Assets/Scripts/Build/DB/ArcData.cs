@@ -32,12 +32,13 @@ public class ArcData
         // 1) buildPrefab null 체크
         if (buildPrefab == null)
         {
-            Debug.LogWarning($"[ArcData] {name}: buildPrefab이 null입니다");
-            return;
+            Debug.LogWarning($"[ArcData] {name}: buildPrefab이 null");
+            return; // 에러 안 던지고 그냥 종료
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.Append("Assets/Arts/Icon/Building/").Append(buildPrefab.name).Append("_icon.png");
+
+        sb.Append("Assets/Rebloom_Arts/Icon/Building/").Append(buildPrefab.name).Append("_icon.png");
         string key = sb.ToString();
 
         if (string.IsNullOrEmpty(key))
@@ -53,11 +54,9 @@ public class ArcData
         }
         catch (Exception e)
         {
-            Debug.LogWarning($"[ArcData] {name}: 아이콘 로드 실패 폴백 시도- {key}");
-            iconAddressableKey = "Building/Icon";
-
-            var handle = Addressables.LoadAssetAsync<Sprite>(key);
-            icon = await handle.ToUniTask();
+            // 실패해도 에러 던지지 않음 - 기본 아이콘 사용
+            Debug.LogWarning($"[ArcData] {name}: 아이콘 로드 실패 - {e.Message}");
+            icon = null; // BuildSlotUI에서 defaultIcon 사용
         }
     }
 }
