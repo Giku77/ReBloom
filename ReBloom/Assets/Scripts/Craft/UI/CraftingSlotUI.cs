@@ -8,6 +8,7 @@ public class CraftingSlotUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI slotNameText;
     [SerializeField] private Button slotButton;
     [SerializeField] private Image slotIcon;
+    [SerializeField] private Sprite defualtIcon;
 
     private CraftingUI craftingUI;
 
@@ -22,7 +23,14 @@ public class CraftingSlotUI : MonoBehaviour
         recipeId = id;
         craftingUI = ui;
         slotNameText.text = displayName;
-        slotIcon.sprite = ItemDatabase.I.GetItem(productId).icon;
+        if (ItemDatabase.I.GetItem(productId).icon != null)
+        {
+            slotIcon.sprite = ItemDatabase.I.GetItem(productId).icon;
+        }
+        else
+        {
+            slotIcon.sprite = defualtIcon;
+        }
     }
 
     private void OnClickSlot()

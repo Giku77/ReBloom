@@ -1,4 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -19,18 +22,27 @@ public class CraftingUI : UIBase
     [SerializeField] private Button craftButton;
     [SerializeField] private TextMeshProUGUI recipeNameText;
     [SerializeField] private TextMeshProUGUI recipeDescText;
-    [SerializeField] private TextMeshProUGUI recipeMaterialsText;
+    //[SerializeField] private TextMeshProUGUI recipeMaterialsText;
     [SerializeField] private TextMeshProUGUI recipeResultText;
 
-    [Tooltip("추가로 필요한 ui 요소")]
+    [Tooltip("Ingredient UI References")]
+    [System.Serializable]
+    public class IngredientSlot
+    {
+        public GameObject container;      // 전체 컨테이너 (SetActive용)
+        public Image icon;
+        public TextMeshProUGUI nameText;
+        public TextMeshProUGUI quantityText;
+    }
+
     [SerializeField] private Image recipeIcon;
-    [SerializeField] private TextMeshProUGUI recipeMaterialsText1;
-    [SerializeField] private TextMeshProUGUI recipeMaterialsText2;
-    [SerializeField] private TextMeshProUGUI recipeMaterialsText3;
-    [SerializeField] private Image recipeMaterialsIcon1;
-    [SerializeField] private Image recipeMaterialsIcon2;
-    [SerializeField] private Image recipeMaterialsIcon3;
+    [SerializeField] private Sprite defaultIcon;
+    [SerializeField] private List<IngredientSlot> ingredientSlots;
+    [SerializeField] private Color lackColor = new Color(1f, 0.5f, 0.5f, 1f);
+    [SerializeField] private Color normalColor = Color.white;
+
     [SerializeField] private Color deafultIconColor = new Color(1, 1, 1, 0.7f);
+
     [SerializeField] private TextMeshProUGUI buildingRequireText;
     // 재료아이콘 넣을때는 (1,1,1,1) 사용 / deafultIcon은 반투명 설정되어 있음
 
@@ -196,7 +208,7 @@ public class CraftingUI : UIBase
         int amount = Mathf.Max(selectedAmount, 1); // 0이면 그냥 1개 기준으로 보여주게
 
         var check = crafting.CanCraft(currentRecipeId, amount);
-        recipeMaterialsText.text = BuildMaterialText(recipe, check, amount);
+        BuildMaterialText(recipe, check, amount);
     }
 
 
@@ -208,7 +220,18 @@ public class CraftingUI : UIBase
         if (recipe == null)
             return;
 
-        recipeNameText.text = recipe.productName;  
+        recipeNameText.text = recipe.productName;
+        var item = ItemDatabase.I.GetItem(recipe.productId);
+
+        if (item.icon != null)
+        {
+            recipeIcon.sprite = ItemDatabase.I.GetItem(recipe.productId).icon;
+            recipeDescText.text = item.description != null ? item.description : "설명이 없습니다.";
+        }
+        else
+        {
+            recipeIcon.sprite = defaultIcon;
+        }
         recipeResultText.text = string.Empty;
 
         maxCraftable = crafting.GetMaxCraftable(recipeId);
@@ -226,42 +249,43 @@ public class CraftingUI : UIBase
         RefreshMaterialText();
     }
 
-    private string BuildMaterialText(
+    private void BuildMaterialText(
         CraftRecipeData recipe,
         CraftCheckResult check,
         int amount)
     {
-        System.Text.StringBuilder sb = new System.Text.StringBuilder();
-
-        foreach (var mat in recipe.materials)
+        foreach (var slot in ingredientSlots)
         {
-            int need = mat.count * amount;
-
-            check.missingMaterials?.TryGetValue(mat.itemId, out int missing);
-
-            int owned = inventory.GetItemCount(mat.itemId);
-            bool isLack = owned < need;
-            int lack = System.Math.Max(0, need - owned);
-
-            //if (isLack) sb.Append("<color=#ff8080>");   // 빨간색 계열
-            //else        sb.Append("<color=#80ff80>");   // 초록색 계열
-
-            //sb.Append($"{mat.name} (보유: {owned} / <color=#A0A0A0>소모: {need}");
-
-            // if (isLack)
-            //     sb.Append($", 부족: {lack}");
-            if (isLack) sb.Append("<color=#ff8080>");
-            sb.Append($"{mat.name} : {owned} / {need}");
-            sb.Append("</color>\n");
-            // sb.Append($"보유: {owned}</color>");
-            // sb.Append(" / ");
-            // sb.Append("<color=#a0a0a0>");
-            // sb.Append($"소모: {need}");
-            // sb.Append("</color>");
-            // sb.Append(")\n");
+            slot.container.SetActive(false);
         }
 
-        return sb.ToString();
+        // 2) 재료 수만큼만 보이기
+        for (int i = 0; i < recipe.materials.Length; i++)
+        {
+            if (i >= ingredientSlots.Count) break; // 슬롯 부족하면 스킵
+
+            var mat = recipe.materials[i];
+            var slot = ingredientSlots[i];
+
+            int need = mat.count * amount;
+            int owned = inventory.GetItemCount(mat.itemId);
+            bool isLack = owned < need;
+
+            // 슬롯 활성화
+            slot.container.SetActive(true);
+
+            // 아이콘
+            var itemData = ItemDatabase.I.GetItem(mat.itemId);
+            slot.icon.sprite = itemData?.icon ?? defaultIcon;
+
+            // 이름
+            slot.nameText.text = mat.name;
+            slot.nameText.color = isLack ? lackColor : normalColor;
+
+            // 수량
+            slot.quantityText.text = $"{owned} / {need}";
+            slot.quantityText.color = isLack ? lackColor : normalColor;
+        }
     }
 
 
