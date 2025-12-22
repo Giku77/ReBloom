@@ -15,7 +15,7 @@ RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 10
   m_Fog: 1
-  m_FogColor: {r: 0.5283019, g: 0.4792279, b: 0.032395884, a: 1}
+  m_FogColor: {r: 0.5294118, g: 0.47843137, b: 0.03137255, a: 1}
   m_FogMode: 2
   m_FogDensity: 0.02
   m_LinearFogStart: 0
@@ -773,6 +773,10 @@ PrefabInstance:
       propertyPath: m_AnchorMin.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1819102229045423755, guid: 6566a7d2cd4ccc649a0ecdf5b4e165d2, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2181517316647817883, guid: 6566a7d2cd4ccc649a0ecdf5b4e165d2, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -877,6 +881,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4018645892288716759, guid: 6566a7d2cd4ccc649a0ecdf5b4e165d2, type: 3}
+      propertyPath: inventory
+      value: 
+      objectReference: {fileID: 847822719}
     - target: {fileID: 5110909176047270875, guid: 6566a7d2cd4ccc649a0ecdf5b4e165d2, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -2210,6 +2218,30 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2038347366}
     - target: {fileID: 8877487292375089443, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
+      propertyPath: dayAmbientColor.b
+      value: 0.3529412
+      objectReference: {fileID: 0}
+    - target: {fileID: 8877487292375089443, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
+      propertyPath: dayAmbientColor.g
+      value: 0.39215687
+      objectReference: {fileID: 0}
+    - target: {fileID: 8877487292375089443, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
+      propertyPath: dayAmbientColor.r
+      value: 0.39607844
+      objectReference: {fileID: 0}
+    - target: {fileID: 8877487292375089443, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
+      propertyPath: nightAmbientColor.b
+      value: 0.05882353
+      objectReference: {fileID: 0}
+    - target: {fileID: 8877487292375089443, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
+      propertyPath: nightAmbientColor.g
+      value: 0.039215688
+      objectReference: {fileID: 0}
+    - target: {fileID: 8877487292375089443, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
+      propertyPath: nightAmbientColor.r
+      value: 0.03137255
+      objectReference: {fileID: 0}
+    - target: {fileID: 8877487292375089443, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
       propertyPath: nightAmbientIntensity
       value: 0.25
       objectReference: {fileID: 0}
@@ -2887,6 +2919,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 80c3afbcea7979e429806926888d7e0e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1420400256 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6318233872703512239, guid: 6566a7d2cd4ccc649a0ecdf5b4e165d2, type: 3}
+  m_PrefabInstance: {fileID: 497178196}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1341a0217586a84ea13eeb26cd4fb73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1433985463
@@ -3857,6 +3900,7 @@ MonoBehaviour:
   - {fileID: 1769668137}
   - {fileID: 1877711478}
   - {fileID: 536696133}
+  - {fileID: 1420400256}
 --- !u!4 &1943603726
 Transform:
   m_ObjectHideFlags: 0
