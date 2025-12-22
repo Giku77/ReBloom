@@ -19,7 +19,13 @@ public class MainTitleWindow : Window
     [SerializeField] private WindowManager manager;
     [SerializeField] private Window settingWindow;
 
+    [Header("팝업 UI")]
+    [SerializeField] private GameObject popup;
+    [SerializeField] private Button executeButton;
+    [SerializeField] private Button cancelButton;
+
     public bool initialized = false;
+    private bool hasSave = false;
 
     private CancellationTokenSource cts;
 
@@ -29,14 +35,16 @@ public class MainTitleWindow : Window
         continueGameButton.onClick.AddListener(OnContinueButtonClicekd);
         settingButton.onClick.AddListener(OnSettingButtonClicked);
         quitGameButton.onClick.AddListener(OnQuitButtonClicked);
-
-
+        executeButton.onClick.AddListener(OnExecuteButtonClicked);
+        cancelButton.onClick.AddListener(OnCancelButtonClicked);
     }
 
     private void OnEnable()
     {
         EventSystem.current.SetSelectedGameObject(null);
         EventSystem.current.SetSelectedGameObject(newGameButton.gameObject);
+
+        popup.SetActive(false);
 
         cts = new CancellationTokenSource();
     }
@@ -63,7 +71,7 @@ public class MainTitleWindow : Window
 
     private async UniTaskVoid RefreshContinueButtonStateAsync()
     {
-        bool hasSave = await SaveManager.I.HasSaveAsync("slot1");
+        hasSave = await SaveManager.I.HasSaveAsync("slot1");
 
         continueGameButton.interactable = hasSave; 
                                                    
@@ -71,6 +79,9 @@ public class MainTitleWindow : Window
 
     private void Update()
     {
+        if (popup.activeSelf)
+            return;
+
         if (UIButtonHoverDeselect.IsMouseHoveringButton)
             return;
 
@@ -97,9 +108,17 @@ public class MainTitleWindow : Window
 
     public void OnGameStartButtonClicked()
     {
-        GameStartContext.StartMode = GameStartContext.Mode.NewGame;
-        SaveManager.I?.ResetSlotAsync("slot1", saveDefaultImmediately: false).Forget();
-        SceneManager.LoadScene("LoadingScene");
+        if (!hasSave)
+        {
+            GameStartContext.StartMode = GameStartContext.Mode.NewGame;
+            SaveManager.I?.ResetSlotAsync("slot1", saveDefaultImmediately: false).Forget();
+            SceneManager.LoadScene("LoadingScene");
+        }
+        else
+        {
+            OpenPopup();
+        }
+
     }
 
     private async UniTaskVoid StartNewGameAsync()
@@ -133,6 +152,9 @@ public class MainTitleWindow : Window
 
     private async UniTask OnNotImplementedButtonClickeddAsync()
     {
+        cts?.Cancel();
+        cts = new CancellationTokenSource();
+
         toastMessage.gameObject.SetActive(true);
 
         toastMessage.text = "저장 데이터가 없습니다.";
@@ -155,5 +177,31 @@ public class MainTitleWindow : Window
         #else
             Application.Quit();
         #endif
+    }
+
+    private void OpenPopup()
+    {
+        if (popup.activeSelf) return;
+
+        popup.SetActive(true);
+        EventSystem.current.SetSelectedGameObject(executeButton.gameObject);
+    }
+
+    private void ClosePopup()
+    {
+        popup.SetActive(false);
+        EventSystem.current.SetSelectedGameObject(newGameButton.gameObject);
+    }
+
+    private void OnExecuteButtonClicked()
+    {
+        GameStartContext.StartMode = GameStartContext.Mode.NewGame;
+        SaveManager.I?.ResetSlotAsync("slot1", saveDefaultImmediately: false).Forget();
+        SceneManager.LoadScene("LoadingScene");
+    }
+
+    private void OnCancelButtonClicked()
+    {
+        ClosePopup();
     }
 }
