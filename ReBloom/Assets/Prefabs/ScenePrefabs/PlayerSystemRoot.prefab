@@ -2791,6 +2791,7 @@ GameObject:
   - component: {fileID: 4641975363014010394}
   - component: {fileID: 3057847551509134157}
   - component: {fileID: 60586724726335800}
+  - component: {fileID: 3936322199765705884}
   m_Layer: 5
   m_Name: InteractButton
   m_TagString: Untagged
@@ -2900,6 +2901,67 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3936322199765705884
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3101693752755943022}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 2
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 7925486441199201006}
+          m_TargetAssemblyTypeName: MobileMainUI, Assembly-CSharp
+          m_MethodName: OnInteractDown
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 3
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 7925486441199201006}
+          m_TargetAssemblyTypeName: MobileMainUI, Assembly-CSharp
+          m_MethodName: OnInteractUp
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 1
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 7925486441199201006}
+          m_TargetAssemblyTypeName: MobileMainUI, Assembly-CSharp
+          m_MethodName: OnInteractUp
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &3109272530980042611
 GameObject:
   m_ObjectHideFlags: 0
@@ -7409,7 +7471,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -400, y: 100}
+  m_AnchoredPosition: {x: -124, y: 332}
   m_SizeDelta: {x: 120, y: 120}
   m_Pivot: {x: 1, y: 0}
 --- !u!222 &3040408394426456732
@@ -8640,7 +8702,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 400, y: 100}
+  m_AnchoredPosition: {x: 69, y: 409}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0, y: 0}
 --- !u!222 &6351838790072554116
@@ -11470,9 +11532,7 @@ MonoBehaviour:
   sprintToggleButton: {fileID: 4617793003201859249}
   jumpButton: {fileID: 2905004147137767693}
   interactButton: {fileID: 60586724726335800}
-  sprintButtonImage: {fileID: 0}
-  normalColor: {r: 1, g: 1, b: 1, a: 1}
-  sprintColor: {r: 0, g: 1, b: 0, a: 1}
+  sprintText: {fileID: 5746139038546502940}
 --- !u!1 &9070653602560617873
 GameObject:
   m_ObjectHideFlags: 0

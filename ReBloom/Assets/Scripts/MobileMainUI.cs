@@ -1,5 +1,8 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+
 
 public class MobileMainUI : UIBase
 {
@@ -16,9 +19,10 @@ public class MobileMainUI : UIBase
     [SerializeField] private Button interactButton;
 
     [Header("UI Feedback")]
-    [SerializeField] private Image sprintButtonImage;
-    [SerializeField] private Color normalColor = Color.white;
-    [SerializeField] private Color sprintColor = Color.green;
+    [SerializeField] private TextMeshProUGUI sprintText;
+
+    private string sprint = "뛰기";
+    private string walking = "걷기";
 
     private bool isSprinting = false;
 
@@ -32,10 +36,10 @@ public class MobileMainUI : UIBase
         if (jumpButton != null)
             jumpButton.onClick.AddListener(OnJump);
 
-        if (interactButton != null)
-            interactButton.onClick.AddListener(OnInteract);
+        //if (interactButton != null)
+        //    interactButton.onClick.AddListener(OnInteract);
 
-        UpdateSprintButtonColor();
+        UpdateSprintText();
     }
 
     protected override void OnHide()
@@ -48,8 +52,8 @@ public class MobileMainUI : UIBase
         if (jumpButton != null)
             jumpButton.onClick.RemoveListener(OnJump);
 
-        if (interactButton != null)
-            interactButton.onClick.RemoveListener(OnInteract);
+        //if (interactButton != null)
+        //    interactButton.onClick.RemoveListener(OnInteract);
     }
 
     private void Update()
@@ -64,7 +68,7 @@ public class MobileMainUI : UIBase
     private void OnSprintToggle()
     {
         isSprinting = !isSprinting;
-        UpdateSprintButtonColor();
+        UpdateSprintText();
     }
 
     private void OnJump()
@@ -83,11 +87,23 @@ public class MobileMainUI : UIBase
         }
     }
 
-    private void UpdateSprintButtonColor()
+    private void UpdateSprintText()
     {
-        if (sprintButtonImage != null)
+        if (sprintText != null)
         {
-            sprintButtonImage.color = isSprinting ? sprintColor : normalColor;
+            sprintText.text = isSprinting ? walking : sprint;
         }
+    }
+
+    public void OnInteractDown(BaseEventData data)
+    {
+        if (playerInteractable != null)
+            playerInteractable.TriggerInteract();
+    }
+
+    public void OnInteractUp(BaseEventData data)
+    {
+        if (playerInteractable != null)
+            playerInteractable.CancelMobileInteract();
     }
 }

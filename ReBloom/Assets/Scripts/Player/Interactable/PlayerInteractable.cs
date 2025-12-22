@@ -261,4 +261,9 @@ public class PlayerInteractable : MonoBehaviour
     {
         StartInteract().Forget();
     }
+
+    public void CancelMobileInteract()
+    {
+        CancelInteract();
+    }
 }
