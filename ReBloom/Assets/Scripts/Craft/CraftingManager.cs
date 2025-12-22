@@ -148,7 +148,7 @@ public class CraftingManager
         foreach (var mat in recipe.materials)
         {
             int have = _inventory.GetItemCount(mat.itemId);
-            if (mat.count <= 0) 
+            if (mat.count <= 0)
                 continue;
 
             int canByThisMat = have / mat.count;  
