@@ -1,4 +1,4 @@
-public class CraftMaterialData
+﻿public class CraftMaterialData
 {
     public int itemId;      
     public string name;    

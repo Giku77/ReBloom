@@ -87,7 +87,7 @@ public class ToolItemData : ItemBase
         canEquip = true;
         worldPrefabAddress = Addressable_Key[entity];
 
-        iconAddress = "Assets/Arts/Icon/" + worldPrefabAddress + "_icon.png";
+        iconAddress = "Assets/Rebloom_Arts/Icon/" + worldPrefabAddress + "_icon.png";
 
         // 도구 전용 속성
         toolCategory = (ToolCategory)Category[entity];

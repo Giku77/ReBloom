@@ -1,14 +1,19 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Drawing;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class BuildSlotUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI txtName;
     [SerializeField] private TextMeshProUGUI txtTier;
+    [SerializeField] private Image icon;
+    [SerializeField] private Sprite defaultIcon;
     [SerializeField] private List<TextMeshProUGUI> txtMaterials; 
+    [SerializeField] private List<TextMeshProUGUI> ingredientsQuantity; 
+    [SerializeField] private List<Image> materialsIcons; 
 
     [SerializeField] private GameObject testPrefab;
     [SerializeField] private GameObject lockView;
@@ -71,6 +76,17 @@ public class BuildSlotUI : MonoBehaviour
         txtName.text = arc.name;
         txtTier.text = arc.tier.ToString();
 
+        if (arc.icon != null)
+        {
+            icon.sprite = arc.icon;
+           // Debug.Log($"[BuildSlotUI] {arc.name}: {icon.sprite.name}");
+        }
+        else
+        {
+            icon.sprite = defaultIcon;
+            Debug.LogWarning($"[BuildSlotUI] {arc.name}: 아이콘 없음");
+        }
+
         lockView.SetActive(!unlocked);
 
         buildButton.onClick.AddListener(() =>
@@ -96,12 +112,17 @@ public class BuildSlotUI : MonoBehaviour
             if (i < recipe.materials.Count)
             {
                 var mat = recipe.materials[i];
-                var itemName = ItemDatabase.I.GetItem(mat.itemId)?.itemName ?? "Unknown";
-                txtMaterials[i].text = $"{itemName} : <#7e7e7e><b>{mat.amount}</b></color>";
+                var item = ItemDatabase.I.GetItem(mat.itemId);
+                var itemName = item.itemName ?? "Unknown";
+                materialsIcons[i].sprite = item.icon;
+                txtMaterials[i].text = $"{itemName} : <#7e7e7e><b>";
+                ingredientsQuantity[i].text = $"{mat.amount} </b></color>";
             }
             else
             {
                 txtMaterials[i].text = string.Empty;
+                materialsIcons[i].gameObject.SetActive(false);
+                ingredientsQuantity[i].gameObject.SetActive(false);
             }
         }
     }

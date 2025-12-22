@@ -22,11 +22,21 @@ public class CraftingUI : UIBase
     [SerializeField] private TextMeshProUGUI recipeMaterialsText;
     [SerializeField] private TextMeshProUGUI recipeResultText;
 
+    [Tooltip("추가로 필요한 ui 요소")]
+    [SerializeField] private Image recipeIcon;
+    [SerializeField] private TextMeshProUGUI recipeMaterialsText1;
+    [SerializeField] private TextMeshProUGUI recipeMaterialsText2;
+    [SerializeField] private TextMeshProUGUI recipeMaterialsText3;
+    [SerializeField] private Image recipeMaterialsIcon1;
+    [SerializeField] private Image recipeMaterialsIcon2;
+    [SerializeField] private Image recipeMaterialsIcon3;
+    [SerializeField] private Color deafultIconColor = new Color(1, 1, 1, 0.7f);
+    [SerializeField] private TextMeshProUGUI buildingRequireText;
+    // 재료아이콘 넣을때는 (1,1,1,1) 사용 / deafultIcon은 반투명 설정되어 있음
 
     [Header("Slot References")]
     [SerializeField] private Transform slotParent;
     [SerializeField] private CraftingSlotUI slotPrefab;
-
 
     [Header("Slider References")]
     [SerializeField] private Slider craftingCountSlider;
@@ -107,7 +117,7 @@ public class CraftingUI : UIBase
             var slot = Instantiate(slotPrefab, slotParent);
             if (firstslot == null)
                 firstslot = slot;
-            slot.Init(recipe.Value.recipeId, recipe.Value.productName, this);
+            slot.Init(recipe.Value.recipeId, recipe.Value.productId, recipe.Value.productName, this);
         }
         firstslot?.Select();
     }

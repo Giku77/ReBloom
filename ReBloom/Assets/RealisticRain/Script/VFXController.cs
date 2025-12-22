@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 namespace RealisticRain
 {
@@ -6,22 +6,22 @@ namespace RealisticRain
     [DisallowMultipleComponent]
     public class VFXController : MonoBehaviour
     {
-        [Header("Paramètres Modifiables")]
-        [SerializeField, Tooltip("Couleur des particules générées.")]
+        [Header("Param?res Modifiables")]
+        [SerializeField, Tooltip("Couleur des particules g???s.")]
         private Color particleColor = Color.white;
 
-        [SerializeField, Min(0f), Tooltip("Taux d'émission des particules (Rate over Time). Par défaut : 200.")]
+        [SerializeField, Min(0f), Tooltip("Taux d'?ission des particules (Rate over Time). Par d?aut : 200.")]
         private float intensity = 200f;
 
-        [SerializeField, Tooltip("Direction et force du vent appliquée aux particules.")]
+        [SerializeField, Tooltip("Direction et force du vent appliqu? aux particules.")]
         private Vector3 windDirection = Vector3.zero;
 
-        [SerializeField, Range(0f, 10f), Tooltip("Puissance globale du vent appliquée à la direction.")]
+        [SerializeField, Range(0f, 10f), Tooltip("Puissance globale du vent appliqu? ?la direction.")]
         private float windStrength = 1f;
 
         private ParticleSystem[] particleSystems;
 
-        // Cache pour éviter les mises à jour inutiles
+        // Cache pour ?iter les mises ?jour inutiles
         private Color lastColor;
         private float lastIntensity;
         private Vector3 lastWindDirection;
@@ -38,13 +38,13 @@ namespace RealisticRain
 
         private void OnValidate()
         {
-            // Évite les réapplications en boucle pendant le Play mode
+            // ?ite les r?pplications en boucle pendant le Play mode
             if (!Application.isPlaying)
                 ApplySettings();
         }
 
         // =====================
-        // == Méthodes internes ==
+        // == M?hodes internes ==
         // =====================
 
         private void EnsureParticlesCached()
@@ -59,20 +59,20 @@ namespace RealisticRain
         {
             EnsureParticlesCached();
 
-            // Empêche le recalcul si rien n’a changé
+            // Emp?he le recalcul si rien në­“ chang?
             if (particleColor == lastColor &&
                 Mathf.Approximately(intensity, lastIntensity) &&
                 windDirection == lastWindDirection &&
                 Mathf.Approximately(windStrength, lastWindStrength))
                 return;
 
-            // Met à jour les caches
+            // Met ?jour les caches
             lastColor = particleColor;
             lastIntensity = intensity;
             lastWindDirection = windDirection;
             lastWindStrength = windStrength;
 
-            // Applique les paramètres à tous les systèmes
+            // Applique les param?res ?tous les syst?es
             foreach (var ps in particleSystems)
             {
                 if (ps == null) continue;
@@ -84,12 +84,12 @@ namespace RealisticRain
                 // Couleur des particules
                 main.startColor = particleColor;
 
-                // Taux d'émission
+                // Taux d'?ission
                 var rate = emission.rateOverTime;
                 rate.constant = intensity;
                 emission.rateOverTime = rate;
 
-                // Direction du vent (si activé)
+                // Direction du vent (si activ?
                 if (velocityOverLifetime.enabled)
                 {
                     velocityOverLifetime.x = windDirection.x * windStrength;
@@ -100,7 +100,7 @@ namespace RealisticRain
         }
 
         // =====================
-        // == Méthodes publiques ==
+        // == M?hodes publiques ==
         // =====================
 
         public void SetParticleColor(Color newColor)
