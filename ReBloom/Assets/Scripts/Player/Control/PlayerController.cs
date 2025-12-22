@@ -100,11 +100,14 @@ public class PlayerController : MonoBehaviour
 
     private bool jumpRequested = false;
 
+    public bool JumpRequested => jumpRequested;
+
     public PlayerAnimation Anim { get; private set; }
 
     private bool isAutoRun = false;
     private bool isGround = false;
     private bool wasJumping = false;
+    public bool WasJumping => wasJumping;
     public bool isInteracting = false;
 
     [Header("Debug")]
@@ -305,6 +308,7 @@ public class PlayerController : MonoBehaviour
             {
                 // 위쪽은 비어있다 = 올라갈 수 있는 작은 턱
                 // 살짝 위로 올려준다
+                Debug.Log($"[StepClimb] 발동 위치={transform.position}, hit={hitLow.collider.name}");
                 rb.position += Vector3.up * stepSmooth;
             }
         }
@@ -357,7 +361,37 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         bool previousGround = isGround;
+
+        // 1. CheckSphere로 기본 지면 체크
         isGround = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
+
+        // 2. 점프 중이거나 확실히 떠있을 때만 Raycast 검증
+        if (isGround && (wasJumping || Mathf.Abs(rb.linearVelocity.y) > 0.5f))
+        {
+            bool hasGroundBelow = Physics.Raycast(
+                groundCheck.position,
+                Vector3.down,
+                out RaycastHit hit,
+                groundCheckRadius + 0.3f,  // 거리 조금 늘림
+                groundLayer
+            );
+
+            if (!hasGroundBelow)
+            {
+                isGround = false;
+                Debug.Log("[벽 착지 방지] 아래 지면 없음");
+            }
+            else
+            {
+                float angle = Vector3.Angle(hit.normal, Vector3.up);
+
+                if (angle > 55f)  // 각도 조금 완화
+                {
+                    isGround = false;
+                    Debug.Log($"[벽 착지 방지] 가파른 경사 {angle:F1}도");
+                }
+            }
+        }
 
         if (wasJumping && rb.linearVelocity.y > 0.1f)
         {
@@ -369,17 +403,11 @@ public class PlayerController : MonoBehaviour
             Debug.Log("착지! Jump = false");
             if (Anim != null)
             {
-                if (playerStats.Health.Value / playerStats.Health.MaxValue <= 0.2f)
-                {
-                    SoundManager.I?.StartBreathingHeavy();
-                }
                 Anim.SetSlow(false);
                 Anim.SetJumping(false);
             }
-
             wasJumping = false;
         }
-
 
         DropPlayer();
         MovePlayer();
@@ -387,10 +415,53 @@ public class PlayerController : MonoBehaviour
         RotatePlayer();
         JumpPlayer();
         HandleBuildPlacementMode();
-        GroundStick();
 
         wasGround = previousGround;
     }
+
+    //private void FixedUpdate()
+    //{
+    //    bool previousGround = isGround;
+    //    isGround = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
+
+    //    //isGround = false;
+    //    //if (Physics.Raycast(groundCheck.position, Vector3.down, out RaycastHit hit, groundCheckRadius + 0.1f, groundLayer))
+    //    //{
+    //    //    float angle = Vector3.Angle(hit.normal, Vector3.up);
+    //    //    if (angle < 60f)
+    //    //    {
+    //    //        isGround = true;
+    //    //    }
+    //    //}
+
+    //    if (wasJumping && rb.linearVelocity.y > 0.1f)
+    //    {
+    //        isGround = false;
+    //    }
+
+    //    if (wasJumping && isGround)
+    //    {
+    //        Debug.Log("착지! Jump = false");
+    //        if (Anim != null)
+    //        {
+    //            Anim.SetSlow(false);
+    //            Anim.SetJumping(false);
+    //        }
+
+    //        wasJumping = false;
+    //    }
+
+
+    //    DropPlayer();
+    //    MovePlayer();
+    //    StepClimb();
+    //    RotatePlayer();
+    //    JumpPlayer();
+    //    HandleBuildPlacementMode();
+    //    //GroundStick();
+
+    //    wasGround = previousGround;
+    //}
 
     private void OnDestroy()
     {
@@ -552,6 +623,9 @@ public class PlayerController : MonoBehaviour
         rb.linearVelocity = new Vector3(movement.x, rb.linearVelocity.y, movement.z);
     }
 
+
+
+
     private void JumpPlayer()
     {
         if (debugMode) return;
@@ -611,6 +685,12 @@ public class PlayerController : MonoBehaviour
 
         Anim.SetToolType(0);
         Anim.HandLayerChange();
+
+        var equipManager = GetComponent<PlayerEquipManager>();
+        if (equipManager != null)
+        {
+            equipManager.ClearAllEquipData();
+        }
 
         Anim.PlayDeath();
         Anim.SetRootMotion(true);

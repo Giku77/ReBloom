@@ -439,6 +439,8 @@ public class PlayerEquipManager : MonoBehaviour
             equipmentUI.RefreshAllSlots();
             equipmentUI.UpdateResistText();
         }
+
+        OnToolTypeChange?.Invoke(0);
     }
 
     #endregion

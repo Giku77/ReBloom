@@ -14,6 +14,10 @@ public class QuestManager : MonoBehaviour
     public QuestData Current => _current;
     public QuestDB DB => _db;
 
+    //채집 오브젝트 첫번째 퀘스트 후 삭제 관련 필드
+    public static event Action OnFirstQuestCompleted;
+    private int _firstQuestId;
+
 
     private void Awake() => I = this;
 
@@ -44,6 +48,7 @@ public class QuestManager : MonoBehaviour
         {
             if (kv.Value.formerQuestId == 0)
             {
+                _firstQuestId = kv.Value.questId;
                 SetCurrent(kv.Value.questId);
                 break;
             }
@@ -158,6 +163,11 @@ public class QuestManager : MonoBehaviour
 
         int completedQuestId = _current.questId;
         TutorialEventBus.RaiseTarget(completedQuestId);
+
+        if (completedQuestId == _firstQuestId)
+        {
+            OnFirstQuestCompleted?.Invoke();
+        }
 
         var nextId = FindNextByFormer(_current.questId);
         if (nextId == 0)
