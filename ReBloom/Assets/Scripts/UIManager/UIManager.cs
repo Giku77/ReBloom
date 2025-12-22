@@ -44,16 +44,92 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
+        ShowPlatformSpecificHUD();
+
+        UpdateInputLock();
+    }
+
+    private void ShowPlatformSpecificHUD()
+    {
+        if (PlatformManager.Instance == null)
+        {
+            Debug.LogWarning("[UIManager] PlatformManager가 없습니다. PC 기본값 사용");
+            ShowPCHUD();
+            return;
+        }
+
+        if (PlatformManager.Instance.IsMobile)
+        {
+            Debug.Log("[UIManager] 모바일 HUD 표시");
+            HidePCHUD();
+            ShowMobileHUD();
+        }
+        else if (PlatformManager.Instance.IsPC)
+        {
+            Debug.Log("[UIManager] PC HUD 표시");
+            HideMobileHUD();
+            ShowPCHUD();
+        }
+    }
+
+    private void ShowPCHUD()
+    {
+        // PC용 HUD들 표시
         foreach (var kvp in uiDict)
         {
             var ui = kvp.Value;
+
             if (ui.Layer == UILayer.HUD)
             {
+
                 ui.Show();
             }
         }
+    }
 
-        UpdateInputLock();
+    private void HidePCHUD()
+    {
+        Debug.Log("[UIManager] PC HUD 숨김 시작");
+        foreach (var kvp in uiDict)
+        {
+            var ui = kvp.Value;
+
+            if (ui.Layer == UILayer.HUD)
+            {
+                Debug.Log($"[UIManager] PC HUD 숨김: {ui.Type}");
+                ui.Hide();
+            }
+        }
+    }
+
+    private void HideMobileHUD()
+    {
+        Debug.Log("[UIManager] 모바일 HUD 숨김 시작");
+        foreach (var kvp in uiDict)
+        {
+            var ui = kvp.Value;
+
+            if (ui.Layer == UILayer.MobileHUD)
+            {
+                Debug.Log($"[UIManager] 모바일 HUD 숨김: {ui.Type}");
+                ui.Hide();
+            }
+        }
+    }
+
+    private void ShowMobileHUD()
+    {
+        Debug.Log("[UIManager] 모바일 HUD Show 시작");
+        foreach (var kvp in uiDict)
+        {
+            var ui = kvp.Value;
+
+            if (ui.Layer == UILayer.MobileHUD)
+            {
+                Debug.Log($"[UIManager] 모바일 HUD 표시: {ui.Type}");
+                ui.Show();
+            }
+        }
     }
 
     public void ToggleUI(UIType type)
@@ -200,7 +276,7 @@ public class UIManager : MonoBehaviour
             var ui = kvp.Value;
             if (!ui.IsOpen) continue;
 
-            if (ui.Layer == UILayer.HUD)
+            if (ui.Layer == UILayer.HUD || ui.Layer == UILayer.MobileHUD)
                 continue;
 
             if (ui.BlocksGameplayInput)
@@ -217,14 +293,23 @@ public class UIManager : MonoBehaviour
             }
         }
 
-        // HUD 숨김/표시 (원래 로직 유지 가능)
+        // HUD 숨김/표시 - 플랫폼 체크 추가
+        bool isMobile = PlatformManager.Instance != null && PlatformManager.Instance.IsMobile;
+
         foreach (var kvp in uiDict)
         {
             var ui = kvp.Value;
-            if (ui.Layer != UILayer.HUD) continue;
 
-            if (uiBlocksGameplay && ui.IsOpen) ui.Hide();
-            else if (!uiBlocksGameplay && !ui.IsOpen) ui.Show();
+            // 플랫폼에 맞는 HUD만 처리
+            if (isMobile && ui.Layer != UILayer.MobileHUD)
+                continue;
+            if (!isMobile && ui.Layer != UILayer.HUD)
+                continue;
+
+            if (uiBlocksGameplay && ui.IsOpen)
+                ui.Hide();
+            else if (!uiBlocksGameplay && !ui.IsOpen)
+                ui.Show();
         }
 
         // 커서/락 상태는 CursorMode로 결정
