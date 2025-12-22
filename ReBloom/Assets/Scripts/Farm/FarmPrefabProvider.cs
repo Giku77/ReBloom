@@ -10,15 +10,29 @@ public class FarmPrefabProvider : MonoBehaviour
 
     private readonly Dictionary<string, AsyncOperationHandle<GameObject>> _cache = new();
 
+    private readonly Dictionary<string, GreenhouseUpgradeState> _upgradeStateCache = new();
+
+    public GreenhouseUpgradeState GetOrCreateUpgradeState(string greenhouseId)
+    {
+        if (!_upgradeStateCache.TryGetValue(greenhouseId, out var state) || state == null)
+        {
+            state = new GreenhouseUpgradeState { greenhouseId = greenhouseId };
+            _upgradeStateCache[greenhouseId] = state;
+        }
+        return state;
+    }
+
     private FarmDB _farmDB = new FarmDB();
     public FarmDB FarmDB => _farmDB;
-
+    private GreenhouseUpgradeDB _greenhouseUpgradeDB = new GreenhouseUpgradeDB();
+    public GreenhouseUpgradeDB GreenhouseUpgradeDB => _greenhouseUpgradeDB;
     private void Awake()
     {
         if (I != null && I != this) { Destroy(gameObject); return; }
         I = this;
         DontDestroyOnLoad(gameObject);
         _farmDB.LoadFromBG();
+        _greenhouseUpgradeDB.LoadFromBG();
     }
 
     public async UniTask<GameObject> LoadPrefabAsync(string address)

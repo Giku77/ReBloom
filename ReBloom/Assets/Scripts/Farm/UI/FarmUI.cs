@@ -58,11 +58,11 @@ public class FarmUI : UIBase
         var tpsCam = Camera.main.GetComponent<ThirdPersonCamera>();
         tpsCam?.ExitTopDown();
 
-        Unbind();
-        infoPanel.Hide();
-
         if (currentPlot != null && _hoveredIndex != -1)
             currentPlot.SetSlotHighlighted(_hoveredIndex, false);
+
+        Unbind();
+        infoPanel.Hide();
 
         _hoveredIndex = -1;
         base.Hide();
@@ -160,7 +160,9 @@ public class FarmUI : UIBase
 
     private void HandleWaterClicked(int cellIndex)
     {
-        if (currentPlot == null) return;
+        if (currentPlot == null || inventoryItemData == null) return;
+
+        const int WaterItemId = 4002002;
 
         if (!currentPlot.CanWater(cellIndex))
         {
@@ -168,12 +170,17 @@ public class FarmUI : UIBase
             return;
         }
 
-        currentPlot.Water(cellIndex);
+        if (!currentPlot.TryWaterByPlayer(cellIndex, inventoryItemData, WaterItemId, 1))
+        {
+            ToastMessageUI.Instance?.Show("물이 부족합니다.");
+            return;
+        }
 
         RefreshGrid();
         infoPanel.Refresh();
         ToastMessageUI.Instance?.Show("물을 주었습니다.");
     }
+
 
     private void HandleHarvestClicked(int cellIndex)
     {
@@ -269,34 +276,17 @@ public class FarmUI : UIBase
     {
         if (currentPlot == null || inventoryItemData == null) return;
 
-        var slot = currentPlot.GetSlot(cellIndex);
-        if (slot == null || slot.state != CropSlotState.Growing)
+        if (!currentPlot.TryFertilizeByPlayer(
+                cellIndex,
+                inventoryItemData,
+                FarmConst.FertilizerItemId,
+                FarmConst.FertilizerDuration))
         {
-            ToastMessageUI.Instance?.Show("지금은 비료를 사용할 수 없습니다.");
+            ToastMessageUI.Instance?.Show("비료를 사용할 수 없습니다. (비료 부족/대상 아님)");
             return;
         }
 
-        if (inventoryItemData.GetItemCount(FarmConst.FertilizerItemId) <= 0)
-        {
-            ToastMessageUI.Instance?.Show("비료가 없습니다.");
-            return;
-        }
-
-        if (!inventoryItemData.TryRemoveItem(FarmConst.FertilizerItemId, 1))
-        {
-            ToastMessageUI.Instance?.Show("비료 소모에 실패했습니다.");
-            return;
-        }
-
-        if (!currentPlot.TryApplyFertilizer(cellIndex, FarmConst.FertilizerDuration))
-        {
-            inventoryItemData.TryAddItem(FarmConst.FertilizerItemId, 1);
-            ToastMessageUI.Instance?.Show("비료를 사용할 수 없습니다.");
-            return;
-        }
-
-        ToastMessageUI.Instance?.Show("비료를 사용했습니다! (성장 2배 / 600초)");
+        ToastMessageUI.Instance?.Show("비료를 사용했습니다!");
         infoPanel.Refresh();
     }
-
 }

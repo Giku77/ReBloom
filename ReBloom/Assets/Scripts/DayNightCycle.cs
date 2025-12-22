@@ -10,7 +10,7 @@ public class DayNightCycle : MonoBehaviour
     [SerializeField] private bool useFlatAmbient = true;
 
     // 밤에도 외관 안 죽게 하는 "채움광"
-    private Color nightAmbientColor = new Color(0.03f, 0.04f, 0.06f, 1f);
+    [SerializeField] private Color nightAmbientColor = new Color(0.03f, 0.04f, 0.06f, 1f);
     [SerializeField] private float nightAmbientIntensity = 1.2f;
 
     [SerializeField] private Color dayAmbientColor = new Color(0.75f, 0.78f, 0.82f, 1f);
@@ -47,6 +47,15 @@ public class DayNightCycle : MonoBehaviour
     [SerializeField] private float dayCloudAlpha = 1f;
     [SerializeField] private float nightCloudAlpha = 0.1f;
     [SerializeField] private float cloudLerpSpeed = 0.1f;
+
+    //[Header("Fog (RenderSettings)")]
+    //[SerializeField] private bool controlRenderFog = true;
+
+    //[SerializeField] private Color dayFogColor = new Color(0.78f, 0.72f, 0.45f, 1f); // 황사 느낌
+    //[SerializeField] private Color nightFogColor = new Color(0.06f, 0.07f, 0.09f, 1f); // 밤엔 어두운 회청색(또는 누런색 더 어둡게)
+
+    //[SerializeField] private float dayFogDensity = 0.02f;
+    //[SerializeField] private float nightFogDensity = 0.04f; // 밤엔 조금 더 짙게 하면 “어두워 보이는” 효과 나기도 함
 
     private Color nightSkyboxTint = new Color(0f, 0f, 0f);
     private float skyboxLerpSpeed = 0.5f;
@@ -284,6 +293,17 @@ public class DayNightCycle : MonoBehaviour
             _nextGIUpdateTime = Time.time + giUpdateInterval;
             DynamicGI.UpdateEnvironment();
         }
+
+        RenderSettings.fog = dayFactor > 0.2f;
+
+        //if (controlRenderFog)
+        //{
+        //    RenderSettings.fog = true;
+        //    RenderSettings.fogMode = FogMode.Exponential;
+
+        //    RenderSettings.fogColor = Color.Lerp(nightFogColor, dayFogColor, dayFactor);
+        //    RenderSettings.fogDensity = Mathf.Lerp(nightFogDensity, dayFogDensity, dayFactor);
+        //}
     }
 
     private void PrintDebugInfo()

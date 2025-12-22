@@ -216,6 +216,25 @@ public class FarmBed : MonoBehaviour
         return true;
     }
 
+    public bool TryHarvestInternal(int index, out FarmCropRowData row)
+    {
+        row = null;
+        var slot = slots[index];
+        if (slot.state != CropSlotState.Mature) return false;
+        if (!farmDB.TryGet(slot.cropId, out row)) return false;
+
+        slot.state = CropSlotState.Empty;
+        slot.cropId = 0;
+        slot.stageIndex = 0;
+        slot.stageTimer = 0;
+        slot.wateredCount = 0;
+
+        UpdateSlotVisual(index);
+        OnChanged?.Invoke();
+        return true;
+    }
+
+
     public void Harvest(int index, PlayerController player)
     {
         var slot = slots[index];
@@ -255,4 +274,37 @@ public class FarmBed : MonoBehaviour
         UpdateSlotVisual(index);
         OnChanged?.Invoke();
     }
+
+    public bool TryWaterByPlayer(int index, InventoryItemData inv, int waterItemId, int consume = 1)
+    {
+        if (!CanWater(index)) return false;
+        if (inv == null) return false;
+
+        if (inv.GetItemCount(waterItemId) < consume) return false;
+        if (!inv.TryRemoveItem(waterItemId, consume)) return false;
+
+        Water(index);
+        return true;
+    }
+
+    public bool TryFertilizeByPlayer(int index, InventoryItemData inv, int fertilizerItemId, float duration)
+    {
+        var slot = GetSlot(index);
+        if (slot == null || slot.state != CropSlotState.Growing) return false;
+        if (inv == null) return false;
+
+        if (inv.GetItemCount(fertilizerItemId) <= 0) return false;
+        if (!inv.TryRemoveItem(fertilizerItemId, 1)) return false;
+
+        if (!TryApplyFertilizer(index, duration))
+        {
+            // 롤백
+            inv.TryAddItem(fertilizerItemId, 1);
+            return false;
+        }
+        return true;
+    }
+
+
+
 }
