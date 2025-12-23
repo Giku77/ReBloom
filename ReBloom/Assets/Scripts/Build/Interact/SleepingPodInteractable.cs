@@ -58,6 +58,8 @@ public class SleepingPodInteractable : BuildingInteractableBase
 
         await effectUI.FadeToBlack(1.5f);
 
+        SoundManager.I?.PlayYawn();
+
         await UniTask.Delay(1500);
 
         var playerStats = player.GetComponent<PlayerStats>();

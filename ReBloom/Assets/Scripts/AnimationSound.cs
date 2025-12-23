@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class FootStep : MonoBehaviour
+public class AnimationSound : MonoBehaviour
 {
     private PlayerAnimation anim;
     private bool isIndoor = false;
@@ -44,5 +44,26 @@ public class FootStep : MonoBehaviour
         Debug.Log($"[FootStep] Speed: {speed}, VolumeScale: {volumeScale}");
 
         SoundManager.I?.PlayFootStep(volumeScale, isIndoor);
+    }
+
+    public void PlayHammering()
+    {
+        if (anim?.Animator == null) return;
+
+        SoundManager.I?.PlayHammering();
+    }
+
+    public void PlayShoveling()
+    {
+        if (anim?.Animator == null) return;
+
+        SoundManager.I?.PlayShoveling();
+    }
+
+    public void PlayGatherHand()
+    {
+        if (anim?.Animator == null) return;
+
+        SoundManager.I?.PlayGatherHand();
     }
 }

@@ -29,6 +29,7 @@ public class SoundManager : MonoBehaviour
     private AudioSource breathingHeavySource;
     public AudioClip footStepSoundOutdoor;
     public AudioClip footStepSoundIndoor;
+    public AudioClip yawn;
 
     [Header("UI 사운드")]
     public AudioClip openInventory;
@@ -46,7 +47,7 @@ public class SoundManager : MonoBehaviour
     public AudioClip crafting;
     public AudioClip openCraftingTable;
     public AudioClip closeCraftingTable;
-    private AudioSource gatherSource;
+    //private AudioSource gatherSource;
     public AudioClip gatherHand;
     public AudioClip gatherShovel;
     public AudioClip gatherHammer;
@@ -87,10 +88,10 @@ public class SoundManager : MonoBehaviour
         breathingHeavySource.loop = true;
         breathingHeavySource.volume = 0.5f;
 
-        gatherSource = gameObject.AddComponent<AudioSource>();
-        gatherSource.playOnAwake = false;
-        gatherSource.loop = true;
-        gatherSource.volume = sfxVolume;
+        //gatherSource = gameObject.AddComponent<AudioSource>();
+        //gatherSource.playOnAwake = false;
+        //gatherSource.loop = true;
+        //gatherSource.volume = sfxVolume;
     }
 
     private void Update()
@@ -226,7 +227,7 @@ public class SoundManager : MonoBehaviour
             source.volume = sfxVolume * masterVolume;
         }
 
-        gatherSource.volume = sfxVolume * masterVolume;
+        //gatherSource.volume = sfxVolume * masterVolume;
     }
 
     public void SetMasterVolume(float volume)
@@ -234,7 +235,7 @@ public class SoundManager : MonoBehaviour
         masterVolume = Mathf.Clamp01(volume);
         bgmSource.volume = bgmVolume * masterVolume;
         breathingHeavySource.volume = 0.5f * masterVolume;
-        gatherSource.volume = sfxVolume * masterVolume;
+        //gatherSource.volume = sfxVolume * masterVolume;
 
         foreach (var source in sfxPool)
         {
@@ -276,28 +277,28 @@ public class SoundManager : MonoBehaviour
         }
     }
 
-    public void PlayGather(int toolType)
-    {
-        if (gatherSource.isPlaying) return;
+    //public void PlayGather(int toolType)
+    //{
+    //    if (gatherSource.isPlaying) return;
 
-        gatherSource.loop = true;
+    //    gatherSource.loop = true;
 
-        switch (toolType)
-        {
-            case 0: gatherSource.clip = gatherHand; break;
-            case 1: gatherSource.clip = gatherShovel; break;
-            case 2: gatherSource.clip = gatherHammer; break;
-        }
+    //    switch (toolType)
+    //    {
+    //        case 0: gatherSource.clip = gatherHand; break;
+    //        case 1: gatherSource.clip = gatherShovel; break;
+    //        case 2: gatherSource.clip = gatherHammer; break;
+    //    }
 
-        gatherSource.Play();
-    }
+    //    gatherSource.Play();
+    //}
 
-    public void StopGather()
-    {
-        if (!gatherSource.isPlaying) return;
-        gatherSource.Stop();
-        gatherSource.clip = null;
-    }
+    //public void StopGather()
+    //{
+    //    if (!gatherSource.isPlaying) return;
+    //    gatherSource.Stop();
+    //    gatherSource.clip = null;
+    //}
 
     public void PlayFootStep(float volumeScale, bool isIndoor)
     {
@@ -328,6 +329,9 @@ public class SoundManager : MonoBehaviour
     public void PlayNextMission() => PlaySFX(nextMission);
     public void PlayMissionClear() => PlaySFX(missionClear);
     public void PlayGatherHand() => PlaySFX(gatherHand);
-    public void PlayGatherShovel() => PlaySFX(gatherShovel);
-    public void PlayGatherHammer() => PlaySFX(gatherHammer);
+    public void PlayShoveling() => PlaySFX(gatherShovel);
+    public void PlayHammering() => PlaySFX(gatherHammer);
+    public void PlayGather() => PlaySFX(gatherHand);
+    public void PlayYawn() => PlaySFX(yawn);
+
 }

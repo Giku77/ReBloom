@@ -443,18 +443,14 @@ public class DayNightCycle : MonoBehaviour
 
         int hoursToAdvance;
 
-        // 07:00 이전이면 당일 07:00까지
         if (currentHour < 7)
         {
             hoursToAdvance = 7 - currentHour;
         }
-        // 07:00 이후면 다음날 07:00까지 (24시간 - 현재시간 + 7시간)
         else
         {
             hoursToAdvance = 24 - currentHour + 7;
         }
-
-        Debug.Log($"[Sleep] {currentHour}시 → {hoursToAdvance}시간 경과");
 
         AdvanceHours(hoursToAdvance);
     }
