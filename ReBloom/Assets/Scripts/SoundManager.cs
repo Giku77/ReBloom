@@ -53,6 +53,9 @@ public class SoundManager : MonoBehaviour
     public AudioClip gatherShovel;
     public AudioClip gatherHammer;
     public AudioClip openBox;
+    public AudioClip water;
+    public AudioClip eat;
+    public AudioClip drink;
 
     [Header("Volume")]
     [SerializeField, Range(0f, 1f)] private float masterVolume = 1f;
@@ -316,6 +319,24 @@ public class SoundManager : MonoBehaviour
         AudioClip clip = getDamageSounds[Random.Range(0, getDamageSounds.Length)];
         PlaySFX(clip);
     }
+
+    public void PlayEat(int category)
+    {
+        switch (category)
+        {
+            case 1: // 음식
+            case 5: // 음식
+                PlaySFX(eat);
+                break;
+            case 2: //음료
+                PlaySFX(drink);
+                break;
+            default:
+                Debug.LogWarning("[SoundManager] 잘못 된 음식 카테고리입니다.");
+                break;
+        }
+    }
+
     public void PlayJump() => PlaySFX(jump);
     public void PlayOpenInventory() => PlaySFX(openInventory);
     public void PlayCloseInventory() => PlaySFX(closeInventory);
@@ -337,5 +358,5 @@ public class SoundManager : MonoBehaviour
     public void PlayYawn() => PlaySFX(yawn);
     public void PlayHover() => PlaySFX(uiHover);
     public void PlayOpenBox() => PlaySFX(openBox);
-
+    public void PlayWater() => PlaySFX(water);
 }

@@ -99,11 +99,14 @@ public class ConsumableItemData : ItemBase
         if (player == null) return false;
 
         int mainCat = M_Cat[entity];
+        int subCat = S_Cat[entity];
 
         // 카테고리별 특수 처리
         switch ((ConsumableCategory)mainCat)
         {
             case ConsumableCategory.Food:
+                SoundManager.I?.PlayEat(subCat);
+                return ApplyBasicConsumable(player);
             case ConsumableCategory.Medical:
                 return ApplyBasicConsumable(player);
 
