@@ -88,13 +88,25 @@ public class ThirdPersonCamera : MonoBehaviour
     //인풋시스템 콜바이함수 룩
     public void OnLook(InputAction.CallbackContext context)
     {
+        //if (Cursor.lockState != CursorLockMode.Locked)
+        //{
+        //    lookInput = Vector2.zero;
+        //    return;
+        //}
+
+        //lookInput = context.ReadValue<Vector2>();
+
+        Debug.Log($"[Camera] OnLook 호출! Cursor.lockState: {Cursor.lockState}");
+
         if (Cursor.lockState != CursorLockMode.Locked)
         {
+            Debug.LogWarning("[Camera] 커서가 잠겨있지 않아서 입력 무시!");
             lookInput = Vector2.zero;
             return;
         }
 
         lookInput = context.ReadValue<Vector2>();
+        Debug.Log($"[Camera] lookInput: {lookInput}");
     }
 
     private void HandleZoom()
