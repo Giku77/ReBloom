@@ -65,6 +65,7 @@ public enum UIType
     GamePause,
     Setting,
     Storage,
+    MobileMain,
     FarmUpgrade
 }
 
@@ -73,4 +74,5 @@ public enum UILayer
     HUD,
     Modal,
     Overlay,
+    MobileHUD,
 }

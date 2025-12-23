@@ -256,4 +256,14 @@ public class PlayerInteractable : MonoBehaviour
         if (interactable is WaterSource) return "물 뜨는";
         return "작업";
     }
+
+    public void TriggerInteract()
+    {
+        StartInteract().Forget();
+    }
+
+    public void CancelMobileInteract()
+    {
+        CancelInteract();
+    }
 }

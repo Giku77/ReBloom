@@ -127,6 +127,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private StorageUI storageUI;
     [SerializeField] private float storageCloseDistance = 5f;
 
+    private Vector2 mobileInput;
+    private bool mobileIsSprinting;
+
     public void OpenCraftingUI()
     {
         if (craftingUI != null)
@@ -861,6 +864,23 @@ public class PlayerController : MonoBehaviour
             {
                 rb.AddForce(Vector3.down * 50f, ForceMode.Force);
             }
+        }
+    }
+
+    public void SetMobileInput(Vector2 input, bool sprint)
+    {
+        if (PlatformManager.Instance != null && PlatformManager.Instance.IsMobile)
+        {
+            moveInput = input;
+            isSprinting = sprint;
+        }
+    }
+
+    public void RequestJump()
+    {
+        if (isGround && !IsMovementLocked && !isStunned)
+        {
+            jumpRequested = true;
         }
     }
 }

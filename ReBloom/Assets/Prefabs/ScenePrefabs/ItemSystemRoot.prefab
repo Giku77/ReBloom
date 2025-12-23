@@ -3421,6 +3421,15 @@ MonoBehaviour:
   flashSpeed: 1
   lowHealthAlphaMin: 0.1
   lowHealthAlphaMax: 0.5
+  rectTransform: {fileID: 0}
+  pcAnchorMin: {x: 0, y: 0}
+  pcAnchorMax: {x: 0, y: 0}
+  pcAnchoredPosition: {x: 0, y: 0}
+  mobileAnchorMin: {x: 0.5, y: 0}
+  mobileAnchorMax: {x: 0.5, y: 0}
+  mobilePivot: {x: 0.5, y: 0}
+  mobileAnchoredPosition: {x: 0, y: 0}
+  protectiveUI: {fileID: 0}
 --- !u!114 &9036526958994709541
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8121,6 +8130,8 @@ MonoBehaviour:
   layer: 1
   blocksGameplayInput: 1
   root: {fileID: 4108751648599025758}
+  cursorMode: 1
+  locksCameraZoom: 1
   uiRoot: {fileID: 4108751648599025758}
   contentContainer: {fileID: 12547168614448396}
   itemSlotPrefab: {fileID: 6128953929281181081, guid: 72d7ba53a1ddfb74d9ba2af2aea12148, type: 3}
@@ -10646,7 +10657,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -0.000061035156}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &4967979166074866537
@@ -14471,7 +14482,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 289196018598197058}
   m_HandleRect: {fileID: 7136380184746051988}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -24400,6 +24411,8 @@ MonoBehaviour:
   layer: 1
   blocksGameplayInput: 1
   root: {fileID: 6320431484364873924}
+  cursorMode: 1
+  locksCameraZoom: 1
   gameInventory: {fileID: 5215465979089579694}
   inventoryData: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
   inventoryUIRoot: {fileID: 6320431484364873924}
@@ -31121,6 +31134,8 @@ MonoBehaviour:
   layer: 0
   blocksGameplayInput: 0
   root: {fileID: 0}
+  cursorMode: 1
+  locksCameraZoom: 0
 --- !u!1 &8700506493525384225
 GameObject:
   m_ObjectHideFlags: 0
@@ -32744,7 +32759,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5354943363138888679, guid: 4aca40526780f124aa1111f533e35fe7, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 47
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5354943363138888679, guid: 4aca40526780f124aa1111f533e35fe7, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -32756,7 +32771,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8965033952748348860, guid: 4aca40526780f124aa1111f533e35fe7, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 30.8
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8965033952748348860, guid: 4aca40526780f124aa1111f533e35fe7, type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -33356,7 +33371,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6183543377561156633, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 3.86
+      value: -8.33
       objectReference: {fileID: 0}
     - target: {fileID: 6183543377561156633, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
       propertyPath: m_LocalPosition.z
@@ -33784,7 +33799,7 @@ PrefabInstance:
       objectReference: {fileID: 3472192111193544835}
     - target: {fileID: 3976475223347024228, guid: b56a931d8dfd6864abb66edbd5a38caa, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: OnClickDepositAll
+      value: OnClickWithdrawAll
       objectReference: {fileID: 0}
     - target: {fileID: 3976475223347024228, guid: b56a931d8dfd6864abb66edbd5a38caa, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
@@ -33875,12 +33890,16 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5389463569070630438, guid: b56a931d8dfd6864abb66edbd5a38caa, type: 3}
+      propertyPath: type
+      value: 19
+      objectReference: {fileID: 0}
+    - target: {fileID: 5389463569070630438, guid: b56a931d8dfd6864abb66edbd5a38caa, type: 3}
       propertyPath: inventoryData
       value: 
       objectReference: {fileID: 5215465979089579694}
     - target: {fileID: 5507081350906035063, guid: b56a931d8dfd6864abb66edbd5a38caa, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 47
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5997457368264224099, guid: b56a931d8dfd6864abb66edbd5a38caa, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
@@ -33900,7 +33919,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5997457368264224099, guid: b56a931d8dfd6864abb66edbd5a38caa, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: OnClickWithdrawAll
+      value: OnClickDepositAll
       objectReference: {fileID: 0}
     - target: {fileID: 5997457368264224099, guid: b56a931d8dfd6864abb66edbd5a38caa, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
@@ -33920,7 +33939,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8815711831339679020, guid: b56a931d8dfd6864abb66edbd5a38caa, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 30.8
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
