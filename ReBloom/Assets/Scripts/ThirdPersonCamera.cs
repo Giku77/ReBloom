@@ -96,17 +96,13 @@ public class ThirdPersonCamera : MonoBehaviour
 
         //lookInput = context.ReadValue<Vector2>();
 
-        Debug.Log($"[Camera] OnLook 호출! Cursor.lockState: {Cursor.lockState}");
-
         if (Cursor.lockState != CursorLockMode.Locked)
         {
-            Debug.LogWarning("[Camera] 커서가 잠겨있지 않아서 입력 무시!");
             lookInput = Vector2.zero;
             return;
         }
 
         lookInput = context.ReadValue<Vector2>();
-        Debug.Log($"[Camera] lookInput: {lookInput}");
     }
 
     private void HandleZoom()

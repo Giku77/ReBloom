@@ -26,6 +26,8 @@ public class PlayerAnimation : MonoBehaviour
     private float targetLayerWeight = 0f;
     private bool isBlending = false;
 
+    public Animator Animator => animator;
+
     private void Awake()
     {
         animator = GetComponentInChildren<Animator>();
