@@ -2869,7 +2869,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   overrideInEditor: 1
-  editorDeviceType: 1
+  editorDeviceType: 3
 --- !u!4 &1521236231
 Transform:
   m_ObjectHideFlags: 0
@@ -2885,6 +2885,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1525541960 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7741832913259459566, guid: 8055610cf6f71b84880d4621c0179f57, type: 3}
+  m_PrefabInstance: {fileID: 9218616357460508141}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54ac97ddb830fc2458baa855940075f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!95 &1525541963 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 6655608371271290101, guid: 8055610cf6f71b84880d4621c0179f57, type: 3}
+  m_PrefabInstance: {fileID: 9218616357460508141}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1528782627 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6767319946384473068, guid: e548da0122749ef4f8e748f7e2fd2bb2, type: 3}
@@ -7874,6 +7890,10 @@ PrefabInstance:
       propertyPath: player
       value: 
       objectReference: {fileID: 443533650}
+    - target: {fileID: 4230571764571820476, guid: 8055610cf6f71b84880d4621c0179f57, type: 3}
+      propertyPath: visionBlockMask.m_Bits
+      value: 520
+      objectReference: {fileID: 0}
     - target: {fileID: 4415162257362646127, guid: 8055610cf6f71b84880d4621c0179f57, type: 3}
       propertyPath: equipData
       value: 
@@ -8282,6 +8302,22 @@ PrefabInstance:
       propertyPath: m_AnchorMin.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7154278845520814277, guid: 8055610cf6f71b84880d4621c0179f57, type: 3}
+      propertyPath: animator
+      value: 
+      objectReference: {fileID: 1525541963}
+    - target: {fileID: 7154278845520814277, guid: 8055610cf6f71b84880d4621c0179f57, type: 3}
+      propertyPath: runSpeed
+      value: 22
+      objectReference: {fileID: 0}
+    - target: {fileID: 7154278845520814277, guid: 8055610cf6f71b84880d4621c0179f57, type: 3}
+      propertyPath: teleportFx
+      value: 
+      objectReference: {fileID: 1525541960}
+    - target: {fileID: 7154278845520814277, guid: 8055610cf6f71b84880d4621c0179f57, type: 3}
+      propertyPath: teleportDistance
+      value: 35
+      objectReference: {fileID: 0}
     - target: {fileID: 7190844668702363193, guid: 8055610cf6f71b84880d4621c0179f57, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -8372,6 +8408,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8044776782196273973, guid: 8055610cf6f71b84880d4621c0179f57, type: 3}
       propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8129629332765947641, guid: 8055610cf6f71b84880d4621c0179f57, type: 3}
+      propertyPath: m_StoppingDistance
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8135624379466584322, guid: 8055610cf6f71b84880d4621c0179f57, type: 3}
