@@ -108,8 +108,8 @@ public class ConsumableItemData : ItemBase
                 SoundManager.I?.PlayEat(subCat);
                 return ApplyBasicConsumable(player);
             case ConsumableCategory.Medical:
+                SoundManager.I?.PlayHeal();
                 return ApplyBasicConsumable(player);
-
             case ConsumableCategory.Jamming:
                 return ApplyJamming(player);
 
