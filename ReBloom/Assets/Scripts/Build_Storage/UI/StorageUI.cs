@@ -342,6 +342,7 @@ public class StorageUI : UIBase
             inventoryPanel.Bind((InventoryItemData)inventoryData.Container);
         }
 
+        SoundManager.I?.PlayOpenBox();
         DragDropManager.I?.SetCurrentStorage(worldStorage);
         Debug.Log("[StorageUI] 창고 UI 열림");
     }
@@ -354,6 +355,7 @@ public class StorageUI : UIBase
 
         DragDropManager.I?.SetCurrentStorage(null);
 
+        SoundManager.I?.PlayCloseCraftingTable();
         var player = FindFirstObjectByType<PlayerController>();
         player?.SetCurrentStorage(null);
 

@@ -208,6 +208,6 @@ public class SettingView : MonoBehaviour
         controlSettingPanel.SetActive(false);
 
         target.SetActive(true);
-        SoundManager.I?.PlayUIClick();
+        //SoundManager.I?.PlayUIClick();
     }
 }

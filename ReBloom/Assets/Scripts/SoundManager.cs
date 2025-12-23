@@ -40,6 +40,7 @@ public class SoundManager : MonoBehaviour
     public AudioClip textBlip;
     public AudioClip missionClear;
     public AudioClip nextMission;
+    public AudioClip uiHover;
 
     [Header("상호작용 사운드")]
     public AudioClip getWorldItem;
@@ -51,6 +52,7 @@ public class SoundManager : MonoBehaviour
     public AudioClip gatherHand;
     public AudioClip gatherShovel;
     public AudioClip gatherHammer;
+    public AudioClip openBox;
 
     [Header("Volume")]
     [SerializeField, Range(0f, 1f)] private float masterVolume = 1f;
@@ -333,5 +335,7 @@ public class SoundManager : MonoBehaviour
     public void PlayHammering() => PlaySFX(gatherHammer);
     public void PlayGather() => PlaySFX(gatherHand);
     public void PlayYawn() => PlaySFX(yawn);
+    public void PlayHover() => PlaySFX(uiHover);
+    public void PlayOpenBox() => PlaySFX(openBox);
 
 }
