@@ -16,6 +16,9 @@ GameObject:
   - component: {fileID: 2257258427177242958}
   - component: {fileID: -2790565176646321049}
   - component: {fileID: 7307505575839927886}
+  - component: {fileID: -2062887116573193335}
+  - component: {fileID: 5346418808334753094}
+  - component: {fileID: -5942089776642815435}
   m_Layer: 9
   m_Name: SeedPurifier
   m_TagString: Untagged
@@ -172,3 +175,58 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   persistentId: 3055f5f48fe04b768ddfd0d8149e6974
+--- !u!114 &-2062887116573193335
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7938580786175652103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5aa41deaa7a7ad64dbbb29505ffced01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  building: {fileID: 2257258427177242958}
+--- !u!114 &5346418808334753094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7938580786175652103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bcb90db3cf36fe4d8707b36f1985768, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  lightIntensity: 2
+  backlightRange: 3
+  bodylightRange: 0.05
+  promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
+  isPermanent: 0
+  disableHighlight: 0
+  disableOutline: 0
+--- !u!114 &-5942089776642815435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7938580786175652103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a980af23dd019084dae5b7fa81932088, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  processSeconds: 5
+  inventory: {fileID: 0}
+  autoFindRefs: 1
+  inputItemId: 0
+  inputCount: 0
+  outputItemId: 0
+  state: 0
+  endTime: -1
+  rollSeed: 0
+  rolled: 0

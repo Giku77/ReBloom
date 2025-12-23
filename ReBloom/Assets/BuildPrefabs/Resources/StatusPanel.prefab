@@ -16,6 +16,8 @@ GameObject:
   - component: {fileID: 7554797710038029529}
   - component: {fileID: -5961919807861430816}
   - component: {fileID: 8260940176459835475}
+  - component: {fileID: -6969654155457413604}
+  - component: {fileID: -3733330619287300317}
   m_Layer: 9
   m_Name: StatusPanel
   m_TagString: Untagged
@@ -142,7 +144,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   arcId: 0
-  depthOffset: 0
+  depthOffset: -2
 --- !u!114 &-5961919807861430816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -171,3 +173,40 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   persistentId: 8d24741c4d624277a26adc7c94b09cbc
+--- !u!114 &-6969654155457413604
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1214666204701681473}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bcb6be900849324d8c99fa29b2d9671, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  building: {fileID: 7554797710038029529}
+  worldPanelPrefab: {fileID: 6823030047624702145, guid: 4cc1169eec14f9c4db3a7bb44914e709, type: 3}
+  attachPoint: {fileID: 0}
+  localOffset: {x: 0, y: 0, z: -0.1}
+  faceCamera: 0
+--- !u!114 &-3733330619287300317
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1214666204701681473}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bcb90db3cf36fe4d8707b36f1985768, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  lightIntensity: 2
+  backlightRange: 3
+  bodylightRange: 0.05
+  promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
+  isPermanent: 0
+  disableHighlight: 0
+  disableOutline: 0

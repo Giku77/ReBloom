@@ -12,10 +12,10 @@ public class BuildingInstance : MonoBehaviour
 
     private void OnEnable()
     {
-        if (ResearchManager.I != null)
-        {
-            ResearchManager.I.RegisterBuilding(this);
-        }
+        // if (ResearchManager.I != null)
+        // {
+        //     ResearchManager.I.RegisterBuilding(this);
+        // }
         if (BuildManager.I != null)
         {
             Debug.Log($"[BuildingInstance] Registering building instance with ArcId={arcId}");
@@ -25,10 +25,10 @@ public class BuildingInstance : MonoBehaviour
 
     private void OnDisable()
     {
-        if (ResearchManager.I != null)
-        {
-            ResearchManager.I.UnregisterBuilding(this);
-        }
+        // if (ResearchManager.I != null)
+        // {
+        //     ResearchManager.I.UnregisterBuilding(this);
+        // }
         if (BuildManager.I != null)
         {
             BuildManager.I.UnregisterBuilding(this);

@@ -16,6 +16,17 @@ public class ResearchManager : MonoBehaviour
     [SerializeField] private float currentProgress = 0f;
     public float CurrentProgress => currentProgress;
 
+    [Header("Energy")]
+    [SerializeField] private float currentEnergy = 0f;
+    public float CurrentEnergy => currentEnergy;
+    public event Action<float> OnEnergyChanged;
+
+    [Header("Greening")]
+    [SerializeField] private float currentGreening = 0f;
+    public float CurrentGreening => currentGreening;
+    public event Action<float> OnGreeningChanged;
+
+
     // 필요하면 UI에서 구독해서 게이지 업데이트
     public event Action<float> OnProgressChanged;
 
@@ -76,6 +87,33 @@ public class ResearchManager : MonoBehaviour
         CheckNewUnlocks();
     }
 
+    public void AddEnergy(float amount)
+    {
+        if (Mathf.Approximately(amount, 0f)) return;
+
+        float prev = currentEnergy;
+
+        currentEnergy = Mathf.Max(0f, currentEnergy + amount);
+
+        // 값이 실제로 변했을 때만 이벤트
+        if (!Mathf.Approximately(prev, currentEnergy))
+            OnEnergyChanged?.Invoke(currentEnergy);
+    }
+
+
+    public void AddGreening(float amount)
+    {
+        if (Mathf.Approximately(amount, 0f)) return;
+
+        float prev = currentGreening;
+        currentGreening = Mathf.Clamp(currentGreening + amount, 0f, 100f);
+
+        // 값이 실제로 변했을 때만 이벤트
+        if (!Mathf.Approximately(prev, currentGreening))
+            OnGreeningChanged?.Invoke(currentGreening);
+    }
+
+
     /// <summary>
     /// 디버그용: 모든 건축 해금 가능한 수준까지 한번에 채우기
     /// </summary>
@@ -103,42 +141,38 @@ public class ResearchManager : MonoBehaviour
 
     private async UniTaskVoid ResearchTickLoop(CancellationToken token)
     {
-        var arcDB = BuildManager.I.ArcDB;
+        var arcDB = BuildManager.I?.ArcDB;
 
         while (!token.IsCancellationRequested)
         {
             try
             {
-                // 1초마다 한 번씩
                 await UniTask.Delay(TimeSpan.FromSeconds(1f), cancellationToken: token);
             }
-            catch (OperationCanceledException)
-            {
-                break;
-            }
+            catch (OperationCanceledException) { break; }
 
-            if (arcDB == null) continue;
+            if (BuildManager.I == null || arcDB == null || !arcDB.IsLoaded) continue;
 
-            float totalInc = 0f;
+            float totalResearch = 0f;
+            float totalEnergy = 0f;
+            float totalGreen = 0f;
 
-            // 활성 건물들 돌면서 연구량 합산
-            foreach (var inst in activeBuildings)
+            foreach (var inst in BuildManager.I.EnumerateAllInstances())
             {
                 if (inst == null) continue;
-
                 if (!arcDB.TryGet(inst.arcId, out var arc)) continue;
 
-                if (arc.researchInc <= 0f) continue;
-
-                totalInc += arc.researchInc;
+                totalResearch += Mathf.Max(0f, arc.researchInc);
+                totalEnergy   += (arc.energyInc - arc.energyDec);
+                totalGreen    += arc.greeningInc;
             }
 
-            if (totalInc > 0f)
-            {
-                AddProgress(totalInc);
-            }
+            if (totalResearch > 0f) AddProgress(totalResearch);
+            if (!Mathf.Approximately(totalEnergy, 0f)) AddEnergy(totalEnergy);
+            if (!Mathf.Approximately(totalGreen, 0f)) AddGreening(totalGreen); // 내부에서 0~100 Clamp
         }
     }
+
 
     // ----------------- 내부 로직 -----------------
 

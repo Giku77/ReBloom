@@ -26,6 +26,8 @@ public class FarmPrefabProvider : MonoBehaviour
     public FarmDB FarmDB => _farmDB;
     private GreenhouseUpgradeDB _greenhouseUpgradeDB = new GreenhouseUpgradeDB();
     public GreenhouseUpgradeDB GreenhouseUpgradeDB => _greenhouseUpgradeDB;
+    private SeedPurifyDB _seedPurifyDB = new SeedPurifyDB();
+    public SeedPurifyDB SeedPurifyDB => _seedPurifyDB;
     private void Awake()
     {
         if (I != null && I != this) { Destroy(gameObject); return; }
@@ -33,6 +35,7 @@ public class FarmPrefabProvider : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         _farmDB.LoadFromBG();
         _greenhouseUpgradeDB.LoadFromBG();
+        _seedPurifyDB.LoadFromBG();
     }
 
     public async UniTask<GameObject> LoadPrefabAsync(string address)
