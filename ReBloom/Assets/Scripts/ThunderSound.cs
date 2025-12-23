@@ -56,7 +56,7 @@ public class ThunderSound : MonoBehaviour
         }
     }
 
-    private async UniTaskVoid PlayThunderLoopAsync(CancellationToken token)
+    private async UniTask PlayThunderLoopAsync(CancellationToken token)
     {
         try
         {
