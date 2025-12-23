@@ -1,296 +1,246 @@
 ﻿using System;
 using UnityEngine;
-using UnityEngine.AI;
 using UnityEngine.InputSystem;
 
-/// <summary>
-/// 인벤토리 로봇 펫 메인 컨트롤러
-/// 플레이어를 따라다니며 상황에 맞게 반응함
-/// </summary>
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Animator))]
 public class InventoryRobotPet : MonoBehaviour
 {
-    [Header("추적 설정")]
-    [SerializeField] private Transform followTarget;
-    [SerializeField] private Transform player;                    // 플레이어 Transform
-    [SerializeField] private float idleDistance = 2.0f;          // Idle 전환 거리
-    [SerializeField] private float runDistance = 5.0f;           // Run 전환 거리
-    [SerializeField] private float followHeight = 1.5f;          // 플레이어 위 얼마나 높이 떠있을지
-    [SerializeField] private float teleportDistance = 15f;   // 이 거리 이상 떨어지면 텔레포트
-    [SerializeField] private float teleportCooldown = 1.0f;  // 텔포 최소 간격
+    [Header("Follow (Proxy)")]
+    [SerializeField] private Transform followTarget;           // RobotNavProxy Transform
+    [SerializeField] private Transform player;
+    [SerializeField] private float followHeight = 1.5f;
 
-    [Header("텔레포트 효과")]
-    [SerializeField] private SpawnEffect teleport;
+    [Header("Near Check")]
+    [SerializeField] private float nearDistance = 6.0f;        // IsNearPlayer 기준
 
-    public bool IsNearPlayer;
-    private float lastTeleportTime = -999f;
+    [Header("Move State Dist")]
+    [SerializeField] private float idleDistance = 2.0f;
+    [SerializeField] private float runDistance = 5.0f;
 
-    [Header("이동 속도")]
-    [SerializeField] private float walkSpeed = 2.0f;             // 걷기 속도
-    [SerializeField] private float runSpeed = 4.0f;              // 달리기 속도
-    [SerializeField] private float rotationSpeed = 5.0f;         // 회전 속도
+    [Header("Move Speed")]
+    [SerializeField] private float walkSpeed = 2.0f;
+    [SerializeField] private float runSpeed = 4.0f;
+    [SerializeField] private float rotationSpeed = 5.0f;
 
-    [Header("둥둥 떠다니는 효과")]
-    [SerializeField] private float floatAmplitude = 0.3f;        // 상하 움직임 크기
-    [SerializeField] private float floatFrequency = 1.0f;        // 상하 움직임 속도
+    [Header("Floating")]
+    [SerializeField] private float floatAmplitude = 0.3f;
+    [SerializeField] private float floatFrequency = 1.0f;
 
-    [Header("컴포넌트 참조")]
-    [SerializeField] private RobotAnimationController animController;
-    [SerializeField] private RobotEmotionManager emotionManager;
-    [SerializeField] private Rob11ColorManager colorManager;
+    [Header("Teleport FX")]
+    [SerializeField] private SpawnEffect teleportFx;
+    [SerializeField] private float teleportCooldown = 1.0f;
 
-    [Header("손전등 설정")]
+    [Header("Stuck Teleport (Progress-based)")]
+    [SerializeField] private float stuckMinDistToProxy = 3.0f;
+    [SerializeField] private float stuckNoImproveEps = 0.03f;   // 3cm 이상 가까워지지 않으면 "개선 없음"
+    [SerializeField] private float stuckDelay = 0.8f;           // 이 시간 동안 개선 없으면 텔포
+    [SerializeField] private float hardRecoverDistToProxy = 12f;
+
+    [Header("Orbit")]
+    [SerializeField] private float orbitRadius = 2f;
+    [SerializeField] private float orbitSpeed = 90f;
+
+    [Header("Flashlight")]
     [SerializeField] private Light flashlight;
-    [SerializeField] private Transform lightSource; // 로봇 머리나 눈 위치
+    [SerializeField] private Transform lightSource;            // 로봇 머리/눈 위치(선택)
     [SerializeField] private float lightRange = 20f;
     [SerializeField] private float lightIntensity = 2f;
     [SerializeField] private float lightSpotAngle = 60f;
-    private bool isFlashlightOn = false;
 
-    private bool isOrbiting = false;
-    private float orbitAngle = 0f;
-    private float orbitRadius = 2f;
-    private float orbitSpeed = 90f;
+    [Header("Refs")]
+    [SerializeField] private RobotAnimationController animController;
+    [SerializeField] private RobotEmotionManager emotionManager;
+    [SerializeField] private Rob11ColorManager colorManager;
+    [SerializeField] private Animator animator;
 
-    // 내부 상태
-    private Rigidbody rb;
-    private Animator animator;
-    private RobotMovementState currentMovementState;
-    private bool isPerformingAction = false;
-    private float floatTimer = 0f;  // 둥둥 효과용 타이머
-
-    // Input Action
-    private InputAction interactAction;
-
-    // [SerializeField] private LayerMask obstacleMask;
-    // [SerializeField] private float blockedTeleportDelay = 0.6f;
-    // private float blockedTimer;
-
-    [SerializeField] private float pathRecalcInterval = 0.25f;
-    [SerializeField] private float cornerReachDist = 0.6f;
-    [SerializeField] private float navSampleRadius = 2.0f;
-    [SerializeField] private int navAreaMask = NavMesh.AllAreas;
-
-    private NavMeshPath _path;
-    private int _cornerIndex;
-    private float _nextPathTime;
-
-    // bool IsLineBlocked()
-    // {
-    //     if (player == null) return false;
-    //     Vector3 from = transform.position;
-    //     Vector3 to = player.position + Vector3.up * 1.0f;
-    //     Vector3 dir = (to - from);
-    //     float dist = dir.magnitude;
-    //     if (dist < 0.01f) return false;
-
-    //     return Physics.Raycast(from, dir.normalized, dist, obstacleMask, QueryTriggerInteraction.Ignore);
-    // }
-
-    private bool TryRebuildPath(Vector3 targetWorldPos)
+    public bool IsNearPlayer { get; private set; }
+    public void TelePortTo()
     {
-        if (_path == null) _path = new NavMeshPath();
+        Vector3 basePos =
+            (followTarget != null) ? followTarget.position :
+            (player != null) ? player.position :
+            transform.position;
 
-        Vector3 startSamplePos = transform.position - Vector3.up * followHeight;
-
-        if (!NavMesh.SamplePosition(startSamplePos, out var startHit, navSampleRadius, navAreaMask))
-            return false;
-
-        if (!NavMesh.SamplePosition(targetWorldPos, out var endHit, navSampleRadius, navAreaMask))
-            return false;
-
-        bool ok = NavMesh.CalculatePath(startHit.position, endHit.position, navAreaMask, _path);
-        if (!ok || _path.corners == null || _path.corners.Length < 2)
-            return false;
-
-        _cornerIndex = 1;
-        return true;
+        TeleportTo(basePos + Vector3.up * followHeight, true);
     }
 
-    #region Unity 생명주기
+    // 상태
+    private Rigidbody rb;
+    private RobotMovementState currentMovementState;
+    private bool isPerformingAction = false;
+
+    // floating
+    private float floatTimer = 0f;
+
+    // teleport
+    private float lastTeleportTime = -999f;
+
+    // stuck tracking
+    private float stuckTime = 0f;
+    private float lastDistToProxy = 999f;
+
+    // proxy warp hook
+    private RobotNavProxy proxy;
+
+    // orbit
+    private bool isOrbiting = false;
+    private float orbitAngle = 0f;
+
+    // flashlight
+    private bool isFlashlightOn = false;
 
     private void Awake()
     {
-        // 컴포넌트 가져오기
         rb = GetComponent<Rigidbody>();
-        animator = GetComponent<Animator>();
+        if (animator == null) animator = GetComponent<Animator>();
 
-        // Rigidbody 설정 - 공중에 떠다니기
-        rb.isKinematic = false;   // 물리 엔진 사용
-        rb.useGravity = false;    // 중력 무시 (떠다니기 위해)
-        rb.linearDamping = 2f;       // 공기 저항 (부드러운 이동)
-        rb.angularDamping = 2f;      // 회전 저항
-        rb.constraints = RigidbodyConstraints.FreezeRotation; // 회전은 코드로만 제어
+        rb.isKinematic = false;
+        rb.useGravity = false;
+        rb.linearDamping = 2f;
+        rb.angularDamping = 2f;
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
 
-        flashlight.enabled = false;
-    }
-
-    private void OnEnable()
-    {
-        SubscribeToEvents();
-        if (interactAction != null)
+        if (flashlight != null)
         {
-            interactAction.performed += OnInteract;
-        }
-    }
-
-    private void OnDisable()
-    {
-        UnsubscribeFromEvents();
-        if (interactAction != null)
-        {
-            interactAction.performed -= OnInteract;
+            flashlight.enabled = false;
+            flashlight.range = lightRange;
+            flashlight.intensity = lightIntensity;
+            flashlight.spotAngle = lightSpotAngle;
         }
     }
 
     private void Start()
     {
-        // 플레이어 자동 찾기
         if (player == null)
-        {
             player = GameObject.FindGameObjectWithTag("Player")?.transform;
-        }
 
         if (followTarget == null)
-            followTarget = player;
+            followTarget = player; // fallback
 
-        // 시작 시 인사 애니메이션
+        proxy = followTarget != null ? followTarget.GetComponent<RobotNavProxy>() : null;
+        if (proxy != null)
+            proxy.OnWarp += HandleProxyWarp;
+
         PlayGreeting();
+    }
+
+    private void OnDestroy()
+    {
+        if (proxy != null)
+            proxy.OnWarp -= HandleProxyWarp;
     }
 
     private void FixedUpdate()
     {
-        // 물리 연산은 FixedUpdate에서!
         if (isPerformingAction) return;
 
-        FollowPlayer();
-    }
+        UpdateIsNearPlayer();
 
-    #region DeathBoxHandler 전용 외부 호출 함수
-    public void TelePortTo() => TeleportToPlayer();
-    #endregion
-
-    private Vector3 CalCulateTelePortPosition()
-    {
-        if (player == null) return new Vector3(0,0,0);
-
-        // 플레이어 기준 뒤쪽 + 위쪽 위치
-        Vector3 playerPos = player.position;
-        Vector3 backOffset = -player.forward * 2f; // 뒤로 2m
-        Vector3 upOffset = Vector3.up * followHeight;
-
-        Vector3 targetPos = playerPos + backOffset + upOffset;
-
-        return targetPos;
-    }
-    private void TeleportToPlayer()
-    {
-        var targetPos = CalCulateTelePortPosition();
-        // 순간이동
-        rb.position = targetPos;
-        transform.position = targetPos;
-
-        // 속도/플로팅 타이머 리셋
-        rb.linearVelocity = Vector3.zero;
-
-        Vector3 dir = (player.transform.position - transform.position).normalized;
-        dir.y = 0.3f;
-        rb.MoveRotation(Quaternion.LookRotation(dir));
-
-        floatTimer = 0f;
-
-        teleport.PlayEffect();
-
-        // 상태도 정리
-        isOrbiting = false;
-        ChangeMovementState(RobotMovementState.Idle);
-
-        lastTeleportTime = Time.time;
-    }
-
-    #endregion
-
-    #region 플레이어 추적 (둥둥 떠다니며)
-    private void FollowPlayer()
-    {
-        if (player == null || rb == null) return;
-
+        // 공전 중이면 공전 로직이 이동을 덮어씀
         if (isOrbiting)
         {
             OrbitAroundPlayer();
             return;
         }
 
-        Vector3 playerPos = player.position;
-        Vector3 currentPos = transform.position;
+        // stuck/복구 체크 (필요시 텔포)
+        if (UpdateStuckAndRecover())
+            return;
 
-        float distToPlayerWorld =
-        Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z),
-                     new Vector3(player.position.x, 0, player.position.z));
+        FollowProxy();
+    }
 
-        Vector3 targetWorld = (followTarget != null ? followTarget.position : player.position);
-
-        if (Time.time >= _nextPathTime)
-        {
-            TryRebuildPath(targetWorld);
-            _nextPathTime = Time.time + pathRecalcInterval;
-        }
-
-        Vector3 basePos = targetWorld;
-
-        if (_path != null && _path.corners != null && _path.corners.Length > 1 && _cornerIndex < _path.corners.Length)
-        {
-            basePos = _path.corners[_cornerIndex];
-
-            float d = Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z),
-                                    new Vector3(basePos.x, 0, basePos.z));
-            if (d <= cornerReachDist)
-                _cornerIndex = Mathf.Min(_cornerIndex + 1, _path.corners.Length - 1);
-        }
-
-        // 목표 위치 (플레이어 위 + 떠다니기)
-        //Vector3 basePos = followTarget != null ? followTarget.position : player.position;
-        Vector3 targetPosition = basePos + Vector3.up * followHeight;
-        //Vector3 targetPosition = playerPos + Vector3.up * followHeight;
-        IsNearPlayer = true;
-
-        floatTimer += Time.fixedDeltaTime * floatFrequency;
-        float floatOffset = Mathf.Sin(floatTimer) * floatAmplitude;
-        targetPosition.y += floatOffset;
-
-        Vector3 toTarget = targetPosition - currentPos;
-        float distanceToPlayer = toTarget.magnitude;
-
-        if (distToPlayerWorld > teleportDistance && Time.time - lastTeleportTime > teleportCooldown)
+    private void UpdateIsNearPlayer()
+    {
+        if (player == null)
         {
             IsNearPlayer = false;
-            //animController.PlayAnimation("JumpForward");
-            TeleportToPlayer();
             return;
         }
 
-        // if (IsLineBlocked())
-        // {
-        //     blockedTimer += Time.fixedDeltaTime;
-        //     if (blockedTimer >= blockedTeleportDelay && Time.time - lastTeleportTime > teleportCooldown)
-        //     {
-        //         animController.PlayAnimation("JumpForward");
-        //         TeleportToPlayer();
-        //         blockedTimer = 0f;
-        //         return;
-        //     }
-        // }
-        // else blockedTimer = 0f;
+        float d = Vector3.Distance(
+            new Vector3(transform.position.x, 0, transform.position.z),
+            new Vector3(player.position.x, 0, player.position.z)
+        );
+
+        IsNearPlayer = d <= nearDistance;
+    }
+
+    private void HandleProxyWarp(Vector3 proxyWarpPos)
+    {
+        // 프록시가 워프했으면 로봇도 같이 합류(연출 포함)
+        TeleportTo(proxyWarpPos + Vector3.up * followHeight, true);
+    }
+
+    private bool UpdateStuckAndRecover()
+    {
+        if (followTarget == null) return false;
+
+        Vector3 a = transform.position; a.y = 0f;
+        Vector3 b = followTarget.position; b.y = 0f;
+        float dToProxy = Vector3.Distance(a, b);
+
+        if (dToProxy > hardRecoverDistToProxy && Time.time - lastTeleportTime > teleportCooldown)
+        {
+            TeleportTo(followTarget.position + Vector3.up * followHeight, true);
+            lastDistToProxy = 999f;
+            stuckTime = 0f;
+            return true;
+        }
+
+        float robotSpeed = rb.linearVelocity.magnitude; 
+        bool robotMoving = robotSpeed > 0.25f;          
+
+        float improveEps = 0.12f; 
+
+        bool farEnough = dToProxy > stuckMinDistToProxy;
+        bool notImproving = dToProxy >= (lastDistToProxy - improveEps);
+
+        if (farEnough && !robotMoving && notImproving)
+            stuckTime += Time.fixedDeltaTime;
+        else
+            stuckTime = 0f;
+
+        lastDistToProxy = dToProxy;
+
+        float delay = 1.6f; 
+
+        if (stuckTime > delay && Time.time - lastTeleportTime > teleportCooldown)
+        {
+            TeleportTo(followTarget.position + Vector3.up * followHeight, true);
+            stuckTime = 0f;
+            return true;
+        }
+
+        return false;
+    }
+
+
+    private void FollowProxy()
+    {
+        if (rb == null || followTarget == null) return;
+
+        Vector3 currentPos = transform.position;
+        Vector3 basePos = followTarget.position;
+
+        // 목표 높이 + 둥둥
+        floatTimer += Time.fixedDeltaTime * floatFrequency;
+        float floatOffset = Mathf.Sin(floatTimer) * floatAmplitude;
+        Vector3 targetPosition = basePos + Vector3.up * (followHeight + floatOffset);
+
+        Vector3 toTarget = targetPosition - currentPos;
+
+        Vector3 horizontal = new Vector3(toTarget.x, 0, toTarget.z);
+        float distance = horizontal.magnitude;
 
         float currentSpeed = 0f;
-
-        if (distanceToPlayer <= idleDistance)
+        if (distance <= idleDistance)
         {
             ChangeMovementState(RobotMovementState.Idle);
             currentSpeed = 0f;
         }
-        else if (distanceToPlayer <= runDistance)
+        else if (distance <= runDistance)
         {
             ChangeMovementState(RobotMovementState.Walk);
             currentSpeed = walkSpeed;
@@ -301,26 +251,90 @@ public class InventoryRobotPet : MonoBehaviour
             currentSpeed = runSpeed;
         }
 
-        if (currentSpeed > 0f)
+        if (currentSpeed > 0f && distance > 0.001f)
         {
-            Vector3 direction = toTarget.normalized;
-            Vector3 targetVelocity = direction * currentSpeed;
+            Vector3 dir = horizontal / distance;
+            Vector3 targetVel = dir * currentSpeed;
 
-            rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, targetVelocity, Time.fixedDeltaTime * 5f);
+            rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, targetVel, Time.fixedDeltaTime * 2f);
 
-            // 수평 방향만 회전에 사용
-            Vector3 horizontalDir = new Vector3(toTarget.x, 0, toTarget.z);
-            if (horizontalDir != Vector3.zero)
-            {
-                Quaternion targetRotation = Quaternion.LookRotation(horizontalDir);
-                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.fixedDeltaTime * rotationSpeed);
-            }
+            Quaternion targetRot = Quaternion.LookRotation(dir);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.fixedDeltaTime * rotationSpeed);
         }
         else
         {
             rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, Vector3.zero, Time.fixedDeltaTime * 3f);
         }
+
+        Vector3 p = rb.position;
+        p.y = Mathf.Lerp(p.y, targetPosition.y, Time.fixedDeltaTime * 5f);
+        rb.position = p;
+        transform.position = p;
+
+        UpdateFlashlightPose();
     }
+
+    private void TeleportTo(Vector3 worldPos, bool playFx)
+    {
+        rb.position = worldPos;
+        transform.position = worldPos;
+        rb.linearVelocity = Vector3.zero;
+
+        if (player != null)
+        {
+            Vector3 look = player.position - transform.position;
+            look.y = 0f;
+            if (look.sqrMagnitude > 0.001f)
+                rb.MoveRotation(Quaternion.LookRotation(look));
+        }
+
+        floatTimer = 0f;
+
+        if (playFx)
+            teleportFx?.PlayEffect();
+
+        stuckTime = 0f;
+        lastDistToProxy = 999f;
+
+        lastTeleportTime = Time.time;
+        ChangeMovementState(RobotMovementState.Idle);
+
+        // 텔포하면 공전은 풀기(원하면 유지 가능)
+        isOrbiting = false;
+
+        UpdateIsNearPlayer();
+        UpdateFlashlightPose();
+    }
+
+    private void ChangeMovementState(RobotMovementState newState)
+    {
+        if (currentMovementState == newState) return;
+        currentMovementState = newState;
+
+        switch (newState)
+        {
+            case RobotMovementState.Idle:
+                animator.SetFloat("Speed", 0f);
+                animator.SetFloat("run", 0f);
+                break;
+            case RobotMovementState.Walk:
+                animator.SetFloat("Speed", 0.5f);
+                animator.SetFloat("run", 0f);
+                break;
+            case RobotMovementState.Run:
+                animator.SetFloat("Speed", 1.0f);
+                animator.SetFloat("run", 1.0f);
+                break;
+        }
+    }
+
+    private void PlayGreeting()
+    {
+        emotionManager?.SetEmotion(RobotEmotion.Happy);
+        animController?.PlayAnimation("Hello");
+    }
+
+    public void SetPerformingAction(bool performing) => isPerformingAction = performing;
 
     public void StartOrbitingPlayer(float radius = 2f, float speed = 90f)
     {
@@ -328,7 +342,6 @@ public class InventoryRobotPet : MonoBehaviour
         orbitRadius = radius;
         orbitSpeed = speed;
 
-        // 현재 각도 계산 (플레이어 기준)
         if (player != null)
         {
             Vector3 offset = transform.position - player.position;
@@ -336,7 +349,7 @@ public class InventoryRobotPet : MonoBehaviour
         }
 
         ChangeMovementState(RobotMovementState.Walk);
-        emotionManager.SetEmotion(RobotEmotion.Wonder);
+        emotionManager?.SetEmotion(RobotEmotion.Wonder);
     }
 
     public void StopOrbitingPlayer()
@@ -347,280 +360,57 @@ public class InventoryRobotPet : MonoBehaviour
 
     private void OrbitAroundPlayer()
     {
-        if (player == null) return;
+        if (player == null || rb == null) return;
 
-        // 각도 업데이트
         orbitAngle += orbitSpeed * Time.fixedDeltaTime;
         if (orbitAngle >= 360f) orbitAngle -= 360f;
 
-        // 목표 위치 계산 (원형 궤도)
         float radians = orbitAngle * Mathf.Deg2Rad;
         Vector3 offset = new Vector3(
             Mathf.Sin(radians) * orbitRadius,
-            followHeight,
+            0f,
             Mathf.Cos(radians) * orbitRadius
         );
 
-        Vector3 targetPosition = player.position + offset;
-
-        // 둥둥 떠다니는 효과
         floatTimer += Time.fixedDeltaTime * floatFrequency;
         float floatOffset = Mathf.Sin(floatTimer) * floatAmplitude;
-        targetPosition.y += floatOffset;
 
-        // 부드럽게 이동
-        Vector3 direction = (targetPosition - transform.position).normalized;
-        Vector3 targetVelocity = direction * walkSpeed;
-        rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, targetVelocity, Time.fixedDeltaTime * 5f);
+        Vector3 targetPos = player.position + offset;
+        targetPos.y = player.position.y + followHeight + floatOffset;
 
-        // 플레이어를 바라보도록 회전
-        Vector3 lookDirection = player.position - transform.position;
-        lookDirection.y = 0;
-        if (lookDirection != Vector3.zero)
+        // 이동(부드럽게)
+        Vector3 to = targetPos - transform.position;
+        Vector3 horizontal = new Vector3(to.x, 0, to.z);
+        float dist = horizontal.magnitude;
+
+        Vector3 vel = Vector3.zero;
+        if (dist > 0.001f)
+            vel = (horizontal / dist) * walkSpeed;
+
+        rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, vel, Time.fixedDeltaTime * 5f);
+
+        // 플레이어 바라보기
+        Vector3 look = player.position - transform.position;
+        look.y = 0f;
+        if (look.sqrMagnitude > 0.001f)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(lookDirection);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.fixedDeltaTime * rotationSpeed);
+            Quaternion targetRot = Quaternion.LookRotation(look.normalized);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.fixedDeltaTime * rotationSpeed);
         }
-    }
 
-    /// <summary>
-    /// 이동 상태 변경 및 애니메이션 조정
-    /// </summary>
-    private void ChangeMovementState(RobotMovementState newState)
-    {
-        if (currentMovementState == newState) return;
+        // 수직 스무스
+        Vector3 p = rb.position;
+        p.y = Mathf.Lerp(p.y, targetPos.y, Time.fixedDeltaTime * 5f);
+        rb.position = p;
+        transform.position = p;
 
-        currentMovementState = newState;
-
-        switch (newState)
-        {
-            case RobotMovementState.Idle:
-                animator.SetFloat("Speed", 0f);
-                break;
-
-            case RobotMovementState.Walk:
-                animator.SetFloat("Speed", 0.5f);
-                break;
-
-            case RobotMovementState.Run:
-                animator.SetFloat("Speed", 1.0f);
-                animator.SetFloat("run", 1.0f);
-                break;
-        }
-    }
-    #endregion
-
-    #region 이벤트 구독
-
-    private void SubscribeToEvents()
-    {
-        //InventroyEventSystem.OnPlayerResting += HandlePlayerResting;
-        //InventroyEventSystem.OnPlayerInDanger += HandlePlayerInDanger;
-        //InventroyEventSystem.OnPlayerAttacked += HandlePlayerAttacked;
-        //InventroyEventSystem.OnPlayerBuilding += HandlePlayerBuilding;
-        //InventroyEventSystem.OnPlayerGathering += HandlePlayerGathering;
-        //InventroyEventSystem.OnActionSuccess += HandleActionSuccess;
-        //InventroyEventSystem.OnActionFailed += HandleActionFailed;
-        //InventroyEventSystem.OnQuestCompleted += HandleQuestCompleted;
-
-        //InventroyEventSystem.OnItemAcquired += HandleItemAdded;
-
-        InventroyEventSystem.OnItemAcquiredTier += HandleItemAcquired;
-        InventroyEventSystem.OnInventoryOpened += HandleInventoryOpened;
-        //InventroyEventSystem.OnInventoryClosed += HandleInventoryClosed;
-        InventroyEventSystem.OnInventoryFull += HandleInventoryFull;
-        InventroyEventSystem.OnItemDropped += HandleItemDropped;
-    }
-
-    private void UnsubscribeFromEvents()
-    {
-        //InventroyEventSystem.OnPlayerResting -= HandlePlayerResting;
-        //InventroyEventSystem.OnPlayerInDanger -= HandlePlayerInDanger;
-        //InventroyEventSystem.OnPlayerAttacked -= HandlePlayerAttacked;
-        //InventroyEventSystem.OnPlayerBuilding -= HandlePlayerBuilding;
-        //InventroyEventSystem.OnPlayerGathering -= HandlePlayerGathering;
-        //InventroyEventSystem.OnActionSuccess -= HandleActionSuccess;
-        //InventroyEventSystem.OnActionFailed -= HandleActionFailed;
-        //InventroyEventSystem.OnQuestCompleted -= HandleQuestCompleted;
-
-        InventroyEventSystem.OnInventoryOpened -= HandleInventoryOpened;
-        //InventroyEventSystem.OnInventoryClosed -= HandleInventoryClosed;
-        //InventroyEventSystem.OnItemAcquired -= HandleItemAdded;
-        InventroyEventSystem.OnItemAcquiredTier -= HandleItemAcquired;
-
-        InventroyEventSystem.OnInventoryFull -= HandleInventoryFull;
-        InventroyEventSystem.OnItemDropped -= HandleItemDropped;
-    }
-
-    #endregion
-
-    #region 이벤트 핸들러
-
-    /// <summary>
-    /// 플레이어가 휴식 중일 때 - 편안한 감정
-    /// </summary>
-    private void HandlePlayerResting()
-    {
-        emotionManager.SetEmotion(RobotEmotion.Happy);
-        animController.PlayAnimation("Idle");
-    }
-
-    /// <summary>
-    /// 플레이어가 위독한 상황 - 걱정하는 감정
-    /// </summary>
-    private void HandlePlayerInDanger()
-    {
-        emotionManager.SetEmotion(RobotEmotion.Cry);
-        animController.PlayAnimation("Cry");
-    }
-
-    /// <summary>
-    /// 플레이어가 공격받음 - 겁먹은 감정
-    /// </summary>
-    private void HandlePlayerAttacked()
-    {
-        emotionManager.SetEmotion(RobotEmotion.Evil);  // 또는 Distrust
-        animController.PlayAnimation("No");
-    }
-
-    /// <summary>
-    /// 아이템 획득 - Tier에 따라 다른 반응
-    /// </summary>
-    private void HandleItemAcquired(int tier)
-    {
-        if (tier >= 3)
-        {
-            // 고급 아이템 - 매우 기뻐함
-            emotionManager.SetEmotion(RobotEmotion.Love);
-            animController.PlayAnimation("Win");
-        }
-        else
-        {
-            // 일반 아이템 - 기뻐함
-            emotionManager.SetEmotion(RobotEmotion.Happy);
-            animController.PlayAnimation("Hit");
-        }
-    }
-
-    /// <summary>
-    /// 플레이어가 건축 중 - 궁금해하는 감정
-    /// </summary>
-    private void HandlePlayerBuilding()
-    {
-        emotionManager.SetEmotion(RobotEmotion.Wonder);
-        animController.PlayAnimation("LookingFor");
-    }
-
-    /// <summary>
-    /// 플레이어가 채집 중 - 관심있는 감정
-    /// </summary>
-    private void HandlePlayerGathering()
-    {
-        emotionManager.SetEmotion(RobotEmotion.Wonder);
-        animController.PlayAnimation("Idle");
-    }
-
-    /// <summary>
-    /// 건축/채집 성공 - 기뻐하는 감정
-    /// </summary>
-    private void HandleActionSuccess()
-    {
-        emotionManager.SetEmotion(RobotEmotion.Happy);
-        animController.PlayAnimation("ThumbUp");
-    }
-
-    /// <summary>
-    /// 채집 실패 - 실망하는 감정
-    /// </summary>
-    private void HandleActionFailed()
-    {
-        emotionManager.SetEmotion(RobotEmotion.Sad);
-        animController.PlayAnimation("DontKnow");
-    }
-
-    /// <summary>
-    /// 퀘스트 완료 - 축하하는 감정
-    /// </summary>
-    private void HandleQuestCompleted()
-    {
-        emotionManager.SetEmotion(RobotEmotion.Happy);
-        animController.PlayAnimation("Dance0");
-        colorManager.isRainbowCycles = true;
-        Invoke(nameof(StopDance), 3f);  // 3초 후 춤 중지
-    }
-
-    /// <summary>
-    /// 인벤토리 열림 - 점프로 반응
-    /// </summary>
-    private void HandleInventoryOpened()
-    {
-        animController.PlayAnimation("Jump");
-    }
-
-    /// <summary>
-    /// 인벤토리 닫힘 - 점프로 반응
-    /// </summary>
-    //private void HandleInventoryClosed()
-    //{
-    //    animController.PlayAnimation("Jump");
-    //}
-
-    /// <summary>
-    /// 인벤토리 가득참 - 거부 제스처
-    /// </summary>
-    private void HandleInventoryFull()
-    {
-        emotionManager.SetEmotion(RobotEmotion.Distrust);
-        animController.PlayAnimation("No");
-    }
-
-    /// <summary>
-    /// 아이템 버림 - 앞으로 돌진
-    /// </summary>
-    private void HandleItemDropped()
-    {
-        animController.PlayAnimation("JumpForward");
-    }
-
-    #endregion
-
-    #region 특수 동작
-
-    /// <summary>
-    /// 시작 시 인사
-    /// </summary>
-    private void PlayGreeting()
-    {
-        emotionManager.SetEmotion(RobotEmotion.Happy);
-        animController.PlayAnimation("Hello");
-    }
-
-    /// <summary>
-    /// 춤 중지
-    /// </summary>
-    private void StopDance()
-    {
-        colorManager.isRainbowCycles = false;
-        emotionManager.SetEmotion(RobotEmotion.Neutral);
-    }
-
-    /// <summary>
-    /// I 상호작용 (예: 말하기)
-    /// </summary>
-    private void OnInteract(InputAction.CallbackContext context)
-    {
-        animController.PlayAnimation("EmoTalk1");
-        emotionManager.SetEmotion(RobotEmotion.Neutral);
+        UpdateFlashlightPose();
     }
 
     public void ToggleFlashlight()
     {
         isFlashlightOn = !isFlashlightOn;
-
-        if (flashlight != null)
-        {
-            flashlight.enabled = isFlashlightOn;
-        }
+        SetFlashlight(isFlashlightOn);
 
         if (isFlashlightOn)
         {
@@ -632,11 +422,23 @@ public class InventoryRobotPet : MonoBehaviour
     public void SetFlashlight(bool on)
     {
         isFlashlightOn = on;
-
         if (flashlight != null)
-        {
             flashlight.enabled = on;
-        }
+
+        UpdateFlashlightPose();
     }
-    #endregion
+
+    private void UpdateFlashlightPose()
+    {
+        if (!isFlashlightOn || flashlight == null || player == null) return;
+
+        // 손전등 위치(옵션: lightSource 있으면 그걸 사용)
+        Transform src = (lightSource != null) ? lightSource : transform;
+        flashlight.transform.position = src.position;
+
+        // 기본은 플레이어 쪽 비추기(원하면 카메라 전방으로 바꿔도 됨)
+        Vector3 dir = (player.position + Vector3.up * 1.0f) - src.position;
+        if (dir.sqrMagnitude > 0.001f)
+            flashlight.transform.rotation = Quaternion.LookRotation(dir.normalized);
+    }
 }
