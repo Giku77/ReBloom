@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,7 +14,9 @@ public class SeedPurifierUI : UIBase
 
     [Header("Slot Labels (optional)")]
     [SerializeField] private TextMeshProUGUI inputText;
+    [SerializeField] private Image inputIcon;
     [SerializeField] private TextMeshProUGUI outputText;
+    [SerializeField] private Image outputIcon;
 
     [Header("Insert Setting")]
     [SerializeField] private int[] unidentifiedSeedItemIds = { 4101001, 4101002, 4101003 };
@@ -161,9 +163,35 @@ public class SeedPurifierUI : UIBase
             btnTake.interactable = (st == SeedPurifierMachine.State.OutputReady && hasOutput);
 
         if (inputText != null)
-            inputText.text = hasInput ? $"{ItemDatabase.I.GetItem(machine.PeekInputItemId()).itemName}" : "";
-
+        {
+            var itemdata = hasInput ? ItemDatabase.I.GetItem(machine.PeekInputItemId()) : null;
+            inputText.text = hasInput ? $"{itemdata.itemName}" : "";
+            if (inputIcon != null)
+            {
+                if (hasInput)
+                {
+                    inputIcon.sprite = itemdata.icon;
+                    inputIcon.gameObject.SetActive(true);
+                }
+                else
+                    inputIcon.gameObject.SetActive(false);
+            }
+        }
+            
         if (outputText != null)
-            outputText.text = hasOutput ? $"{ItemDatabase.I.GetItem(machine.PeekOutputItemId()).itemName}" : "";
+        {
+            var itemdata = hasOutput ? ItemDatabase.I.GetItem(machine.PeekOutputItemId()) : null;
+            outputText.text = hasOutput ? $"{itemdata.itemName}" : "";
+            if (outputIcon != null)
+            {
+                if (hasOutput)
+                {
+                    outputIcon.sprite = itemdata.icon;
+                    outputIcon.gameObject.SetActive(true);
+                }
+                else
+                    outputIcon.gameObject.SetActive(false);
+            }
+        }
     }
 }
