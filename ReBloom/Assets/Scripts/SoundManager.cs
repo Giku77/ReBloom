@@ -27,6 +27,8 @@ public class SoundManager : MonoBehaviour
     public AudioClip[] getDamageSounds;
     public AudioClip breathingHeavy;
     private AudioSource breathingHeavySource;
+    public AudioClip footStepSoundOutdoor;
+    public AudioClip footStepSoundIndoor;
 
     [Header("UI 사운드")]
     public AudioClip openInventory;
@@ -295,6 +297,13 @@ public class SoundManager : MonoBehaviour
         if (!gatherSource.isPlaying) return;
         gatherSource.Stop();
         gatherSource.clip = null;
+    }
+
+    public void PlayFootStep(float volumeScale, bool isIndoor)
+    {
+        Debug.Log($"[SoundManager] PlayFootstep 호출! volumeScale: {volumeScale}");
+        AudioClip clip = isIndoor ? footStepSoundIndoor : footStepSoundOutdoor;
+        PlaySFX(clip, volumeScale);
     }
 
     public void PlayGetDamage()

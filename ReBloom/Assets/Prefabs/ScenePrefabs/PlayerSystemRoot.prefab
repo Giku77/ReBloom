@@ -4824,8 +4824,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useFlatAmbient: 1
+  nightAmbientColor: {r: 0.03137255, g: 0.039215688, b: 0.05882353, a: 1}
   nightAmbientIntensity: 0.25
-  dayAmbientColor: {r: 0.75, g: 0.78, b: 0.82, a: 1}
+  dayAmbientColor: {r: 0.39607844, g: 0.39215687, b: 0.3529412, a: 1}
   dayAmbientIntensity: 1
   dayReflectionIntensity: 1
   nightReflectionIntensity: 0.6
@@ -11524,8 +11525,8 @@ MonoBehaviour:
   layer: 3
   blocksGameplayInput: 0
   root: {fileID: 9049605321063563175}
-  cursorMode: 1
-  locksCameraZoom: 1
+  cursorMode: 0
+  locksCameraZoom: 0
   playerController: {fileID: 251664490291277007}
   playerInteractable: {fileID: 8759149180448536801}
   movementJoystick: {fileID: 8134727799338232224}
@@ -14486,6 +14487,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8851003960474436401, guid: 4eccaeb1939f0604c9626d481b0a9475, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6180500218038698587}
+    - targetCorrespondingSourceObject: {fileID: 8851003960474436401, guid: 4eccaeb1939f0604c9626d481b0a9475, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6173760319649421742}
     - targetCorrespondingSourceObject: {fileID: 7386936736724801030, guid: 4eccaeb1939f0604c9626d481b0a9475, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2792169698682505918}
@@ -14525,6 +14529,18 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &6173760319649421742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2679606522389557275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0a5b63a8568a134ba5cf591ca3067d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!137 &4002370204006414176 stripped
 SkinnedMeshRenderer:
   m_CorrespondingSourceObject: {fileID: 7525951092544635978, guid: 4eccaeb1939f0604c9626d481b0a9475, type: 3}
