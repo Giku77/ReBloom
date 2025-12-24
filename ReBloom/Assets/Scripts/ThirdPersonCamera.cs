@@ -1,5 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 public class ThirdPersonCamera : MonoBehaviour
@@ -31,6 +32,8 @@ public class ThirdPersonCamera : MonoBehaviour
     private Quaternion oldRotation;
 
     private float outsideDistance;
+
+    private bool isPointerOverUI = false;
 
     private void Start()
     {
@@ -98,11 +101,40 @@ public class ThirdPersonCamera : MonoBehaviour
 
         if (Cursor.lockState != CursorLockMode.Locked)
         {
-            lookInput = Vector2.zero;
-            return;
+            if (context.phase == InputActionPhase.Started)
+            {
+                isPointerOverUI = IsPointerOverUIElement();
+            }
+
+            if (isPointerOverUI)
+            {
+                lookInput = Vector2.zero;
+                return;
+            }
         }
 
         lookInput = context.ReadValue<Vector2>();
+    }
+
+    private bool IsPointerOverUIElement()
+    {
+        if (EventSystem.current == null)
+            return false;
+
+        if (Input.touchCount > 0)
+        {
+            for (int i = 0; i < Input.touchCount; i++)
+            {
+                if (EventSystem.current.IsPointerOverGameObject(Input.GetTouch(i).fingerId))
+                    return true;
+            }
+        }
+        else if (EventSystem.current.IsPointerOverGameObject())
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private void HandleZoom()
