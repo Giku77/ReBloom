@@ -76,6 +76,7 @@ public class ThirdPersonCamera : MonoBehaviour
         if (isMobile)
         {
             HandleMobileTouch();
+            HandlePinchZoom();
         }
 
         Look();
@@ -302,6 +303,47 @@ public class ThirdPersonCamera : MonoBehaviour
     private void UpdateSensitivity(float sensitivity)
     {
         mouseSensitivity = sensitivity;
+    }
+
+    private void HandlePinchZoom()
+    {
+        if (isZoomLocked) return;
+
+        List<Touch> validTouches = new List<Touch>();
+        foreach (Touch touch in Touch.activeTouches)
+        {
+            if (!IsTouchOverUI(touch))
+            {
+                validTouches.Add(touch);
+            }
+        }
+
+        if (validTouches.Count != 2)
+            return;
+
+        Touch touch0 = validTouches[0];
+        Touch touch1 = validTouches[1];
+
+        if ((touch0.phase != TouchPhase.Moved && touch0.phase != TouchPhase.Stationary) ||
+            (touch1.phase != TouchPhase.Moved && touch1.phase != TouchPhase.Stationary))
+        {
+            return;
+        }
+
+        float currentDistance = Vector2.Distance(touch0.screenPosition, touch1.screenPosition);
+
+        Vector2 touch0PrevPos = touch0.screenPosition - touch0.delta;
+        Vector2 touch1PrevPos = touch1.screenPosition - touch1.delta;
+        float previousDistance = Vector2.Distance(touch0PrevPos, touch1PrevPos);
+
+        float deltaDistance = currentDistance - previousDistance;
+
+        if (Mathf.Abs(deltaDistance) < 1f)
+            return;
+
+        float zoomAmount = deltaDistance * zoomSpeed * 0.01f;
+        distance -= zoomAmount;
+        distance = Mathf.Clamp(distance, maxZoominDistance, maxZoomOutDistance);
     }
 
     #region Mobile Touch Handling
