@@ -72,6 +72,7 @@ public class GameInventory : MonoBehaviour, IGameInventory
         => inventoryData.GetItemCount(itemID);
 
     // HasItem 중복 제거 - 하나만 남김
+    public bool HasItem() => inventoryData.HasItems || playerEquipmanager.ExistEquipItem;
     public bool HasItem(int itemID, int count)
         => inventoryData.HasItem(itemID, count);
    

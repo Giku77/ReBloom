@@ -109,8 +109,8 @@ public class DeathBoxHandler : MonoBehaviour
             playerInventory.Clear();
         }
 
-        // 4. 시체박스 스폰 (한 번만!)
-        if (autoSpawnDeathBox && deathBoxPrefab != null)
+        // 4. 시체박스 스폰
+        if (autoSpawnDeathBox && newDeathBoxData.HasItems && deathBoxPrefab != null)
         {
             SpawnDeathBox(spawnPosition, newDeathBoxData);
         }
