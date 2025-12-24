@@ -9,6 +9,6 @@ public interface IGameInventory
     int AddItemFromWorld(int itemID, int count, bool drop);
     bool TryAddItemFromWorld(int itemID, int count);
     bool CanUnequip(int itemID);
-    bool UseItem(int itemID);
+    bool UseItem(int itemID, int amount);
     int GetItemCount(int itemID);
 }

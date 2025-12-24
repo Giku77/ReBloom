@@ -14,6 +14,8 @@ public class PlayerEquipManager : MonoBehaviour
 
     [SerializeField] private GameInventory inventoryItemData;
 
+    public bool ExistEquipItem => player.currentShoesEquip != null || player.currentToolEquip != null || player.currentClothEquip != null;
+
     private PlayerAnimation anim;
 
     public static event Action<int> OnToolTypeChange;

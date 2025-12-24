@@ -72,6 +72,7 @@ public class GameInventory : MonoBehaviour, IGameInventory
         => inventoryData.GetItemCount(itemID);
 
     // HasItem 중복 제거 - 하나만 남김
+    public bool HasItem() => inventoryData.HasItems || playerEquipmanager.ExistEquipItem;
     public bool HasItem(int itemID, int count)
         => inventoryData.HasItem(itemID, count);
    
@@ -99,24 +100,26 @@ public class GameInventory : MonoBehaviour, IGameInventory
     public bool SwapSlots(int fromIndex, int toIndex) => inventoryData.SwapSlots(fromIndex, toIndex);
     public void Consume(int itemId, int amount)
     {
-        ItemBase item = ItemDatabase.I.GetItem(itemId);
-        if (item == null) return;
+        UseItem(itemId, amount);
 
-        if (item.canUseable)
-        {
-            bool success = item.Apply(playerController);
-            if (success) RemoveItem(itemId, amount);
+        //ItemBase item = ItemDatabase.I.GetItem(itemId);
+        //if (item == null) return;
 
-            if (item.itemID == 4002001 || item.itemID == 4002002)
-            {
-                AddItemFromWorld(4102035, 1); //@??
-            }
-        }
-        else if (item.canEquip)
-        {
-            // PlayerEquipManager에게 위임
-            playerEquipmanager.ToggleEquip(itemId);  // 토글 처리도 위임
-        }
+        //if (item.canUseable)
+        //{
+        //    bool success = item.Apply(playerController);
+        //    if (success) RemoveItem(itemId, amount);
+
+        //    if (item.itemID == 4002001 || item.itemID == 4002002)
+        //    {
+        //        AddItemFromWorld(4102035, 1); //@??
+        //    }
+        //}
+        //else if (item.canEquip)
+        //{
+        //    // PlayerEquipManager에게 위임
+        //    playerEquipmanager.ToggleEquip(itemId);  // 토글 처리도 위임
+        //}
     }
     #endregion
 
@@ -183,20 +186,45 @@ public class GameInventory : MonoBehaviour, IGameInventory
     }
 
     /// <summary>
-    /// 아이템 사용
+    /// 아이템 사용 (소비/장착 통합)
     /// </summary>
-    public bool UseItem(int itemID)
+    /// <param name="itemId">아이템 ID</param>
+    /// <param name="amount">사용 수량 (기본 1)</param>
+    /// <returns>사용 성공 여부</returns>
+    public bool UseItem(int itemId, int amount = 1)
     {
-        if (!inventoryData.TryRemoveItem(itemID, 1))
-            return false;
+        ItemBase item = ItemDatabase.I.GetItem(itemId);
+        if (item == null) return false;
 
-        var item = ItemDatabase.I.GetItem(itemID);
-        if (item != null && item.canUseable)
+        // 소비 아이템
+        if (item.canUseable)
         {
-            item.Apply(playerController);
+            // 1. 먼저 아이템 보유 확인
+            if (!inventoryData.HasItem(itemId, amount))
+                return false;
+
+            // 2. 효과 적용 시도
+            bool success = item.Apply(playerController);
+            if (!success) return false;
+
+            // 3. 성공 시에만 제거
+            inventoryData.TryRemoveItem(itemId, amount);
+
+            // 4. 빈 캔 생성 (특정 아이템)
+            if (itemId == 4002001 || itemId == 4002002)
+            {
+                AddItemFromWorld(4102035, 1);
+            }
+
+            return true;
+        }
+        // 장착 아이템
+        else if (item.canEquip)
+        {
+            return playerEquipmanager.ToggleEquip(itemId);
         }
 
-        return true;
+        return false;
     }
     /// <summary>
     /// 도구 장착/해제 토글 (외부 호출용)
