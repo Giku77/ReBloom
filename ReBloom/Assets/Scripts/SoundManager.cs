@@ -29,6 +29,7 @@ public class SoundManager : MonoBehaviour
     private AudioSource breathingHeavySource;
     public AudioClip footStepSoundOutdoor;
     public AudioClip footStepSoundIndoor;
+    public AudioClip yawn;
 
     [Header("UI 사운드")]
     public AudioClip openInventory;
@@ -39,6 +40,7 @@ public class SoundManager : MonoBehaviour
     public AudioClip textBlip;
     public AudioClip missionClear;
     public AudioClip nextMission;
+    public AudioClip uiHover;
 
     [Header("상호작용 사운드")]
     public AudioClip getWorldItem;
@@ -46,10 +48,15 @@ public class SoundManager : MonoBehaviour
     public AudioClip crafting;
     public AudioClip openCraftingTable;
     public AudioClip closeCraftingTable;
-    private AudioSource gatherSource;
+    //private AudioSource gatherSource;
     public AudioClip gatherHand;
     public AudioClip gatherShovel;
     public AudioClip gatherHammer;
+    public AudioClip openBox;
+    public AudioClip water;
+    public AudioClip eat;
+    public AudioClip drink;
+    public AudioClip healPack;
 
     [Header("Volume")]
     [SerializeField, Range(0f, 1f)] private float masterVolume = 1f;
@@ -87,10 +94,10 @@ public class SoundManager : MonoBehaviour
         breathingHeavySource.loop = true;
         breathingHeavySource.volume = 0.5f;
 
-        gatherSource = gameObject.AddComponent<AudioSource>();
-        gatherSource.playOnAwake = false;
-        gatherSource.loop = true;
-        gatherSource.volume = sfxVolume;
+        //gatherSource = gameObject.AddComponent<AudioSource>();
+        //gatherSource.playOnAwake = false;
+        //gatherSource.loop = true;
+        //gatherSource.volume = sfxVolume;
     }
 
     private void Update()
@@ -226,7 +233,7 @@ public class SoundManager : MonoBehaviour
             source.volume = sfxVolume * masterVolume;
         }
 
-        gatherSource.volume = sfxVolume * masterVolume;
+        //gatherSource.volume = sfxVolume * masterVolume;
     }
 
     public void SetMasterVolume(float volume)
@@ -234,7 +241,7 @@ public class SoundManager : MonoBehaviour
         masterVolume = Mathf.Clamp01(volume);
         bgmSource.volume = bgmVolume * masterVolume;
         breathingHeavySource.volume = 0.5f * masterVolume;
-        gatherSource.volume = sfxVolume * masterVolume;
+        //gatherSource.volume = sfxVolume * masterVolume;
 
         foreach (var source in sfxPool)
         {
@@ -276,28 +283,28 @@ public class SoundManager : MonoBehaviour
         }
     }
 
-    public void PlayGather(int toolType)
-    {
-        if (gatherSource.isPlaying) return;
+    //public void PlayGather(int toolType)
+    //{
+    //    if (gatherSource.isPlaying) return;
 
-        gatherSource.loop = true;
+    //    gatherSource.loop = true;
 
-        switch (toolType)
-        {
-            case 0: gatherSource.clip = gatherHand; break;
-            case 1: gatherSource.clip = gatherShovel; break;
-            case 2: gatherSource.clip = gatherHammer; break;
-        }
+    //    switch (toolType)
+    //    {
+    //        case 0: gatherSource.clip = gatherHand; break;
+    //        case 1: gatherSource.clip = gatherShovel; break;
+    //        case 2: gatherSource.clip = gatherHammer; break;
+    //    }
 
-        gatherSource.Play();
-    }
+    //    gatherSource.Play();
+    //}
 
-    public void StopGather()
-    {
-        if (!gatherSource.isPlaying) return;
-        gatherSource.Stop();
-        gatherSource.clip = null;
-    }
+    //public void StopGather()
+    //{
+    //    if (!gatherSource.isPlaying) return;
+    //    gatherSource.Stop();
+    //    gatherSource.clip = null;
+    //}
 
     public void PlayFootStep(float volumeScale, bool isIndoor)
     {
@@ -313,6 +320,24 @@ public class SoundManager : MonoBehaviour
         AudioClip clip = getDamageSounds[Random.Range(0, getDamageSounds.Length)];
         PlaySFX(clip);
     }
+
+    public void PlayEat(int category)
+    {
+        switch (category)
+        {
+            case 1: // 음식
+            case 5: // 음식
+                PlaySFX(eat);
+                break;
+            case 2: //음료
+                PlaySFX(drink);
+                break;
+            default:
+                Debug.LogWarning("[SoundManager] 잘못 된 음식 카테고리입니다.");
+                break;
+        }
+    }
+
     public void PlayJump() => PlaySFX(jump);
     public void PlayOpenInventory() => PlaySFX(openInventory);
     public void PlayCloseInventory() => PlaySFX(closeInventory);
@@ -328,6 +353,12 @@ public class SoundManager : MonoBehaviour
     public void PlayNextMission() => PlaySFX(nextMission);
     public void PlayMissionClear() => PlaySFX(missionClear);
     public void PlayGatherHand() => PlaySFX(gatherHand);
-    public void PlayGatherShovel() => PlaySFX(gatherShovel);
-    public void PlayGatherHammer() => PlaySFX(gatherHammer);
+    public void PlayShoveling() => PlaySFX(gatherShovel);
+    public void PlayHammering() => PlaySFX(gatherHammer);
+    public void PlayGather() => PlaySFX(gatherHand);
+    public void PlayYawn() => PlaySFX(yawn);
+    public void PlayHover() => PlaySFX(uiHover);
+    public void PlayOpenBox() => PlaySFX(openBox);
+    public void PlayWater() => PlaySFX(water);
+    public void PlayHeal() => PlaySFX(healPack);
 }

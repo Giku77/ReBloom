@@ -238,7 +238,7 @@ public class PlayerInteractable : MonoBehaviour
         {
             anim.SetGathering(false);
             player.isInteracting = false;
-            SoundManager.I?.StopGather();
+            //SoundManager.I?.StopGather();
             CancelInteract();
         }
     }
@@ -248,7 +248,7 @@ public class PlayerInteractable : MonoBehaviour
         if (interactable is GatherObject)
         {
             anim.SetGathering(true);
-            SoundManager.I?.PlayGather(toolType);
+            //SoundManager.I?.PlayGather(toolType);
             return "조사";
         }
         if (interactable is BuildingInteractableBase) return "상호작용";

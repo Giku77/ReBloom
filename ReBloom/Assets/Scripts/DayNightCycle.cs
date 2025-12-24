@@ -437,6 +437,24 @@ public class DayNightCycle : MonoBehaviour
         return CurrentDayCycle == DayCycle.Night;
     }
 
+    public void SleepUntilMorning()
+    {
+        int currentHour = GetCurrentHour();
+
+        int hoursToAdvance;
+
+        if (currentHour < 7)
+        {
+            hoursToAdvance = 7 - currentHour;
+        }
+        else
+        {
+            hoursToAdvance = 24 - currentHour + 7;
+        }
+
+        AdvanceHours(hoursToAdvance);
+    }
+
     //private void UpdateSkybox()
     //{
     //    if (skyboxMaterial == null) return;

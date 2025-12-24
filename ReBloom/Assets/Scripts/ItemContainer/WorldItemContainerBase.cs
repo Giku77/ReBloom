@@ -43,6 +43,8 @@ public abstract class WorldItemContainerBase : MonoBehaviour, IInteractable
             return;
         }
 
+        SoundManager.I?.PlayOpenBox();
+
         TransferAllToPlayer();
     }
 

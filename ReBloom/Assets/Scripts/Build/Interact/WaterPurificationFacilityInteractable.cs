@@ -23,6 +23,8 @@ public class WaterPurificationFacilityInteractable : BuildingInteractableBase
         inventory.RemoveItem(4002001, 1);
         inventory.AddItemFromWorld(4002002, 1); // LSY: 인벤토리 가득 찼을때 world에 떨어트리려면 AddItemFromWorld() 함수 사용
 
+        SoundManager.I?.PlayWater();
+
         ToastMessageUI.Instance.Show(arcData != null ? arcData.interactText : "오염된 물을 정수했습니다");
     }
 }

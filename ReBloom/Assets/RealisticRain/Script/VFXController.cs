@@ -6,22 +6,27 @@ namespace RealisticRain
     [DisallowMultipleComponent]
     public class VFXController : MonoBehaviour
     {
-        [Header("Param?res Modifiables")]
-        [SerializeField, Tooltip("Couleur des particules g???s.")]
+        [Header("Paramètres Modifiables")]
+        [SerializeField, Tooltip("Couleur des particules gérées.")]
         private Color particleColor = Color.white;
 
-        [SerializeField, Min(0f), Tooltip("Taux d'?ission des particules (Rate over Time). Par d?aut : 200.")]
+        [SerializeField, Min(0f), Tooltip("Taux d'émission des particules (Rate over Time). Par défaut : 200.")]
         private float intensity = 200f;
 
-        [SerializeField, Tooltip("Direction et force du vent appliqu? aux particules.")]
+        [SerializeField, Tooltip("Direction et force du vent appliqué aux particules.")]
         private Vector3 windDirection = Vector3.zero;
 
-        [SerializeField, Range(0f, 10f), Tooltip("Puissance globale du vent appliqu? ?la direction.")]
+        [SerializeField, Range(0f, 10f), Tooltip("Puissance globale du vent appliqué à la direction.")]
         private float windStrength = 1f;
+
+        [Header("Rain Sound")] // 추가!
+        [SerializeField] private AudioSource rainAudioSource;
+        [SerializeField] private AudioClip rainSound;
+        [SerializeField, Range(0f, 1f)] private float rainVolume = 0.3f;
 
         private ParticleSystem[] particleSystems;
 
-        // Cache pour ?iter les mises ?jour inutiles
+        // Cache pour éviter les mises à jour inutiles
         private Color lastColor;
         private float lastIntensity;
         private Vector3 lastWindDirection;
@@ -33,18 +38,50 @@ namespace RealisticRain
 
         private void Awake()
         {
+            InitializeAudio(); // 추가!
             ApplySettings();
         }
 
         private void OnValidate()
         {
-            // ?ite les r?pplications en boucle pendant le Play mode
+            // Évite les réapplications en boucle pendant le Play mode
             if (!Application.isPlaying)
                 ApplySettings();
         }
 
         // =====================
-        // == M?hodes internes ==
+        // == Audio ==
+        // =====================
+
+        private void InitializeAudio()
+        {
+            if (rainAudioSource == null)
+            {
+                rainAudioSource = GetComponent<AudioSource>();
+
+                if (rainAudioSource == null)
+                {
+                    rainAudioSource = gameObject.AddComponent<AudioSource>();
+                }
+            }
+
+            if (rainAudioSource != null && rainSound != null)
+            {
+                rainAudioSource.clip = rainSound;
+                rainAudioSource.loop = true;
+                rainAudioSource.playOnAwake = true;
+                rainAudioSource.volume = rainVolume;
+                rainAudioSource.spatialBlend = 0f; // 2D sound
+
+                if (Application.isPlaying && intensity > 0)
+                {
+                    rainAudioSource.Play();
+                }
+            }
+        }
+
+        // =====================
+        // == Méthodes internes ==
         // =====================
 
         private void EnsureParticlesCached()
@@ -59,20 +96,20 @@ namespace RealisticRain
         {
             EnsureParticlesCached();
 
-            // Emp?he le recalcul si rien n뭓 chang?
+            // Empêche le recalcul si rien n'a changé
             if (particleColor == lastColor &&
                 Mathf.Approximately(intensity, lastIntensity) &&
                 windDirection == lastWindDirection &&
                 Mathf.Approximately(windStrength, lastWindStrength))
                 return;
 
-            // Met ?jour les caches
+            // Met à jour les caches
             lastColor = particleColor;
             lastIntensity = intensity;
             lastWindDirection = windDirection;
             lastWindStrength = windStrength;
 
-            // Applique les param?res ?tous les syst?es
+            // Applique les paramètres à tous les systèmes
             foreach (var ps in particleSystems)
             {
                 if (ps == null) continue;
@@ -84,12 +121,12 @@ namespace RealisticRain
                 // Couleur des particules
                 main.startColor = particleColor;
 
-                // Taux d'?ission
+                // Taux d'émission
                 var rate = emission.rateOverTime;
                 rate.constant = intensity;
                 emission.rateOverTime = rate;
 
-                // Direction du vent (si activ?
+                // Direction du vent (si activé)
                 if (velocityOverLifetime.enabled)
                 {
                     velocityOverLifetime.x = windDirection.x * windStrength;
@@ -97,10 +134,32 @@ namespace RealisticRain
                     velocityOverLifetime.z = windDirection.z * windStrength;
                 }
             }
+
+            // 비 강도에 따라 소리 볼륨 조절 (추가!)
+            UpdateRainAudio();
+        }
+
+        private void UpdateRainAudio()
+        {
+            if (rainAudioSource == null || !Application.isPlaying) return;
+
+            // 비 강도에 따라 볼륨 조절 (0 ~ rainVolume)
+            float normalizedIntensity = Mathf.Clamp01(intensity / 200f); // 200이 기본값
+            rainAudioSource.volume = normalizedIntensity * rainVolume;
+
+            // 비가 없으면 소리 중지
+            if (intensity <= 0 && rainAudioSource.isPlaying)
+            {
+                rainAudioSource.Stop();
+            }
+            else if (intensity > 0 && !rainAudioSource.isPlaying)
+            {
+                rainAudioSource.Play();
+            }
         }
 
         // =====================
-        // == M?hodes publiques ==
+        // == Méthodes publiques ==
         // =====================
 
         public void SetParticleColor(Color newColor)

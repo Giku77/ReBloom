@@ -43,5 +43,7 @@ public class WaterSource : MonoBehaviour, IInteractable
 
         inventoryItemData.RemoveItem(4102035, 1);
         inventoryItemData.AddItemFromWorld(4002001, 1, true);
+
+        SoundManager.I?.PlayWater();
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerEffectUI : UIBase
 {
@@ -11,10 +12,22 @@ public class PlayerEffectUI : UIBase
     [SerializeField] private GameObject passOutLoadingScreen;
     [SerializeField] private RectTransform loadingImage;
 
+    [Header("수면 페이드")]
+    [SerializeField] private Image fadeImage;
+    [SerializeField] private float fadeDuration = 1.5f;
+
     protected override void Awake()
     {
         base.Awake();
         player = GetComponent<PlayerController>();
+
+        if (fadeImage != null)
+        {
+            Color c = fadeImage.color;
+            c.a = 0f;
+            fadeImage.color = c;
+            fadeImage.gameObject.SetActive(false);
+        }
     }
 
 
@@ -26,12 +39,14 @@ public class PlayerEffectUI : UIBase
 
     private void OnEnable()
     {
-        player.onPassOut += PassOutUI;
+        if (player != null)
+            player.onPassOut += PassOutUI;
     }
 
     private void OnDestroy()
     {
-        player.onPassOut -= PassOutUI;
+        if (player != null)
+            player.onPassOut -= PassOutUI;
     }
 
     private void PassOutUI()
@@ -81,5 +96,46 @@ public class PlayerEffectUI : UIBase
         loadingImage.anchoredPosition = endPos;
     }
 
+    public async UniTask FadeToBlack(float duration = -1f)
+    {
+        if (duration < 0) duration = fadeDuration;
+        if (fadeImage == null) return;
 
+        fadeImage.gameObject.SetActive(true);
+
+        float elapsed = 0f;
+        Color c = fadeImage.color;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime; // Time.timeScale 영향 받지 않음
+            c.a = Mathf.Lerp(0f, 1f, elapsed / duration);
+            fadeImage.color = c;
+            await UniTask.Yield();
+        }
+
+        c.a = 1f;
+        fadeImage.color = c;
+    }
+
+    public async UniTask FadeFromBlack(float duration = -1f)
+    {
+        if (duration < 0) duration = fadeDuration;
+        if (fadeImage == null) return;
+
+        float elapsed = 0f;
+        Color c = fadeImage.color;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            c.a = Mathf.Lerp(1f, 0f, elapsed / duration);
+            fadeImage.color = c;
+            await UniTask.Yield();
+        }
+
+        c.a = 0f;
+        fadeImage.color = c;
+        fadeImage.gameObject.SetActive(false);
+    }
 }

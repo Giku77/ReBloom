@@ -62,6 +62,7 @@ public class WaterTankUI : UIBase
         if (WaterTankService.I?.Manager != null)
             ChangeWaterLevelUI(WaterTankService.I.Manager.WaterLevel);
 
+        SoundManager.I?.PlayOpenBox();
         //if (waterTankManager.isRaining)
         //    StoreRainTextBox.SetActive(true);
     }
@@ -71,18 +72,21 @@ public class WaterTankUI : UIBase
         //if (waterTankManager.isRaining)
         //    StoreRainTextBox.SetActive(false);
 
+        SoundManager.I?.PlayCloseCraftingTable();
         backgroundImage.gameObject.SetActive(false);
     }
 
     private void OnStoreWaterButtonClicked()
     {
         WaterTankService.I?.Manager.StoreWater();
+        SoundManager.I?.PlayWater();
     }
 
     private void OnRetrieveWaterButtonClicked()
     {
         Debug.Log("[WaterTankUI] 물 회수 버튼 클릭");
         WaterTankService.I?.Manager.RetrieveWater();
+        SoundManager.I?.PlayWater();
     }
 
     private void ChangeWaterLevelUI(int value)

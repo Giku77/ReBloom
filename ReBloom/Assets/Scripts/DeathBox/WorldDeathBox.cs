@@ -56,6 +56,8 @@ public class WorldDeathBox : WorldItemContainerBase
     }
     public override void Interact(PlayerController player)
     {
+
+
         Debug.Log($"[WorldDeathBox] Interact 호출됨");
         Debug.Log($"[WorldDeathBox] deathBoxData: {(deathBoxData != null ? "있음" : "NULL")}");
         Debug.Log($"[WorldDeathBox] playerInventory: {(playerInventory != null ? "있음" : "NULL")}");
