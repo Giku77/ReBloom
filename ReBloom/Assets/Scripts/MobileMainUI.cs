@@ -19,10 +19,8 @@ public class MobileMainUI : UIBase
     [SerializeField] private Button interactButton;
 
     [Header("UI Feedback")]
-    [SerializeField] private TextMeshProUGUI sprintText;
-
-    private string sprint = "뛰기";
-    private string walking = "걷기";
+    [SerializeField] private GameObject runImage;
+    [SerializeField] private GameObject walkImage;
 
     private bool isSprinting = false;
 
@@ -39,7 +37,7 @@ public class MobileMainUI : UIBase
         //if (interactButton != null)
         //    interactButton.onClick.AddListener(OnInteract);
 
-        UpdateSprintText();
+        UpdateRunImage();
     }
 
     protected override void OnHide()
@@ -68,7 +66,7 @@ public class MobileMainUI : UIBase
     private void OnSprintToggle()
     {
         isSprinting = !isSprinting;
-        UpdateSprintText();
+        UpdateRunImage();
     }
 
     private void OnJump()
@@ -87,11 +85,19 @@ public class MobileMainUI : UIBase
         }
     }
 
-    private void UpdateSprintText()
+    private void UpdateRunImage()
     {
-        if (sprintText != null)
+        if (runImage == null || walkImage == null) return;
+
+        if (isSprinting)
         {
-            sprintText.text = isSprinting ? walking : sprint;
+            runImage.SetActive(false);
+            walkImage.SetActive(true);
+        }
+        else
+        { 
+            walkImage.SetActive(false);
+            runImage.SetActive(true);
         }
     }
 

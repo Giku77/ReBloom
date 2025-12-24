@@ -12090,7 +12090,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 0}
   followBack: 1.2
-  warpDistance: 8
+  sampleRadius: 2
+  hardWarpDistance: 20
+  minWarpDistance: 6
+  warpCooldown: 1
+  eye: {fileID: 0}
+  visionBlockMask:
+    serializedVersion: 2
+    m_Bits: 520
+  loseSightDelay: 1.2
+  pathFailDelay: 0.8
+  stuckSpeedEps: 0.05
+  stuckDelay: 0.9
 --- !u!1 &8387220135624769939
 GameObject:
   m_ObjectHideFlags: 0
@@ -13959,6 +13970,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5160910566031222002, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7138596477199618287, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
       propertyPath: m_Name
       value: QuickSlotRoot
@@ -13967,6 +13982,30 @@ PrefabInstance:
       propertyPath: gameInventory
       value: 
       objectReference: {fileID: 5215465979089579694}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction1.m_Name
+      value: Quick Action 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction2.m_Name
+      value: Quick Action 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction3.m_Name
+      value: Quick Action 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction4.m_Name
+      value: Quick Action 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction5.m_Name
+      value: Quick Action 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction6.m_Name
+      value: Quick Action 6
+      objectReference: {fileID: 0}
     - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
       propertyPath: 'invtQuickslotRef.Array.data[0]'
       value: 
@@ -13991,6 +14030,102 @@ PrefabInstance:
       propertyPath: 'invtQuickslotRef.Array.data[5]'
       value: 
       objectReference: {fileID: 3083315307604694981}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction1.m_SingletonActionBindings.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction2.m_SingletonActionBindings.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction3.m_SingletonActionBindings.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction4.m_SingletonActionBindings.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction5.m_SingletonActionBindings.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction6.m_SingletonActionBindings.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction1.m_SingletonActionBindings.Array.data[0].m_Id
+      value: 1300414e-e680-42bc-972d-eec610281144
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction2.m_SingletonActionBindings.Array.data[0].m_Id
+      value: 6ceccc95-06cd-484c-a035-3e76a792da7f
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction3.m_SingletonActionBindings.Array.data[0].m_Id
+      value: 2b708b1a-848f-4479-bc22-19b9c5774943
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction4.m_SingletonActionBindings.Array.data[0].m_Id
+      value: b7ccbd10-780f-4cad-890f-ed73db44ede5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction5.m_SingletonActionBindings.Array.data[0].m_Id
+      value: 9fdf9e9f-3d00-4503-9419-d1c0aec0ce01
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction6.m_SingletonActionBindings.Array.data[0].m_Id
+      value: 0146f543-a5bf-4d59-831d-88d73eb8dbff
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction1.m_SingletonActionBindings.Array.data[0].m_Path
+      value: <Keyboard>/1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction2.m_SingletonActionBindings.Array.data[0].m_Path
+      value: <Keyboard>/2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction3.m_SingletonActionBindings.Array.data[0].m_Path
+      value: <Keyboard>/3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction4.m_SingletonActionBindings.Array.data[0].m_Path
+      value: <Keyboard>/4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction5.m_SingletonActionBindings.Array.data[0].m_Path
+      value: <Keyboard>/5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction6.m_SingletonActionBindings.Array.data[0].m_Path
+      value: <Keyboard>/6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction1.m_SingletonActionBindings.Array.data[0].m_Action
+      value: Quick Action 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction2.m_SingletonActionBindings.Array.data[0].m_Action
+      value: Quick Action 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction3.m_SingletonActionBindings.Array.data[0].m_Action
+      value: Quick Action 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction4.m_SingletonActionBindings.Array.data[0].m_Action
+      value: Quick Action 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction5.m_SingletonActionBindings.Array.data[0].m_Action
+      value: Quick Action 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7556779313584711522, guid: c2106b1646fa2f94d83d8ec85d871beb, type: 3}
+      propertyPath: quickAction6.m_SingletonActionBindings.Array.data[0].m_Action
+      value: Quick Action 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -14143,6 +14278,10 @@ PrefabInstance:
       propertyPath: itemSpawner
       value: 
       objectReference: {fileID: 7009767323442998483}
+    - target: {fileID: 3988840711664228845, guid: 10d2893351b1acc479730e4471dfa3e4, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0.000061035156
+      objectReference: {fileID: 0}
     - target: {fileID: 4128987271125466132, guid: 10d2893351b1acc479730e4471dfa3e4, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -14239,6 +14378,10 @@ PrefabInstance:
       propertyPath: quickSlot
       value: 
       objectReference: {fileID: 7186227278365230140}
+    - target: {fileID: 6427519126765420390, guid: 10d2893351b1acc479730e4471dfa3e4, type: 3}
+      propertyPath: m_Value
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6636637500098861171, guid: 10d2893351b1acc479730e4471dfa3e4, type: 3}
       propertyPath: m_Name
       value: GameInventoryRoot
@@ -14433,6 +14576,14 @@ PrefabInstance:
       value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 4333611954315479635, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
+      propertyPath: animator
+      value: 
+      objectReference: {fileID: 6655608371271290101}
+    - target: {fileID: 4333611954315479635, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
+      propertyPath: runSpeed
+      value: 22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4333611954315479635, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
       propertyPath: teleport
       value: 
       objectReference: {fileID: 7741832913259459566}
@@ -14444,6 +14595,10 @@ PrefabInstance:
       propertyPath: lightRange
       value: 100
       objectReference: {fileID: 0}
+    - target: {fileID: 4333611954315479635, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
+      propertyPath: teleportFx
+      value: 
+      objectReference: {fileID: 7741832913259459566}
     - target: {fileID: 4333611954315479635, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
       propertyPath: lightSource
       value: 
@@ -14730,6 +14885,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetRenderer: {fileID: 6359472452507413141}
   defaultIntensity: 15
+--- !u!95 &6655608371271290101 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 229814578265826915, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
+  m_PrefabInstance: {fileID: 6876169423783226006}
+  m_PrefabAsset: {fileID: 0}
 --- !u!23 &7052125801430094331 stripped
 MeshRenderer:
   m_CorrespondingSourceObject: {fileID: 4517990747070004077, guid: d29240ad0101d4843bfbbdd9d6e69b47, type: 3}
