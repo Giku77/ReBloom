@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2434343735959000043}
   - component: {fileID: 6974351772251881827}
   - component: {fileID: 6208261538467314204}
-  m_Layer: 3
+  m_Layer: 7
   m_Name: Microscope.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -99,7 +99,7 @@ GameObject:
   - component: {fileID: 4371908654274670797}
   - component: {fileID: 6769876307334721777}
   - component: {fileID: 5038237273516245875}
-  m_Layer: 3
+  m_Layer: 7
   m_Name: Microscope.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -185,7 +185,11 @@ GameObject:
   - component: {fileID: 23144349233562496}
   - component: {fileID: 4828482077030629232}
   - component: {fileID: 5498554367424959450}
-  m_Layer: 3
+  - component: {fileID: 1797298013183913550}
+  - component: {fileID: 411109727649025842}
+  - component: {fileID: 2191692166475820579}
+  - component: {fileID: 7888730349581761689}
+  m_Layer: 7
   m_Name: Microscope
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -263,6 +267,78 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &1797298013183913550
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6616990755786640640}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.0342379, y: 6.02151, z: 2.4806824}
+  m_Center: {x: -0.047779024, y: -0.24092162, z: 0.0000002965994}
+--- !u!114 &411109727649025842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6616990755786640640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5127be94d2e1eac45a6fb562c37b7c82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outline: {fileID: 4011610321156874807, guid: 97aac55f4d7b4f3489999c7128acef97, type: 2}
+  outlined: 0
+  outlineLayerMask: 256
+--- !u!114 &2191692166475820579
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6616990755786640640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bcb90db3cf36fe4d8707b36f1985768, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  lightIntensity: 2
+  backlightRange: 3
+  bodylightRange: 0.05
+  promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
+  isPermanent: 0
+  disableHighlight: 1
+  disableOutline: 0
+--- !u!114 &7888730349581761689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6616990755786640640}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c25f4a099f8ad4643af3fc928680bbda, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gatherObjectID: 910024
+  isDestroyObject: 0
+  isTutorialObject: 0
+  requireHammer: 0
 --- !u!1 &7777635654449273825
 GameObject:
   m_ObjectHideFlags: 0
@@ -272,7 +348,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3004513941228285246}
-  m_Layer: 3
+  m_Layer: 7
   m_Name: Microscope (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}

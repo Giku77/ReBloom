@@ -12,7 +12,10 @@ GameObject:
   - component: {fileID: 1518213587133222065}
   - component: {fileID: 714982515457151281}
   - component: {fileID: 6720222482438132579}
-  m_Layer: 0
+  - component: {fileID: 6977257951993718559}
+  - component: {fileID: 768389149294165802}
+  - component: {fileID: -3947769933190689459}
+  m_Layer: 7
   m_Name: Bricks
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -108,3 +111,54 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 2.497716, y: 2.5346951, z: 1.6031151}
   m_Center: {x: 0.00000047683716, y: 1.2653632, z: -0.0000019073486}
+--- !u!114 &6977257951993718559
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7852697873371904181}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5127be94d2e1eac45a6fb562c37b7c82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outline: {fileID: 4011610321156874807, guid: 97aac55f4d7b4f3489999c7128acef97, type: 2}
+  outlined: 0
+  outlineLayerMask: 256
+--- !u!114 &768389149294165802
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7852697873371904181}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bcb90db3cf36fe4d8707b36f1985768, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  highlightColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  lightIntensity: 2
+  backlightRange: 3
+  bodylightRange: 0.05
+  promptFormat: "\uC0C1\uD638\uC791\uC6A9 [E]"
+  isPermanent: 0
+  disableHighlight: 1
+  disableOutline: 0
+--- !u!114 &-3947769933190689459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7852697873371904181}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c25f4a099f8ad4643af3fc928680bbda, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gatherObjectID: 910021
+  isDestroyObject: 0
+  isTutorialObject: 0
+  requireHammer: 0
