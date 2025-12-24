@@ -9,6 +9,7 @@ public class MobileMainUI : UIBase
     [Header("References")]
     [SerializeField] private PlayerController playerController;
     [SerializeField] private PlayerInteractable playerInteractable;
+    [SerializeField] private ScanController scanController;
 
     [Header("Joystick")]
     [SerializeField] private FixedJoystick movementJoystick;
@@ -17,6 +18,9 @@ public class MobileMainUI : UIBase
     [SerializeField] private Button sprintToggleButton;
     [SerializeField] private Button jumpButton;
     [SerializeField] private Button interactButton;
+    [SerializeField] private Button inventoryButton;
+    [SerializeField] private Button exploreButton;
+    [SerializeField] private Button buildButton;
 
     [Header("UI Feedback")]
     [SerializeField] private GameObject runImage;
@@ -32,8 +36,18 @@ public class MobileMainUI : UIBase
             sprintToggleButton.onClick.AddListener(OnSprintToggle);
 
         if (jumpButton != null)
-            jumpButton.onClick.AddListener(OnJump);
+            jumpButton.onClick.AddListener(OnJumpClicked);
 
+        if (exploreButton != null)
+            exploreButton.onClick.AddListener(OnExploreClicked);
+
+
+        if (inventoryButton != null)
+            inventoryButton.onClick.AddListener(OnInventoryOpenClicked);
+
+
+        if (buildButton != null)
+            buildButton.onClick.AddListener(OnBuildClicked);
         //if (interactButton != null)
         //    interactButton.onClick.AddListener(OnInteract);
 
@@ -48,7 +62,10 @@ public class MobileMainUI : UIBase
             sprintToggleButton.onClick.RemoveListener(OnSprintToggle);
 
         if (jumpButton != null)
-            jumpButton.onClick.RemoveListener(OnJump);
+            jumpButton.onClick.RemoveListener(OnJumpClicked);
+
+        if (inventoryButton != null)
+            inventoryButton.onClick.RemoveListener(OnInventoryOpenClicked);
 
         //if (interactButton != null)
         //    interactButton.onClick.RemoveListener(OnInteract);
@@ -69,19 +86,11 @@ public class MobileMainUI : UIBase
         UpdateRunImage();
     }
 
-    private void OnJump()
+    private void OnJumpClicked()
     {
         if (playerController != null)
         {
             playerController.RequestJump();
-        }
-    }
-
-    private void OnInteract()
-    {
-        if (playerInteractable != null)
-        {
-            playerInteractable.TriggerInteract();
         }
     }
 
@@ -111,5 +120,20 @@ public class MobileMainUI : UIBase
     {
         if (playerInteractable != null)
             playerInteractable.CancelMobileInteract();
+    }
+
+    private void OnInventoryOpenClicked()
+    {
+        UIManager.Instance?.ShowUI(UIType.Inventory);
+    }
+
+    private void OnBuildClicked()
+    {
+        UIManager.Instance?.ShowUI(UIType.Building);
+    }
+
+    private void OnExploreClicked()
+    {
+        scanController?.TriggerScan();
     }
 }
