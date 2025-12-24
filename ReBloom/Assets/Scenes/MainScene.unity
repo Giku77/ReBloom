@@ -205,6 +205,32 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6617335373139903936, guid: 9d0104e85c8967a469bcb1b726a41b7a, type: 3}
   m_PrefabInstance: {fileID: 2013207269}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &118534297
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 118534295}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 155c9641a2ec6d54bb2edca698a14dd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  thunderSounds:
+  - {fileID: 8300000, guid: 277f0af8a1ab10142b8b32717ebd6106, type: 3}
+  - {fileID: 8300000, guid: d9f7eb93287ac7a48a9aefe65ec636fd, type: 3}
+  - {fileID: 8300000, guid: 6dbc8e6d5e86e8345ad6af94637d2453, type: 3}
+  - {fileID: 8300000, guid: 6829cd15d2de8ef4aa829829eae90cfb, type: 3}
+  - {fileID: 8300000, guid: 1a42181c3fa33144bad70ab915a1b3b5, type: 3}
+  - {fileID: 8300000, guid: cfa98985a816fa3428c92c996ea95dd9, type: 3}
+  - {fileID: 8300000, guid: 4552dad1eb3e62a4a9aefe8e9367307d, type: 3}
+  - {fileID: 8300000, guid: a4db49c5b46d6614db9b690abda38caa, type: 3}
+  audioSource: {fileID: 0}
+  volume: 0.7
+  spatialSound: 0
+  minInterval: 3
+  maxInterval: 10
 --- !u!1001 &148468093
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3788,6 +3814,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: VFX_Realistic_Rain_Lit
       objectReference: {fileID: 0}
+    - target: {fileID: 7574726924791480366, guid: 1b7e584853e241a1956d417c4436d159, type: 3}
+      propertyPath: rainSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 7a34b448bc5460b41a29455aa20f3608, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4640,7 +4670,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7447434307210324652, guid: 9d0104e85c8967a469bcb1b726a41b7a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 118534297}
   m_SourcePrefab: {fileID: 100100000, guid: 9d0104e85c8967a469bcb1b726a41b7a, type: 3}
 --- !u!23 &2038347366 stripped
 MeshRenderer:
@@ -4756,6 +4789,7 @@ MonoBehaviour:
   breathingHeavy: {fileID: 8300000, guid: 5eff3bd079bc12541ba67c290bbe9bec, type: 3}
   footStepSoundOutdoor: {fileID: 8300000, guid: 0e66b2abecd90bc4a967625b3d40a017, type: 3}
   footStepSoundIndoor: {fileID: 8300000, guid: f72a967ef47db58409952a20eb6e7382, type: 3}
+  yawn: {fileID: 8300000, guid: 058d84195e68a2749a3302bc8f5ffb25, type: 3}
   openInventory: {fileID: 8300000, guid: 6d337059b7b0a094293835fc0b75343d, type: 3}
   closeInventory: {fileID: 8300000, guid: 46c7b231e16c39949a51c5b26a473a9e, type: 3}
   uiClick: {fileID: 8300000, guid: 98273236917bce94d98cf65ee816aa54, type: 3}
@@ -4764,6 +4798,7 @@ MonoBehaviour:
   textBlip: {fileID: 8300000, guid: 3a90448287ccb4b4ebdb488da3ef1440, type: 3}
   missionClear: {fileID: 8300000, guid: 3d8b9795cda58c9499160f87a2ad09dd, type: 3}
   nextMission: {fileID: 8300000, guid: 669c313021a2ddb418d06ec77794ab01, type: 3}
+  uiHover: {fileID: 8300000, guid: edf19dd837e73ea468aab4d54e525f14, type: 3}
   getWorldItem: {fileID: 8300000, guid: 2839d7a859911414d9c102ac8aa77a3c, type: 3}
   build: {fileID: 8300000, guid: ec90812dd64e84348bd94cbbee6be6ef, type: 3}
   crafting: {fileID: 8300000, guid: f9ef9eac82ae88d4d8644ea97d301b4d, type: 3}
@@ -4772,6 +4807,11 @@ MonoBehaviour:
   gatherHand: {fileID: 8300000, guid: 19683ff44a97eeb458afa8501fe49eb1, type: 3}
   gatherShovel: {fileID: 8300000, guid: 146fd120268c1454aaa9456aadb8b18d, type: 3}
   gatherHammer: {fileID: 8300000, guid: 52382d29dd637634c86461371bca00a5, type: 3}
+  openBox: {fileID: 8300000, guid: 5539d545127f63c48bb4941b20da1fe2, type: 3}
+  water: {fileID: 8300000, guid: 49963039a1a480540a38f4b6b1dc6ca7, type: 3}
+  eat: {fileID: 8300000, guid: a42dba0bc5027544a96b9bd6ddc98e2b, type: 3}
+  drink: {fileID: 8300000, guid: a9d9c6d5b0ff8c149b4c5ebf838d70cf, type: 3}
+  healPack: {fileID: 8300000, guid: 2988675c8661f834e87b39552af82a39, type: 3}
   masterVolume: 1
   bgmVolume: 0.5
   sfxVolume: 1
