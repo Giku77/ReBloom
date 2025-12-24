@@ -54,7 +54,7 @@ public class PlatformManager : MonoBehaviour
     {
         if (IsMobile)
         {
-            // 모바일 최적화 설정
+            SettingManager.I.SetGraphicsQuality(1);
         }
         else if (IsPC)
         {

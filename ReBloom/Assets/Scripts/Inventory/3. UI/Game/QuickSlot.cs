@@ -19,6 +19,14 @@ public class QuickSlot : MonoBehaviour
 
     [SerializeField] private GameInventory gameInventory;
 
+    [Header("Slot Action")]
+    [SerializeField] private InputAction quickAction1;
+    [SerializeField] private InputAction quickAction2;
+    [SerializeField] private InputAction quickAction3;
+    [SerializeField] private InputAction quickAction4;
+    [SerializeField] private InputAction quickAction5;
+    [SerializeField] private InputAction quickAction6;
+
     private ItemBase[] items;
     private QuickSlotUI[] slotUIs;
     private QuickSlotUI[] invSlotUIs;
@@ -42,6 +50,38 @@ public class QuickSlot : MonoBehaviour
     {
         ValidateReferences();
         SubscribeToInventoryEvents();
+    }
+
+    private void OnEnable()
+    {
+        quickAction1.Enable();
+        quickAction1.started += OnQuickSlot1;
+        quickAction2.Enable();
+        quickAction2.started += OnQuickSlot2;
+        quickAction3.Enable();
+        quickAction3.started += OnQuickSlot3;
+        quickAction4.Enable();
+        quickAction4.started += OnQuickSlot4;
+        quickAction5.Enable();
+        quickAction5.started += OnQuickSlot5;
+        quickAction6.Enable();
+        quickAction6.started += OnQuickSlot6;
+    }
+
+    private void OnDisable()
+    {
+        quickAction1.started -= OnQuickSlot1;
+        quickAction1.Disable();
+        quickAction2.started -= OnQuickSlot2;
+        quickAction2.Disable();
+        quickAction3.started -= OnQuickSlot3;
+        quickAction3.Disable();
+        quickAction4.started -= OnQuickSlot4;
+        quickAction4.Disable();
+        quickAction5.started -= OnQuickSlot5;
+        quickAction5.Disable();
+        quickAction6.started -= OnQuickSlot6;
+        quickAction6.Disable();
     }
 
     private void OnDestroy()
@@ -558,28 +598,30 @@ public class QuickSlot : MonoBehaviour
     #region QuickSlot 사용
     public void OnQuickSlot1(InputAction.CallbackContext context)
     {
-        if (context.started) UseSlot(0);
+        UseSlot(0);
     }
     public void OnQuickSlot2(InputAction.CallbackContext context)
     {
-        if (context.started) UseSlot(1);
+        UseSlot(1);
     }
     public void OnQuickSlot3(InputAction.CallbackContext context)
     {
-        if (context.started) UseSlot(2);
+        UseSlot(2);
     }
     public void OnQuickSlot4(InputAction.CallbackContext context)
     {
-        if (context.started) UseSlot(3);
+        UseSlot(3);
     }
     public void OnQuickSlot5(InputAction.CallbackContext context)
     {
-        if (context.started) UseSlot(4);
+        UseSlot(4);
     }
     public void OnQuickSlot6(InputAction.CallbackContext context)
     {
-        if (context.started) UseSlot(5);
+        UseSlot(5);
     }
+
+
 
     void UseSlot(int index)
     {
