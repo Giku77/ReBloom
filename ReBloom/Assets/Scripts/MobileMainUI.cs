@@ -258,7 +258,7 @@ public class MobileMainUI : UIBase
 
     private void OnInventoryOpenClicked()
     {
-        UIManager.Instance?.ShowUI(UIType.Inventory);
+        UIManager.Instance?.ShowUI(UIType.MobileInventory);
     }
 
     private void OnBuildClicked()
