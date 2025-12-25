@@ -180,10 +180,13 @@ public class PlayerInteractable : MonoBehaviour
                 if (!isPlayingPickupAnim)
                 {
                     isPlayingPickupAnim = true;
-                    anim.PlayPickUp();
+                    player.SetBlocked(true);
                     player.isInteracting = true;
+                    anim.PlayPickUp();
                     await UniTask.Delay(800);
                     player.isInteracting = false;
+                    player.SetBlocked(false);
+
                     isPlayingPickupAnim = false;
                     SoundManager.I?.PlayGetWorldItem();
                 }
@@ -232,6 +235,12 @@ public class PlayerInteractable : MonoBehaviour
                 hilight.promptFormat = savePrompt;
                 hilight.ShowPrompt();
                 hilight.HoldPromptUI?.Hide();
+            }
+
+            if (isPlayingPickupAnim)
+            {
+                player.SetBlocked(false);
+                isPlayingPickupAnim = false;
             }
         }
         finally

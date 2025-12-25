@@ -787,11 +787,11 @@ public class PlayerController : MonoBehaviour
         if (blocked)
         {
             // 입력/속도 초기화
-            moveInput = Vector2.zero;
+            //moveInput = Vector2.zero;
             targetSpeed = 0f;
             currentSpeed = 0f;
             isSprinting = false;
-            isAutoRun  = false;
+            isAutoRun = false;
             jumpRequested = false;
 
             if (rb != null)
@@ -801,6 +801,10 @@ public class PlayerController : MonoBehaviour
             }
 
             Anim?.SetSpeed(0f);
+        }
+        else
+        { 
+        
         }
     }
 

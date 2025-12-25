@@ -150,6 +150,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910019
   isDestroyObject: 1
+  isTutorialObject: 0
   requireHammer: 1
 --- !u!114 &637533554282450495
 MonoBehaviour:
@@ -741,6 +742,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910020
   isDestroyObject: 1
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &6978818796826993206
 MonoBehaviour:
@@ -862,6 +864,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910016
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &2126680633069568325
 MonoBehaviour:
@@ -1048,6 +1051,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910011
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &4736733700942096857
 MonoBehaviour:
@@ -1382,6 +1386,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910015
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &3833061253730664838
 MonoBehaviour:
@@ -1717,6 +1722,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910015
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &9100922062808617645
 MonoBehaviour:
@@ -1936,11 +1942,10 @@ GameObject:
   - component: {fileID: 306811448102684427}
   - component: {fileID: 2265530405175071871}
   - component: {fileID: 6954631529592882371}
-  - component: {fileID: 8127644867706138363}
-  - component: {fileID: 1071680310755850516}
   - component: {fileID: 2489387993808778988}
   - component: {fileID: 1427595179814167668}
   - component: {fileID: 6162479197035717927}
+  - component: {fileID: 5891959947604354223}
   m_Layer: 7
   m_Name: WreckedBus
   m_TagString: Untagged
@@ -2017,50 +2022,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &8127644867706138363
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 868165205631079794}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 43116549767826722, guid: cc4e389f7a6784445b279041744acddf, type: 2}
---- !u!64 &1071680310755850516
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 868165205631079794}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 43809978488059144, guid: cc4e389f7a6784445b279041744acddf, type: 2}
 --- !u!114 &2489387993808778988
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2075,6 +2036,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910019
   isDestroyObject: 1
+  isTutorialObject: 0
   requireHammer: 1
 --- !u!114 &1427595179814167668
 MonoBehaviour:
@@ -2111,6 +2073,27 @@ MonoBehaviour:
   outline: {fileID: 4011610321156874807, guid: 97aac55f4d7b4f3489999c7128acef97, type: 2}
   outlined: 0
   outlineLayerMask: 256
+--- !u!65 &5891959947604354223
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 868165205631079794}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.2372897, y: 3.1269305, z: 11.426152}
+  m_Center: {x: 0.020415006, y: 1.4731059, z: 0.06715813}
 --- !u!1 &898968348034082235
 GameObject:
   m_ObjectHideFlags: 0
@@ -2329,6 +2312,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910017
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &7137956394871883363
 MonoBehaviour:
@@ -2469,6 +2453,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910010
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &6821428440810998589
 MonoBehaviour:
@@ -2652,6 +2637,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910015
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &7399500664174272418
 MonoBehaviour:
@@ -3353,6 +3339,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910015
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &3196724407703047603
 MonoBehaviour:
@@ -3521,6 +3508,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910017
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &6321722586542809053
 MonoBehaviour:
@@ -3747,6 +3735,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910010
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &4889045962676759496
 MonoBehaviour:
@@ -4010,11 +3999,10 @@ GameObject:
   - component: {fileID: 6996024448849787763}
   - component: {fileID: 666954715957398674}
   - component: {fileID: 1896575661313996185}
-  - component: {fileID: 8428578861716135104}
-  - component: {fileID: 6943576564326863607}
   - component: {fileID: 954403101257721643}
   - component: {fileID: 6518725878384779957}
   - component: {fileID: 7622239246298142233}
+  - component: {fileID: 1275425287398598534}
   m_Layer: 7
   m_Name: WreckedBus (1)
   m_TagString: Untagged
@@ -4091,50 +4079,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &8428578861716135104
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2169838712666162915}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 0
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 43116549767826722, guid: cc4e389f7a6784445b279041744acddf, type: 2}
---- !u!64 &6943576564326863607
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2169838712666162915}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 43809978488059144, guid: cc4e389f7a6784445b279041744acddf, type: 2}
 --- !u!114 &954403101257721643
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4149,6 +4093,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910019
   isDestroyObject: 1
+  isTutorialObject: 0
   requireHammer: 1
 --- !u!114 &6518725878384779957
 MonoBehaviour:
@@ -4185,6 +4130,27 @@ MonoBehaviour:
   outline: {fileID: 4011610321156874807, guid: 97aac55f4d7b4f3489999c7128acef97, type: 2}
   outlined: 0
   outlineLayerMask: 256
+--- !u!65 &1275425287398598534
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2169838712666162915}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 3.2372897, y: 3.1269307, z: 11.426153}
+  m_Center: {x: 0.020415006, y: 1.4731063, z: 0.06715823}
 --- !u!1 &2173062188243386812
 GameObject:
   m_ObjectHideFlags: 0
@@ -4314,6 +4280,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910011
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &6340845596011592682
 MonoBehaviour:
@@ -4886,6 +4853,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910013
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &4867244457120556131
 MonoBehaviour:
@@ -5164,6 +5132,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910018
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &3901618789988520601
 MonoBehaviour:
@@ -5249,6 +5218,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910018
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &4533878725403594469
 MonoBehaviour:
@@ -5503,6 +5473,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910017
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &4139621810129665436
 MonoBehaviour:
@@ -5883,6 +5854,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910016
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &3253237045164418811
 MonoBehaviour:
@@ -6239,6 +6211,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910012
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &3403230275421828594
 MonoBehaviour:
@@ -6552,6 +6525,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910010
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &7865284545872768344
 MonoBehaviour:
@@ -6658,6 +6632,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910018
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &2377367132138706939
 MonoBehaviour:
@@ -6884,6 +6859,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910010
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &1778155399834563037
 MonoBehaviour:
@@ -7292,6 +7268,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910018
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &6190063630734449186
 MonoBehaviour:
@@ -8266,6 +8243,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910017
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &6338667831129162754
 MonoBehaviour:
@@ -8514,6 +8492,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910015
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &98154460242896825
 MonoBehaviour:
@@ -8599,6 +8578,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910018
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &5166083066676059252
 MonoBehaviour:
@@ -8792,6 +8772,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910018
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &4428737913433349339
 MonoBehaviour:
@@ -9075,6 +9056,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910011
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &3157452261804448973
 MonoBehaviour:
@@ -9215,6 +9197,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910013
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &6770049805845219879
 MonoBehaviour:
@@ -9507,6 +9490,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910012
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &2321428202711378914
 MonoBehaviour:
@@ -9596,6 +9580,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910016
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &2154699687463990580
 MonoBehaviour:
@@ -9780,6 +9765,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910012
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &6781668572077378732
 MonoBehaviour:
@@ -10296,6 +10282,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910018
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &6115438641313327209
 MonoBehaviour:
@@ -10385,6 +10372,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910016
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &128702224443378057
 MonoBehaviour:
@@ -10582,6 +10570,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910016
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &8758811052418182454
 MonoBehaviour:
@@ -10864,6 +10853,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910016
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &8538736263441934831
 MonoBehaviour:
@@ -11112,6 +11102,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910010
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &1673025829615971777
 MonoBehaviour:
@@ -11468,6 +11459,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910012
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &5356800645978086411
 MonoBehaviour:
@@ -11663,6 +11655,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910012
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &385765331393052170
 MonoBehaviour:
@@ -11912,6 +11905,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910012
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &1491948056591888986
 MonoBehaviour:
@@ -12998,6 +12992,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910019
   isDestroyObject: 1
+  isTutorialObject: 0
   requireHammer: 1
 --- !u!114 &8254063927858633694
 MonoBehaviour:
@@ -13295,6 +13290,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910014
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &2813020159772709080
 MonoBehaviour:
@@ -14015,6 +14011,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910014
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &5240955482882427252
 MonoBehaviour:
@@ -14714,6 +14711,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910014
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &7908966869541993914
 MonoBehaviour:
@@ -15383,6 +15381,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gatherObjectID: 910014
   isDestroyObject: 0
+  isTutorialObject: 0
   requireHammer: 0
 --- !u!114 &7839583526606305473
 MonoBehaviour:
