@@ -30,6 +30,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private CinemachineBrain cinemachineBrain;
     [SerializeField] private InventoryRobotPet robotPet;
 
+    public InventoryRobotPet RobotPet => robotPet;
+
     public event Action onPassOut;
 
     private float originalRotationSpeed;

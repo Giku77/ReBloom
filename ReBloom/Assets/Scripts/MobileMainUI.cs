@@ -23,6 +23,8 @@ public class MobileMainUI : UIBase
     [SerializeField] private Button inventoryButton;
     [SerializeField] private Button exploreButton;
     [SerializeField] private Button buildButton;
+    [SerializeField] private Button lightButton;
+    [SerializeField] private Button settingButton;
 
     [Header("UI Feedback")]
     [SerializeField] private GameObject runImage;
@@ -164,8 +166,16 @@ public class MobileMainUI : UIBase
 
         if (buildButton != null)
             buildButton.onClick.AddListener(OnBuildClicked);
+
+        if (settingButton != null)
+            settingButton.onClick.AddListener(OnSettingClicked);
+
+        if (lightButton != null)
+            lightButton.onClick.AddListener(OnFlashLightClicked);
         //if (interactButton != null)
         //    interactButton.onClick.AddListener(OnInteract);
+
+
 
         UpdateRunImage();
     }
@@ -259,5 +269,17 @@ public class MobileMainUI : UIBase
     private void OnExploreClicked()
     {
         scanController?.TriggerScan();
+    }
+
+    private void OnFlashLightClicked()
+    {
+        if (playerController.RobotPet == null) return;
+
+        playerController.RobotPet.ToggleFlashlight();
+    }
+
+    private void OnSettingClicked()
+    { 
+        UIManager.Instance?.ShowUI(UIType.GamePause);
     }
 }
