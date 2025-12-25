@@ -13,9 +13,17 @@ using UnityEngine.UI;
 /// </summary>
 public class GameInventoryUI : UIBase
 {
+    public enum PlatformTarget { Both, PCOnly, MobileOnly }
+
+    [Header("Platform Target")]
+    [SerializeField] private PlatformTarget targetPlatform = PlatformTarget.Both;
+
     [Header("Platform UI")]
     [SerializeField] private GameObject pcUIRoot;      // PC용 UI 루트
     [SerializeField] private GameObject mobileUIRoot;  // 모바일용 UI 루트
+    [Header("Platform Content Containers")]
+    [SerializeField] private Transform pcContentContainer;      // PC용 슬롯 컨테이너
+    [SerializeField] private Transform mobileContentContainer;
 
     [Header("Controller Reference")]
     [SerializeField] private GameInventory gameInventory;
@@ -55,34 +63,55 @@ public class GameInventoryUI : UIBase
     private int lastTotalSlotCount = -1;
 
     #region 상태 변수
-    private GameObject ActiveUIRoot => PlatformManager.Instance.IsMobile
-    ? mobileUIRoot
-    : pcUIRoot;
 
     private InventorySlotType currentType = InventorySlotType.Consumable;
     private readonly List<GameInventorySlot> activeSlots = new();
     private readonly Dictionary<Button, InventorySlotType> tabButtons = new();
     #endregion
 
+    #region 플랫폼 체크
+    /// <summary>
+    /// 이 UI가 현재 플랫폼에서 활성화되어야 하는지
+    /// </summary>
+    private bool IsActiveForCurrentPlatform()
+    {
+        if (PlatformManager.Instance == null) return true;
+
+        return targetPlatform switch
+        {
+            PlatformTarget.PCOnly => PlatformManager.Instance.IsPC,
+            PlatformTarget.MobileOnly => PlatformManager.Instance.IsMobile,
+            PlatformTarget.Both => true,
+            _ => true
+        };
+    }
+
+    private GameObject ActiveUIRoot => PlatformManager.Instance.IsMobile? mobileUIRoot: pcUIRoot;
+
+    private Transform ActiveContentContainer => PlatformManager.Instance.IsMobile? mobileContentContainer: pcContentContainer;
+    #endregion
+
     #region Unity 생명주기
     protected override void Awake()
     {
+        // 현재 플랫폼용이 아니면 비활성화
+        emptySlotList ??= new List<Transform>();
+        lockSlotList ??= new List<Transform>();
+
+        if (!IsActiveForCurrentPlatform())
+        {
+            gameObject.SetActive(false);
+            return;
+        }
+
         InitializeTabButtons();
         questUI = FindFirstObjectByType<QuestUI>();
-
-        if (emptySlotList == null)
-        {
-            emptySlotList = new List<Transform>();
-        }
-
-        if (lockSlotList == null)
-        {
-            lockSlotList = new List<Transform>();
-        }
     }
 
     private void Start()
     {
+        if (!IsActiveForCurrentPlatform()) return;
+
         if (inventoryData == null)
         {
             Debug.LogError("[GameInventoryUI] InventoryData가 할당되지 않았습니다!", this);
@@ -93,51 +122,50 @@ public class GameInventoryUI : UIBase
         DragDropManager.OnDragFeedback += HandleDragFeedback;
         DragDropManager.OnDragFeedback += HandleTrashFeedback;
         base.Awake();
-        ////// 초기화
-        //inventoryData.Initialize();
-        //CreateEmptySlots();
-        //RefreshUI();
-        // 시작 시 인벤토리 닫기
-        //inventoryUIRoot.SetActive(false);
     }
 
     private void OnEnable()
     {
-        //인벤토리 UI가 열릴 때 정적 이벤트 발생
+        if (!IsActiveForCurrentPlatform()) return;
+
         InventroyEventSystem.InventoryOpened();
-        removeGradientGameObject.SetActive(false);
-        inventoryData.OnContainerChanged += RefreshUI;
+
+        if (removeGradientGameObject != null)
+            removeGradientGameObject.SetActive(false);
+
+        if (inventoryData != null)
+            inventoryData.OnContainerChanged += RefreshUI;
+
+        // 탭 선택
         EventSystem currentEventSystem = EventSystem.current;
-        if (currentEventSystem == null)
+        if (currentEventSystem != null)
         {
-            Debug.LogWarning("[GameInventoryUI] EventSystem이 활성화되어 있지 않습니다.");
-        }
-        else
-        {
-            tabButtons.All(pair =>
+            foreach (var pair in tabButtons)
             {
                 if (pair.Value == currentType)
                 {
                     currentEventSystem.SetSelectedGameObject(pair.Key.gameObject);
-                    OnTabClicked(currentType);
-                    return false;
+                    UpdateTabVisuals();
+                    break;
                 }
-                return true;
-            });
+            }
         }
     }
 
     private void OnDisable()
     {
-        inventoryData.OnContainerChanged -= RefreshUI;
+        if (!IsActiveForCurrentPlatform()) return;
 
-        //인벤토리 UI가 닫힐 때 정적 이벤트 발생
+        if (inventoryData != null)
+            inventoryData.OnContainerChanged -= RefreshUI;
 
         InventroyEventSystem.InventoryClosed();
     }
 
     private void OnDestroy()
     {
+        if (!IsActiveForCurrentPlatform()) return;
+
         DragDropManager.OnDragFeedback -= HandleDragFeedback;
         DragDropManager.OnDragFeedback -= HandleTrashFeedback;
     }
@@ -189,6 +217,8 @@ public class GameInventoryUI : UIBase
         if (mobileUIRoot != null)
             mobileUIRoot.SetActive(PlatformManager.Instance.IsMobile);
 
+        ClearAllSlots();
+
         RefreshUI();
         SoundManager.I?.PlayOpenInventory();
     }
@@ -209,12 +239,37 @@ public class GameInventoryUI : UIBase
         UpdateTabVisuals();
         RefreshUI();
     }
+    private void ClearAllSlots()
+    {
+        // 아이템 슬롯 제거
+        if (activeSlots != null)
+        {
+            foreach (var slot in activeSlots)
+            {
+                if (slot != null) Destroy(slot.gameObject);
+            }
+            activeSlots.Clear();
+        }
+
+        if (emptySlotList != null)
+        {
+            foreach (var emptySlot in emptySlotList)
+            {
+                if (emptySlot != null) Destroy(emptySlot.gameObject);
+            }
+            emptySlotList.Clear();
+        }
+
+        lockSlotList?.Clear();
+        lastTotalSlotCount = -1;
+    }
+
     /// <summary>
     /// 인벤토리 빈슬롯 생성 (기본 슬롯 + 잠긴 슬롯)
     /// </summary>
     public void CreateEmptySlots()
     {
-        if (contentContainer == null)
+        if (ActiveContentContainer == null)
         {
             Debug.LogError("[GameInventoryUI] contentContainer가 할당되지 않았습니다!");
             return;
@@ -258,7 +313,7 @@ public class GameInventoryUI : UIBase
                 int globalIndex = currentBaseSlots + i;
 
                 var slotInstance = Instantiate(emptySlotPrefab);
-                slotInstance.transform.SetParent(contentContainer, false);
+                slotInstance.transform.SetParent(ActiveContentContainer, false);
                 slotInstance.transform.localScale = Vector3.one;
                 slotInstance.name = $"EmptySlot_{globalIndex}";
 
@@ -295,7 +350,7 @@ public class GameInventoryUI : UIBase
                 int globalIndex = baseSlots + i;
 
                 var slotInstance = Instantiate(emptySlotPrefab);
-                slotInstance.transform.SetParent(contentContainer, false);
+                slotInstance.transform.SetParent(ActiveContentContainer, false);
                 slotInstance.transform.localScale = Vector3.one;
                 slotInstance.name = $"LockSlot_{i}";
 

@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 2038860135267572340}
   - component: {fileID: 1760697410004408777}
   - component: {fileID: 516908078937292803}
-  - component: {fileID: 6385197580431343765}
   m_Layer: 0
   m_Name: Scan
   m_TagString: Untagged
@@ -87,18 +86,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &6385197580431343765
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 396325419089299037}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d69754a57dd27f0468e06f91b44ab9f6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1961394868893417598
 GameObject:
   m_ObjectHideFlags: 0
@@ -941,29 +928,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   followTarget: {fileID: 0}
   player: {fileID: 0}
+  followHeight: 1
+  nearDistance: 6
   idleDistance: 1
   runDistance: 3
-  followHeight: 1
-  teleportDistance: 15
-  teleportCooldown: 1
-  IsNearPlayer: 0
   walkSpeed: 12
   runSpeed: 14
   rotationSpeed: 0.7
   floatAmplitude: 2
   floatFrequency: 0
-  animController: {fileID: 5214244777827073110}
-  emotionManager: {fileID: 1022802606940843610}
-  colorManager: {fileID: 9142656489697227612}
+  teleportFx: {fileID: 0}
+  teleportCooldown: 1
+  stuckMinDistToProxy: 3
+  stuckNoImproveEps: 0.03
+  stuckDelay: 0.8
+  hardRecoverDistToProxy: 12
+  orbitRadius: 2
+  orbitSpeed: 90
   flashlight: {fileID: 0}
   lightSource: {fileID: 0}
   lightRange: 20
   lightIntensity: 2
   lightSpotAngle: 60
-  pathRecalcInterval: 0.25
-  cornerReachDist: 0.6
-  navSampleRadius: 2
-  navAreaMask: -1
+  animController: {fileID: 5214244777827073110}
+  emotionManager: {fileID: 1022802606940843610}
+  colorManager: {fileID: 9142656489697227612}
+  animator: {fileID: 229814578265826915}
 --- !u!114 &1022802606940843610
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1053,10 +1043,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54ac97ddb830fc2458baa855940075f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _renderer: {fileID: 3326519418522874928}
-  mtrlOrg: {fileID: 2100000, guid: 0bce8dcc98bcbe44999e9f9cebcf0a07, type: 2}
+  _renderers: []
+  mtrlOrg:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   mtrlDissolve: {fileID: -876546973899608171, guid: d96977bad35e3824c8dbbd745c79c79c, type: 3}
-  mtrlPhase: {fileID: -876546973899608171, guid: 9d20d6e8073300240ae8869dbf5cbd39, type: 3}
   fadeTime: 2
 --- !u!1 &7885217818033283618
 GameObject:
