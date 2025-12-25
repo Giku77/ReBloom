@@ -10,6 +10,7 @@ public class MobileMainUI : UIBase
     [SerializeField] private PlayerController playerController;
     [SerializeField] private PlayerInteractable playerInteractable;
     [SerializeField] private ScanController scanController;
+    [SerializeField] private GameInventoryInput gameInventoryInput;
     [SerializeField] private StageDetector stageDetector;
     [SerializeField] private PlayerStats playerStats;
 
@@ -258,7 +259,7 @@ public class MobileMainUI : UIBase
 
     private void OnInventoryOpenClicked()
     {
-        UIManager.Instance?.ShowUI(UIType.Inventory);
+        gameInventoryInput?.ToggleInventory();
     }
 
     private void OnBuildClicked()

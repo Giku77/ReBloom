@@ -16,6 +16,13 @@ public abstract class UIBase : MonoBehaviour, IGameUI
     [SerializeField] private UICursorMode cursorMode = UICursorMode.UnlockAndShow;
     [SerializeField] private bool locksCameraZoom = true;
 
+    [Header("Auto Close Button (Mobile Only)")]
+    [SerializeField] private bool autoAttachCloseButtonOnMobile = true;
+    [SerializeField] private GameObject closeButtonPrefab;     
+    [SerializeField] private Transform closeButtonParent;      
+
+    private GameObject spawnedCloseButton;
+
     public UIType Type => type;
     public UILayer Layer => layer;
     public bool BlocksGameplayInput => blocksGameplayInput;
@@ -38,6 +45,9 @@ public abstract class UIBase : MonoBehaviour, IGameUI
         if (IsOpen) return;
         IsOpen = true;
         root.SetActive(true);
+
+        TryAttachCloseButton_MobileOnly();
+
         OnShow();
 
         Debug.Log("[UIBase] UIBase SHOW 호출");
@@ -53,4 +63,31 @@ public abstract class UIBase : MonoBehaviour, IGameUI
 
     protected virtual void OnShow() { }
     protected virtual void OnHide() { }
+
+    private void TryAttachCloseButton_MobileOnly()
+    {
+        if (!autoAttachCloseButtonOnMobile) return;
+
+        bool isMobile = PlatformManager.Instance != null
+            ? PlatformManager.Instance.IsMobile
+            : Application.isMobilePlatform;
+
+        if (!isMobile) return;
+
+        if (Layer != UILayer.Modal) return;
+
+        if (closeButtonPrefab == null) return;
+
+        if (spawnedCloseButton == null)
+        {
+            Transform parent = closeButtonParent != null ? closeButtonParent : root.transform;
+            spawnedCloseButton = Instantiate(closeButtonPrefab, parent, false);
+        }
+
+        var binder = spawnedCloseButton.GetComponent<UICloseButton>();
+        if (binder != null)
+            binder.Bind(Type);
+        else
+            Debug.LogWarning($"[UIBase] closeButtonPrefab에 UICloseButton이 없습니다: {closeButtonPrefab.name}");
+    }
 }
