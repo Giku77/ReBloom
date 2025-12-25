@@ -1,4 +1,4 @@
-using BansheeGz.BGDatabase;
+﻿using BansheeGz.BGDatabase;
 using System.Collections.Generic;
 
 public class CutSceneDB
