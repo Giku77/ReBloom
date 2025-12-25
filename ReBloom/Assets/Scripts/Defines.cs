@@ -76,4 +76,5 @@ public enum UILayer
     Modal,
     Overlay,
     MobileHUD,
+    MobileModal,
 }

@@ -11,13 +11,14 @@ GameObject:
   - component: {fileID: 6617335373139903936}
   - component: {fileID: 6979141214240920}
   - component: {fileID: 15621020459693439}
+  - component: {fileID: 2234887638313936487}
   m_Layer: 0
   m_Name: Thunder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6617335373139903936
 Transform:
   m_ObjectHideFlags: 0
@@ -4835,6 +4836,32 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &2234887638313936487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7447434307210324652}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 155c9641a2ec6d54bb2edca698a14dd4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  thunderSounds:
+  - {fileID: 8300000, guid: 277f0af8a1ab10142b8b32717ebd6106, type: 3}
+  - {fileID: 8300000, guid: d9f7eb93287ac7a48a9aefe65ec636fd, type: 3}
+  - {fileID: 8300000, guid: 6dbc8e6d5e86e8345ad6af94637d2453, type: 3}
+  - {fileID: 8300000, guid: 6829cd15d2de8ef4aa829829eae90cfb, type: 3}
+  - {fileID: 8300000, guid: 1a42181c3fa33144bad70ab915a1b3b5, type: 3}
+  - {fileID: 8300000, guid: cfa98985a816fa3428c92c996ea95dd9, type: 3}
+  - {fileID: 8300000, guid: 4552dad1eb3e62a4a9aefe8e9367307d, type: 3}
+  - {fileID: 8300000, guid: a4db49c5b46d6614db9b690abda38caa, type: 3}
+  audioSource: {fileID: 0}
+  volume: 0.7
+  spatialSound: 0
+  minInterval: 3
+  maxInterval: 10
 --- !u!1 &8719552518563274793
 GameObject:
   m_ObjectHideFlags: 0
@@ -4852,7 +4879,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &9090226817923434262
 Transform:
   m_ObjectHideFlags: 0

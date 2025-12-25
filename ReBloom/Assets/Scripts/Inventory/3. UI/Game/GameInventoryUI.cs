@@ -13,6 +13,10 @@ using UnityEngine.UI;
 /// </summary>
 public class GameInventoryUI : UIBase
 {
+    [Header("Platform UI")]
+    [SerializeField] private GameObject pcUIRoot;      // PC용 UI 루트
+    [SerializeField] private GameObject mobileUIRoot;  // 모바일용 UI 루트
+
     [Header("Controller Reference")]
     [SerializeField] private GameInventory gameInventory;
 
@@ -51,6 +55,10 @@ public class GameInventoryUI : UIBase
     private int lastTotalSlotCount = -1;
 
     #region 상태 변수
+    private GameObject ActiveUIRoot => PlatformManager.Instance.IsMobile
+    ? mobileUIRoot
+    : pcUIRoot;
+
     private InventorySlotType currentType = InventorySlotType.Consumable;
     private readonly List<GameInventorySlot> activeSlots = new();
     private readonly Dictionary<Button, InventorySlotType> tabButtons = new();
@@ -175,12 +183,20 @@ public class GameInventoryUI : UIBase
     }
     protected override void OnShow()
     {
+        if (pcUIRoot != null)
+            pcUIRoot.SetActive(PlatformManager.Instance.IsPC);
+
+        if (mobileUIRoot != null)
+            mobileUIRoot.SetActive(PlatformManager.Instance.IsMobile);
+
         RefreshUI();
         SoundManager.I?.PlayOpenInventory();
     }
 
     protected override void OnHide()
     {
+        pcUIRoot?.SetActive(false);
+        mobileUIRoot?.SetActive(false);
         SoundManager.I?.PlayCloseInventory();
     }
 
