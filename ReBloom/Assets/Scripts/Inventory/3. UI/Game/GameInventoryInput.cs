@@ -8,7 +8,6 @@ public class GameInventoryInput : MonoBehaviour
     [SerializeField] private QuickSlot quickSlot;
 
     private InputSystem_Actions inputActions;
-    private bool isInventoryOpen = false;
 
     private void Awake()
     {
@@ -20,13 +19,6 @@ public class GameInventoryInput : MonoBehaviour
         }
 
         inputActions = new InputSystem_Actions();
-
-        Debug.Log("[GameInventoryInput] 초기화 완료");
-    }
-
-    private void Start()
-    {
-        //HandleCursorState(false);
     }
 
     private void OnEnable()
@@ -34,7 +26,6 @@ public class GameInventoryInput : MonoBehaviour
         if (inputActions == null) return;
 
         inputActions.GameInventory.Enable();
-
         SubscribeInputActions();
     }
 
@@ -61,11 +52,8 @@ public class GameInventoryInput : MonoBehaviour
         if (inputActions == null) return;
 
         var gameInventoryMap = inputActions.GameInventory;
-
         gameInventoryMap.ToggleInventory.performed += OnToggleInventory;
         gameInventoryMap.AssignQuickSlot.performed += OnFillQuickSlots;
-
-        Debug.Log("[GameInventoryInput] 입력 이벤트 구독 완료");
     }
 
     private void UnsubscribeInputActions()
@@ -73,63 +61,27 @@ public class GameInventoryInput : MonoBehaviour
         if (inputActions == null) return;
 
         var gameInventoryMap = inputActions.GameInventory;
-
         gameInventoryMap.ToggleInventory.performed -= OnToggleInventory;
         gameInventoryMap.AssignQuickSlot.performed -= OnFillQuickSlots;
     }
     #endregion
 
     #region Input Callbacks
-    /// <summary>
-    /// I키 입력 - 인벤토리 열기/닫기
-    /// </summary>
     private void OnToggleInventory(InputAction.CallbackContext context)
     {
         ToggleInventory();
     }
 
-    /// <summary>
-    /// O키 입력 - 퀵슬롯 자동 채우기
-    /// </summary>
     private void OnFillQuickSlots(InputAction.CallbackContext context)
     {
-        quickSlot.AutoFillQuickSlots();
+        quickSlot?.AutoFillQuickSlots();
     }
     #endregion
 
     #region 인벤토리 제어
     public void ToggleInventory()
     {
-        if (gameInventory == null) return;
-
-        isInventoryOpen = !isInventoryOpen;
-
-        if (isInventoryOpen)
-        {
-            gameInventory.OpenInventory();
-        }
-        else
-        {
-            gameInventory.CloseInventory();
-
-        }
-
-        //HandleCursorState(isInventoryOpen);
-        Debug.Log($"[인벤토리] {(isInventoryOpen ? "열림" : "닫힘")}");
-    }
-
-    private void HandleCursorState(bool show)
-    {
-        Cursor.visible = show;
-        Cursor.lockState = show ? CursorLockMode.None : CursorLockMode.Locked;
-    }
-    #endregion
-
-    #region 디버그 명령어
-    [ContextMenu("Debug/Toggle Inventory")]
-    public void CMD_ToggleInventory()
-    {
-        ToggleInventory();
+        gameInventory?.OpenInventory();
     }
     #endregion
 }

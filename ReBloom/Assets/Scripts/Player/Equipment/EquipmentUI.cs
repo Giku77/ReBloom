@@ -3,6 +3,11 @@ using UnityEngine;
 
 public class EquipmentUI : MonoBehaviour
 {
+    public enum PlatformTarget { Both, PCOnly, MobileOnly }
+
+    [Header("Platform Target")]
+    [SerializeField] private PlatformTarget targetPlatform = PlatformTarget.Both;
+
     [Header("Equipment Manager")]
     [SerializeField] private PlayerEquipManager equipManager;
     [SerializeField] private PlayerEquipData equipData;
@@ -24,13 +29,33 @@ public class EquipmentUI : MonoBehaviour
     private EquipmentSlotUI clothSlotUI;
     private EquipmentSlotUI shoesSlotUI;
     private EquipmentSlotUI toolSlotUI;
+
+    private bool IsActiveForCurrentPlatform()
+    {
+        if (PlatformManager.Instance == null) return true;
+
+        return targetPlatform switch
+        {
+            PlatformTarget.PCOnly => PlatformManager.Instance.IsPC,
+            PlatformTarget.MobileOnly => PlatformManager.Instance.IsMobile,
+            PlatformTarget.Both => true,
+            _ => true
+        };
+    }
     private void Awake()
     {
+        if (!IsActiveForCurrentPlatform())
+        {
+            enabled = false;
+            return;
+        }
+
         ValidateReferences();
         InitializeSlotUIs();
     }
     private void Start()
     {
+        if (!IsActiveForCurrentPlatform()) return;
         RefreshAllSlots();
     }
     private void ValidateReferences()

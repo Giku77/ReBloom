@@ -14,6 +14,7 @@ using UnityEngine.UI;
 public class GameInventoryUI : UIBase
 {
     public enum PlatformTarget { Both, PCOnly, MobileOnly }
+    public PlatformTarget TargetPlatform => targetPlatform;
 
     [Header("Platform Target")]
     [SerializeField] private PlatformTarget targetPlatform = PlatformTarget.Both;
@@ -86,9 +87,9 @@ public class GameInventoryUI : UIBase
         };
     }
 
-    private GameObject ActiveUIRoot => PlatformManager.Instance.IsMobile? mobileUIRoot: pcUIRoot;
+    private GameObject ActiveUIRoot => PlatformManager.Instance.IsMobile ? mobileUIRoot : pcUIRoot;
 
-    private Transform ActiveContentContainer => PlatformManager.Instance.IsMobile? mobileContentContainer: pcContentContainer;
+    private Transform ActiveContentContainer => PlatformManager.Instance.IsMobile ? mobileContentContainer : pcContentContainer;
     #endregion
 
     #region Unity 생명주기
@@ -218,14 +219,29 @@ public class GameInventoryUI : UIBase
     {
         Debug.Log($"[GameInventoryUI] OnShow 호출됨 - {gameObject.name}");
 
-        if (pcUIRoot != null)
-            pcUIRoot.SetActive(PlatformManager.Instance.IsPC);
+        // 현재 플랫폼에 맞는 루트만 활성화
+        bool isMobile = PlatformManager.Instance != null && PlatformManager.Instance.IsMobile;
 
-        if (mobileUIRoot != null)
-            mobileUIRoot.SetActive(PlatformManager.Instance.IsMobile);
+        if (targetPlatform == PlatformTarget.MobileOnly)
+        {
+            // 모바일 전용 UI
+            pcUIRoot?.SetActive(false);
+            mobileUIRoot?.SetActive(true);
+        }
+        else if (targetPlatform == PlatformTarget.PCOnly)
+        {
+            // PC 전용 UI
+            pcUIRoot?.SetActive(true);
+            mobileUIRoot?.SetActive(false);
+        }
+        else
+        {
+            // Both인 경우 플랫폼에 따라
+            pcUIRoot?.SetActive(!isMobile);
+            mobileUIRoot?.SetActive(isMobile);
+        }
 
         ClearAllSlots();
-
         RefreshUI();
         SoundManager.I?.PlayOpenInventory();
     }
@@ -398,30 +414,12 @@ public class GameInventoryUI : UIBase
     /// </summary>
     public void RefreshUI()
     {
-        Debug.Log($"[GameInventoryUI] RefreshUI 시작 - {gameObject.name}");
-        Debug.Log($"[GameInventoryUI] IsActiveForCurrentPlatform: {IsActiveForCurrentPlatform()}");
-        Debug.Log($"[GameInventoryUI] activeInHierarchy: {gameObject.activeInHierarchy}");
+        if (!gameObject.activeInHierarchy) return;
 
-        if (!IsActiveForCurrentPlatform())
-        {
-            Debug.Log($"[GameInventoryUI] 플랫폼 체크 실패로 스킵");
-            return;
-        }
-
-        if (!gameObject.activeInHierarchy)
-        {
-            Debug.Log($"[GameInventoryUI] 비활성화 상태라 스킵");
-            return;
-        }
-
-        Debug.Log($"[GameInventoryUI] CreateEmptySlots 호출 전");
         CreateEmptySlots();
-        Debug.Log($"[GameInventoryUI] CreateEmptySlots 완료 - emptySlotList.Count: {emptySlotList.Count}");
-
         ClearSlots();
 
         var slots = inventoryData.GetAllSlots();
-        Debug.Log($"[GameInventoryUI] inventoryData 슬롯 개수: {slots.Length}");
 
         for (int i = 0; i < slots.Length; i++)
         {
@@ -435,7 +433,8 @@ public class GameInventoryUI : UIBase
             }
         }
 
-        Debug.Log($"[GameInventoryUI] RefreshUI 완료 - activeSlots.Count: {activeSlots.Count}");
+        questUI?.Refresh();
+        QuestManager.I?.PlayQuestCompleteAnimation();
     }
 
     private void ClearSlots()
@@ -531,7 +530,7 @@ public class GameInventoryUI : UIBase
         if (zone == null) { return; }
 
         // trashbinzone인 경우에만 패널 표시
-        if(zone != null)
+        if (zone != null)
         {
             bool shouldShowTrash = zone.ZoneType == DropZoneType.TrashBin;
             //Debug.Log($"[GameInventroyUI] {removeGradientGameObject}");

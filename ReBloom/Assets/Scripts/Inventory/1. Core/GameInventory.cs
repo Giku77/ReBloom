@@ -404,7 +404,8 @@ public class GameInventory : MonoBehaviour, IGameInventory
         return allTransferred;
     }
     #region UI 제어
-    public void OpenInventory() {
+    public void OpenInventory()
+    {
         UIType targetType = PlatformManager.Instance != null && PlatformManager.Instance.IsMobile
             ? UIType.MobileInventory
             : UIType.Inventory;
@@ -412,7 +413,15 @@ public class GameInventory : MonoBehaviour, IGameInventory
         UIManager.Instance?.ToggleUI(targetType);
         TutorialEventBus.RaiseAction((int)TutorialActionId.OpenInventory);
     }
-    public void CloseInventory() => inventoryUI.ToggleInventory();
 
+    // CloseInventory는 닫기 버튼 전용
+    public void CloseInventory()
+    {
+        UIType targetType = PlatformManager.Instance != null && PlatformManager.Instance.IsMobile
+            ? UIType.MobileInventory
+            : UIType.Inventory;
+
+        UIManager.Instance?.HideUI(targetType);
+    }
     #endregion
 }
