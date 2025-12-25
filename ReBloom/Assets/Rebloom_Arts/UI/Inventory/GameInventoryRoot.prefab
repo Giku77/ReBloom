@@ -2882,6 +2882,7 @@ MonoBehaviour:
   quickSlot: {fileID: 0}
   playerController: {fileID: 0}
   playerEquipmanager: {fileID: 0}
+  robotPet: {fileID: 0}
   itemSpawner: {fileID: 0}
 --- !u!114 &6290932015584271717
 MonoBehaviour:
@@ -3816,6 +3817,9 @@ MonoBehaviour:
   root: {fileID: 2052372021066595349}
   cursorMode: 1
   locksCameraZoom: 1
+  autoAttachCloseButtonOnMobile: 1
+  closeButtonPrefab: {fileID: 0}
+  closeButtonParent: {fileID: 0}
   gameInventory: {fileID: 264829628547887743}
   inventoryData: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
   inventoryUIRoot: {fileID: 2052372021066595349}
@@ -16839,9 +16843,41 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -1.5600004
       objectReference: {fileID: 0}
+    - target: {fileID: 6489339419419355553, guid: 4aca40526780f124aa1111f533e35fe7, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489339419419355553, guid: 4aca40526780f124aa1111f533e35fe7, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489339419419355553, guid: 4aca40526780f124aa1111f533e35fe7, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6489339419419355553, guid: 4aca40526780f124aa1111f533e35fe7, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6700675236225767690, guid: 4aca40526780f124aa1111f533e35fe7, type: 3}
       propertyPath: m_SizeDelta.x
       value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 8369319941896742413, guid: 4aca40526780f124aa1111f533e35fe7, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8369319941896742413, guid: 4aca40526780f124aa1111f533e35fe7, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8369319941896742413, guid: 4aca40526780f124aa1111f533e35fe7, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8369319941896742413, guid: 4aca40526780f124aa1111f533e35fe7, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8965033952748348860, guid: 4aca40526780f124aa1111f533e35fe7, type: 3}
       propertyPath: m_SizeDelta.x
