@@ -10,6 +10,8 @@ public class MobileMainUI : UIBase
     [SerializeField] private PlayerController playerController;
     [SerializeField] private PlayerInteractable playerInteractable;
     [SerializeField] private ScanController scanController;
+    [SerializeField] private StageDetector stageDetector;
+    [SerializeField] private PlayerStats playerStats;
 
     [Header("Joystick")]
     [SerializeField] private FixedJoystick movementJoystick;
@@ -26,7 +28,121 @@ public class MobileMainUI : UIBase
     [SerializeField] private GameObject runImage;
     [SerializeField] private GameObject walkImage;
 
+    [Header("UI Elements")]
+    [SerializeField] private TextMeshProUGUI weatherText;
+    [SerializeField] private TextMeshProUGUI stageText;
+    [SerializeField] private TextMeshProUGUI temperatureText;
+    [SerializeField] private TextMeshProUGUI currentDayText;
+    [SerializeField] private TextMeshProUGUI currentTimeText;
+
+    [Header("Update Settings")]
+    [SerializeField] private float updateInterval = 0.5f;
+
+    private float updateTimer = 0f;
+
     private bool isSprinting = false;
+
+    private void Start()
+    {
+        if (playerStats == null)
+        {
+            playerStats = FindFirstObjectByType<PlayerStats>();
+        }
+
+        if (stageDetector == null && playerStats != null)
+        {
+            stageDetector = playerStats.GetComponent<StageDetector>();
+        }
+
+        UpdateWeatherUI();
+    }
+
+    private void UpdateWeatherUI()
+    {
+        if (playerStats == null) return;
+
+        if (weatherText != null)
+        {
+            string weather = GetCurrentWeather();
+            weatherText.text = weather;
+        }
+
+        if (stageText != null)
+        {
+            string location = GetCurrentLocation();
+            stageText.text = location;
+        }
+
+        if (currentDayText != null)
+        {
+            string day = GetCurrentDay();
+            currentDayText.text = day;
+        }
+
+        if (currentTimeText != null)
+        {
+            string time = GetCurrentTime();
+            currentTimeText.text = time;
+        }
+
+        if (temperatureText != null)
+        {
+            string currentTemp = GetCurrentTemperature();
+            temperatureText.text = currentTemp;
+        }
+    }
+
+    private string GetCurrentWeather()
+    {
+        if (stageDetector == null || stageDetector.CurrentStage == null)
+            return "Sunny";
+
+        return stageDetector.CurrentStage.CurrentWeather.ToString();
+    }
+
+    private string GetCurrentLocation()
+    {
+        if (stageDetector == null || stageDetector.CurrentStage == null)
+            return "알 수 없음";
+
+        if (stageDetector.CurrentStage.Data != null)
+        {
+            return stageDetector.CurrentStage.Data.name;
+        }
+
+        return "알 수 없음";
+    }
+    private string GetCurrentDay()
+    {
+        if (DayNightCycle.Instance == null)
+            return "1일차";
+
+        return $"{DayNightCycle.Instance.CurrentDay}일차";
+    }
+
+    private string GetCurrentTime()
+    {
+        if (DayNightCycle.Instance == null)
+            return "00시 00분";
+
+        int hour = DayNightCycle.Instance.GetCurrentHour();
+        int minute = DayNightCycle.Instance.GetCurrentMinute();
+
+        return $"{hour:D2}시 {minute:D2}분";
+    }
+
+    private string GetCurrentTemperature()
+    {
+        if (stageDetector == null || stageDetector.CurrentStage == null)
+            return "36.5°C";
+
+        if (stageDetector.CurrentStage.Data != null)
+        {
+            return $"{stageDetector.GetCurrentTemperatureMultiplier():F1}°C";
+        }
+
+        return "36.5°C";
+    }
 
     protected override void OnShow()
     {
@@ -78,6 +194,14 @@ public class MobileMainUI : UIBase
         Vector2 input = new Vector2(movementJoystick.Horizontal, movementJoystick.Vertical);
 
         playerController.SetMobileInput(input, isSprinting);
+
+        updateTimer += Time.deltaTime;
+
+        if (updateTimer >= updateInterval)
+        {
+            updateTimer = 0f;
+            UpdateWeatherUI();
+        }
     }
 
     private void OnSprintToggle()
