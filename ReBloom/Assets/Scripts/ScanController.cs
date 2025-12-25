@@ -104,8 +104,6 @@ public class ScanController : MonoBehaviour
         Debug.Log($"[ScanController] 내 InstanceID: {GetInstanceID()}");
         Debug.Log($"[ScanController] TriggerScan 호출됨. IsOnCooldown: {IsOnCooldown}");
 
-        Debug.Log($"[ScanController] TriggerScan 호출됨. IsOnCooldown: {IsOnCooldown}");
-
         if (IsOnCooldown)
         {
             Debug.Log("[ScanController] 쿨타임 중이라 스킵");

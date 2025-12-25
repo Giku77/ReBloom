@@ -67,7 +67,8 @@ public enum UIType
     Storage,
     MobileMain,
     FarmUpgrade,
-    SeedPurifier
+    SeedPurifier,
+    MobileInventory
 }
 
 public enum UILayer
@@ -76,5 +77,4 @@ public enum UILayer
     Modal,
     Overlay,
     MobileHUD,
-    MobileModal,
 }

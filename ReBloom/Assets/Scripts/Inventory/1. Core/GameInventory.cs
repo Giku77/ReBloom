@@ -405,7 +405,11 @@ public class GameInventory : MonoBehaviour, IGameInventory
     }
     #region UI 제어
     public void OpenInventory() {
-        inventoryUI.ToggleInventory();
+        UIType targetType = PlatformManager.Instance != null && PlatformManager.Instance.IsMobile
+            ? UIType.MobileInventory
+            : UIType.Inventory;
+
+        UIManager.Instance?.ToggleUI(targetType);
         TutorialEventBus.RaiseAction((int)TutorialActionId.OpenInventory);
     }
     public void CloseInventory() => inventoryUI.ToggleInventory();
