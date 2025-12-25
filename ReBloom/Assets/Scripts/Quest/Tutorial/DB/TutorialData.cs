@@ -1,4 +1,4 @@
-public enum TutorialTextType 
+﻿public enum TutorialTextType 
 {
     Dialogue = 1,   // 일반 대화창
     DialogueAndImg = 2      // 일반 대화창과 캐릭터 이미지
@@ -25,6 +25,7 @@ public class TutorialStringData
 {
     public int TutorialStringID;
     public string TextKR;
+    public int VarcoID;
     // 나중에 EN, JP 추가해도 됨
 }
 

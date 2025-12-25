@@ -733,6 +733,11 @@ public class PlayerController : MonoBehaviour
         transform.position = spawnPoint.position;
 
         playerStats.GetResurrection();
+
+        if (robotPet != null)
+        {
+            robotPet.PlayPoppyVoice(80051);  // "아프지마.."
+        }
         isDead = false;
     }
 

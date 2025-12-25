@@ -63,6 +63,8 @@ public class TutorialManager : MonoBehaviour
         {
             isRunning = false;
 
+            VoiceManager.I?.Stop();
+
             //유니티 플레이 후 비활성화 되는 문제로 인하여 If문 추가
             if (this != null && gameObject.scene.isLoaded)
             {
@@ -117,6 +119,16 @@ public class TutorialManager : MonoBehaviour
             //    showCharacterImg,
             //    waitForNextInput,
             //    showNextHint);
+
+            VoiceManager.I?.Stop();
+
+            if (tutorialDb.TryGetString(node.TutorialTextID, out var tutorialString))
+            {
+                if (tutorialString.VarcoID > 0)
+                {
+                    VoiceManager.I?.PlayVoice(tutorialString.VarcoID);
+                }
+            }
 
             if (showNextHint)
             {

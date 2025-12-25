@@ -16,7 +16,8 @@ public class CutSceneDB
                 CutSceneID     = e.Get<int>("CutSceneID"),
                 ImageName      = e.Get<string>("CutSceneImageName"),
                 NextCutSceneID = e.Get<int>("NextCutSceneID"),
-                TextKR         = e.Get<string>("CutSceneTextKR")
+                TextKR         = e.Get<string>("CutSceneTextKR"),
+                VarcoID        = e.Get<int>("VarcoID")
             };
 
             _cutScenes[d.CutSceneID] = d;

@@ -408,7 +408,6 @@ public class ThirdPersonCamera : MonoBehaviour
             Touch currentTouch = cameraTouch.Value;
             bool touchFound = false;
 
-            // activeTouches에서 같은 finger를 찾아서 최신 정보로 업데이트
             foreach (Touch touch in Touch.activeTouches)
             {
                 if (touch.finger.index == currentTouch.finger.index)
@@ -419,20 +418,17 @@ public class ThirdPersonCamera : MonoBehaviour
                 }
             }
 
-            // 터치가 끝났거나 사라졌으면 리셋
             if (!touchFound ||
                 currentTouch.phase == TouchPhase.Ended ||
                 currentTouch.phase == TouchPhase.Canceled)
             {
                 cameraTouch = null;
-                Debug.Log("[Camera] 터치 종료");
             }
             else
             {
                 // UI 영역으로 이동했는지 체크
                 if (IsTouchOverUI(currentTouch))
                 {
-                    Debug.Log("[Camera] UI 영역으로 이동 - 카메라 회전 중단");
                 }
                 else if (currentTouch.phase == TouchPhase.Moved)
                 {
@@ -450,18 +446,12 @@ public class ThirdPersonCamera : MonoBehaviour
         // 새로운 카메라 터치 찾기
         foreach (Touch touch in Touch.activeTouches)
         {
-            Debug.Log($"[Camera] 터치 검사 - Finger: {touch.finger.index}, Phase: {touch.phase}, Pos: {touch.screenPosition}");
-
-            // UI가 아닌 터치를 찾으면 카메라 터치로 등록
             if (!IsTouchOverUI(touch))
             {
                 cameraTouch = touch;
-                Debug.Log($"[Camera] ✅ 카메라 터치 등록! Finger: {touch.finger.index}");
                 return;
             }
         }
-
-        Debug.Log("[Camera] 카메라 터치를 찾지 못함 (모두 UI)");
     }
 
     private bool IsTouchOverUI(Touch touch)
@@ -492,7 +482,6 @@ public class ThirdPersonCamera : MonoBehaviour
                 }
 
                 // 실제 UI 발견
-                Debug.Log($"[Camera] Finger {touch.finger.index} UI 감지: {objName}");
                 hasRealUI = true;
                 break;
             }
@@ -506,7 +495,6 @@ public class ThirdPersonCamera : MonoBehaviour
         // 조이스틱 영역 직접 체크
         if (joystickArea != null && IsPointInRectTransform(joystickArea, touchPos))
         {
-            Debug.Log($"[Camera] 조이스틱 영역");
             return true;
         }
 
@@ -517,7 +505,6 @@ public class ThirdPersonCamera : MonoBehaviour
             {
                 if (uiArea != null && IsPointInRectTransform(uiArea, touchPos))
                 {
-                    Debug.Log($"[Camera] UI 영역: {uiArea.name}");
                     return true;
                 }
             }

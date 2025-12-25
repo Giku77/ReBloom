@@ -103,6 +103,9 @@ public class CutSceneManager : MonoBehaviour
                         if (dialogueUI != null)
                             dialogueUI.HideInstant();
 
+                        VoiceManager.I?.Stop();
+
+
                         if (cutSceneGroup != null)
                             await FadeCanvasGroupAsync(cutSceneGroup, 0f, fadeDuration, token);
                     }
@@ -120,6 +123,12 @@ public class CutSceneManager : MonoBehaviour
                 currentImgName = data.ImageName;
 
                 await UniTask.Delay(TimeSpan.FromSeconds(0.2f), cancellationToken: token);
+
+                Debug.Log($"[CutScene] VarcoID로 음성 재생 시도: {data.VarcoID}");
+                if (data.VarcoID > 0)
+                {
+                    VoiceManager.I?.PlayVoice(data.VarcoID);
+                }
 
                 if (dialogueUI != null)
                     await dialogueUI.ShowLineAsync(data.TextKR, cancellationToken: token);
@@ -140,6 +149,7 @@ public class CutSceneManager : MonoBehaviour
         }
         finally
         {
+            VoiceManager.I?.Stop();
 
             if (cutSceneImage != null)
                 cutSceneImage.gameObject.SetActive(false);

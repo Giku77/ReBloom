@@ -1,4 +1,4 @@
-using BansheeGz.BGDatabase;
+﻿using BansheeGz.BGDatabase;
 using System.Collections.Generic;
 
 public class TutorialDB
@@ -33,7 +33,8 @@ public class TutorialDB
             var s = new TutorialStringData
             {
                 TutorialStringID = e.Get<int>("TutorialStringID"),
-                TextKR           = e.Get<string>("TutorialStringKR")
+                TextKR           = e.Get<string>("TutorialStringKR"),
+                VarcoID          = e.Get<int>("VarcoID")
             };
 
             _strings[s.TutorialStringID] = s;
