@@ -1,7 +1,8 @@
 ﻿public enum TutorialTextType 
 {
     Dialogue = 1,   // 일반 대화창
-    DialogueAndImg = 2      // 일반 대화창과 캐릭터 이미지
+    DialogueAndImg = 2,   // 일반 대화창과 캐릭터 이미지
+    DialogueAndPoppiImg = 3 // 대화창과 포피 이미지
 }
 
 public enum TutorialActionId

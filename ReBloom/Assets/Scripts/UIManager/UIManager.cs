@@ -176,6 +176,7 @@ public class UIManager : MonoBehaviour
             PushToEscStack(type);
             UpdateInputLock();
         }
+        UpdateInputLock();
     }
 
     public void CloseAllUIs()
