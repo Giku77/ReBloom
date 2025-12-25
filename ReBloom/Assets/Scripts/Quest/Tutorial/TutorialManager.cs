@@ -112,6 +112,7 @@ public class TutorialManager : MonoBehaviour
 
             bool showCharacterImg = node.TextType == TutorialTextType.DialogueAndImg;
             bool waitForNextInput = node.Condition == TutorialConditionType.NextImmediately;
+            bool showPoppiImage = node.TextType == TutorialTextType.DialogueAndPoppiImg;
             bool showNextHint = waitForNextInput;
 
             //await dialogueUI.ShowLineAsync(
@@ -137,6 +138,7 @@ public class TutorialManager : MonoBehaviour
                 await dialogueUI.ShowLineAsync(
                     text,
                     showCharacterImg,
+                    showPoppiImage,
                     waitForNextInput,
                     showNextHint,
                     cancellationToken: token);

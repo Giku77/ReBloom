@@ -281,10 +281,14 @@ public class InventoryRobotPet : MonoBehaviour
             rb.linearVelocity = Vector3.Lerp(rb.linearVelocity, Vector3.zero, Time.fixedDeltaTime * 3f);
         }
 
-        Vector3 p = rb.position;
-        p.y = Mathf.Lerp(p.y, targetPosition.y, Time.fixedDeltaTime * 5f);
-        rb.position = p;
-        transform.position = p;
+        // Vector3 p = rb.position;
+        // p.y = Mathf.Lerp(p.y, targetPosition.y, Time.fixedDeltaTime * 5f);
+        Vector3 newPos = rb.position + (rb.linearVelocity * Time.fixedDeltaTime);
+
+        newPos.y = Mathf.Lerp(rb.position.y, targetPosition.y, Time.fixedDeltaTime * 5f);
+
+        rb.MovePosition(newPos);
+
 
         UpdateFlashlightPose();
     }

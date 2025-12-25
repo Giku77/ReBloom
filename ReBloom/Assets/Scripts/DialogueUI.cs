@@ -9,6 +9,7 @@ public class DialogueUI : UIBase
 {
     [SerializeField] private TextMeshProUGUI messageText;
     [SerializeField] private Image characterImage;
+    [SerializeField] private Image poppiImage;
     [SerializeField] private Image backgroundImage;
     [SerializeField] private float typeSpeed = 40f; // 글자/초
 
@@ -99,6 +100,16 @@ public class DialogueUI : UIBase
         // }
     }
 
+    private string GetNextHintTag()
+    {
+    #if UNITY_ANDROID || UNITY_IOS
+        return " <color=#FFA500>[터치]</color>";
+    #else
+        return " <color=#FFA500>[ENTER]</color>";
+    #endif
+    }
+
+
     public void HideInstant()
     {
         if (messageText != null)
@@ -106,6 +117,9 @@ public class DialogueUI : UIBase
 
         if (characterImage != null)
             characterImage.gameObject.SetActive(false);
+
+        if (poppiImage != null)
+            poppiImage.gameObject.SetActive(false);
 
         if (canvasGroup != null)
             canvasGroup.alpha = 0f;
@@ -116,6 +130,7 @@ public class DialogueUI : UIBase
     public async UniTask ShowLineAsync(
         string localizedText,
         bool showCharacterImage = false,
+        bool showPoppiImage = false,
         bool waitForNextInput = true,
         bool showNextHint = true,
         Color textColor = new Color(),
@@ -142,6 +157,9 @@ public class DialogueUI : UIBase
 
         if (characterImage != null)
             characterImage.gameObject.SetActive(showCharacterImage);
+
+        if (poppiImage != null)
+            poppiImage.gameObject.SetActive(showPoppiImage);
 
         var destroyToken = this.GetCancellationTokenOnDestroy();
         CancellationToken token = cancellationToken.CanBeCanceled
@@ -177,8 +195,7 @@ public class DialogueUI : UIBase
 
         if (showNextHint)
         {
-            messageText.text = localizedText +
-                            " <color=#FFA500>[ENTER]</color>";
+            messageText.text = localizedText + GetNextHintTag();
         }
 
         nextRequested = false;
