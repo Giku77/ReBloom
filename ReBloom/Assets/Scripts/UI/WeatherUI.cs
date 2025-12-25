@@ -113,6 +113,7 @@ public class WeatherUI : UIBase
         
         return $"{hour:D2}시 {minute:D2}분";
     }
+
     private string GetCurrentWeather()
     {
         if (stageDetector == null || stageDetector.CurrentStage == null)
