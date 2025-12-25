@@ -14,6 +14,8 @@ public class DroneChaseState : NPCState
     {
         chaseStart = Time.time;
         controller.agent.isStopped = false;
+
+        EnemyChaseTracker.I?.OnEnemyStartChase();
     }
 
     public override void Update()
@@ -46,5 +48,9 @@ public class DroneChaseState : NPCState
         {
             controller.ChangeState(new DroneReturnState(controller));
         }
+    }
+    public override void Exit()
+    {
+        EnemyChaseTracker.I?.OnEnemyStopChase();
     }
 }

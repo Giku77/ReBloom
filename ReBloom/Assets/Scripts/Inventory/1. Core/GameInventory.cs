@@ -20,7 +20,7 @@ public class GameInventory : MonoBehaviour, IGameInventory
     [Header("Player")]
     [SerializeField] private PlayerController playerController;
     [SerializeField] private PlayerEquipManager playerEquipmanager;
-
+    [SerializeField] private InventoryRobotPet robotPet;
 
     [Header("Manager")]
     [SerializeField] private ItemSpawner itemSpawner;
@@ -143,6 +143,8 @@ public class GameInventory : MonoBehaviour, IGameInventory
 
         if (overflow > 0)
         {
+            robotPet?.PlayPoppyVoice(80052);
+
             if (added > 0 || drop)
             {
                 dropService?.DropItem(itemID, overflow);

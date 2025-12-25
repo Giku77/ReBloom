@@ -54,6 +54,11 @@ public class InventoryRobotPet : MonoBehaviour
     [SerializeField] private Rob11ColorManager colorManager;
     [SerializeField] private Animator animator;
 
+    [Header("Voice")]
+    [SerializeField] private AudioSource poppyVoiceSource;
+    [SerializeField] private int teleportVoiceChance = 10;
+    private int teleportCount = 0;
+
     public bool IsNearPlayer { get; private set; }
     public void TelePortTo()
     {
@@ -107,6 +112,16 @@ public class InventoryRobotPet : MonoBehaviour
             flashlight.range = lightRange;
             flashlight.intensity = lightIntensity;
             flashlight.spotAngle = lightSpotAngle;
+        }
+
+        if (poppyVoiceSource == null)
+        {
+            poppyVoiceSource = gameObject.AddComponent<AudioSource>();
+            poppyVoiceSource.playOnAwake = false;
+            poppyVoiceSource.spatialBlend = 1f;
+            poppyVoiceSource.minDistance = 3f;
+            poppyVoiceSource.maxDistance = 15f;
+            poppyVoiceSource.rolloffMode = AudioRolloffMode.Linear;
         }
     }
 
@@ -293,6 +308,13 @@ public class InventoryRobotPet : MonoBehaviour
         if (playFx)
             teleportFx?.PlayEffect();
 
+        teleportCount++;
+        if (teleportCount >= teleportVoiceChance)
+        {
+            PlayPoppyVoice(80050);
+            teleportCount = 0;
+        }
+
         stuckTime = 0f;
         lastDistToProxy = 999f;
 
@@ -440,5 +462,19 @@ public class InventoryRobotPet : MonoBehaviour
         Vector3 dir = (player.position + Vector3.up * 1.0f) - src.position;
         if (dir.sqrMagnitude > 0.001f)
             flashlight.transform.rotation = Quaternion.LookRotation(dir.normalized);
+    }
+
+    public void PlayPoppyVoice(int varcoId)
+    {
+        if (poppyVoiceSource == null)
+            return;
+
+        // VoiceManager에서 AudioClip 가져오기
+        var clip = VoiceManager.I?.GetAudioClip(varcoId);
+        if (clip != null)
+        {
+            poppyVoiceSource.clip = clip;
+            poppyVoiceSource.Play();
+        }
     }
 }

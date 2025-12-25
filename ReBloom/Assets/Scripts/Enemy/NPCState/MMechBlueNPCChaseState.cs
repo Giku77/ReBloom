@@ -16,6 +16,8 @@ public class MMechBlueNPCChaseState : NPCState
         Debug.Log("적대 NPC 플레이어 추적 시작");
         controller.agent.isStopped = false;
         controller.agent.SetDestination(controller.player.position);
+
+        EnemyChaseTracker.I?.OnEnemyStartChase();
     }
 
     public override void Update()
@@ -49,5 +51,8 @@ public class MMechBlueNPCChaseState : NPCState
             return;
         }
     }
-
+    public override void Exit()
+    {
+        EnemyChaseTracker.I?.OnEnemyStopChase();
+    }
 }

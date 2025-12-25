@@ -21,6 +21,8 @@ public class MechNPCChaseState : NPCState
         controller.agent.SetDestination(controller.lastHeardPosition);
 
         stateEnterTime = Time.time;
+
+        EnemyChaseTracker.I?.OnEnemyStartChase();
     }
 
     public override void Update()
@@ -45,6 +47,11 @@ public class MechNPCChaseState : NPCState
                 controller.ChangeState(new MechNPCReturnState(controller));
             }
         }
+    }
+
+    public override void Exit()
+    {
+        EnemyChaseTracker.I?.OnEnemyStopChase();
     }
 
     public override void HandleFootstep(Vector3 footPos, float loudness)
