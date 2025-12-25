@@ -95,7 +95,7 @@ public class UIInput : MonoBehaviour
                 skipHoldTime = 0f;
                 skipTriggered = false;
 
-                if (skipHoldUI != null) skipHoldUI.SetActive(true);
+                //if (skipHoldUI != null) skipHoldUI.SetActive(true);
                 if (skipHoldFill != null) skipHoldFill.fillAmount = 0f;
             }
         }
@@ -138,7 +138,7 @@ public class UIInput : MonoBehaviour
         skipHoldTime = 0f;
         skipTriggered = false;
 
-        if (skipHoldUI != null) skipHoldUI.SetActive(true);
+        //if (skipHoldUI != null) skipHoldUI.SetActive(true);
         if (skipHoldFill != null) skipHoldFill.fillAmount = 0f;
     }
 

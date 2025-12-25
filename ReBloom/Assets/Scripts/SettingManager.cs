@@ -117,7 +117,7 @@ public class SettingManager : MonoBehaviour
 
     public void SetGraphicsQuality(int level)
     {
-        //0 = Default, 1 = Low, 2 = Medium, 3 = High, 4 = Ultra
+        //0 = Default, 1 = Mobile, 2 = Low, 3 = Medium, 4 = High, 5 = Ultra
         GraphicsQuality = Mathf.Clamp(level, 0, QualitySettings.names.Length - 1);
         QualitySettings.SetQualityLevel(GraphicsQuality);
         OnGraphicsQualityChanged?.Invoke(GraphicsQuality);

@@ -440,34 +440,24 @@ public class BuildPlacementController : MonoBehaviour
         var mouse = Mouse.current;
         var keyboard = Keyboard.current;
 
-        if (mouse == null) return; 
+        // PC일 때만 마우스 입력을 받게 하고 싶으면:
+        bool isMobile = PlatformManager.Instance != null
+            ? PlatformManager.Instance.IsMobile
+            : Application.isMobilePlatform;
 
-        if (mouse.leftButton.wasPressedThisFrame)
+        if (!isMobile)
         {
-            if (lastCanBuild)
-            {
-                Vector3 spawnPos = pos;
-
-                if (Physics.Raycast(pos + Vector3.up * 5f, Vector3.down, out var hit, 20f, groundMask))
-                {
-                    spawnPos = hit.point;
-                }
-                bool built = BuildManager.I.TryBuild(currentArc.arcId, spawnPos, rot);
-                if (built)
-                    CancelPlacement();
-            }
-            else
-            {
-                ToastMessageUI.Instance?.Show($"설치 불가: {lastError}");
-            }
+            if (mouse != null && mouse.leftButton.wasPressedThisFrame)
+                TryConfirmBuild();
         }
 
-        if (mouse.rightButton.wasPressedThisFrame ||
+        if ((mouse != null && mouse.rightButton.wasPressedThisFrame) ||
             (keyboard != null && keyboard.escapeKey.wasPressedThisFrame))
         {
-            CancelPlacement();
+            TryCancelBuild();
         }
     }
+
 
     public void SetEditMode(bool editMode)
     {
@@ -477,4 +467,33 @@ public class BuildPlacementController : MonoBehaviour
             ExitEditMode();
         }
     }
+
+    public void TryConfirmBuild()
+    {
+        if (!isPlacing || currentArc == null || previewInstance == null)
+            return;
+
+        if (!lastCanBuild)
+        {
+            ToastMessageUI.Instance?.Show($"설치 불가: {lastError}");
+            return;
+        }
+
+        Vector3 spawnPos = lastValidPos;
+        Quaternion spawnRot = lastRot;
+
+        if (Physics.Raycast(lastValidPos + Vector3.up * 5f, Vector3.down, out var hit, 20f, groundMask))
+            spawnPos = hit.point;
+
+        bool built = BuildManager.I.TryBuild(currentArc.arcId, spawnPos, spawnRot);
+        if (built)
+            CancelPlacement();
+    }
+
+    public void TryCancelBuild()
+    {
+        if (!isPlacing) return;
+        CancelPlacement();
+    }
+
 }
