@@ -85,6 +85,14 @@ public class VoiceManager : MonoBehaviour
         }
     }
 
+    public AudioClip GetAudioClip(int varcoId)
+    {
+        if (audioClipReferences.TryGetValue(varcoId, out AudioClip clip))
+            return clip;
+
+        return null;
+    }
+
 #if UNITY_EDITOR
     [ContextMenu("Auto Load Audio Clips")]
     public void AutoLoadAudioClips()
@@ -139,14 +147,6 @@ public class VoiceManager : MonoBehaviour
 
         UnityEditor.EditorUtility.SetDirty(this);
         Debug.Log($"[DialogueVoice] 자동 로드 완료: {foundCount}개 발견, {missingCount}개 누락");
-    }
-
-    public AudioClip GetAudioClip(int varcoId)
-    {
-        if (audioClipReferences.TryGetValue(varcoId, out AudioClip clip))
-            return clip;
-
-        return null;
     }
 #endif
 }

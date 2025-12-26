@@ -55,6 +55,7 @@ public class PlatformManager : MonoBehaviour
         if (IsMobile)
         {
             SettingManager.I.SetGraphicsQuality(1);
+            SettingManager.I.SetTargetFrameRate(30);
         }
         else if (IsPC)
         {

@@ -51,6 +51,10 @@ public class SettingManager : MonoBehaviour
         IsFullScreen = true;
         IsVSyncEnabled = QualitySettings.vSyncCount > 0;
         SetGraphicsQuality(GraphicsQuality);
+        if (PlatformManager.Instance != null && PlatformManager.Instance.IsMobile)
+        {
+            TargetFrameRate = 30;
+        }
         SetTargetFrameRate(TargetFrameRate);
         //GraphicsQuality = QualitySettings.GetQualityLevel();
         //int currentFPS = Application.targetFrameRate;
