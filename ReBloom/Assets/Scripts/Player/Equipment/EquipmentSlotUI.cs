@@ -65,6 +65,8 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerClickHandler, IDragSource,
 
     public void UpdateSlotInfo(ItemBase itemData)
     {
+        //Debug.Log($"[EquipmentSlotUI] UpdateSlotInfo 호출됨. itemData: {(itemData != null ? itemData.itemName : "NULL")}");
+
         if (itemData == null)
         {
             Debug.Log("[EquipmentSlotUI] 아이템데이터가 없습니다.");
@@ -106,6 +108,8 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerClickHandler, IDragSource,
     /// </summary>
     public void ClearSlot()
     {
+        this.itemData = null;
+
         slotIcon.gameObject.SetActive(false);
 
         if (itemName != null)

@@ -34,6 +34,25 @@ public class PlayerEquipManager : MonoBehaviour
 
     private void Start()
     {
+        if (equipmentUI == null || !equipmentUI.gameObject.activeInHierarchy)
+        {
+            var allEquipUIs = FindObjectsByType<EquipmentUI>(FindObjectsSortMode.None);
+            foreach (var ui in allEquipUIs)
+            {
+                if (ui.gameObject.activeInHierarchy && ui.enabled)
+                {
+                    equipmentUI = ui;
+                    Debug.Log($"[PlayerEquipManager] 활성화된 EquipmentUI 찾음: {ui.name}");
+                    break;
+                }
+            }
+
+            if (equipmentUI == null)
+            {
+                Debug.LogWarning("[PlayerEquipManager] 활성화된 EquipmentUI를 찾을 수 없습니다!");
+            }
+        }
+
         if (equipInventory != null)
         {
             equipInventory.SetActive(false);
@@ -53,6 +72,25 @@ public class PlayerEquipManager : MonoBehaviour
             Apply(shoes);
             Debug.Log($"[PlayerEquipManager] 기본 신발 장착: {shoes.itemName}");
         }
+        //if (equipInventory != null)
+        //{
+        //    equipInventory.SetActive(false);
+        //}
+
+        //ItemBase defaultCloth = ItemDatabase.I.GetItem(4301001);
+        //ItemBase defaultShoes = ItemDatabase.I.GetItem(4302001);
+
+        //if (defaultCloth is ProtectiveItemData cloth)
+        //{
+        //    Apply(cloth);
+        //    Debug.Log($"[PlayerEquipManager] 기본 옷 장착: {cloth.itemName}");
+        //}
+
+        //if (defaultShoes is ProtectiveItemData shoes)
+        //{
+        //    Apply(shoes);
+        //    Debug.Log($"[PlayerEquipManager] 기본 신발 장착: {shoes.itemName}");
+        //}
     }
 
     //private void Update()
@@ -63,6 +101,29 @@ public class PlayerEquipManager : MonoBehaviour
     //        HandleCursorState(equipInventory.activeSelf);
     //    }
     //}
+
+    private void RefreshEquipmentUI()
+    {
+        // 현재 참조가 없거나 비활성화면 다시 찾기
+        if (equipmentUI == null || !equipmentUI.gameObject.activeInHierarchy || !equipmentUI.enabled)
+        {
+            var allEquipUIs = FindObjectsByType<EquipmentUI>(FindObjectsSortMode.None);
+            foreach (var ui in allEquipUIs)
+            {
+                if (ui.gameObject.activeInHierarchy && ui.enabled)
+                {
+                    equipmentUI = ui;
+                    break;
+                }
+            }
+        }
+
+        if (equipmentUI != null)
+        {
+            equipmentUI.RefreshAllSlots();
+            equipmentUI.UpdateResistText();
+        }
+    }
 
     public void Apply(ProtectiveItemData item)
     {
@@ -97,8 +158,9 @@ public class PlayerEquipManager : MonoBehaviour
 
         if (equipmentUI != null)
         {
-            equipmentUI.RefreshAllSlots();
-            equipmentUI.UpdateResistText();
+            RefreshEquipmentUI();
+            //equipmentUI.RefreshAllSlots();
+            //equipmentUI.UpdateResistText();
             Debug.Log("[EquipManager] UI 갱신 호출");
         }
         else
@@ -136,8 +198,9 @@ public class PlayerEquipManager : MonoBehaviour
 
         if (equipmentUI != null)
         {
-            equipmentUI.RefreshAllSlots();
-            equipmentUI.UpdateResistText();
+            RefreshEquipmentUI();
+            //equipmentUI.RefreshAllSlots();
+            //equipmentUI.UpdateResistText();
             Debug.Log("[EquipManager] UI 갱신 호출");
         }
         else
@@ -212,8 +275,9 @@ public class PlayerEquipManager : MonoBehaviour
         // UI 갱신
         if (equipmentUI != null)
         {
-            equipmentUI.RefreshAllSlots();
-            equipmentUI.UpdateResistText();
+            RefreshEquipmentUI();
+            //equipmentUI.RefreshAllSlots();
+            //equipmentUI.UpdateResistText();
         }
 
         return success;
@@ -277,8 +341,9 @@ public class PlayerEquipManager : MonoBehaviour
 
         if (equipmentUI != null)
         {
-            equipmentUI.RefreshAllSlots();
-            equipmentUI.UpdateResistText();
+            RefreshEquipmentUI();
+            //equipmentUI.RefreshAllSlots();
+            //equipmentUI.UpdateResistText();
         }
     }
 
@@ -438,8 +503,9 @@ public class PlayerEquipManager : MonoBehaviour
         // UI 갱신
         if (equipmentUI != null)
         {
-            equipmentUI.RefreshAllSlots();
-            equipmentUI.UpdateResistText();
+            RefreshEquipmentUI();
+            //equipmentUI.RefreshAllSlots();
+            //equipmentUI.UpdateResistText();
         }
 
         OnToolTypeChange?.Invoke(0);
