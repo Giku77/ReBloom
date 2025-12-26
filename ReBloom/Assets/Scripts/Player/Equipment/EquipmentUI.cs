@@ -52,11 +52,11 @@ public class EquipmentUI : MonoBehaviour
 
         ValidateReferences();
         InitializeSlotUIs();
+        if (!IsActiveForCurrentPlatform()) return;
+        RefreshAllSlots();
     }
     private void Start()
     {
-        if (!IsActiveForCurrentPlatform()) return;
-        RefreshAllSlots();
     }
     private void ValidateReferences()
     {
