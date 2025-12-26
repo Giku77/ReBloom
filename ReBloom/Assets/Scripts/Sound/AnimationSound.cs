@@ -41,8 +41,6 @@ public class AnimationSound : MonoBehaviour
         float t = Mathf.Clamp01(speed / 10f);
         float volumeScale = Mathf.Lerp(0.1f, 0.4f, t* t);
 
-        Debug.Log($"[FootStep] Speed: {speed}, VolumeScale: {volumeScale}");
-
         SoundManager.I?.PlayFootStep(volumeScale, isIndoor);
     }
 
