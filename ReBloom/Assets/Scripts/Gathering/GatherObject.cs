@@ -126,8 +126,9 @@ public class GatherObject : MonoBehaviour, IInteractable
             if (highlight != null)
             {
                 highlight.isPermanent = false;
-                highlight.Hide();
+               // highlight.Hide();
                 highlight.promptFormat = gatherNotAvailableText;
+                highlight.ShowPrompt();
             }
         }
     }

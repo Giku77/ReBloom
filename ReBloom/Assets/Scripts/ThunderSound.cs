@@ -16,6 +16,8 @@ public class ThunderSound : MonoBehaviour
     [SerializeField] private float minInterval = 3f;
     [SerializeField] private float maxInterval = 10f;
 
+
+
     private CancellationTokenSource cts;
 
     private void Awake()

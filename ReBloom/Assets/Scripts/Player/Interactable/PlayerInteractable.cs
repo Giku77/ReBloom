@@ -41,7 +41,7 @@ public class PlayerInteractable : MonoBehaviour
     {
         if (context.started)
             StartInteract().Forget();
-        else if (context.canceled)
+        else if (context.canceled && player.isInteracting)
             CancelInteract();
     }
 
@@ -58,10 +58,7 @@ public class PlayerInteractable : MonoBehaviour
         cts = null;
     }
 
-    private bool TryGetInteractable(
-        out IInteractable interactable,
-        out InteractionHighlight highlight,
-        out Collider hitCollider)
+    private bool TryGetInteractable(out IInteractable interactable, out InteractionHighlight highlight, out Collider hitCollider)
     {
         interactable = null;
         highlight = null;
@@ -142,6 +139,7 @@ public class PlayerInteractable : MonoBehaviour
     {
         if (currentHighlight == null)
             return;
+
 
         currentHighlight.HidePrompt();
 
@@ -248,7 +246,7 @@ public class PlayerInteractable : MonoBehaviour
             anim.SetGathering(false);
             player.isInteracting = false;
             //SoundManager.I?.StopGather();
-            CancelInteract();
+            //CancelInteract();
         }
     }
 
