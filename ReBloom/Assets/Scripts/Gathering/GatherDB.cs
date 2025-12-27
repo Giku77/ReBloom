@@ -38,6 +38,7 @@ public class GatherDB
         data.item2Probability = entity.Get<float>("Item2Probability");
         data.item2MinAmount = entity.Get<int>("Item2MinAmount");
         data.item2MaxAmount = entity.Get<int>("Item2MaxAmount");
+        data.nightMultiple = entity.Get<int>("NightMultiple");
 
         return data;
     }

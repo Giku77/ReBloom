@@ -37,6 +37,48 @@ public class PlayerInteractable : MonoBehaviour
         PlayerEquipManager.OnToolTypeChange -= ToolTypeChange;
     }
 
+    private void Update()
+    {
+        if (player.WasJumping || player.JumpRequested)
+        {
+            CancelInteract();
+            ClearHighlight();
+            return;
+        }
+
+        if (!TryGetInteractable(out IInteractable interactable, out InteractionHighlight newHighlight, out _))
+        {
+            CancelInteract();
+            ClearHighlight();
+            return;
+        }
+
+        if (currentHighlight == newHighlight)
+        {
+            if (player.isInteracting)
+                return;
+
+            if (interactable is GatherObject gather)
+            {
+                currentHighlight.ShowPrompt(gather.GetCurrentPromptText());
+            }
+            return;
+        }
+
+        ClearHighlight();
+        currentHighlight = newHighlight;
+
+        if (currentHighlight != null)
+        {
+            // 프롬프트만 표시 (불빛 X)
+            currentHighlight.ShowPrompt();
+
+            // 외곽선만 켜기
+            if (currentHighlight.TryGetComponent<OutlineToggle>(out var outline))
+                outline.SetOutlined(true);
+        }
+    }
+
     public void OnInteract(InputAction.CallbackContext context)
     {
         if (context.started)
@@ -102,39 +144,6 @@ public class PlayerInteractable : MonoBehaviour
         return interactable != null;
     }
 
-    private void Update()
-    {
-        if (player.WasJumping || player.JumpRequested)
-        {
-            CancelInteract();
-            ClearHighlight();
-            return;
-        }
-
-        if (!TryGetInteractable(out _, out InteractionHighlight newHighlight, out _))
-        {
-            CancelInteract();
-            ClearHighlight();
-            return;
-        }
-
-        if (currentHighlight == newHighlight)
-            return;
-
-        ClearHighlight();
-        currentHighlight = newHighlight;
-
-        if (currentHighlight != null)
-        {
-            // 프롬프트만 표시 (불빛 X)
-            currentHighlight.ShowPrompt();
-
-            // 외곽선만 켜기
-            if (currentHighlight.TryGetComponent<OutlineToggle>(out var outline))
-                outline.SetOutlined(true);
-        }
-    }
-
     private void ClearHighlight()
     {
         if (currentHighlight == null)
@@ -159,17 +168,21 @@ public class PlayerInteractable : MonoBehaviour
         if (player.WasJumping || player.JumpRequested)
             return;
 
+        if (!TryGetInteractable(out IInteractable interactable, out hilight, out _))
+            return;
+
+        if (!interactable.CanInteract())
+        {
+            ToastMessageUI.Instance?.Show("아직 재생성 중입니다.");
+
+            return;
+        }
+
         CancelInteract();
         cts = new CancellationTokenSource();
 
         try
         {
-            if (!TryGetInteractable(out IInteractable interactable, out hilight, out _))
-                return;
-
-            if (!interactable.CanInteract())
-                return;
-
             float holdTime = interactable.HoldTime;
 
             // 월드 아이템 (즉시 습득)

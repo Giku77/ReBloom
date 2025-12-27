@@ -7,7 +7,9 @@ public class SettingUI : UIBase
     protected override void OnShow()
     {
         Time.timeScale = 0f;
+
         UIManager.Instance.SetPaused(true);
+
         SoundManager.I?.PlayOpenInventory();
 
         view.OnBackRequested += HandleBack;

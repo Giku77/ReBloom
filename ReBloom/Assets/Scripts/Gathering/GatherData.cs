@@ -11,5 +11,5 @@ public class GatherData
     public float item2Probability;
     public int item2MinAmount;
     public int item2MaxAmount;
-
+    public int nightMultiple;
 }

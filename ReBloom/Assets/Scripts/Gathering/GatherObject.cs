@@ -14,6 +14,7 @@ public class GatherObject : MonoBehaviour, IInteractable
     private GameInventory inventoryItemData;
     private InteractionHighlight highlight;
     private PlayerEquipManager playerEquipManager;
+    private DayNightCycle dayNightCycle;
 
     private int objectNameID;
     private string gatherName;
@@ -202,5 +203,17 @@ public class GatherObject : MonoBehaviour, IInteractable
         }
 
         Debug.Log("[GatherObject] 튜토리얼 오브젝트들 파괴하였습니다.");
+    }
+
+    public string GetCurrentPromptText()
+    {
+        if (isAvailable)
+        {
+            return gatherAvailableText;
+        }
+        else
+        {
+            return gatherNotAvailableText;
+        }
     }
 }

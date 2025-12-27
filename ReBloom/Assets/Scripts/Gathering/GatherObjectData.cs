@@ -10,6 +10,7 @@ public class GatherObjectData
     public int handSearchType;
     public int shovelSearchType;
     public int hammerSearchType;
+    public int nightOnly;
 }
 
 public class ObjectStringData

@@ -173,6 +173,8 @@ public class UIManager : MonoBehaviour
 
         if (ui.BlocksGameplayInput)
         {
+            Debug.Log($"[UIManager] escStack에 추가: {type}");
+
             PushToEscStack(type);
             UpdateInputLock();
         }
@@ -218,6 +220,8 @@ public class UIManager : MonoBehaviour
 
     public void OnEscPressed()
     {
+        Debug.Log($"[UIManager] ESC 눌림, escStack.Count: {escStack.Count}");
+
         if (escStack.Count > 0)
         {
             var top = escStack.Pop();

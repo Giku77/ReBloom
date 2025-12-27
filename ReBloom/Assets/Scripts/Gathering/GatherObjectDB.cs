@@ -59,6 +59,7 @@ public class GatherObjectDB
         data.handSearchType = entity.Get<int>("HandSearchType");
         data.shovelSearchType = entity.Get<int>("ShovelSearchType");
         data.handSearchType = entity.Get<int>("HammerSearchType");
+        data.nightOnly = entity.Get<int>("NightOnly");
 
         return data;
     }
