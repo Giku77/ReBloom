@@ -392,7 +392,7 @@ public class PlayerController : MonoBehaviour
             if (!isReallyGrounded && !hasGroundBelow)
             {
                 isGround = false;
-                Debug.Log("[벽 착지 방지] 벽에 걸림");
+                //Debug.Log("[벽 착지 방지] 벽에 걸림");
             }
             else if (hasGroundBelow)
             {
@@ -401,7 +401,7 @@ public class PlayerController : MonoBehaviour
                 if (angle > 55f)
                 {
                     isGround = false;
-                    Debug.Log($"[벽 착지 방지] 가파른 경사 {angle:F1}도");
+                    //Debug.Log($"[벽 착지 방지] 가파른 경사 {angle:F1}도");
                 }
             }
         }
@@ -413,7 +413,7 @@ public class PlayerController : MonoBehaviour
 
         if (wasJumping && isGround)
         {
-            Debug.Log("착지! Jump = false");
+            //Debug.Log("착지! Jump = false");
             if (Anim != null)
             {
                 Anim.SetSlow(false);
@@ -650,7 +650,7 @@ public class PlayerController : MonoBehaviour
         velocity.y = jumpForce;
         rb.linearVelocity = velocity;
 
-        Debug.Log("점프 실행! Jump = true");
+        //Debug.Log("점프 실행! Jump = true");
         Anim.SetJumping(true);
         SoundManager.I?.StopBreathingHeavy();
         SoundManager.I?.PlayJump();

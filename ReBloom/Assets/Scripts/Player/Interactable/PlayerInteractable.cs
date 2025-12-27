@@ -149,7 +149,6 @@ public class PlayerInteractable : MonoBehaviour
         if (currentHighlight == null)
             return;
 
-
         currentHighlight.HidePrompt();
 
         if (currentHighlight.TryGetComponent<OutlineToggle>(out var outline))
@@ -173,8 +172,18 @@ public class PlayerInteractable : MonoBehaviour
 
         if (!interactable.CanInteract())
         {
-            ToastMessageUI.Instance?.Show("아직 재생성 중입니다.");
-
+            if (interactable is GatherObject gather)
+            {
+                string msg = gather.GetCannotInteractMessage();
+                if (!string.IsNullOrEmpty(msg))
+                {
+                    ToastMessageUI.Instance?.Show(msg);
+                }
+            }
+            else
+            {
+                ToastMessageUI.Instance?.Show("아직 재생성 중입니다.");
+            }
             return;
         }
 

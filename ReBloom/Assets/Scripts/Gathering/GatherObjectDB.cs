@@ -30,7 +30,7 @@ public class GatherObjectDB
         {
             var data = ParseDebuff(entity);
             dataById[data.id] = data;
-            Debug.Log($"[GatherObjectDB] ID {data.id} 로드됨");
+            //Debug.Log($"[GatherObjectDB] ID {data.id} 로드됨");
         }
         foreach (var entity in meatString.EntitiesToList())
         {
@@ -58,7 +58,7 @@ public class GatherObjectDB
         data.gatherId = entity.Get<int>("GatherID");
         data.handSearchType = entity.Get<int>("HandSearchType");
         data.shovelSearchType = entity.Get<int>("ShovelSearchType");
-        data.handSearchType = entity.Get<int>("HammerSearchType");
+        data.hammerSearchType = entity.Get<int>("HammerSearchType");
         data.nightOnly = entity.Get<int>("NightOnly");
 
         return data;

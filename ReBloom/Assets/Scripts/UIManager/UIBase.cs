@@ -42,25 +42,13 @@ public abstract class UIBase : MonoBehaviour, IGameUI
 
     public virtual void Show()
     {
-        Debug.Log($"[UIBase] Show 시작 - {Type}, IsOpen: {IsOpen}");
-
         if (IsOpen) return;
 
         IsOpen = true;
-        Debug.Log($"[UIBase] IsOpen = true 설정 - {Type}");
-        Debug.Log($"[UIBase] IsOpen 확인 (SetActive 전): {IsOpen}");
-
         root.SetActive(true);
-
-        Debug.Log($"[UIBase] IsOpen 확인 (SetActive 후): {IsOpen}");  // ← 추가!
-
         TryAttachCloseButton_MobileOnly();
 
-        Debug.Log($"[UIBase] IsOpen 확인 (OnShow 호출 전): {IsOpen}");  // ← 추가!
-
         OnShow();
-
-        Debug.Log($"[UIBase] Show 끝 - {Type}, IsOpen: {IsOpen}");
     }
 
     public virtual void Hide()

@@ -152,8 +152,6 @@ public class InteractionHighlight : MonoBehaviour
     /// <summary>프롬프트만 숨기기</summary>
     public void HidePrompt()
     {
-        Debug.Log($"[InteractionHighlight] HidePrompt 호출됨: {gameObject.name}, StackTrace: {System.Environment.StackTrace}");
-
         if (holdPromptUI != null)
             holdPromptUI.Hide();
 
