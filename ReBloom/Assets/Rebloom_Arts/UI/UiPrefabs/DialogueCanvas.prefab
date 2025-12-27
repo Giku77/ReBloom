@@ -297,6 +297,7 @@ GameObject:
   - component: {fileID: 8366023380383808408}
   - component: {fileID: 7413288946430140931}
   - component: {fileID: 6439406186898231815}
+  - component: {fileID: 6059739787048071985}
   m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
@@ -422,6 +423,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &6059739787048071985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2834850151668663128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4e4dd93bf0a02b489a9a8a0a7369340, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mobileMultiplier: 1.5
 --- !u!1 &3104105905667736041
 GameObject:
   m_ObjectHideFlags: 0
@@ -670,6 +684,9 @@ MonoBehaviour:
   root: {fileID: 4517910534388884847}
   cursorMode: 1
   locksCameraZoom: 1
+  autoAttachCloseButtonOnMobile: 1
+  closeButtonPrefab: {fileID: 0}
+  closeButtonParent: {fileID: 0}
   messageText: {fileID: 6439406186898231815}
   characterImage: {fileID: 3244378739849720669}
   poppiImage: {fileID: 8551890932758658484}
