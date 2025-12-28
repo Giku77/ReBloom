@@ -338,7 +338,7 @@ public class GatherObject : MonoBehaviour, IInteractable
         bool hammerOk = gatherObjectData.hammerSearchType > 0;
 
         if (shovelOk && hammerOk)
-            return "삽 또는 망치가 필요합니다.";
+            return "도구가 필요합니다.";
         else if (shovelOk)
             return "삽이 필요합니다.";
         else if (hammerOk)
