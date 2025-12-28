@@ -315,7 +315,7 @@ public class InventoryRobotPet : MonoBehaviour
         teleportCount++;
         if (teleportCount >= teleportVoiceChance)
         {
-            PlayPoppyVoice(80050);
+            PlayPoppyVoiceBySituation(4);
             teleportCount = 0;
         }
 
@@ -479,6 +479,17 @@ public class InventoryRobotPet : MonoBehaviour
         {
             poppyVoiceSource.clip = clip;
             poppyVoiceSource.Play();
+        }
+    }
+
+    public void PlayPoppyVoiceBySituation(int situation)
+    {
+        if (VoiceManager.I == null) return;
+
+        int varcoId = VoiceManager.I.GetRandomVarcoIdBySituation(situation);
+        if (varcoId > 0)
+        {
+            PlayPoppyVoice(varcoId);
         }
     }
 }

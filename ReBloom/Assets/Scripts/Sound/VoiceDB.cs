@@ -13,6 +13,7 @@ public class VoiceData
 public class VoiceDB
 {
     private readonly Dictionary<int, VoiceData> _voices = new();
+    private readonly Dictionary<int, List<int>> _voicesBySituation = new();
 
     public void LoadFromBG()
     {
@@ -22,6 +23,9 @@ public class VoiceDB
             UnityEngine.Debug.LogError("[VoiceDB] Voice 테이블을 찾을 수 없습니다.");
             return;
         }
+
+        _voices.Clear();
+        _voicesBySituation.Clear();
 
         foreach (var e in meta.EntitiesToList())
         {
@@ -34,6 +38,11 @@ public class VoiceDB
                 VarcoVoiceFile = e.Get<string>("VarcoVoiceFile")
             };
             _voices[d.VarcoID] = d;
+
+            if (!_voicesBySituation.ContainsKey(d.Situation))
+                _voicesBySituation[d.Situation] = new List<int>();
+
+            _voicesBySituation[d.Situation].Add(d.VarcoID);
         }
 
         UnityEngine.Debug.Log($"[VoiceDB] {_voices.Count}개 음성 데이터 로드됨");
@@ -44,4 +53,16 @@ public class VoiceDB
 
     public IReadOnlyDictionary<int, VoiceData> GetAll()
         => _voices;
+
+    public int GetRandomVarcoIdBySituation(int situation)
+    {
+        if (!_voicesBySituation.TryGetValue(situation, out var list) || list.Count == 0)
+        {
+            UnityEngine.Debug.LogWarning($"[VoiceDB] Situation {situation}에 해당하는 음성이 없습니다.");
+            return 0;
+        }
+
+        int randomIndex = UnityEngine.Random.Range(0, list.Count);
+        return list[randomIndex];
+    }
 }

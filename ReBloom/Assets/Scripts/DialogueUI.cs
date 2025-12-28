@@ -128,6 +128,7 @@ public class DialogueUI : UIBase
 
     public async UniTask ShowLineAsync(
         string localizedText,
+        int varcoId = 0,
         bool showCharacterImage = false,
         bool showPoppiImage = false,
         bool waitForNextInput = true,
@@ -167,12 +168,18 @@ public class DialogueUI : UIBase
 
         nextRequested = false;
 
+        bool useTextBlip = (varcoId == 0);
+
         foreach (char ch in localizedText)
         {
             token.ThrowIfCancellationRequested();
 
             messageText.text += ch;
-            //SoundManager.I?.PlayTextBlip();
+
+            if (useTextBlip)
+            {
+                SoundManager.I?.PlayTextBlip();
+            }
 
             if (nextRequested)
                 break;

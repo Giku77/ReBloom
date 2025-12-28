@@ -13,6 +13,11 @@ public class SettingView : MonoBehaviour
     [SerializeField] private Slider bgmSlider;
     [SerializeField] private Slider sfxSlider;
 
+    [Header("뽀삐 목소리 설정")]
+    [SerializeField] private Button poppyVoiceLeftButton;
+    [SerializeField] private Button poppyVoiceRightButton;
+    [SerializeField] private TextMeshProUGUI poppyVoiceNameText;
+
     [Header("그래픽 설정")]
     [SerializeField] private TMP_Dropdown resolutionDropdown;
     [SerializeField] private Toggle fullscreenToggle;
@@ -34,6 +39,10 @@ public class SettingView : MonoBehaviour
     [SerializeField] private GameObject graphicSettingPanel;
     [SerializeField] private GameObject controlSettingPanel;
 
+    private readonly string[] poppyVoiceNames = { "리나", "티모" };
+    private int currentPoppyVoiceIndex = 0;
+    private readonly int[] poppySampleVoiceIds = { 80050, 80051, 80065, 80066, 80067 };
+
     private Resolution[] resolutions;
     private bool isInitialized = false;
 
@@ -43,6 +52,9 @@ public class SettingView : MonoBehaviour
         graphicSettingButton.onClick.AddListener(() => ShowPanel(graphicSettingPanel));
         controlSettingButton.onClick.AddListener(() => ShowPanel(controlSettingPanel));
         backButton.onClick.AddListener(() => OnBackRequested?.Invoke());
+
+        poppyVoiceLeftButton.onClick.AddListener(OnPoppyVoiceLeftClicked);
+        poppyVoiceRightButton.onClick.AddListener(OnPoppyVoiceRightClicked);
     }
 
     public void Show()
@@ -81,6 +93,9 @@ public class SettingView : MonoBehaviour
         vsyncToggle.SetIsOnWithoutNotify(SettingManager.I.IsVSyncEnabled);
         graphicsQualityDropdown.SetValueWithoutNotify(SettingManager.I.GraphicsQuality);
         frameRateDropdown.SetValueWithoutNotify(GetFrameRateDropdownIndex(SettingManager.I.TargetFrameRate));
+
+        currentPoppyVoiceIndex = SettingManager.I.GetPoppyVoiceType() - 1;
+        UpdatePoppyVoiceUI();
     }
 
     private void AddListeners()
@@ -113,6 +128,63 @@ public class SettingView : MonoBehaviour
         frameRateDropdown.onValueChanged.RemoveAllListeners();
 
         mouseSensitivitySlider.onValueChanged.RemoveAllListeners();
+    }
+
+    private void OnPoppyVoiceLeftClicked()
+    {
+        currentPoppyVoiceIndex--;
+        if (currentPoppyVoiceIndex < 0)
+            currentPoppyVoiceIndex = poppyVoiceNames.Length - 1;
+
+        UpdatePoppyVoice();
+    }
+
+    private void OnPoppyVoiceRightClicked()
+    {
+        currentPoppyVoiceIndex++;
+        if (currentPoppyVoiceIndex >= poppyVoiceNames.Length)
+            currentPoppyVoiceIndex = 0;
+
+        UpdatePoppyVoice();
+    }
+
+    private void UpdatePoppyVoice()
+    {
+        int voiceType = currentPoppyVoiceIndex + 1; // 0-based -> 1-based
+
+        // SettingManager에 저장
+        SettingManager.I.SetPoppyVoiceType(voiceType);
+
+        // VoiceManager에 적용
+        if (VoiceManager.I != null)
+        {
+            VoiceManager.I.SetPoppyVoiceType(voiceType);
+        }
+
+        // UI 업데이트
+        UpdatePoppyVoiceUI();
+
+        // 샘플 음성 재생 (랜덤)
+        PlayRandomPoppySample();
+    }
+
+    private void UpdatePoppyVoiceUI()
+    {
+        if (poppyVoiceNameText != null)
+        {
+            poppyVoiceNameText.text = poppyVoiceNames[currentPoppyVoiceIndex];
+        }
+    }
+
+    private void PlayRandomPoppySample()
+    {
+        if (VoiceManager.I == null || poppySampleVoiceIds.Length == 0)
+            return;
+
+        int randomIndex = UnityEngine.Random.Range(0, poppySampleVoiceIds.Length);
+        int sampleVoiceId = poppySampleVoiceIds[randomIndex];
+
+        VoiceManager.I.PlayVoice(sampleVoiceId);
     }
 
     private void InitResolutionDropdown()

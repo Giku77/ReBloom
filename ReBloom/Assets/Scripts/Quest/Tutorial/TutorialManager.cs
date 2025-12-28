@@ -123,8 +123,11 @@ public class TutorialManager : MonoBehaviour
 
             VoiceManager.I?.Stop();
 
+            int varcoId = 0;
             if (tutorialDb.TryGetString(node.TutorialTextID, out var tutorialString))
             {
+                varcoId = tutorialString.VarcoID;
+
                 if (tutorialString.VarcoID > 0)
                 {
                     VoiceManager.I?.PlayVoice(tutorialString.VarcoID);
@@ -137,6 +140,7 @@ public class TutorialManager : MonoBehaviour
 
                 await dialogueUI.ShowLineAsync(
                     text,
+                    varcoId,
                     showCharacterImg,
                     showPoppiImage,
                     waitForNextInput,

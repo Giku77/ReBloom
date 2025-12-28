@@ -28,7 +28,7 @@ public class EnemyChaseTracker : MonoBehaviour
 
         if (chasingEnemyCount == 1 && !hasPlayedWarning)
         {
-            robotPet?.PlayPoppyVoice(80053);
+            robotPet?.PlayPoppyVoiceBySituation(7);
             hasPlayedWarning = true;
             Debug.Log("[EnemyChase] 뽀삐 경고 음성 재생");
         }
