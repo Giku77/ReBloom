@@ -9,7 +9,16 @@ public class PlayerEquipManager : MonoBehaviour
     [SerializeField] private GameObject equipInventory;
     [SerializeField] private EquipmentUI equipmentUI;
     [SerializeField] private EquipmentUI mobileequipmentUI;
-    private EquipmentUI currentEquipmentUI => PlatformManager.Instance.IsMobile ? mobileequipmentUI : equipmentUI;
+    private EquipmentUI currentEquipmentUI
+    {
+        get
+        {
+            if (PlatformManager.Instance != null && PlatformManager.Instance.IsMobile)
+                return mobileequipmentUI;
+            else
+                return equipmentUI;
+        }
+    }
 
     private PlayerEquipData player;
     private ToolEquipManager toolEquipManager;
