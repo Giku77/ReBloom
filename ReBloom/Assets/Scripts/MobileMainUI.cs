@@ -13,6 +13,7 @@ public class MobileMainUI : UIBase
     [SerializeField] private GameInventoryInput gameInventoryInput;
     [SerializeField] private StageDetector stageDetector;
     [SerializeField] private PlayerStats playerStats;
+    [SerializeField] private Slider exploreCooldownSlider;
 
     [Header("Joystick")]
     [SerializeField] private FixedJoystick movementJoystick;
@@ -57,7 +58,19 @@ public class MobileMainUI : UIBase
             stageDetector = playerStats.GetComponent<StageDetector>();
         }
 
+        if (exploreCooldownSlider == null && exploreButton != null)
+            exploreCooldownSlider = exploreButton.GetComponentInChildren<Slider>(true);
+
+        if (exploreCooldownSlider != null)
+        {
+            exploreCooldownSlider.minValue = 0f;
+            exploreCooldownSlider.maxValue = 1f;
+            exploreCooldownSlider.value = 0f;
+        }
+
         UpdateWeatherUI();
+
+
     }
 
     private void UpdateWeatherUI()
@@ -205,6 +218,12 @@ public class MobileMainUI : UIBase
         Vector2 input = new Vector2(movementJoystick.Horizontal, movementJoystick.Vertical);
 
         playerController.SetMobileInput(input, isSprinting);
+
+        if (scanController != null && exploreCooldownSlider != null)
+        {
+            exploreCooldownSlider.value = scanController.Cooldown01;
+            exploreButton.interactable = !scanController.IsOnCooldown;
+        }
 
         updateTimer += Time.deltaTime;
 

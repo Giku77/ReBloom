@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class StatUI : MonoBehaviour
+public class StatUI : UIBase
 { 
     [Header("References")]
     [SerializeField] private DebuffManager debuffManager;

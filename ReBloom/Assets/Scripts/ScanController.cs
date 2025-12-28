@@ -1,6 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -20,6 +21,27 @@ public class ScanController : MonoBehaviour
     [SerializeField] private float ringSpeed = 10f;
     [SerializeField] private float highlightDuration = 2f;
     [SerializeField] private float cooldown = 3f;
+
+    public float Cooldown => cooldown;
+
+    public float RemainingCooldown
+    {
+        get
+        {
+            return Mathf.Max(0f, (lastScanTime + cooldown) - Time.time);
+        }
+    }
+
+    public float Cooldown01
+    {
+        get
+        {
+            if (cooldown <= 0f) return 0f;
+            return RemainingCooldown / cooldown;
+        }
+    }
+
+    public bool IsOnCooldown => RemainingCooldown > 0f;
 
     private float lastScanTime = -999f;
     private CancellationToken destroyToken;
@@ -49,7 +71,11 @@ public class ScanController : MonoBehaviour
     public void TriggerScan()
     {
         if (Time.time < lastScanTime + cooldown)
+        {
+            float remain = Mathf.Max(0f, (lastScanTime + cooldown) - Time.time);
+            ToastMessageUI.Instance.Show($"스캔이 쿨타임중입니다. : {remain:F1}초");
             return;
+        }
 
         lastScanTime = Time.time;
 
