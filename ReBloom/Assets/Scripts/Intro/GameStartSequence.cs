@@ -1,5 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Audio;
 
 public class GameStartSequence : MonoBehaviour
 {
@@ -15,6 +16,10 @@ public class GameStartSequence : MonoBehaviour
     private float zoomDuration = 3f;
 
     private float initialDelay = 3f;
+
+    [Header("AudioMixer")]
+    [SerializeField] AudioMixer weatherAudio;
+    private float originalVolume;
 
     //[Header("디버그 모드")]
     //[SerializeField] private bool isDebug = false;
@@ -48,6 +53,8 @@ public class GameStartSequence : MonoBehaviour
             return;
         }
 
+        weatherAudio.GetFloat("WeatherVolume", out originalVolume);
+
         await PlaySequence();
     }
 
@@ -55,6 +62,8 @@ public class GameStartSequence : MonoBehaviour
     {
         playerController.Anim.PlaySleep();
         playerController.Anim.SetRootMotion(true);
+
+        weatherAudio.SetFloat("WeatherVolume", -80f);
 
         if (playerController != null)
         {
@@ -69,6 +78,8 @@ public class GameStartSequence : MonoBehaviour
         }
 
         if (cutSceneManager != null) await cutSceneManager.PlayCutSceneSequenceAsync(1301001);
+
+        weatherAudio.SetFloat("WeatherVolume", originalVolume);
 
         if (robotPet != null)
         {

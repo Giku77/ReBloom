@@ -308,7 +308,6 @@ public class SoundManager : MonoBehaviour
 
     public void PlayFootStep(float volumeScale, bool isIndoor)
     {
-        Debug.Log($"[SoundManager] PlayFootstep 호출! volumeScale: {volumeScale}");
         AudioClip clip = isIndoor ? footStepSoundIndoor : footStepSoundOutdoor;
         PlaySFX(clip, volumeScale);
     }

@@ -218,6 +218,8 @@ public class UIManager : MonoBehaviour
 
     public void OnEscPressed()
     {
+        Debug.Log($"[UIManager] ESC 눌림, escStack.Count: {escStack.Count}");
+
         if (escStack.Count > 0)
         {
             var top = escStack.Pop();

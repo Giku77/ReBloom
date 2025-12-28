@@ -7,7 +7,6 @@ public class DropResult
     public int amount;
 }
 
-
 public class GatherManager : MonoBehaviour
 {
     private GatherObjectDB gatherObjectDB;
@@ -34,38 +33,42 @@ public class GatherManager : MonoBehaviour
         }
     }
 
-    public DropResult GetDropResult(int gatherObjectId)
+    public DropResult GetDropResult(int gatherObjectId, bool isNight = false)
     {
-        Debug.Log($"[GatherManager] 요청된 ID: {gatherObjectId}, DB에 있는 키들: {string.Join(", ", gatherObjectDB.GetAll().Keys)}");
-
         if (!gatherObjectDB.TryGet(gatherObjectId, out GatherObjectData objectData))
         {
-            Debug.Log("[GatherManager] gatherObjectId 없음");
+            Debug.LogWarning($"[GatherManager] gatherObjectId 없음: {gatherObjectId}");
             return null;
         }
 
         if (!gatherDB.TryGet(objectData.gatherId, out GatherData data))
         {
-            Debug.Log("[GatherManager] gatherId 없음");
+            Debug.LogWarning($"[GatherManager] gatherId 없음: {objectData.gatherId}");
             return null;
         }
 
+        float nightMultiplier = (isNight && data.nightMultiple > 0) ? data.nightMultiple : 1f;
+
         if (Random.Range(0, 100) < data.item1Probability)
         {
-            int amount = Random.Range(data.item1MinAmount, data.item1MaxAmount + 1);
+            int baseAmount = Random.Range(data.item1MinAmount, data.item1MaxAmount + 1);
+            int finalAmount = Mathf.RoundToInt(baseAmount * nightMultiplier);
+
             return new DropResult
             {
                 item = ItemDatabase.I.GetItem(data.getItem1),
-                amount = amount
+                amount = finalAmount
             };
         }
         else if (data.getItem2 != 0 && Random.Range(0, 100) < data.item2Probability)
         {
-            int amount = Random.Range(data.item2MinAmount, data.item2MaxAmount + 1);
+            int baseAmount = Random.Range(data.item2MinAmount, data.item2MaxAmount + 1);
+            int finalAmount = Mathf.RoundToInt(baseAmount * nightMultiplier);
+
             return new DropResult
             {
                 item = ItemDatabase.I.GetItem(data.getItem2),
-                amount = amount
+                amount = finalAmount
             };
         }
 

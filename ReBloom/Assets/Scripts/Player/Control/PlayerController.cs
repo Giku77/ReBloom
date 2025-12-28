@@ -107,7 +107,7 @@ public class PlayerController : MonoBehaviour
     public PlayerAnimation Anim { get; private set; }
 
     private bool isAutoRun = false;
-    private bool isGround = false;
+    public bool isGround = false;
     private bool wasJumping = false;
     public bool WasJumping => wasJumping;
     public bool isInteracting = false;
@@ -377,23 +377,31 @@ public class PlayerController : MonoBehaviour
                 groundCheck.position,
                 Vector3.down,
                 out RaycastHit hit,
-                groundCheckRadius + 0.3f,  // 거리 조금 늘림
+                groundCheckRadius + 0.3f,
                 groundLayer
             );
 
-            if (!hasGroundBelow)
+            // ★ 여기 추가
+            bool isReallyGrounded = Physics.CheckSphere(
+                groundCheck.position,
+                groundCheckRadius * 0.5f,  // 반경을 절반으로
+                groundLayer
+            );
+
+            // ★ 조건 수정
+            if (!isReallyGrounded && !hasGroundBelow)
             {
                 isGround = false;
-                Debug.Log("[벽 착지 방지] 아래 지면 없음");
+                //Debug.Log("[벽 착지 방지] 벽에 걸림");
             }
-            else
+            else if (hasGroundBelow)
             {
                 float angle = Vector3.Angle(hit.normal, Vector3.up);
 
-                if (angle > 55f)  // 각도 조금 완화
+                if (angle > 55f)
                 {
                     isGround = false;
-                    Debug.Log($"[벽 착지 방지] 가파른 경사 {angle:F1}도");
+                    //Debug.Log($"[벽 착지 방지] 가파른 경사 {angle:F1}도");
                 }
             }
         }
@@ -405,7 +413,7 @@ public class PlayerController : MonoBehaviour
 
         if (wasJumping && isGround)
         {
-            Debug.Log("착지! Jump = false");
+            //Debug.Log("착지! Jump = false");
             if (Anim != null)
             {
                 Anim.SetSlow(false);
@@ -642,7 +650,7 @@ public class PlayerController : MonoBehaviour
         velocity.y = jumpForce;
         rb.linearVelocity = velocity;
 
-        Debug.Log("점프 실행! Jump = true");
+        //Debug.Log("점프 실행! Jump = true");
         Anim.SetJumping(true);
         SoundManager.I?.StopBreathingHeavy();
         SoundManager.I?.PlayJump();

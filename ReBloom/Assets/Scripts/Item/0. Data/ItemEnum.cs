@@ -89,6 +89,7 @@ public enum ToolUsageType
 /// </summary>
 public enum ToolCategory
 {
+    Hand = 0,
     Shovel = 1,     // 삽
     Hammer = 2,    // 망치
     WateringCan = 3,  //

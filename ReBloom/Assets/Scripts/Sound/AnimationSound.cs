@@ -3,11 +3,13 @@
 public class AnimationSound : MonoBehaviour
 {
     private PlayerAnimation anim;
+    private PlayerController player;
     private bool isIndoor = false;
 
     private void Awake()
     {
         anim = GetComponentInParent<PlayerAnimation>();
+        player = GetComponentInParent<PlayerController>();
     }
 
     private void OnEnable()
@@ -34,14 +36,14 @@ public class AnimationSound : MonoBehaviour
 
     public void PlayFootStep()
     {
+        if (player != null && (player.isInteracting || !player.isGround)) return;
+
         if (anim?.Animator == null) return;
 
         float speed = anim.Animator.GetFloat("Speed");
 
         float t = Mathf.Clamp01(speed / 10f);
         float volumeScale = Mathf.Lerp(0.1f, 0.4f, t* t);
-
-        Debug.Log($"[FootStep] Speed: {speed}, VolumeScale: {volumeScale}");
 
         SoundManager.I?.PlayFootStep(volumeScale, isIndoor);
     }

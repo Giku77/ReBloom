@@ -43,14 +43,12 @@ public abstract class UIBase : MonoBehaviour, IGameUI
     public virtual void Show()
     {
         if (IsOpen) return;
+
         IsOpen = true;
         root.SetActive(true);
-
         TryAttachCloseButton_MobileOnly();
 
         OnShow();
-
-        Debug.Log("[UIBase] UIBase SHOW 호출");
     }
 
     public virtual void Hide()
