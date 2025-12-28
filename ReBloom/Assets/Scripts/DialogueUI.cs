@@ -102,11 +102,10 @@ public class DialogueUI : UIBase
 
     private string GetNextHintTag()
     {
-    #if UNITY_ANDROID || UNITY_IOS
-        return " <color=#FFA500>[터치]</color>";
-    #else
-        return " <color=#FFA500>[ENTER]</color>";
-    #endif
+      if (PlatformManager.Instance != null && PlatformManager.Instance.IsMobile)
+            return " <color=#FFA500>[터치]</color>";
+      else
+            return " <color=#FFA500>[ENTER]</color>";
     }
 
 

@@ -12,6 +12,21 @@ public class QuickSlot : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private List<GameObject> slotsRef;
     [SerializeField] private List<GameObject> invtQuickslotRef;
+    [SerializeField] private List<GameObject> mobileinvtQuickslotRef;
+    private List<GameObject> activeInvtQuickslotRef
+    {
+        get
+        {
+            if (PlatformManager.Instance != null && PlatformManager.Instance.IsMobile)
+            {
+                return mobileinvtQuickslotRef;
+            }
+            else
+            {
+                return invtQuickslotRef;
+            }
+        }
+    }
     [SerializeField] private QuickSlotUI quickSlotUIPrefab;
 
     [Header("Data Reference")]
@@ -293,7 +308,7 @@ public class QuickSlot : MonoBehaviour
         }
 
         // 인벤토리 내 퀵슬롯 UI 생성 (동기화)
-        if (invtQuickslotRef != null && index < invtQuickslotRef.Count && invtQuickslotRef[index] != null)
+        if (activeInvtQuickslotRef != null && index < activeInvtQuickslotRef.Count && activeInvtQuickslotRef[index] != null)
         {
             if (invSlotUIs[index] != null)
             {
@@ -302,9 +317,9 @@ public class QuickSlot : MonoBehaviour
 
             QuickSlotUI invSlotUI = Instantiate(
                 quickSlotUIPrefab,
-                invtQuickslotRef[index].transform.position,
+                activeInvtQuickslotRef[index].transform.position,
                 Quaternion.identity,
-                invtQuickslotRef[index].transform
+                activeInvtQuickslotRef[index].transform
             );
 
             invSlotUI.OnUpdateSlotInfo(item, quantity);
@@ -502,10 +517,10 @@ public class QuickSlot : MonoBehaviour
     #region 초기 동기화
     /// <summary>
     /// 인벤토리 창이 열릴 때 호출하여 기존 퀵슬롯 상태를 동기화
-    /// </summary>
+    /// </summary>  
     public void SyncInventoryQuickSlots()
     {
-        if (invtQuickslotRef == null || invtQuickslotRef.Count == 0)
+        if (activeInvtQuickslotRef == null || activeInvtQuickslotRef.Count == 0)
         {
             Debug.LogWarning("[QuickSlot] invtQuickslotRef가 설정되지 않음");
             return;
@@ -513,18 +528,18 @@ public class QuickSlot : MonoBehaviour
 
         for (int i = 0; i < slotCount; i++)
         {
-            if (items[i] != null && i < invtQuickslotRef.Count)
+            if (items[i] != null && i < activeInvtQuickslotRef.Count)
             {
                 // 이미 UI가 있으면 업데이트만, 없으면 생성
                 if (invSlotUIs[i] == null)
                 {
                     int quantity = inventoryData.GetItemCount(items[i].itemID);
-
+                        
                     QuickSlotUI invSlotUI = Instantiate(
                         quickSlotUIPrefab,
-                        invtQuickslotRef[i].transform.position,
+                        activeInvtQuickslotRef[i].transform.position,
                         Quaternion.identity,
-                        invtQuickslotRef[i].transform
+                        activeInvtQuickslotRef[i].transform
                     );
 
                     invSlotUI.OnUpdateSlotInfo(items[i], quantity);
@@ -594,6 +609,18 @@ public class QuickSlot : MonoBehaviour
 
         dragHandler.SetItemData(item);
     }
+
+    public bool TryAssignFromInventory(int itemId)
+    {
+        var item = ItemDatabase.I.GetItem(itemId);
+        if (item == null) return false;
+
+        int qty = inventoryData != null ? inventoryData.GetItemCount(itemId) : 0;
+        if (qty <= 0) return false;
+
+        return TryAssign(item, qty);
+    }
+
 
     #region QuickSlot 사용
     public void OnQuickSlot1(InputAction.CallbackContext context)

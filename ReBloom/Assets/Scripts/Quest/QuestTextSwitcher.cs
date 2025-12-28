@@ -1,4 +1,4 @@
-using DG.Tweening;
+﻿using DG.Tweening;
 using TMPro;
 using UnityEngine;
 
@@ -6,7 +6,7 @@ public class QuestTextSwitcher : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private GameObject questText;      
-    [SerializeField] private GameObject completeText;   
+    [SerializeField] private GameObject completeText;
 
     [Header("Animation Settings")]
     [SerializeField] private float slideDistance = 400f;  
@@ -26,6 +26,14 @@ public class QuestTextSwitcher : MonoBehaviour
 
         completeRect.anchoredPosition = centerPos + Vector2.left * slideDistance;
         completeText.gameObject.SetActive(false);
+
+        if (PlatformManager.Instance != null && PlatformManager.Instance.IsMobile)
+        {
+            if (completeText != null)
+            {
+                completeText.GetComponentInChildren<TextMeshProUGUI>().text = completeText.GetComponentInChildren<TextMeshProUGUI>().text.Replace("[Tab]", "[터치]");
+            }
+        }
     }
 
     /// <summary>

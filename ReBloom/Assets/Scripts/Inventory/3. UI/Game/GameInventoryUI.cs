@@ -171,7 +171,10 @@ public class GameInventoryUI : UIBase
     {
         if (UIManager.Instance != null && UIManager.Instance.IsBlockedInput)
           return;
-        UIManager.Instance?.ToggleUI(Type);
+        var type = PlatformManager.Instance?.IsMobile == true
+            ? UIType.MobileInventory
+            : UIType.Inventory;
+        UIManager.Instance?.ToggleUI(type);
     }
     protected override void OnShow()
     {

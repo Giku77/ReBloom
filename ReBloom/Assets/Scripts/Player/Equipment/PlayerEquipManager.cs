@@ -8,6 +8,8 @@ public class PlayerEquipManager : MonoBehaviour
 {
     [SerializeField] private GameObject equipInventory;
     [SerializeField] private EquipmentUI equipmentUI;
+    [SerializeField] private EquipmentUI mobileequipmentUI;
+    private EquipmentUI currentEquipmentUI => PlatformManager.Instance.IsMobile ? mobileequipmentUI : equipmentUI;
 
     private PlayerEquipData player;
     private ToolEquipManager toolEquipManager;
@@ -95,10 +97,10 @@ public class PlayerEquipManager : MonoBehaviour
 
         Debug.Log($"[EquipManager] 장착 완료: {item.itemName} (오염 저항: {item.GetPollutionResist()}%)");
 
-        if (equipmentUI != null)
+        if (currentEquipmentUI != null)
         {
-            equipmentUI.RefreshAllSlots();
-            equipmentUI.UpdateResistText();
+            currentEquipmentUI.RefreshAllSlots();
+            currentEquipmentUI.UpdateResistText();
             Debug.Log("[EquipManager] UI 갱신 호출");
         }
         else
@@ -134,10 +136,10 @@ public class PlayerEquipManager : MonoBehaviour
 
         Debug.Log($"[EquipManager] 장착 완료: {item.itemName}");
 
-        if (equipmentUI != null)
+        if (currentEquipmentUI != null)
         {
-            equipmentUI.RefreshAllSlots();
-            equipmentUI.UpdateResistText();
+            currentEquipmentUI.RefreshAllSlots();
+            currentEquipmentUI.UpdateResistText();
             Debug.Log("[EquipManager] UI 갱신 호출");
         }
         else
@@ -210,10 +212,10 @@ public class PlayerEquipManager : MonoBehaviour
         }
 
         // UI 갱신
-        if (equipmentUI != null)
+        if (currentEquipmentUI != null)
         {
-            equipmentUI.RefreshAllSlots();
-            equipmentUI.UpdateResistText();
+            currentEquipmentUI.RefreshAllSlots();
+            currentEquipmentUI.UpdateResistText();
         }
 
         return success;
@@ -275,10 +277,10 @@ public class PlayerEquipManager : MonoBehaviour
 
         // Debug.Log($"아이템 해제 완료");
 
-        if (equipmentUI != null)
+        if (currentEquipmentUI != null)
         {
-            equipmentUI.RefreshAllSlots();
-            equipmentUI.UpdateResistText();
+            currentEquipmentUI.RefreshAllSlots();
+            currentEquipmentUI.UpdateResistText();
         }
     }
 
@@ -436,10 +438,10 @@ public class PlayerEquipManager : MonoBehaviour
         Debug.Log($"[PlayerEquipManager] 장착 데이터 {clearedCount}개 초기화 완료");
 
         // UI 갱신
-        if (equipmentUI != null)
+        if (currentEquipmentUI != null)
         {
-            equipmentUI.RefreshAllSlots();
-            equipmentUI.UpdateResistText();
+            currentEquipmentUI.RefreshAllSlots();
+            currentEquipmentUI.UpdateResistText();
         }
 
         OnToolTypeChange?.Invoke(0);

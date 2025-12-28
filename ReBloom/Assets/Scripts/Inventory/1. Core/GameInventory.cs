@@ -14,7 +14,9 @@ public class GameInventory : MonoBehaviour, IGameInventory
     [SerializeField] private InventoryItemData inventoryData;
 
     [Header("UI References")]
+    private GameInventoryUI currentInvUI;
     [SerializeField] private GameInventoryUI inventoryUI;
+    [SerializeField] private GameInventoryUI mobileinventoryUI;
     [SerializeField] private QuickSlot quickSlot;
 
     [Header("Player")]
@@ -42,6 +44,14 @@ public class GameInventory : MonoBehaviour, IGameInventory
     {
         inventoryData.Initialize();
         quickSlot?.SyncInventoryQuickSlots();
+        if (PlatformManager.Instance != null && PlatformManager.Instance.IsMobile)
+        {
+            currentInvUI = mobileinventoryUI;
+        }
+        else
+        {
+            currentInvUI = inventoryUI;
+        }
     }
     private void InitializeServices()
     {
@@ -405,10 +415,10 @@ public class GameInventory : MonoBehaviour, IGameInventory
     }
     #region UI 제어
     public void OpenInventory() {
-        inventoryUI.ToggleInventory();
+        currentInvUI.ToggleInventory();
         TutorialEventBus.RaiseAction((int)TutorialActionId.OpenInventory);
     }
-    public void CloseInventory() => inventoryUI.ToggleInventory();
+    public void CloseInventory() => currentInvUI.ToggleInventory();
 
     #endregion
 }

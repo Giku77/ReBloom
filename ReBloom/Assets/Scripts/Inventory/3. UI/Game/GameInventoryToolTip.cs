@@ -30,6 +30,11 @@ public class GameInventoryToolTip : MonoBehaviour
     [SerializeField] private TextMeshProUGUI category;
     [SerializeField] private TextMeshProUGUI tier;
     [SerializeField] private Image imgBorder;
+    [SerializeField] private Button useButton;
+    [SerializeField] private Button quickslotButton;
+
+    public Button UseButton => useButton;
+    public Button QuickslotButton => quickslotButton;
 
     [Header("Settings")]
     [SerializeField] private Vector2 offset = new Vector2(10, -10);
@@ -65,6 +70,19 @@ public class GameInventoryToolTip : MonoBehaviour
     {
         Debug.Log($"[GameInventoryToolTip] Show 호출됨! Item: {item?.itemName}");
         currentItem = item;
+
+        bool canUse = item != null && item.canUseable;
+        bool canQuick = item != null && item.canQuickSlot;
+
+        if (useButton != null)
+        {
+            useButton.gameObject.SetActive(canUse);
+        }
+
+        if (quickslotButton != null)
+        {
+            quickslotButton.gameObject.SetActive(canQuick);
+        }
 
         // 기본 정보
         title.text = item.itemName;

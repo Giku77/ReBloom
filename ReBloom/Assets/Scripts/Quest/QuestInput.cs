@@ -24,4 +24,12 @@ public class QuestInput : MonoBehaviour
         QuestManager.I?.TryCompleteCurrent();
         //QuestManager.I?.PlayQuestCompleteAnimation();
     }
+
+    public void OnQuestComplete()
+    {
+        Debug.Log("Quest Complete Input Received");
+        //QuestManager.I?.CompleteCurrent();
+        QuestManager.I?.TryCompleteCurrent();
+        //QuestManager.I?.PlayQuestCompleteAnimation();
+    }
 }

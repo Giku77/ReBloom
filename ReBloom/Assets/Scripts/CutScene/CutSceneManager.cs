@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
+using static UnityEngine.Splines.SplineInstantiate;
 
 public class CutSceneManager : MonoBehaviour
 {
@@ -35,6 +36,13 @@ public class CutSceneManager : MonoBehaviour
     {
         cutSceneDb = new CutSceneDB();
         cutSceneDb.LoadFromBG();
+
+        if (skipHoldUI != null && PlatformManager.Instance != null &&
+            PlatformManager.Instance.IsMobile)
+        {
+            skipHoldUI.GetComponentInChildren<TextMeshProUGUI>().text =
+                "꾹 눌러서 스킵[터치]";
+        }
 
         // if (cutSceneGroup != null)
         // {
