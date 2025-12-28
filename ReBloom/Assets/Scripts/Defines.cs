@@ -68,7 +68,8 @@ public enum UIType
     MobileMain,
     FarmUpgrade,
     SeedPurifier,
-    MobileInventory
+    MobileInventory,
+    MobileStats
 }
 
 public enum UILayer
