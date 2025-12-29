@@ -47,44 +47,8 @@ public class GameInventorySlot : MonoBehaviour, IItemSlot, IDragSource,
                 Debug.Log("[GameInventorySlot] 툴팁을 Canvas에서 찾았습니다.");
             }
         }
-        if (tooltip != null)
-        {
-            if (tooltip.QuickslotButton != null)
-            {
-                tooltip.QuickslotButton.onClick.RemoveListener(OnClickTooltipQuickslot);
-                tooltip.QuickslotButton.onClick.AddListener(OnClickTooltipQuickslot);
-            }
-
-            if (tooltip.UseButton != null)
-            {
-                tooltip.UseButton.onClick.RemoveListener(OnClickTooltipUse);
-                tooltip.UseButton.onClick.AddListener(OnClickTooltipUse);
-            }
-        }
     }
     #endregion
-
-    private void OnClickTooltipUse()
-    {
-        if (itemData != null && (itemData.canUseable || itemData.canEquip))
-            inventory?.Consume(itemData.itemID, 1);
-    }
-
-    private void OnClickTooltipQuickslot()
-    {
-        if (itemData == null || !itemData.canQuickSlot) return;
-
-        if (quickSlot == null)
-        {
-            Debug.LogWarning("[GameInventorySlot] QuickSlot을 찾을 수 없음");
-            return;
-        }
-
-        bool ok = quickSlot.TryAssignFromInventory(itemData.itemID); 
-        Debug.Log(ok
-            ? $"[GameInventorySlot] {itemData.itemName} 퀵슬롯 자동 등록 성공"
-            : $"[GameInventorySlot] {itemData.itemName} 퀵슬롯 자동 등록 실패");
-    }
 
     #region IItemSlot 구현
     public void SetItem(ItemBase item, int quantity)

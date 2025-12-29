@@ -11,8 +11,12 @@ public class QuickSlot : MonoBehaviour
 
     [Header("UI References")]
     [SerializeField] private List<GameObject> slotsRef;
+    [SerializeField] private List<GameObject> mobileSlotsRef;
     [SerializeField] private List<GameObject> invtQuickslotRef;
     [SerializeField] private List<GameObject> mobileinvtQuickslotRef;
+    [SerializeField] private QuickSlotScrollSelector mobileSelector;
+
+
     private List<GameObject> activeInvtQuickslotRef
     {
         get
@@ -25,6 +29,16 @@ public class QuickSlot : MonoBehaviour
             {
                 return invtQuickslotRef;
             }
+        }
+    }
+    private List<GameObject> activeHudSlotsRef
+    {
+        get
+        {
+            if (PlatformManager.Instance != null && PlatformManager.Instance.IsMobile)
+                return mobileSlotsRef;  
+            else
+                return slotsRef;        
         }
     }
     [SerializeField] private QuickSlotUI quickSlotUIPrefab;
@@ -265,7 +279,7 @@ public class QuickSlot : MonoBehaviour
             return;
         }
 
-        if (targetIndex < 0 || targetIndex >= slotsRef.Count)
+        if (targetIndex < 0 || targetIndex >= activeHudSlotsRef.Count)
         {
             Debug.LogError($"[QuickSlot] 슬롯 인덱스 {targetIndex}가 범위를 벗어났습니다.");
             return;
@@ -288,18 +302,17 @@ public class QuickSlot : MonoBehaviour
         }
 
         // 게임 내 퀵슬롯 UI 생성
-        if (slotsRef != null && index < slotsRef.Count && slotsRef[index] != null)
+        var hudSlots = activeHudSlotsRef;
+        if (hudSlots != null && index < hudSlots.Count && hudSlots[index] != null)
         {
             if (slotUIs[index] != null)
-            {
                 Destroy(slotUIs[index].gameObject);
-            }
 
             QuickSlotUI newSlotUI = Instantiate(
                 quickSlotUIPrefab,
-                slotsRef[index].transform.position,
+                hudSlots[index].transform.position,
                 Quaternion.identity,
-                slotsRef[index].transform
+                hudSlots[index].transform
             );
 
             newSlotUI.OnUpdateSlotInfo(item, quantity);
@@ -327,6 +340,35 @@ public class QuickSlot : MonoBehaviour
             invSlotUIs[index] = invSlotUI;
         }
     }
+
+    public void RebuildAllQuickSlotUIs()
+    {
+        // 기존 HUD/인벤 UI 싹 제거
+        for (int i = 0; i < slotCount; i++)
+        {
+            if (slotUIs[i] != null) { Destroy(slotUIs[i].gameObject); slotUIs[i] = null; }
+            if (invSlotUIs[i] != null) { Destroy(invSlotUIs[i].gameObject); invSlotUIs[i] = null; }
+        }
+
+        // 현재 items[] 기준으로 다시 생성
+        for (int i = 0; i < slotCount; i++)
+        {
+            if (items[i] == null) continue;
+
+            int qty = inventoryData != null ? inventoryData.GetItemCount(items[i].itemID) : 0;
+            if (qty <= 0) continue;
+
+            CreateSlotUI(i, items[i], qty);
+        }
+        Canvas.ForceUpdateCanvases();
+
+        if (mobileSelector != null && PlatformManager.Instance != null && PlatformManager.Instance.IsMobile)
+        {
+            mobileSelector.JumpToFirstFilled(items);
+        }
+    }
+
+
 
     #region Validation
     /// <summary>
@@ -650,8 +692,11 @@ public class QuickSlot : MonoBehaviour
 
 
 
-    void UseSlot(int index)
+    public void UseSlot(int index)
     {
+        Debug.Log($"[QuickSlot] UseSlot({index}) frame={Time.frameCount} obj={name} id={GetInstanceID()} scene={gameObject.scene.name}");
+        Debug.Log($"[QuickSlot] count={FindObjectsByType<QuickSlot>(FindObjectsSortMode.None).Length}");
+
         var item = items[index];
 
         if (item != null)

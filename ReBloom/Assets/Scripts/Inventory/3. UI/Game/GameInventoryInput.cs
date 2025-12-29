@@ -111,7 +111,7 @@ public class GameInventoryInput : MonoBehaviour
         else
         {
             gameInventory.CloseInventory();
-
+            quickSlot?.RebuildAllQuickSlotUIs();
         }
 
         //HandleCursorState(isInventoryOpen);
