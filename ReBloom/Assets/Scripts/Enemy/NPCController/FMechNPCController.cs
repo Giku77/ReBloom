@@ -11,13 +11,16 @@ public class FMechNPCController : BaseNPCController
 
     [Header("Vision Detection")]
     public Camera playerCamera;
-    public float detectionAngle = 90f;
-    public float maxDetectionDistance = 30f;
+
+
+    private float detectionAngle = 30f;
+    private float maxDetectionDistance = 30f;
 
     [Header("Jumpscare Settings")]
     public Transform jumpscarePosition; // F-Mech 얼굴 앞 위치
     private float jumpscareDuration = 2f;
-    private bool isPlayingJumpscare = false;
+
+    public bool isPlayingJumpscare = false;
 
     [Header("Kill Settings")]
     public float killDistance = 1.5f;
@@ -25,6 +28,12 @@ public class FMechNPCController : BaseNPCController
     [Header("Speed Settings")]
     public float chaseSpeed = 3f;
     public float returnSpeed = 5f;
+
+    [Header("SpawnPoints")]
+    [SerializeField] Transform schoolSpawnPoint;
+    [SerializeField] Transform storeSpawnPoint;
+    [SerializeField] Transform factorySpawnPoint;
+
 
     private DayNightCycle dayNightCycle;
 
@@ -73,14 +82,33 @@ public class FMechNPCController : BaseNPCController
         ChangeState(new FMechNPCIdleState(this));
     }
 
-    protected override void Update()
+protected override void Update()
     {
         base.Update();
         CheckKillDistance();
+        
+        // 플레이어 스테이지 변경 감지
+        if (playerStageDetector != null && playerStageDetector.CurrentStage != null)
+        {
+            int currentStageID = playerStageDetector.CurrentStage.StageID;
+            
+            // 새 스테이지로 진입했고, F-Mech가 활동하는 스테이지면
+            if (currentStageID != lastDetectedStageID && 
+                (currentStageID == 401 || currentStageID == 402 || currentStageID == 403))
+            {
+                WarpToStage(currentStageID);
+                lastDetectedStageID = currentStageID;
+                
+                // Idle 상태로 리셋
+                ChangeState(new FMechNPCIdleState(this));
+            }
+        }
     }
 
     protected override void UpdateAnimation()
     {
+        if (isPlayingJumpscare) return;
+
         if (animator != null && agent != null)
         {
             bool isMoving = !agent.isStopped && agent.hasPath && agent.remainingDistance > agent.stoppingDistance;
@@ -95,7 +123,9 @@ public class FMechNPCController : BaseNPCController
         
         float distance = Vector3.Distance(transform.position, player.position);
         if (distance > maxDetectionDistance) return false;
-        
+
+        if (distance < 2f) return false;
+
         Vector3 directionToNPC = (transform.position - playerCamera.transform.position).normalized;
         
         float angle = Vector3.Angle(playerCamera.transform.forward, directionToNPC);
@@ -139,7 +169,7 @@ public class FMechNPCController : BaseNPCController
         PlayJumpscareAsync(this.GetCancellationTokenOnDestroy()).Forget();
     }
 
-private async UniTaskVoid PlayJumpscareAsync(CancellationToken ct)
+    private async UniTask PlayJumpscareAsync(CancellationToken ct)
     {
         isPlayingJumpscare = true;
         
@@ -154,7 +184,14 @@ private async UniTaskVoid PlayJumpscareAsync(CancellationToken ct)
             wasAgentEnabled = agent.enabled;
             agent.enabled = false;
         }
-        
+
+        bool wasAnimatorEnabled = false;
+        if (animator != null)
+        {
+            wasAnimatorEnabled = animator.enabled;
+            animator.enabled = false;
+        }
+
         Camera mainCamera = Camera.main;
         if (mainCamera == null)
         {
@@ -209,7 +246,12 @@ private async UniTaskVoid PlayJumpscareAsync(CancellationToken ct)
             {
                 agent.enabled = true;
             }
-            
+
+            if (animator != null && wasAnimatorEnabled)
+            {
+                animator.enabled = true;
+            }
+
             Debug.Log("[F-Mech] Jumpscare 종료");
             
             // 플레이어 데미지
@@ -220,7 +262,6 @@ private async UniTaskVoid PlayJumpscareAsync(CancellationToken ct)
         }
         catch (System.OperationCanceledException)
         {
-            // 복구
             if (mainCamera != null)
             {
                 mainCamera.transform.SetParent(originalParent);
@@ -233,16 +274,37 @@ private async UniTaskVoid PlayJumpscareAsync(CancellationToken ct)
                 }
             }
             
-            // F-Mech 복구
             transform.position = frozenPosition;
             transform.rotation = frozenRotation;
-            
+
             if (agent != null && wasAgentEnabled)
             {
                 agent.enabled = true;
+
+                // NavMesh 위로 다시 Warp
+                if (agent.isOnNavMesh)
+                {
+                    agent.Warp(frozenPosition);
+                }
+                else
+                {
+                    // NavMesh 위에 없으면 가장 가까운 NavMesh 위치로
+                    UnityEngine.AI.NavMeshHit hit;
+                    if (UnityEngine.AI.NavMesh.SamplePosition(frozenPosition, out hit, 5f, UnityEngine.AI.NavMesh.AllAreas))
+                    {
+                        transform.position = hit.position;
+                        agent.Warp(hit.position);
+
+
+                        Debug.Log("[F-Mech] Jumpscare 취소됨");
+                    }
+                }
+
+                if (animator != null && wasAnimatorEnabled)
+                {
+                    animator.enabled = true;
+                }
             }
-            
-            Debug.Log("[F-Mech] Jumpscare 취소됨");
         }
         finally
         {
@@ -260,6 +322,54 @@ private async UniTaskVoid PlayJumpscareAsync(CancellationToken ct)
             }
         }
     }
+
+    public void WarpToStage(int stageID)
+    {
+        Transform targetSpawn = null;
+        
+        switch (stageID)
+        {
+            case 401: // 학교
+                targetSpawn = schoolSpawnPoint;
+                break;
+            case 402: // 백화점
+                targetSpawn = storeSpawnPoint;
+                break;
+            case 403: // 공장
+                targetSpawn = factorySpawnPoint;
+                break;
+            default:
+                Debug.LogWarning($"[F-Mech] 알 수 없는 스테이지 ID: {stageID}");
+                return;
+        }
+        
+        if (targetSpawn == null)
+        {
+            Debug.LogError($"[F-Mech] 스테이지 {stageID}의 스폰 포인트가 설정되지 않았습니다!");
+            return;
+        }
+        
+        // 현재 스테이지 ID 업데이트
+        myStageID = stageID;
+        
+        // 위치 워프
+        transform.position = targetSpawn.position;
+        transform.rotation = targetSpawn.rotation;
+        
+        // initialPosition 업데이트 (Return 상태에서 돌아갈 위치)
+        initialPosition = targetSpawn.position;
+        initialRotation = targetSpawn.rotation;
+        
+        // NavMeshAgent Warp
+        if (agent != null && agent.enabled)
+        {
+            agent.Warp(targetSpawn.position);
+        }
+        
+        Debug.Log($"[F-Mech] 스테이지 {stageID}로 워프 완료!");
+    }
+
+    private int lastDetectedStageID = -1;
 
     public bool IsNightTime()
     {

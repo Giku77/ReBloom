@@ -32,7 +32,39 @@ Transform:
   - {fileID: 6083576832383160546}
   - {fileID: 1222776578940341672}
   - {fileID: 9102587489363306526}
+  - {fileID: 5559560585481598636}
   m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3414637532598677821
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5559560585481598636}
+  m_Layer: 0
+  m_Name: FMechSpawnPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5559560585481598636
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3414637532598677821}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -558.82214, y: 130.09235, z: 44.12987}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4019911792268096720}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3978146056090217080
 GameObject:
@@ -1451,9 +1483,8 @@ MonoBehaviour:
   isStunned: 0
   myStageID: 401
   playerCamera: {fileID: 0}
-  detectionAngle: 60
-  maxDetectionDistance: 20
   jumpscarePosition: {fileID: 8073473789894301250}
+  isPlayingJumpscare: 0
   killDistance: 1.5
   chaseSpeed: 3
   returnSpeed: 5

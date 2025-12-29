@@ -26,6 +26,8 @@ public class FMechNPCChaseState : NPCState
 
     public override void Update()
     {
+        if (fMechController.isPlayingJumpscare) return;
+
         if (fMechController == null) return;
 
         // 플레이어가 스테이지를 벗어났는지 체크
