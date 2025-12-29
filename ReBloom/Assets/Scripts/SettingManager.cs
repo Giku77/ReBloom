@@ -16,6 +16,7 @@ public class SettingManager : MonoBehaviour
     public float MouseSensitivity { get; private set; } = 3f;
     public int GraphicsQuality { get; private set; } = 0;
     public int TargetFrameRate { get; private set; } = 120; // -1=무제한
+    public int PoppyVoiceType { get; private set; } = 1;
 
     public event Action<float> OnMasterVolumeChanged;
     public event Action<float> OnBGMVolumeChanged;
@@ -26,6 +27,7 @@ public class SettingManager : MonoBehaviour
     public event Action<float> OnMouseSensitivityChanged;
     public event Action<int> OnGraphicsQualityChanged;
     public event Action<int> OnTargetFrameRateChanged;
+    public event Action<int> OnPoppyVoiceTypeChanged;
 
     [SerializeField]
     private Resolution windowedResolution = new Resolution
@@ -139,5 +141,17 @@ public class SettingManager : MonoBehaviour
     {
         MouseSensitivity = Mathf.Clamp(value, 1f, 10f);
         OnMouseSensitivityChanged?.Invoke(MouseSensitivity);
+    }
+
+    public void SetPoppyVoiceType(int voiceType)
+    {
+        PoppyVoiceType = Mathf.Clamp(voiceType, 1, 2); // 1=리나, 2=티모
+        OnPoppyVoiceTypeChanged?.Invoke(PoppyVoiceType);
+        Debug.Log($"[SettingManager] 뽀삐 목소리 변경: {PoppyVoiceType}");
+    }
+
+    public int GetPoppyVoiceType()
+    {
+        return PoppyVoiceType;
     }
 }

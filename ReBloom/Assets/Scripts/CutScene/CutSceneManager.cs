@@ -139,7 +139,7 @@ public class CutSceneManager : MonoBehaviour
                 }
 
                 if (dialogueUI != null)
-                    await dialogueUI.ShowLineAsync(data.TextKR, cancellationToken: token);
+                    await dialogueUI.ShowLineAsync(data.TextKR, data.VarcoID, cancellationToken: token);
 
                 if (token.IsCancellationRequested)
                     break;
