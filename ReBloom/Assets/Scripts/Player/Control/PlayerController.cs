@@ -24,6 +24,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask stepLayerMask;      // 부딪힐 지면/장애물 레이어 (groundLayer랑 같게 써도 됨)
     [SerializeField] private float stepSmooth = 0.1f;      // 한 프레임에 얼마나 올릴지
 
+    [SerializeField] private CapsuleCollider capsule; // 있으면 연결
+    [SerializeField] private float stepUpSpeed = 2.5f; // 초당 올라가는 느낌
+
     [Header("References")]
     [SerializeField] private EquipmentUI equipmentUI;
     [SerializeField] private ThirdPersonCamera thirdPersonCamera;
@@ -300,24 +303,68 @@ public class PlayerController : MonoBehaviour
         sprintSpeed = moveSpeed * 1.5f;  
     }
 
+    // private void StepClimb()
+    // {
+    //     if (!isGround) return;
+    //     if (moveDirection.sqrMagnitude < 0.01f) return;
+
+    //     Vector3 originLow = transform.position + Vector3.up * 0.1f;
+    //     if (Physics.Raycast(originLow, transform.forward, out RaycastHit hitLow, stepRayLength, stepLayerMask))
+    //     {
+    //         Vector3 originHigh = transform.position + Vector3.up * (stepHeight + 0.1f);
+    //         if (!Physics.Raycast(originHigh, transform.forward, stepRayLength, stepLayerMask))
+    //         {
+    //             // 위쪽은 비어있다 = 올라갈 수 있는 작은 턱
+    //             // 살짝 위로 올려준다
+    //             Debug.Log($"[StepClimb] 발동 위치={transform.position}, hit={hitLow.collider.name}");
+    //             rb.position += Vector3.up * stepSmooth;
+    //         }
+    //     }
+    // }
+
     private void StepClimb()
     {
         if (!isGround) return;
         if (moveDirection.sqrMagnitude < 0.01f) return;
 
-        Vector3 originLow = transform.position + Vector3.up * 0.1f;
-        if (Physics.Raycast(originLow, transform.forward, out RaycastHit hitLow, stepRayLength, stepLayerMask))
-        {
-            Vector3 originHigh = transform.position + Vector3.up * (stepHeight + 0.1f);
-            if (!Physics.Raycast(originHigh, transform.forward, stepRayLength, stepLayerMask))
-            {
-                // 위쪽은 비어있다 = 올라갈 수 있는 작은 턱
-                // 살짝 위로 올려준다
-                Debug.Log($"[StepClimb] 발동 위치={transform.position}, hit={hitLow.collider.name}");
-                rb.position += Vector3.up * stepSmooth;
-            }
-        }
+        Vector3 dir = moveDirection.normalized;
+
+        Vector3 feet = groundCheck ? groundCheck.position : rb.position;
+
+        float radius = capsule ? capsule.radius * 0.95f : 0.3f;
+
+        Vector3 lowOrigin = feet + Vector3.up * 0.05f;
+        if (!Physics.SphereCast(lowOrigin, radius, dir, out RaycastHit hitLow,
+                stepRayLength, stepLayerMask, QueryTriggerInteraction.Ignore))
+            return;
+
+        Vector3 highOrigin = feet + Vector3.up * (stepHeight + 0.05f);
+        if (Physics.SphereCast(highOrigin, radius, dir, out RaycastHit hitHigh,
+                stepRayLength, stepLayerMask, QueryTriggerInteraction.Ignore))
+            return;
+
+        Vector3 stepForward = hitLow.point + dir * 0.05f;
+        Vector3 downOrigin = new Vector3(stepForward.x, feet.y + stepHeight + 0.3f, stepForward.z);
+
+        if (!Physics.Raycast(downOrigin, Vector3.down, out RaycastHit hitDown,
+                stepHeight + 0.6f, groundLayer, QueryTriggerInteraction.Ignore))
+            return;
+
+        float targetY = hitDown.point.y;
+        float delta = targetY - feet.y;
+
+        if (delta <= 0.001f || delta > stepHeight) return;
+
+        float maxUpThisFrame = stepUpSpeed * Time.fixedDeltaTime; 
+        float up = Mathf.Min(delta, maxUpThisFrame);
+
+        rb.MovePosition(rb.position + Vector3.up * up);
+
+        var v = rb.linearVelocity;
+        if (v.y > 0f) v.y = 0f;
+        rb.linearVelocity = v;
     }
+
 
     private void Update()
     {
