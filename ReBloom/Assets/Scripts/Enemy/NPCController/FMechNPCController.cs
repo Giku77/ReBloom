@@ -175,7 +175,7 @@ protected override void Update()
         
         // F-Mech 위치 고정
         Vector3 frozenPosition = transform.position;
-        Quaternion frozenRotation = transform.rotation;
+        //Quaternion frozenRotation = transform.rotation;
         
         // NavMeshAgent 완전히 끄기
         bool wasAgentEnabled = false;
@@ -240,7 +240,7 @@ protected override void Update()
             
             // F-Mech 위치 복원 및 Agent 재활성화
             transform.position = frozenPosition;
-            transform.rotation = frozenRotation;
+            //transform.rotation = frozenRotation;
             
             if (agent != null && wasAgentEnabled)
             {
@@ -275,7 +275,7 @@ protected override void Update()
             }
             
             transform.position = frozenPosition;
-            transform.rotation = frozenRotation;
+            //transform.rotation = frozenRotation;
 
             if (agent != null && wasAgentEnabled)
             {

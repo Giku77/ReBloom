@@ -20,8 +20,6 @@ public class FMechNPCChaseState : NPCState
 
         controller.agent.isStopped = false;
         controller.animator.SetTrigger("Chase");
-
-        EnemyChaseTracker.I?.OnEnemyStartChase();
     }
 
     public override void Update()

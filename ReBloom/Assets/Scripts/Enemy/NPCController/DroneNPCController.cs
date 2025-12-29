@@ -27,10 +27,14 @@ public class DroneNPCController : BaseNPCController
 
     [HideInInspector] public LaserRendererHandler laser;
 
+    public DroneNPCSound sound;
+
     protected override void Start()
     {
         base.Start();
         laser = GetComponent<LaserRendererHandler>();
+
+        sound = GetComponentInChildren<DroneNPCSound>();
     }
 
     protected override void InitializeState()
@@ -90,6 +94,8 @@ public class DroneNPCController : BaseNPCController
         lastAttackTime = Time.time;
 
         laser.FireLaser(laserOrigin.position, laserOrigin.forward, laserLength);
+
+        sound.PlayLaser();
 
         Debug.Log("드론 레이저 공격!");
     }
