@@ -33,6 +33,9 @@ public class GameInventoryToolTip : MonoBehaviour
     [SerializeField] private Button useButton;
     [SerializeField] private Button quickslotButton;
 
+    private QuickSlot quickSlot;
+    private GameInventory inventory;
+
     public Button UseButton => useButton;
     public Button QuickslotButton => quickslotButton;
 
@@ -48,7 +51,42 @@ public class GameInventoryToolTip : MonoBehaviour
     {
         rectTransform = GetComponent<RectTransform>();
         parentCanvas = GetComponentInParent<Canvas>();
+
+        inventory = FindFirstObjectByType<GameInventory>();
+        quickSlot = FindFirstObjectByType<QuickSlot>();
+
+        if (useButton != null)
+            useButton.onClick.AddListener(OnClickUse);
+
+        if (quickslotButton != null)
+            quickslotButton.onClick.AddListener(OnClickQuickslot);
     }
+
+    private void OnDestroy()
+    {
+        if (useButton != null)
+            useButton.onClick.RemoveListener(OnClickUse);
+
+        if (quickslotButton != null)
+            quickslotButton.onClick.RemoveListener(OnClickQuickslot);
+    }
+
+    private void OnClickUse()
+    {
+        if (currentItem == null || inventory == null) return;
+
+        if (currentItem.canUseable || currentItem.canEquip)
+            inventory.Consume(currentItem.itemID, 1);
+    }
+
+    private void OnClickQuickslot()
+    {
+        if (currentItem == null || quickSlot == null) return;
+        if (!currentItem.canQuickSlot) return;
+
+        quickSlot.TryAssignFromInventory(currentItem.itemID);
+    }
+
 
     private void Start()
     {

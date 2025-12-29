@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class QuickSlotHud : UIBase
+public class QuickSlotHUD : UIBase
 {
-    
+
 }
