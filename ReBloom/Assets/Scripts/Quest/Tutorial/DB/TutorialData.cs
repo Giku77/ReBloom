@@ -26,6 +26,7 @@ public class TutorialStringData
 {
     public int TutorialStringID;
     public string TextKR;
+    public string MobileTextKR;
     public int VarcoID;
     // 나중에 EN, JP 추가해도 됨
 }

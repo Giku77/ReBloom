@@ -37,18 +37,6 @@ public class StatUI : UIBase
     [SerializeField] private float lowHealthAlphaMin = 0.1f;
     [SerializeField] private float lowHealthAlphaMax = 0.5f;
 
-    [Header("Platform Layout")]
-    [SerializeField] private RectTransform rectTransform;
-    [SerializeField] private Vector2 pcAnchorMin = new Vector2(0, 0);
-    [SerializeField] private Vector2 pcAnchorMax = new Vector2(0, 0);
-    [SerializeField] private Vector2 pcAnchoredPosition;
-    [SerializeField] private Vector2 mobileAnchorMin = new Vector2(0.5f, 0);
-    [SerializeField] private Vector2 mobileAnchorMax = new Vector2(0.5f, 0);
-    [SerializeField] private Vector2 mobilePivot = new Vector2(0.5f, 0);
-    [SerializeField] private Vector2 mobileAnchoredPosition;
-
-    [SerializeField] private GameObject protectiveUI;
-
 
     private CancellationTokenSource lowHealthCTS;
 
@@ -89,11 +77,6 @@ public class StatUI : UIBase
 
     private void InitializeUI()
     {
-        if (rectTransform == null)
-            rectTransform = GetComponent<RectTransform>();
-
-        SetPositionByPlatform();
-
         UpdateHealthUI(playerStats.Health.Value, playerStats.Health.MaxValue);
         UpdatePollutionUI(playerStats.Pollution.Value, playerStats.Pollution.MaxValue);
         UpdateHungerUI(playerStats.Hunger.Value, playerStats.Hunger.MaxValue);
@@ -107,30 +90,6 @@ public class StatUI : UIBase
         if (damageImage != null)
         {
             damageImage.canvasRenderer.SetAlpha(0f);
-        }
-    }
-
-    private void SetPositionByPlatform()
-    {
-        if (PlatformManager.Instance == null) return;
-
-        if (PlatformManager.Instance.IsMobile)
-        {
-            rectTransform.anchorMin = mobileAnchorMin;
-            rectTransform.anchorMax = mobileAnchorMax;
-            rectTransform.pivot = mobilePivot;
-            rectTransform.anchoredPosition = mobileAnchoredPosition;
-
-            if (protectiveUI != null)
-            {
-                protectiveUI.SetActive(false);
-            }
-        }
-        else
-        {
-            rectTransform.anchorMin = pcAnchorMin;
-            rectTransform.anchorMax = pcAnchorMax;
-            rectTransform.anchoredPosition = pcAnchoredPosition;
         }
     }
 

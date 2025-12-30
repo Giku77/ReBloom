@@ -228,6 +228,10 @@ public class TutorialManager : MonoBehaviour
     private string Localize(int textId)
     {
         tutorialDb.TryGetString(textId, out var localizedText);
+        if (PlatformManager.Instance != null && PlatformManager.Instance.IsMobile)
+        {
+            return localizedText != null ? localizedText.MobileTextKR : "-";
+        }
         return localizedText != null ? localizedText.TextKR : "-";
     }
 }

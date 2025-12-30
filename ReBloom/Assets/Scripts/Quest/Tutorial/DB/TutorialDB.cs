@@ -34,6 +34,7 @@ public class TutorialDB
             {
                 TutorialStringID = e.Get<int>("TutorialStringID"),
                 TextKR           = e.Get<string>("TutorialStringKR"),
+                MobileTextKR     = e.Get<string>("TutorialStringKRMobile"),
                 VarcoID          = e.Get<int>("VarcoID")
             };
 
@@ -49,6 +50,9 @@ public class TutorialDB
 
     public string GetTextKR(int stringId)
         => _strings.TryGetValue(stringId, out var d) ? d.TextKR : $"#{stringId}";
+    
+    public string GetMobileTextKR(int stringId)
+        => _strings.TryGetValue(stringId, out var d) ? d.MobileTextKR : $"#{stringId}";
 
     public IReadOnlyDictionary<int, TutorialData> GetAllTutorials() => _tutorials;
     public IReadOnlyDictionary<int, TutorialStringData> GetAllStrings() => _strings;
