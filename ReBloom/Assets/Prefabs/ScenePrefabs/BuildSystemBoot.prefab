@@ -1567,7 +1567,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.4968405, g: 0.5188679, b: 0.5188679, a: 0.627451}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -2537,7 +2537,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 156009722224112477}
   m_HandleRect: {fileID: 4308323320127235875}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -4033,6 +4033,9 @@ MonoBehaviour:
   root: {fileID: 5461208628427969299}
   cursorMode: 1
   locksCameraZoom: 1
+  autoAttachCloseButtonOnMobile: 1
+  closeButtonPrefab: {fileID: 4206671810925426953, guid: 2e59b3efcbc07f84090fa53076b41443, type: 3}
+  closeButtonParent: {fileID: 2276886842645219590}
   slotContainer: {fileID: 3426638460881693637}
   buildInfoPrefab: {fileID: 6089401609871091478, guid: 09075b9eee122c34bb52c736dc081f5e, type: 3}
   slotItemPrefab: {fileID: -2707125209089890644, guid: 94584f891d8a0d844b27cac24c6a8293, type: 3}
@@ -5261,6 +5264,8 @@ GameObject:
   - component: {fileID: 8723734861568843312}
   - component: {fileID: 5655552651683960106}
   - component: {fileID: 485126012626886817}
+  - component: {fileID: 4820933365412909860}
+  - component: {fileID: 7316866815344039890}
   m_Layer: 9
   m_Name: BuildTest
   m_TagString: Untagged
@@ -5476,6 +5481,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f408ac645cbcc5e4db25636237fc51f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &4820933365412909860
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6659237993922360964}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cabc330df62e3874ca45dec9f8864f59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7316866815344039890
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6659237993922360964}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42e79582f6d1bf7419930cab0524ac5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &6893665040229578718
@@ -5748,7 +5777,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0.7190268, b: 1, a: 0.14117648}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -6439,7 +6468,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -6471,8 +6500,11 @@ MonoBehaviour:
   layer: 1
   blocksGameplayInput: 0
   root: {fileID: 9093831795186262520}
-  cursorMode: 1
-  locksCameraZoom: 1
+  cursorMode: 0
+  locksCameraZoom: 0
+  autoAttachCloseButtonOnMobile: 1
+  closeButtonPrefab: {fileID: 0}
+  closeButtonParent: {fileID: 0}
   selectBuildingName: {fileID: 8426144385251307906}
 --- !u!1 &9102882374776349202
 GameObject:
