@@ -111,8 +111,8 @@ public class ConsumableItemData : ItemBase
                 SoundManager.I?.PlayHeal();
                 return ApplyBasicConsumable(player);
             case ConsumableCategory.Jamming:
+                SoundManager.I?.PlayEMP();
                 return ApplyJamming(player);
-
             case ConsumableCategory.ExpansionChip:
                 return ApplyExpansionChip(player);
 

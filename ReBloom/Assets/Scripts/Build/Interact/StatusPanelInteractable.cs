@@ -38,12 +38,22 @@ public class StatusPanelInteractable : BuildingInteractableBase
             spawned.transform.localPosition = localOffset;
             spawned.transform.localRotation = Quaternion.identity;
             spawned.gameObject.SetActive(true);
+
+            SoundManager.I?.PlayTvOn();
         }
         else
         {
             bool next = !spawned.gameObject.activeSelf;
             spawned.gameObject.SetActive(next);
-            if (next) spawned.RefreshAll();
+            if (next)
+            {
+                spawned.RefreshAll();
+                SoundManager.I?.PlayTvOn();
+            }
+            else
+            {
+                SoundManager.I?.PlayTvOff();
+            }
         }
     }
 

@@ -57,6 +57,9 @@ public class SoundManager : MonoBehaviour
     public AudioClip eat;
     public AudioClip drink;
     public AudioClip healPack;
+    public AudioClip emp;
+    public AudioClip tvOn;
+    public AudioClip tvOff;
 
     [Header("Volume")]
     [SerializeField, Range(0f, 1f)] private float masterVolume = 1f;
@@ -360,4 +363,7 @@ public class SoundManager : MonoBehaviour
     public void PlayOpenBox() => PlaySFX(openBox);
     public void PlayWater() => PlaySFX(water);
     public void PlayHeal() => PlaySFX(healPack);
+    public void PlayEMP() => PlaySFX(emp);
+    public void PlayTvOn() => PlaySFX(tvOn);
+    public void PlayTvOff() => PlaySFX(tvOff);
 }
