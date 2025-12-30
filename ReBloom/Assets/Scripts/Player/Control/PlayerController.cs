@@ -701,7 +701,7 @@ public class PlayerController : MonoBehaviour
 
         //Debug.Log("점프 실행! Jump = true");
         Anim.SetJumping(true);
-        SoundManager.I?.StopBreathingHeavy();
+        //SoundManager.I?.StopBreathingHeavy();
         SoundManager.I?.PlayJump();
 
         jumpRequested = false;
@@ -744,6 +744,8 @@ public class PlayerController : MonoBehaviour
         rb.linearVelocity = Vector3.zero;
         UIManager.Instance.SetBlockingInput(true);
         UIManager.Instance.CloseAllUIs();
+
+        SoundManager.I?.PlayGetDamage();
 
         Anim.SetToolType(0);
         Anim.HandLayerChange();

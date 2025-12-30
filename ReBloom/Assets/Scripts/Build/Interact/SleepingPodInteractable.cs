@@ -72,7 +72,7 @@ public class SleepingPodInteractable : BuildingInteractableBase
             playerStats.Temperature.Set(36.5f);
         }
 
-        player.Anim?.PlaySleep();
+        //player.Anim?.PlaySleep();
 
         if (dayNightCycle != null)
         {
@@ -84,11 +84,11 @@ public class SleepingPodInteractable : BuildingInteractableBase
 
         ToastMessageUI.Instance.Show(arcData != null ? arcData.interactText : "플레이어가 체력을 회복했습니다.");
 
-        player.Anim?.PlayStandUp();
+        //player.Anim?.PlayStandUp();
 
         await effectUI.FadeFromBlack(1.5f);
 
-        await UniTask.Delay(5000);
+        await UniTask.Delay(1000);
 
         player.SetBlocked(false);
         UIManager.Instance?.SetBlockingInput(false);

@@ -335,7 +335,7 @@ public class StatUI : UIBase
         lowHealthCTS = new CancellationTokenSource();
         CancellationToken token = lowHealthCTS.Token;
 
-        SoundManager.I?.StartBreathingHeavy();
+        //SoundManager.I?.StartBreathingHeavy();
 
         try
         {
@@ -363,7 +363,7 @@ public class StatUI : UIBase
             }
         }
 
-        SoundManager.I?.StopBreathingHeavy();
+        //SoundManager.I?.StopBreathingHeavy();
     }
 
     private Color GetTempColor(float temp)
