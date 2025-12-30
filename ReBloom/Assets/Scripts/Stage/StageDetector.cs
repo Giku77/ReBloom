@@ -15,6 +15,9 @@ public class StageDetector : MonoBehaviour
     [SerializeField] private GameObject radioEffect;
     [SerializeField] private GameObject thunderEffect;
 
+    private bool canBuild = true;
+    public bool CanBuild => canBuild;
+
     public StageBase CurrentStage => currentStage;
 
     private bool isInside = false;
@@ -108,6 +111,15 @@ public class StageDetector : MonoBehaviour
                 OnEnterDoor?.Invoke(isInside);
             }
             ApplyWeather(currentStage.CurrentWeather);
+        }
+
+        if (other.gameObject.layer == LayerMask.NameToLayer("Buildable"))
+        {
+            canBuild = true;
+        }
+        else if (other.gameObject.layer == LayerMask.NameToLayer("Unbuildable"))
+        {
+            canBuild = false;
         }
     }
 
