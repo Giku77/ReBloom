@@ -79,6 +79,8 @@ public class PlayerController : MonoBehaviour
 
     private bool IsMovementLocked => isDead || isInteracting || isInputBlocked;
 
+    public bool IsInputBlocked => isInputBlocked;
+
     [Header("Camera")]
     [SerializeField] private Transform cameraTransform;
 
@@ -796,6 +798,8 @@ public class PlayerController : MonoBehaviour
             robotPet.PlayPoppyVoice(80051);  // "아프지마.."
         }
         isDead = false;
+
+        SetBlocked(false);
     }
 
 

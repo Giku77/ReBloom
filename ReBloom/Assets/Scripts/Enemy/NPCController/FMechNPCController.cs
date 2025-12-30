@@ -178,6 +178,8 @@ public class FMechNPCController : BaseNPCController
         isPlayingJumpscare = true;
 
         sound.PlayLaugh();
+
+        playerController.SetBlocked(true);
         
         // F-Mech 위치 고정
         Vector3 frozenPosition = transform.position;

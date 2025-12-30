@@ -39,7 +39,7 @@ public class PlayerInteractable : MonoBehaviour
 
     private void Update()
     {
-        if (player.WasJumping || player.JumpRequested)
+        if (player.isDead || player.WasJumping || player.JumpRequested)
         {
             CancelInteract();
             ClearHighlight();
@@ -164,7 +164,7 @@ public class PlayerInteractable : MonoBehaviour
 
     private async UniTask StartInteract()
     {
-        if (player.WasJumping || player.JumpRequested)
+        if (player.isDead || player.WasJumping || player.JumpRequested)
             return;
 
         if (!TryGetInteractable(out IInteractable interactable, out hilight, out _))
