@@ -165,8 +165,6 @@ public class SaveManager : MonoBehaviour
         // 1) 새 게임 상태로 씬/플레이어/인벤 초기화
         // 2) SaveAsync 호출
 
-        // 예: 현재 씬에서 전부 초기화하고 저장
-        // (너희 프로젝트 초기화 로직에 맞춰 구현)
         await SaveAsync(slotId);
         return true;
     }

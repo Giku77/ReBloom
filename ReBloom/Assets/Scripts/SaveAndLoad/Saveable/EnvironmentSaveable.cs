@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class EnvironmentSaveable : MonoBehaviour, ISaveable
 {
@@ -63,13 +63,13 @@ public class EnvironmentSaveable : MonoBehaviour, ISaveable
         if (stageManager != null && save.env.currentStageId != 0)
         {
             stageManager.SetWeatherRaw(
-                save.env.currentStageId,
-                save.env.weather,
-                save.env.currentPollution,
-                save.env.currentThirst,
-                save.env.currentTemp,
-                save.env.weatherDuration,
-                save.env.weatherTimer
+                stageID: save.env.currentStageId,
+                weather: save.env.weather,
+                weatherTimer: save.env.weatherTimer,
+                weatherDuration: save.env.weatherDuration,
+                pollution: save.env.currentPollution,
+                thirst: save.env.currentThirst,
+                temp: save.env.currentTemp
             );
         }
 
