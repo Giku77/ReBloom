@@ -175,11 +175,13 @@ public class GameInventorySlot : MonoBehaviour, IItemSlot, IDragSource,
     public void OnPointerExit(PointerEventData eventData)
     {
         Debug.Log("[OnPointerExit] 호출됨");
-        if (tooltip != null && PlatformManager.Instance.IsPC)
+        hoverPrefab.SetActive(false);
+        if (PlatformManager.Instance != null && PlatformManager.Instance.IsMobile)
+            return;
+        if (tooltip != null)
         {
             tooltip.Hide();
         }
-        hoverPrefab.SetActive(false);
     }
 
     private void OnDisable()

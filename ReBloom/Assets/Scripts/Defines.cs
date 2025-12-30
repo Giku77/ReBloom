@@ -71,6 +71,7 @@ public enum UIType
     MobileInventory,
     MobileStats,
     MobileQuickSlot,
+    MobileWeather,
 }
 
 public enum UILayer
