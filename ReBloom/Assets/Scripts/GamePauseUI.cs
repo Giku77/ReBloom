@@ -8,7 +8,8 @@ public enum PopupType
 { 
     None,
     Title,
-    QuitGame
+    QuitGame,
+    Escape,
 }
 
 
@@ -21,14 +22,19 @@ public class GamePauseUI : UIBase
     [SerializeField] private Button quitGameButton;
     [SerializeField] private Button executeButton;
     [SerializeField] private Button cancelButton;
+    [SerializeField] private Button escapeButton;
 
     [Header("팝업 UI")]
     [SerializeField] private GameObject popup;
     [SerializeField] private TextMeshProUGUI popupText;
 
+    [Header("References")]
+    [SerializeField] private PlayerStats player;
+
     private PopupType currentPopupType = PopupType.None;
     private string titlePopUpText = "타이틀로 돌아가시겠습니까?";
     private string quitGamePopUpText = "게임을 정말 종료하시겠습니까?";
+    private string escapePopUpText = "모든 아이템을 드랍합니다. 탈출하시겠습니까?";
 
     protected override void Awake()
     {
@@ -38,6 +44,7 @@ public class GamePauseUI : UIBase
         settingButton.onClick.AddListener(OnSettingButtonClicked);
         titleButton.onClick.AddListener(OnTitleButtonClicked);
         quitGameButton.onClick.AddListener(OnQuitGameButtonClicked);
+        escapeButton.onClick.AddListener(OnEscapeButtonClicked);
 
         popup.SetActive(false);
     }
@@ -90,6 +97,12 @@ public class GamePauseUI : UIBase
         OpenPopup();
     }
 
+    private void OnEscapeButtonClicked()
+    { 
+        currentPopupType = PopupType.Escape;
+        OpenPopup();
+    }
+
     private void OpenPopup()
     {
         popup.SetActive(true);
@@ -107,6 +120,11 @@ public class GamePauseUI : UIBase
             case PopupType.QuitGame:
                 popupText.text = quitGamePopUpText;
                 executeButton.onClick.AddListener(QuitGame);
+                cancelButton.onClick.AddListener(ClosePopup);
+                break;
+            case PopupType.Escape:
+                popupText.text = escapePopUpText;
+                executeButton.onClick.AddListener(Escape);
                 cancelButton.onClick.AddListener(ClosePopup);
                 break;
         }
@@ -138,4 +156,10 @@ public class GamePauseUI : UIBase
 
     }
 
+    private void Escape()
+    {
+        if (player == null) return;
+
+        player.TakeDamage(100);
+    }
 }
