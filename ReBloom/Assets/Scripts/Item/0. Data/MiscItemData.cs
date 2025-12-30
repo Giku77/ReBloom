@@ -47,7 +47,7 @@ public class MiscItemData : ItemBase
         MaxCount = meta.GetField<int>("MaxCount");
         Discardable = meta.GetField<int>("Discardable");
         Storageable = meta.GetField<int>("Storageable");
-        Imgpath = meta.GetField<string>("Imgpath");
+        Imgpath = meta.GetField<string>("Img_Path");
         Description = meta.GetField<string>("Description");
         Addressable_Key = meta.GetField<string>("Addressable_Key");
 
@@ -60,7 +60,7 @@ public class MiscItemData : ItemBase
         canQuickSlot = Convert.ToBoolean(Quickable[entity]);
         canDiscard = Convert.ToBoolean(Discardable[entity]);
         canStorage = Convert.ToBoolean(Storageable[entity]);
-        description = Description[entity];
+        description = Description[entity].ToString();
         canUseable = false;
         worldPrefabAddress = Addressable_Key[entity];
 

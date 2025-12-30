@@ -83,7 +83,7 @@ public class ToolItemData : ItemBase
         canQuickSlot = Convert.ToBoolean(Quickable[entity]);
         canDiscard = Convert.ToBoolean(Discardable[entity]);
         canStorage = Convert.ToBoolean(Storageable[entity]);
-        description = Description[entity];
+        description = Description[entity].ToString();
         canEquip = true;
         worldPrefabAddress = Addressable_Key[entity];
 
