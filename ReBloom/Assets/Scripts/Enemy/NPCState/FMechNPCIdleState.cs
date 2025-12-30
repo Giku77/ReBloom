@@ -37,14 +37,14 @@ public class FMechNPCIdleState : NPCState
             }
         }
 
-        //if (fMechController != null && fMechController.IsPlayerInMyStage() && fMechController.IsNightTime())
-        //{
-        //    controller.ChangeState(new FMechNPCChaseState(controller));
-        //}
-
-        if (fMechController != null && fMechController.IsPlayerInMyStage())
+        if (fMechController != null && fMechController.IsPlayerInMyStage() && fMechController.IsNightTime())
         {
             controller.ChangeState(new FMechNPCChaseState(controller));
         }
+
+        //if (fMechController != null && fMechController.IsPlayerInMyStage())
+        //{
+        //    controller.ChangeState(new FMechNPCChaseState(controller));
+        //}
     }
 }

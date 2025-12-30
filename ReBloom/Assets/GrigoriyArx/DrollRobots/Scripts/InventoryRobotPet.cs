@@ -312,11 +312,16 @@ public class InventoryRobotPet : MonoBehaviour
         if (playFx)
             teleportFx?.PlayEffect();
 
-        teleportCount++;
-        if (teleportCount >= teleportVoiceChance)
+        PlayerController playerController = player.GetComponent<PlayerController>();
+
+        if (playerController != null && !playerController.IsInputBlocked)
         {
-            PlayPoppyVoiceBySituation(4);
-            teleportCount = 0;
+            teleportCount++;
+            if (teleportCount >= teleportVoiceChance)
+            {
+                PlayPoppyVoiceBySituation(4);
+                teleportCount = 0;
+            }
         }
 
         stuckTime = 0f;
