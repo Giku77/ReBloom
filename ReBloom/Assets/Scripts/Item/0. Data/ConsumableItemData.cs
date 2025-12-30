@@ -68,7 +68,7 @@ public class ConsumableItemData : ItemBase
         Temp = meta.GetField<float>("Temp");
         Range = meta.GetField<int>("Range");
         Duration = meta.GetField<float>("Duration");
-        ImgPath = meta.GetField<string>("ImgPath");
+        ImgPath = meta.GetField<string>("Img_Path");
         Description = meta.GetField<string>("Description");
         Addressable_Key = meta.GetField<string>("Addressable_Key");
 
@@ -81,7 +81,7 @@ public class ConsumableItemData : ItemBase
         canDiscard = Convert.ToBoolean(Discardable[entity]);
         canStorage = Convert.ToBoolean(Storageable[entity]);
         canUseable = Convert.ToBoolean(Useable[entity]);
-        description = Description[entity];
+        description = Description[entity].ToString();
         worldPrefabAddress = Addressable_Key[entity];
 
         iconAddress = "Assets/Rebloom_Arts/Icon/Item/" + worldPrefabAddress + "_icon.png";

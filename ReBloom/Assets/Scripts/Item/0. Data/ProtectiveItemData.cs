@@ -25,7 +25,7 @@ public class ProtectiveItemData : ItemBase
     private BGField<int> Extra_HP;
     private BGField<int> Defense;
     private BGField<float> Insulation;
-    private BGField<String> Description;
+    private BGField<string> Description;
     private BGField<String> Addressable_Key;
 
     public GearType gearType;
@@ -66,7 +66,7 @@ public class ProtectiveItemData : ItemBase
         canDiscard = Convert.ToBoolean(Discardable[entity]);
         canUseable = Convert.ToBoolean(Useable[entity]);
         canStorage = Convert.ToBoolean(Storageable[entity]);
-        description = Description[entity];
+        description = Description[entity].ToString();
         canEquip = true;
         gearType = (GearType)Category[entity];
 
