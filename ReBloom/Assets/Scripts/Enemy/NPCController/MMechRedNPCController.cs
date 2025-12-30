@@ -10,8 +10,12 @@ public class MMechRedNPCController : BaseNPCController
     [Header("Stun Setting")]
     [SerializeField] private float stunTime = 2f;
 
+    private MMechNPCSound sound;
+
     protected override void InitializeState()
     {
+        sound = GetComponentInChildren<MMechNPCSound>();
+
         MoveNext();
     }
 
@@ -49,6 +53,8 @@ public class MMechRedNPCController : BaseNPCController
         if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
         {
             playerController.ApplyStun(stunTime);
+
+            sound.PlayHit();
         }
     }
 }

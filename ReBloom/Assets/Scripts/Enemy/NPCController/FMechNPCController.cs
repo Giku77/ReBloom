@@ -39,9 +39,13 @@ public class FMechNPCController : BaseNPCController
 
     private StageDetector playerStageDetector;
 
+    private FMechNPCSound sound;
+
     protected override void Start()
     {
         base.Start();
+
+        sound = GetComponentInChildren<FMechNPCSound>();
         
         // Player의 StageDetector 찾기
         if (player != null)
@@ -82,7 +86,7 @@ public class FMechNPCController : BaseNPCController
         ChangeState(new FMechNPCIdleState(this));
     }
 
-protected override void Update()
+    protected override void Update()
     {
         base.Update();
         CheckKillDistance();
@@ -172,6 +176,8 @@ protected override void Update()
     private async UniTask PlayJumpscareAsync(CancellationToken ct)
     {
         isPlayingJumpscare = true;
+
+        sound.PlayLaugh();
         
         // F-Mech 위치 고정
         Vector3 frozenPosition = transform.position;

@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 
-public class AMechNPCSound : MonoBehaviour
+public class FMechNPCSound : MonoBehaviour
 {
     [Header("Sound Clips")]
     [SerializeField] private AudioClip footstep;
-    [SerializeField] private AudioClip detectionBeep;
+    [SerializeField] private AudioClip laugh;
 
     private AudioSource audioSource;
 
@@ -21,15 +21,15 @@ public class AMechNPCSound : MonoBehaviour
         }
     }
 
-    public void PlayAMechFootStep()
+    public void PlayFMechFootStep()
     {
         if (footstep != null)
             audioSource.PlayOneShot(footstep, 0.5f);
     }
 
-    public void PlayDetection()
+    public void PlayLaugh()
     {
-        if (detectionBeep != null)
-            audioSource.PlayOneShot(detectionBeep);
+        if (laugh != null)
+            audioSource.PlayOneShot(laugh);
     }
 }

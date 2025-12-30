@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
 
-public class AMechNPCSound : MonoBehaviour
+public class MechNPCSound : MonoBehaviour
 {
     [Header("Sound Clips")]
     [SerializeField] private AudioClip footstep;
-    [SerializeField] private AudioClip detectionBeep;
+    [SerializeField] private AudioClip hit;
+    [SerializeField] private AudioClip mechTransform;
 
     private AudioSource audioSource;
 
@@ -16,20 +17,27 @@ public class AMechNPCSound : MonoBehaviour
             audioSource.playOnAwake = false;
             audioSource.spatialBlend = 1f;
             audioSource.minDistance = 3f;
-            audioSource.maxDistance = 15f;
+            audioSource.maxDistance = 25f;
             audioSource.rolloffMode = AudioRolloffMode.Linear;
         }
     }
 
-    public void PlayAMechFootStep()
+    public void PlayMechFootStep()
     {
         if (footstep != null)
-            audioSource.PlayOneShot(footstep, 0.5f);
+            audioSource.PlayOneShot(footstep, 0.8f);
     }
 
-    public void PlayDetection()
+    public void PlayHit()
     {
-        if (detectionBeep != null)
-            audioSource.PlayOneShot(detectionBeep);
+        if (hit != null)
+            audioSource.PlayOneShot(hit);
     }
+
+    public void PlayTransform()
+    {
+        if (mechTransform != null)
+            audioSource.PlayOneShot(mechTransform);
+    }
+
 }
