@@ -102,4 +102,22 @@ public class CraftRecipeDB
         }
         return list;
     }
+
+    /// <summary>
+    /// 카테고리로 레시피 필터링
+    /// category가 0이면 전체 반환
+    /// </summary>
+    public List<CraftRecipeData> GetByCategory(int category)
+    {
+        var list = new List<CraftRecipeData>();
+
+        foreach (var kvp in _recipes)
+        {
+            // 0이면 전체, 아니면 해당 카테고리만
+            if (category == 0 || kvp.Value.productCategory == category)
+                list.Add(kvp.Value);
+        }
+
+        return list;
+    }
 }

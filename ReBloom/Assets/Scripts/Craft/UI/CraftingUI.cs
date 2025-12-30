@@ -10,6 +10,18 @@ using UnityEngine.UI;
 
 public class CraftingUI : UIBase
 {
+    [Header("Category Tab References")]
+    [SerializeField] private Button tabAll;      // 전체 탭
+    [SerializeField] private Button tabCategory1; // 도구/장비
+    [SerializeField] private Button tabCategory2; // 소비
+    [SerializeField] private Button tabCategory3; // 재료
+
+    [SerializeField] private Color tabActiveColor = Color.white;
+    [SerializeField] private Color tabInactiveColor = new Color(0.7f, 0.7f, 0.7f, 1f);
+
+    private int currentCategory = 0; // 0 = 전체
+    private List<CraftingSlotUI> spawnedSlots = new List<CraftingSlotUI>();
+
     [SerializeField] private int currentRecipeId;
     private CraftingManager crafting;
     private CraftRecipeDB recipeDb;
@@ -21,9 +33,11 @@ public class CraftingUI : UIBase
     [SerializeField] private GameInventory inventory;
     [SerializeField] private Button craftButton;
     [SerializeField] private TextMeshProUGUI recipeNameText;
+    [SerializeField] private TextMeshProUGUI tierText;
     [SerializeField] private TextMeshProUGUI recipeDescText;
     //[SerializeField] private TextMeshProUGUI recipeMaterialsText;
     [SerializeField] private TextMeshProUGUI recipeResultText;
+    [SerializeField] private Image tierBorder;
 
     [Tooltip("Ingredient UI References")]
     [System.Serializable]
@@ -71,6 +85,15 @@ public class CraftingUI : UIBase
             craftingCountSlider.onValueChanged.AddListener(OnSliderValueChanged);
         OnValidate();
         player = GameObject.FindWithTag("Player");
+
+        if (tabAll != null)
+            tabAll.onClick.AddListener(() => OnTabClicked(0));
+        if (tabCategory1 != null)
+            tabCategory1.onClick.AddListener(() => OnTabClicked(1));
+        if (tabCategory2 != null)
+            tabCategory2.onClick.AddListener(() => OnTabClicked(2));
+        if (tabCategory3 != null)
+            tabCategory3.onClick.AddListener(() => OnTabClicked(3));
     }
 
     private void OnSliderValueChanged(float value)
@@ -123,15 +146,17 @@ public class CraftingUI : UIBase
 
     private void Start()
     {
-        var recipes = recipeDb.GetAll();
-        foreach (var recipe in recipes)
-        {
-            var slot = Instantiate(slotPrefab, slotParent);
-            if (firstslot == null)
-                firstslot = slot;
-            slot.Init(recipe.Value.recipeId, recipe.Value.productId, recipe.Value.productName, this);
-        }
-        firstslot?.Select();
+        //var recipes = recipeDb.GetAll();
+        //foreach (var recipe in recipes)
+        //{
+        //    var slot = Instantiate(slotPrefab, slotParent);
+        //    if (firstslot == null)
+        //        firstslot = slot;
+        //    slot.Init(recipe.Value.recipeId, recipe.Value.productId, recipe.Value.productName, this);
+        //}
+        //firstslot?.Select();
+
+        OnTabClicked(0);
     }
 
     private void OnEnable()
@@ -225,8 +250,11 @@ public class CraftingUI : UIBase
 
         if (item.icon != null)
         {
-            recipeIcon.sprite = ItemDatabase.I.GetItem(recipe.productId).icon;
+            recipeIcon.sprite = item.icon;
             recipeDescText.text = item.description != null ? item.description : "설명이 없습니다.";
+            tierText.text = "Tier " + item.tier.ToString();
+            tierBorder.color = GameInventoryToolTip.GetTierColor(item.tier);
+            tierText.gameObject.SetActive(item.tier != 0);
         }
         else
         {
@@ -288,7 +316,64 @@ public class CraftingUI : UIBase
         }
     }
 
+    private void OnTabClicked(int category)
+    {
+        currentCategory = category;
+        UpdateTabVisuals();
+        RefreshSlots();
+    }
 
+    private void UpdateTabVisuals()
+    {
+        // 선택된 탭만 활성 색상으로
+        SetTabColor(tabAll, currentCategory == 0);
+        SetTabColor(tabCategory1, currentCategory == 1);
+        SetTabColor(tabCategory2, currentCategory == 2);
+        SetTabColor(tabCategory3, currentCategory == 3);
+    }
+
+    private void SetTabColor(Button tab, bool isActive)
+    {
+        if (tab == null) return;
+
+        var colors = tab.colors;
+        colors.normalColor = isActive ? tabActiveColor : tabInactiveColor;
+        tab.colors = colors;
+
+        // 또는 Image 컴포넌트 직접 변경
+        var img = tab.GetComponent<Image>();
+        if (img != null)
+            img.color = isActive ? tabActiveColor : tabInactiveColor;
+    }
+
+    private void RefreshSlots()
+    {
+        // 1. 기존 슬롯 전부 삭제
+        foreach (var slot in spawnedSlots)
+        {
+            if (slot != null)
+                Destroy(slot.gameObject);
+        }
+        spawnedSlots.Clear();
+        firstslot = null;
+
+        // 2. 필터링된 레시피로 새 슬롯 생성
+        var recipes = recipeDb.GetByCategory(currentCategory);
+
+        foreach (var recipe in recipes)
+        {
+            var slot = Instantiate(slotPrefab, slotParent);
+            spawnedSlots.Add(slot);
+
+            if (firstslot == null)
+                firstslot = slot;
+
+            slot.Init(recipe.recipeId, recipe.productId, recipe.productName, this);
+        }
+
+        // 3. 첫 번째 슬롯 자동 선택
+        firstslot?.Select();
+    }
     public void Toggle()
     {
         //gameObject.SetActive(!gameObject.activeSelf);

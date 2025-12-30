@@ -8,6 +8,7 @@ public class CraftingSlotUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI slotNameText;
     [SerializeField] private Button slotButton;
     [SerializeField] private Image slotIcon;
+    [SerializeField] private Image borderImage;
     [SerializeField] private Sprite defualtIcon;
 
     private CraftingUI craftingUI;
@@ -23,7 +24,14 @@ public class CraftingSlotUI : MonoBehaviour
         recipeId = id;
         craftingUI = ui;
         slotNameText.text = displayName;
-        if (ItemDatabase.I.GetItem(productId).icon != null)
+        var item = ItemDatabase.I.GetItem(productId);
+        if (item != null)
+        {
+            int tier = item.tier;
+            // tier에 따라 UI 처리
+            borderImage.color = GameInventoryToolTip.GetTierColor(tier);
+        }
+        if (item.icon != null)
         {
             slotIcon.sprite = ItemDatabase.I.GetItem(productId).icon;
         }
@@ -32,7 +40,6 @@ public class CraftingSlotUI : MonoBehaviour
             slotIcon.sprite = defualtIcon;
         }
     }
-
     private void OnClickSlot()
     {
         if (craftingUI == null) return;
