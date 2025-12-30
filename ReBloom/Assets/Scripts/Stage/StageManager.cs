@@ -62,6 +62,34 @@ public class StageManager : MonoBehaviour
             }
         }
     }
+
+    public void SetWeatherRaw(
+    int stageID,
+    WeatherType weather,
+    float weatherTimer,
+    float weatherDuration,
+    float pollution,
+    float thirst,
+    float temp,
+    bool raiseEvent = true)
+    {
+        if (!weatherByStageID.ContainsKey(stageID))
+            weatherByStageID[stageID] = new WeatherInfo();
+
+        var info = weatherByStageID[stageID];
+
+        info.currentWeather = weather;
+        info.weatherTimer = Mathf.Max(0f, weatherTimer);
+        info.weatherDuration = Mathf.Max(1f, weatherDuration);
+
+        info.currentPollution = pollution;
+        info.currentThirst = thirst;
+        info.currentTemp = temp;
+
+        if (raiseEvent)
+            OnWeatherChange?.Invoke(stageID, weather);
+    }
+
     
     private void SetRandomWeather(int stageID)
     {

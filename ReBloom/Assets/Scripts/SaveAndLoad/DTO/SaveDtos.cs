@@ -15,6 +15,8 @@ public class SaveGameDTO
     public PlayerSaveDTO player = new PlayerSaveDTO();
     public WorldSaveDTO world = new WorldSaveDTO();
     public QuestSaveDTO quest = new QuestSaveDTO();
+    public EnvironmentSaveDTO env = new EnvironmentSaveDTO();
+    public ResearchSaveDTO research = new ResearchSaveDTO();
 
     public SettingsDTO settings = new SettingsDTO();
 }
@@ -52,9 +54,38 @@ public class SaveMetaDTO
 }
 
 [Serializable]
+public class ResearchSaveDTO
+{
+    public float energy;
+    public float progress;
+    public float greening;
+}
+
+[Serializable]
 public class QuestSaveDTO
 {
     public int currentQuestId; // 0이면 없음
+}
+
+[Serializable]
+public class EnvironmentSaveDTO
+{
+    // 지역
+    public int currentStageId;
+
+    // 시간
+    public int day;
+    public int hour;
+    public int minute;
+
+    // 날씨(“현재 지역” 기준으로만 저장해도 UI는 충분히 복원됨)
+    public WeatherType weather;
+    public float weatherDuration;
+    public float weatherTimer;
+
+    public float currentPollution;
+    public float currentThirst;
+    public float currentTemp;
 }
 
 // ---- Player ----

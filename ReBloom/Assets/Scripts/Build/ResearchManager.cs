@@ -24,6 +24,7 @@ public class ResearchManager : MonoBehaviour
     [Header("Greening")]
     [SerializeField] private float currentGreening = 0f;
     public float CurrentGreening => currentGreening;
+
     public event Action<float> OnGreeningChanged;
 
 
@@ -209,4 +210,65 @@ public class ResearchManager : MonoBehaviour
             }
         }
     }
+
+    public ResearchSaveDTO Capture()
+    {
+        return new ResearchSaveDTO
+        {
+            energy = CurrentEnergy,
+            progress = CurrentProgress,
+            greening = CurrentGreening,
+        };
+    }
+
+    public void Apply(ResearchSaveDTO dto)
+    {
+        if (dto == null) return;
+
+        SetEnergy(dto.energy);
+        SetProgress(dto.progress);
+        SetGreening(dto.greening);
+    }
+
+    public void SetProgress(float value, bool notify = true)
+    {
+        value = Mathf.Max(0f, value);
+        if (Mathf.Approximately(currentProgress, value)) return;
+
+        currentProgress = value;
+
+        RecalculateUnlocks();
+
+        if (notify)
+            OnProgressChanged?.Invoke(currentProgress);
+
+        //AutoSaveService.I?.RequestSave("ResearchProgressSet");
+    }
+
+    public void SetEnergy(float value, bool notify = true)
+    {
+        value = Mathf.Max(0f, value);
+        if (Mathf.Approximately(currentEnergy, value)) return;
+
+        currentEnergy = value;
+
+        if (notify)
+            OnEnergyChanged?.Invoke(currentEnergy);
+
+        //AutoSaveService.I?.RequestSave("ResearchEnergySet");
+    }
+
+    public void SetGreening(float value, bool notify = true)
+    {
+        value = Mathf.Clamp(value, 0f, 100f);
+        if (Mathf.Approximately(currentGreening, value)) return;
+
+        currentGreening = value;
+
+        if (notify)
+            OnGreeningChanged?.Invoke(currentGreening);
+
+        //AutoSaveService.I?.RequestSave("ResearchGreeningSet");
+    }
+
 }
