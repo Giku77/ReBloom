@@ -375,6 +375,7 @@ public class PlayerController : MonoBehaviour
             Anim.PlayWatering();
         }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (Keyboard.current.f3Key.wasPressedThisFrame)
         {
             debugMode = !debugMode;
@@ -383,6 +384,7 @@ public class PlayerController : MonoBehaviour
                 playerStats.DebugMode = debugMode;
             Debug.Log("디버그 모드 온오프");
         }
+#endif
         CheckStorageDistance();
 
         if (isStunned == true)

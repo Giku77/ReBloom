@@ -94,12 +94,14 @@ public class TutorialManager : MonoBehaviour
     private void Update()
     {
         if (!isRunning) return;
-        if (Keyboard.current == null) return;
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        if (Keyboard.current == null) return;
         if (Keyboard.current.f9Key.wasPressedThisFrame)
         {
             SkipTutorial();
         }
+#endif
     }
 
     public void SkipTutorial()

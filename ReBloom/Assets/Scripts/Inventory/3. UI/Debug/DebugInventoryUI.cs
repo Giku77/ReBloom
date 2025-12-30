@@ -134,6 +134,10 @@ public class DebugInventoryUI : UIBase
     #region UI 이벤트
     public void ToggleUI()
     {
+#if !UNITY_EDITOR && !DEVELOPMENT_BUILD
+    return;
+#endif
+
         //bool newState = !uiRoot.activeSelf;
         //Debug.Log(newState);
         //uiRoot.SetActive(newState);
@@ -147,7 +151,7 @@ public class DebugInventoryUI : UIBase
         //    Cursor.lockState = CursorLockMode.None;
         //}
         if (UIManager.Instance != null && UIManager.Instance.IsBlockedInput)
-          return;
+            return;
         UIManager.Instance.ToggleUI(Type);
     }
 
@@ -427,6 +431,8 @@ public class DebugInventoryUI : UIBase
     /// <summary>
     /// 콘솔 명령어로 열기 (빌드에서도 사용 가능)
     /// </summary>
+    /// 
+
     [ContextMenu("Open Debug Inventory")]
     public void OpenDebugInventory()
     {
