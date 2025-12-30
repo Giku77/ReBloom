@@ -154,4 +154,47 @@ public class SettingManager : MonoBehaviour
     {
         return PoppyVoiceType;
     }
+
+    public SettingsDTO Capture()
+    {
+        return new SettingsDTO
+        {
+            master = MasterVolume,
+            bgm = BGMVolume,
+            sfx = SFXVolume,
+            fullscreen = IsFullScreen,
+            vsync = IsVSyncEnabled,
+            mouseSensitivity = MouseSensitivity,
+            graphicsQuality = GraphicsQuality,
+            targetFrameRate = TargetFrameRate,
+            poppyVoiceType = PoppyVoiceType,
+            resW = CurrentResolution.width,
+            resH = CurrentResolution.height
+        };
+    }
+
+    public void Apply(SettingsDTO dto)
+    {
+        if (dto == null) return;
+
+        SetGraphicsQuality(dto.graphicsQuality);
+
+        if (PlatformManager.Instance == null || !PlatformManager.Instance.IsMobile)
+        {
+            var r = new Resolution { width = dto.resW, height = dto.resH };
+            SetResolution(r);
+            SetFullScreen(dto.fullscreen);
+        }
+
+        SetVSync(dto.vsync);
+        SetTargetFrameRate(dto.targetFrameRate);
+
+        SetMasterVolume(dto.master);
+        SetBGMVolume(dto.bgm);
+        SetSFXVolume(dto.sfx);
+
+        SetMouseSensitivity(dto.mouseSensitivity);
+        SetPoppyVoiceType(dto.poppyVoiceType);
+    }
+
 }

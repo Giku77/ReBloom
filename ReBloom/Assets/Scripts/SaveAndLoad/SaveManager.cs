@@ -66,6 +66,9 @@ public class SaveManager : MonoBehaviour
             }
         };
 
+        if (SettingManager.I != null)
+            save.settings = SettingManager.I.Capture();
+
         var saveables = SaveRegistry.FindAllSaveablesInScene();
         Debug.Log("[Save] saveables = " + string.Join(", ", saveables.ConvertAll(s => s.GetType().Name)));
         foreach (var s in saveables)
@@ -101,7 +104,10 @@ public class SaveManager : MonoBehaviour
 
             var save = SaveSerializerNewtonsoft.FromBytes<SaveGameDTO>(bytes, compressGzip);
 
-            // (선택) 저장된 씬과 다르면 씬 로드 후 Restore 해야 함
+            if (SettingManager.I != null && save.settings != null)
+                SettingManager.I.Apply(save.settings);
+
+            // 저장된 씬과 다르면 씬 로드 후 Restore 해야 함
             if (!string.IsNullOrEmpty(save.meta.sceneName) &&
                 SceneManager.GetActiveScene().name != save.meta.sceneName)
             {

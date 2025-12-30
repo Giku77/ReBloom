@@ -15,7 +15,31 @@ public class SaveGameDTO
     public PlayerSaveDTO player = new PlayerSaveDTO();
     public WorldSaveDTO world = new WorldSaveDTO();
     public QuestSaveDTO quest = new QuestSaveDTO();
+
+    public SettingsDTO settings = new SettingsDTO();
 }
+
+[Serializable]
+public class SettingsDTO
+{
+    public float master = 1f;
+    public float bgm = 0.5f;
+    public float sfx = 1f;
+
+    public bool fullscreen = true;
+    public bool vsync = true;
+    public float mouseSensitivity = 3f;
+
+    public int graphicsQuality = 0;
+    public int targetFrameRate = 120;
+    public int poppyVoiceType = 1;
+
+    // 해상도는 플랫폼/모니터에 따라 달라서 “원시값”으로 저장
+    public int resW;
+    public int resH;
+}
+
+
 
 [Serializable]
 public class SaveMetaDTO
