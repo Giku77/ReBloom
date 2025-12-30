@@ -12,6 +12,8 @@ public class DroneChaseState : NPCState
 
     public override void Enter()
     {
+        drone.sound.PlayDetection();
+
         chaseStart = Time.time;
         controller.agent.isStopped = false;
 

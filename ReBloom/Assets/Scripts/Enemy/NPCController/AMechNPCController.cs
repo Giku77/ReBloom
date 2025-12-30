@@ -13,12 +13,16 @@ public class AMechNPCController : BaseNPCController
     [Header("CallReinforcement")]
     public float callInterval = 7f;
 
+    public AMechNPCSound sound;
+
     private int index = -1;
 
     public static event Action OnPlayerDetected;
 
     protected override void InitializeState()
     {
+        sound = GetComponentInChildren<AMechNPCSound>();
+
         MoveNext();
     }
 
@@ -48,7 +52,10 @@ public class AMechNPCController : BaseNPCController
         if (Physics.Raycast(transform.position, dir, out RaycastHit hit, detectionRange))
         {
             if (hit.transform == player)
+            {
+                sound.PlayDetection();
                 OnPlayerDetected?.Invoke();
+            }
         }
     }
 

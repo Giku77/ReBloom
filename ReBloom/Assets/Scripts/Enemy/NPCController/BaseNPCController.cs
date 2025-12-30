@@ -25,7 +25,6 @@ public abstract class BaseNPCController : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponentInChildren<Animator>();
 
-        // PlayerController 참조 세팅
         if (playerController == null)
         {
             GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
