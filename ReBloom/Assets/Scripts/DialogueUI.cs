@@ -19,6 +19,8 @@ public class DialogueUI : UIBase
     private bool nextRequested;
     private CanvasGroup canvasGroup;
 
+    private CancellationTokenSource visibilityCts;
+
 
     private Color originalBgColor;
 
@@ -30,6 +32,14 @@ public class DialogueUI : UIBase
         {
             originalBgColor = backgroundImage.color;
         }
+    }
+
+    private void CancelVisibilityJob()
+    {
+        if (visibilityCts == null) return;
+        visibilityCts.Cancel();
+        visibilityCts.Dispose();
+        visibilityCts = null;
     }
 
     public void RequestNext()
@@ -65,6 +75,31 @@ public class DialogueUI : UIBase
         canvasGroup.alpha = to;
     }
 
+    public async UniTask FadeAsync(float from, float to, float duration, CancellationToken token)
+    {
+        if (canvasGroup == null || duration <= 0f)
+        {
+            if (canvasGroup != null) canvasGroup.alpha = to;
+            return;
+        }
+
+        float t = 0f;
+        canvasGroup.alpha = from;
+
+        while (t < duration)
+        {
+            token.ThrowIfCancellationRequested();
+
+            t += Time.deltaTime;
+            float lerp = Mathf.Clamp01(t / duration);
+            canvasGroup.alpha = Mathf.Lerp(from, to, lerp);
+
+            await UniTask.Yield(PlayerLoopTiming.Update, token);
+        }
+
+        canvasGroup.alpha = to;
+    }
+
 
     public void OnNextInput(InputAction.CallbackContext ctx)
     {
@@ -75,21 +110,32 @@ public class DialogueUI : UIBase
 
     public override void Hide()
     {
+        CancelVisibilityJob();
+
+        var destroyToken = this.GetCancellationTokenOnDestroy();
+        visibilityCts = CancellationTokenSource.CreateLinkedTokenSource(destroyToken);
+        var token = visibilityCts.Token;
+
+        HideAsync(token).Forget();
+    }
+
+    private async UniTaskVoid HideAsync(CancellationToken token)
+    {
         if (canvasGroup != null)
         {
-            FadeAsync(canvasGroup.alpha, 0f, fadeDuration)
-                .ContinueWith(() => base.Hide())
-                .Forget();
+            await FadeAsync(canvasGroup.alpha, 0f, fadeDuration, token);
+            token.ThrowIfCancellationRequested();
         }
-        else
-        {
-            base.Hide();
-        }
+
+        base.Hide();
     }
 
     public override void Show()
     {
+        CancelVisibilityJob();
+
         base.Show();
+
         if (canvasGroup != null)
         {
             canvasGroup.alpha = 1f;

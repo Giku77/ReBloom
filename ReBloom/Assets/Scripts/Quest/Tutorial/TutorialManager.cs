@@ -21,6 +21,12 @@ public class TutorialManager : MonoBehaviour
     private CancellationTokenSource tutorialCts;
     private bool isRunning;
 
+    private int resumeTutorialId = 0;
+    private bool introCompleted = false;
+
+    public int ResumeTutorialId => resumeTutorialId;
+    public bool IntroCompleted => introCompleted;
+
     private void Awake()
     {
         I = this;
@@ -47,13 +53,20 @@ public class TutorialManager : MonoBehaviour
 
     private async void Start()
     {
+        if (introCompleted)
+        {
+            playerController.SetBlocked(false);
+            return;
+        }
+
+        int startId = (resumeTutorialId > 0) ? resumeTutorialId : introTutorialId;
         var destroyToken = this.GetCancellationTokenOnDestroy();
         tutorialCts = CancellationTokenSource.CreateLinkedTokenSource(destroyToken);
 
         try
         {
             isRunning = true;
-            await RunTutorialChainAsync(introTutorialId, tutorialCts.Token);
+            await RunTutorialChainAsync(startId, tutorialCts.Token);
         }
         catch (OperationCanceledException)
         {
@@ -96,11 +109,20 @@ public class TutorialManager : MonoBehaviour
             Debug.Log("[TutorialManager] SkipTutorial called.");
             tutorialCts.Cancel();
         }
+        introCompleted = true;
+    }
+
+    public void SetTutorialState(int resumeId, bool completed)
+    {
+        resumeTutorialId = resumeId;
+        introCompleted = completed;
     }
 
     public async UniTask RunTutorialChainAsync(int startTutorialId, CancellationToken token)
     {
         int currentId = startTutorialId;
+        resumeTutorialId = currentId;
+        AutoSaveService.I?.RequestSave("Tutorial start/resume");
 
         while (currentId != 0 &&
                !token.IsCancellationRequested &&
@@ -171,6 +193,14 @@ public class TutorialManager : MonoBehaviour
             }
 
             currentId = node.NextTutorialID;
+            resumeTutorialId = currentId; // 다음 노드
+            AutoSaveService.I?.RequestSave("Tutorial progress");
+        }
+        if (!token.IsCancellationRequested && currentId == 0)
+        {
+            introCompleted = true;
+            resumeTutorialId = 0;
+            AutoSaveService.I?.RequestSave("Tutorial completed");
         }
     }
 

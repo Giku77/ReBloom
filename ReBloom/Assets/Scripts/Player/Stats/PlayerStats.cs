@@ -110,7 +110,7 @@ public class PlayerStats : MonoBehaviour
 
 
         isDead = false;
-        AutoSaveService.I.RequestSave("PlayerStats");
+        AutoSaveService.I?.RequestSave("PlayerStats");
     }
 
     public void TakeDamage(float damage)
@@ -118,7 +118,7 @@ public class PlayerStats : MonoBehaviour
         Health.Modify(-damage);
         anim.SetHitAnim();
         SoundManager.I?.PlayGetDamage();
-        AutoSaveService.I.RequestSave("PlayerStats");
+        AutoSaveService.I?.RequestSave("PlayerStats");
     }
     /// <summary>
     /// LSY: DeathBoxHandler를 찾아서 자동 이벤트 등록

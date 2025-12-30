@@ -17,6 +17,8 @@ public class SaveGameDTO
     public QuestSaveDTO quest = new QuestSaveDTO();
     public EnvironmentSaveDTO env = new EnvironmentSaveDTO();
     public ResearchSaveDTO research = new ResearchSaveDTO();
+    public TutorialSaveDTO tutorial = new TutorialSaveDTO();
+    public CutSceneSaveDTO cutScene = new CutSceneSaveDTO();
 
     public SettingsDTO settings = new SettingsDTO();
 }
@@ -54,11 +56,32 @@ public class SaveMetaDTO
 }
 
 [Serializable]
+public class TutorialSaveDTO
+{
+    public bool introCompleted;
+    public int resumeTutorialId; // 0이면 완료/없음
+}
+
+[Serializable]
 public class ResearchSaveDTO
 {
     public float energy;
     public float progress;
     public float greening;
+}
+
+[Serializable]
+public class CutSceneSaveDTO
+{
+    public bool introCutsceneSeen;
+}
+
+[Serializable]
+public class EquipmentSaveDTO
+{
+    public int clothItemId; // 0이면 없음
+    public int shoesItemId;
+    public int toolItemId;
 }
 
 [Serializable]
@@ -93,13 +116,14 @@ public class EnvironmentSaveDTO
 public class PlayerSaveDTO
 {
     public TransformDTO transform = new TransformDTO();
-    public string inventoryContainerGuid;   // 플레이어 인벤토리도 컨테이너로 통일 가능
-    public string equipmentContainerGuid;   // 플레이어 장비 컨테이너
+    public string inventoryContainerGuid;
     public float hp;
     public float hunger;
     public float thirst;
     public float pollution;
     public float temperature;
+
+    public EquipmentSaveDTO equipment = new EquipmentSaveDTO();
 
     // 죽음 상태/디버프/장비 등
     public bool isDead;
