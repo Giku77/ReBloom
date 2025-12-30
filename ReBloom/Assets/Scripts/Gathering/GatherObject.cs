@@ -31,6 +31,9 @@ public class GatherObject : MonoBehaviour, IInteractable
     [Header("망치 필요 여부")]
     public bool requireHammer = false;
 
+    [Header("군수공장 펜스")]
+    [SerializeField] private GameObject fence;
+
     public float HoldTime
     {
         get
@@ -137,6 +140,12 @@ public class GatherObject : MonoBehaviour, IInteractable
             if (gatherObjectID == 910019)
             {
                 ToastMessageUI.Instance?.Show("다리를 막는 버스를 부쉈습니다.");
+            }
+
+            if (gatherObjectID == 910020 && fence != null)
+            {
+                fence.SetActive(false);
+                ToastMessageUI.Instance?.Show("군수공장의 문이 열렸습니다.");
             }
 
             if (highlight != null)
