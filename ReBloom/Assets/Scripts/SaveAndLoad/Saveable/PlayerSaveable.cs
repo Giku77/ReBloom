@@ -1,0 +1,48 @@
+using UnityEngine;
+
+public class PlayerSaveable : MonoBehaviour, ISaveable
+{
+    [SerializeField] private PlayerStats stats;
+
+    public string EntityGuid => "player";
+
+    private void Reset()
+    {
+        stats = GetComponent<PlayerStats>();
+    }
+
+    public void Capture(SaveGameDTO save)
+    {
+        if (save == null) return;
+
+        save.player.transform = TransformDTO.From(transform);
+
+        if (stats == null) return;
+
+        save.player.hp = stats.Health.Value;
+        save.player.hunger = stats.Hunger.Value;
+        save.player.thirst = stats.Thirst.Value;
+        save.player.pollution = stats.Pollution.Value;
+        save.player.temperature = stats.Temperature.Value;
+
+        // save.player.isDead = stats.IsDead; 
+    }
+
+    public void Restore(SaveGameDTO save)
+    {
+        if (save == null) return;
+
+        save.player.transform?.ApplyTo(transform);
+
+        if (stats == null) return;
+
+        stats.Health.Set(save.player.hp);
+        stats.Hunger.Set(save.player.hunger);
+        stats.Thirst.Set(save.player.thirst);
+        stats.Pollution.Set(save.player.pollution);
+        stats.Temperature.Set(save.player.temperature);
+
+        // 죽음상태 처리
+        // if (save.player.isDead) ...
+    }
+}

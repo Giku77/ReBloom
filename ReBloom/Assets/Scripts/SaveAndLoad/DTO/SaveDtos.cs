@@ -63,9 +63,15 @@ public class PlayerSaveDTO
 {
     public TransformDTO transform = new TransformDTO();
     public string inventoryContainerGuid;   // 플레이어 인벤토리도 컨테이너로 통일 가능
-    public string equipmentContainerGuid;   // 선택
-    public int hp;
-    public int stamina;
+    public string equipmentContainerGuid;   // 플레이어 장비 컨테이너
+    public float hp;
+    public float hunger;
+    public float thirst;
+    public float pollution;
+    public float temperature;
+
+    // 죽음 상태/디버프/장비 등
+    public bool isDead;
 }
 
 // ---- World ----
