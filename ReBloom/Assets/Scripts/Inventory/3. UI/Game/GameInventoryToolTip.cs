@@ -309,9 +309,9 @@ public class GameInventoryToolTip : MonoBehaviour
         return tier switch
         {
             0 => Color.white,                     //
-            1 => new Color(0.7f, 0.7f, 0.7f),    // 회색
-            2 => new Color(0.3f, 0.6f, 1f),      // 파랑
-            3 => new Color(0.8f, 0.3f, 1f),      // 보라
+            1 => new Color(0.7f, 0.7f, 0.7f, 150),    // 회색
+            2 => new Color(0.4f, 0.7f, 1f, 150),      // 파랑
+            3 => new Color(0.7f, 0.3f, 1f, 150),      // 보라
             _ => Color.white
         };
     }
