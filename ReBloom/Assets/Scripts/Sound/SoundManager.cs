@@ -60,6 +60,13 @@ public class SoundManager : MonoBehaviour
     public AudioClip emp;
     public AudioClip tvOn;
     public AudioClip tvOff;
+    public AudioClip bagUpgrade;
+
+    [Header("기타 사운드")]
+    public AudioClip scan;
+    public AudioClip areaTransition;
+    public AudioClip surprise;
+    public AudioClip ocean;
 
     [Header("Volume")]
     [SerializeField, Range(0f, 1f)] private float masterVolume = 1f;
@@ -366,4 +373,9 @@ public class SoundManager : MonoBehaviour
     public void PlayEMP() => PlaySFX(emp);
     public void PlayTvOn() => PlaySFX(tvOn);
     public void PlayTvOff() => PlaySFX(tvOff);
+    public void PlayBagUpgrade() => PlaySFX(bagUpgrade);
+    public void PlayAreaTransition() => PlaySFX(areaTransition, 0.2f);
+    public void PlaySurprise() => PlaySFX(surprise);
+
+    public void PlayScan() => PlaySFX(scan);
 }

@@ -114,6 +114,7 @@ public class ConsumableItemData : ItemBase
                 SoundManager.I?.PlayEMP();
                 return ApplyJamming(player);
             case ConsumableCategory.ExpansionChip:
+                SoundManager.I?.PlayBagUpgrade();
                 return ApplyExpansionChip(player);
 
             default:

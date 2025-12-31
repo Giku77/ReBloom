@@ -822,6 +822,15 @@ public class PlayerController : MonoBehaviour
         }
         else if (!wasGround && isGround)
         {
+            if (IsInWater())
+            {
+                if (playerStats != null)
+                    playerStats.TakeDamage(9999f);
+                Debug.Log("물에 빠져 즉사!");
+                return;
+            }
+
+
             float fallHeight = (highestY - transform.position.y) * transform.localScale.y;
 
             if (fallHeight > maxDropHeight)
@@ -956,5 +965,18 @@ public class PlayerController : MonoBehaviour
         {
             jumpRequested = true;
         }
+    }
+
+    private bool IsInWater()
+    {
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 0.5f);
+        foreach (var hitCollider in hitColliders)
+        {
+            if (hitCollider.gameObject.layer == LayerMask.NameToLayer("Water"))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }
