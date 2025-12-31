@@ -18472,6 +18472,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7592093313035222403}
+  - component: {fileID: 2610076960369204078}
   m_Layer: 5
   m_Name: MobileInventoryUI
   m_TagString: Untagged
@@ -18504,6 +18505,43 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2610076960369204078
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7998737268671772921}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 246f9d67620202b45aea595b05025c3e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 23
+  layer: 1
+  blocksGameplayInput: 1
+  root: {fileID: 7998737268671772921}
+  cursorMode: 1
+  locksCameraZoom: 1
+  autoAttachCloseButtonOnMobile: 1
+  closeButtonPrefab: {fileID: 0}
+  closeButtonParent: {fileID: 0}
+  gameInventory: {fileID: 0}
+  inventoryData: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
+  inventoryUIRoot: {fileID: 0}
+  tooltip: {fileID: 0}
+  contentContainer: {fileID: 0}
+  itemSlotPrefab: {fileID: 6109362295886334634, guid: 7500eb1c9835acf459ad5523f312d5fc, type: 3}
+  emptySlotPrefab: {fileID: 165018241709572705, guid: 6dd8b2610e4706543953186e1c200ad2, type: 3}
+  btnConsumable: {fileID: 0}
+  btnProtective: {fileID: 0}
+  btnMisc: {fileID: 0}
+  btnImportant: {fileID: 0}
+  deActiveGameObject: {fileID: 0}
+  removeGradientGameObject: {fileID: 0}
+  gameEquipIcon: {fileID: 0}
+  gameQuickSlotRoot: {fileID: 0}
+  gamePlayerInfoRoot: {fileID: 0}
 --- !u!1 &8001644053993879354
 GameObject:
   m_ObjectHideFlags: 0
