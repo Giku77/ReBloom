@@ -84,7 +84,7 @@ public class QuickSlotUI : MonoBehaviour, IItemSlot, IDragSource
     /// </summary>
     public void OnUpdateSlotInfo(ItemBase item, int quantity)
     {
-        itemName.gameObject.SetActive(true);
+       // itemName.gameObject.SetActive(true);
         currentItem = item;
         currentQuantity = quantity;
 

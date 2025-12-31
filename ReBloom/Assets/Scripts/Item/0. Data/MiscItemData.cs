@@ -12,6 +12,7 @@ using UnityEngine.AddressableAssets;
 public class MiscItemData : ItemBase
 {
     private BGEntity entity;
+    private BGMetaEntity explanationMeta;
 
     private BGField<int> Item_ID;
     private BGField<string> Item_Name;
@@ -60,7 +61,6 @@ public class MiscItemData : ItemBase
         canQuickSlot = Convert.ToBoolean(Quickable[entity]);
         canDiscard = Convert.ToBoolean(Discardable[entity]);
         canStorage = Convert.ToBoolean(Storageable[entity]);
-        description = Description[entity].ToString();
         canUseable = false;
         worldPrefabAddress = Addressable_Key[entity];
 
@@ -68,6 +68,8 @@ public class MiscItemData : ItemBase
 
         LoadIconAsync();
         LoadPrefabAsync();
+        explanationMeta = BGRepo.I["Item_Explanation_String"];
+        description = GetLocalizedDescription();
     }
 
     public override bool Apply(PlayerController player)
@@ -200,5 +202,35 @@ public class MiscItemData : ItemBase
         {
             Debug.LogWarning($"[ToolItemData] prefab 로드 예외: {path}\n{e.Message}");
         }
+    }
+
+    /// <summary>
+    /// 현재 언어에 맞는 설명 텍스트 가져오기
+    /// </summary>
+    public string GetLocalizedDescription()
+    {
+        // Description 컬럼에 stringID가 저장되어 있다고 가정
+        string stringId = Description[entity];
+
+        if (string.IsNullOrEmpty(stringId))
+            return "설명 없음";
+
+        // stringID로 설명 테이블에서 행 찾기
+        var explanationEntity = explanationMeta.FindEntity(e =>
+        {
+            var idField = e.Meta.GetField<int>("stringID");
+            return idField[e].ToString() == stringId;
+        });
+
+        if (explanationEntity == null)
+            return "설명을 찾을 수 없음";
+
+        // 한국어/영어 선택 (현재 언어 설정에 따라)
+        bool isKorean = true;
+
+        var korField = explanationEntity.Meta.GetField<string>("stringKOR");
+        var engField = explanationEntity.Meta.GetField<string>("stringENG");
+
+        return isKorean ? korField[explanationEntity] : engField[explanationEntity];
     }
 }

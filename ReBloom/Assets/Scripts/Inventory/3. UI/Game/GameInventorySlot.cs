@@ -162,8 +162,9 @@ public class GameInventorySlot : MonoBehaviour, IItemSlot, IDragSource,
 
         if (tooltip != null && itemData != null)
         {
+            RectTransform slotRect = GetComponent<RectTransform>();
             Debug.Log($"[OnPointerEnter] 툴팁 Show 호출!");
-            tooltip.Show(itemData);
+            tooltip.Show(itemData, slotRect);
             hoverPrefab.SetActive(true);
         }
         else
