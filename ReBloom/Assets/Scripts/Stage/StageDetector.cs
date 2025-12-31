@@ -57,6 +57,7 @@ public class StageDetector : MonoBehaviour
     {
         if (other.TryGetComponent<StageBase>(out StageBase stage))
         {
+            bool changed = (currentStage == null || currentStage.StageID != stage.StageID);
             previousStage = currentStage != null ? currentStage : stage;
             currentStage = stage;
 
@@ -76,6 +77,8 @@ public class StageDetector : MonoBehaviour
                         QuestManager.I?.ClearPathGuide();
                     }
                     ToastMessageUI.Instance.Show($"오염도 지역에 진입했습니다 : 1초마다 오염도({stage.Data.stagePollution}) 증가");
+                     if (changed)
+                        AutoSaveService.I?.RequestSave($"StageChanged:{stage.StageID}");
                 }
             }
             else
@@ -127,6 +130,23 @@ public class StageDetector : MonoBehaviour
         }
         return 0.0f;
     }
+
+    public void ForceSetStage(int stageId)
+    {
+        var all = FindObjectsByType<StageBase>(FindObjectsSortMode.None);
+        foreach (var s in all)
+        {
+            if (s.StageID == stageId)
+            {
+                previousStage = currentStage != null ? currentStage : s;
+                currentStage = s;
+
+                ApplyWeather(currentStage.CurrentWeather);
+                return;
+            }
+        }
+    }
+
 
     public float GetCurrentTemperatureMultiplier()
     {
@@ -188,6 +208,7 @@ public class StageDetector : MonoBehaviour
         if (currentStage != null && currentStage.StageID == stageID)
         {
             ApplyWeather(weather);
+            AutoSaveService.I?.RequestSave($"WeatherChanged:{stageID}:{weather}");
         }
     }
 }

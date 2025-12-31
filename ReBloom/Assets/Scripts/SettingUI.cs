@@ -25,6 +25,7 @@ public class SettingUI : UIBase
         //Time.timeScale = 1f;
         UIManager.Instance.SetPaused(false);
         SoundManager.I?.PlayCloseInventory();
+        AutoSaveService.I?.RequestSave("Settings");
     }
 
     private void HandleBack()

@@ -50,6 +50,9 @@ public class PlayerEquipManager : MonoBehaviour
             equipInventory.SetActive(false);
         }
 
+        if (player.currentClothEquip != null || player.currentShoesEquip != null || player.currentToolEquip != null)
+            return;
+
         ItemBase defaultCloth = ItemDatabase.I.GetItem(4301001);
         ItemBase defaultShoes = ItemDatabase.I.GetItem(4302001);
 
@@ -116,6 +119,7 @@ public class PlayerEquipManager : MonoBehaviour
         {
             Debug.LogWarning("[EquipManager] equipmentUI가 null입니다!");
         }
+        AutoSaveService.I?.RequestSave("EquipChanged");
     }
 
     public void Apply(ToolItemData item)
@@ -155,6 +159,7 @@ public class PlayerEquipManager : MonoBehaviour
         {
            //Debug.LogWarning("[EquipManager] equipmentUI가 null입니다!");
         }
+        AutoSaveService.I?.RequestSave("EquipChanged");
     }
     public bool ToggleEquip(int itemId)
     {
@@ -291,6 +296,7 @@ public class PlayerEquipManager : MonoBehaviour
             currentEquipmentUI.RefreshAllSlots();
             currentEquipmentUI.UpdateResistText();
         }
+        AutoSaveService.I?.RequestSave("EquipChanged");
     }
 
     // 장착 여부 확인 헬퍼 메서드

@@ -5092,6 +5092,9 @@ GameObject:
   - component: {fileID: 1097723878453359439}
   - component: {fileID: 3805964265411450687}
   - component: {fileID: 2571494714614926799}
+  - component: {fileID: 1093642245201128653}
+  - component: {fileID: 3310707603313469427}
+  - component: {fileID: 8904375506488151209}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -5825,6 +5828,48 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inventoryData: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
+--- !u!114 &1093642245201128653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3915509196807712028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9fba7f187d2818f418fbf8c02687201d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stats: {fileID: 7606702177261600104}
+--- !u!114 &3310707603313469427
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3915509196807712028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cad64186f12f3694d8e38ecf0ee0b234, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stageDetector: {fileID: 1388426644026376058}
+  stageManager: {fileID: 8595353244509567925}
+  dayNight: {fileID: 8877487292375089443}
+--- !u!114 &8904375506488151209
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3915509196807712028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0da223241c381846ae6721707f1a025, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  equipManager: {fileID: 3683887210291562536}
+  equipData: {fileID: 5813627158112115396}
 --- !u!1 &3951941231071691645
 GameObject:
   m_ObjectHideFlags: 0

@@ -31,6 +31,8 @@ public class CutSceneManager : MonoBehaviour
     private CancellationTokenSource cutSceneCts;
     private bool isPlaying;
     public bool IsPlaying => isPlaying;
+    public bool IntroCutsceneSeen { get; private set; }
+
 
     private void Awake()
     {
@@ -49,11 +51,6 @@ public class CutSceneManager : MonoBehaviour
         //     cutSceneGroup.alpha = 0f;
         //     cutSceneGroup.gameObject.SetActive(false);
         // }
-    }
-
-    private async void Start()
-    {
-        // await PlayCutSceneSequenceAsync(introCutSceneId);
     }
 
     public void SkipCutScene()
@@ -83,7 +80,7 @@ public class CutSceneManager : MonoBehaviour
         var destroyToken = this.GetCancellationTokenOnDestroy();
         cutSceneCts = CancellationTokenSource.CreateLinkedTokenSource(destroyToken);
         var token = cutSceneCts.Token;
-
+        bool completed = false;
         try
         {
             if (cutSceneGroup != null)
@@ -144,8 +141,7 @@ public class CutSceneManager : MonoBehaviour
                 if (token.IsCancellationRequested)
                     break;
 
-                if (data.NextCutSceneID <= 0)
-                    break;
+                if (data.NextCutSceneID <= 0) { completed = true; break; }
 
                 currentId = data.NextCutSceneID;
                 SoundManager.I?.PlayCutSceneNext();
@@ -177,6 +173,12 @@ public class CutSceneManager : MonoBehaviour
             if (dialogueUI != null)
                 dialogueUI.Hide();
 
+            if (completed)
+            {
+                IntroCutsceneSeen = true;
+                AutoSaveService.I?.RequestSave("CutScene completed");
+            }
+
             isPlaying = false;
 
             cutSceneCts?.Dispose();
@@ -192,6 +194,9 @@ public class CutSceneManager : MonoBehaviour
 
         if (backgroundImage != null)
             backgroundImage.gameObject.SetActive(false);
+
+        if (skipHoldUI != null)
+            skipHoldUI.SetActive(false);
 
         if (dialogueUI != null)
             dialogueUI.Hide();
@@ -214,6 +219,8 @@ public class CutSceneManager : MonoBehaviour
             backgroundImage.gameObject.SetActive(true);
         }
     }
+
+    public void SetIntroCutsceneSeen(bool seen) => IntroCutsceneSeen = seen;
 
     private async UniTask<Sprite> LoadSpriteSafeAsync(string imageName)
     {

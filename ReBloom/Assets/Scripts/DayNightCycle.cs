@@ -127,6 +127,26 @@ public class DayNightCycle : MonoBehaviour
         }
     }
 
+    public void SetTime(int day, int hour, int minute)
+    {
+        CurrentDay = Mathf.Max(1, day);
+
+        float totalMinutes = (hour * 60f + minute);
+        totalMinutes = (totalMinutes - 300f + 1440f) % 1440f; 
+
+        currentTime = (totalMinutes / 1440f) * dayLengthInSeconds;
+
+        lastHour = GetCurrentHour();
+
+        UpdateDayCycle();
+        UpdateTemperature();
+        UpdateSun();
+        UpdateMoon();
+        UpdateCloudAlpha();
+        ApplyEnvironment();
+    }
+
+
     private float GetDayFactorByHour()
     {
         int h = GetCurrentHour();
@@ -168,6 +188,7 @@ public class DayNightCycle : MonoBehaviour
         if (lastHour != currentHour && currentHour == 0)
         {
             CurrentDay++;
+            AutoSaveService.I?.RequestSave("DayChanged");
         }
 
         lastHour = currentHour;
