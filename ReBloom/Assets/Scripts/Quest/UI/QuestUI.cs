@@ -86,7 +86,7 @@ public class QuestUI : MonoBehaviour
                         var craftName = bld != null ? bld.name : "Unknown Building";
                         description.text += $"\n - {craftName} ({currentAmt} / {goal.amount})";
                     }
-                    else if (goal.type == QuestGoalType.Enter && !isShowPathGuide)
+                    else if ((goal.type == QuestGoalType.Enter || goal.type == QuestGoalType.Interact) && !isShowPathGuide)
                     {
                         //description.text += $"\n - 위치에 도달하기";
                         //pathGuide.SetTarget(pathGuide.Target[TargetIndex], TargetIndex);
@@ -113,6 +113,8 @@ public class QuestUI : MonoBehaviour
                 return 1;
             case (int)EntranceType.Factory:
                 return 2;
+            case (int)EntranceType.ElectricSubstation:
+                return 3;
             default:
                 return -1;
         }

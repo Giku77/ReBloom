@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Cysharp.Threading.Tasks;
+using System;
+using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -47,6 +50,7 @@ public class ThirdPersonCamera : MonoBehaviour
     private bool isMobile;
     private bool isPC;
 
+    private bool isPlayingSequence;
     private void Awake()
     {
         if (PlatformManager.Instance != null)
@@ -73,6 +77,7 @@ public class ThirdPersonCamera : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (isPlayingSequence) return;
         if (isMobile)
         {
             HandleMobileTouch();
@@ -84,6 +89,116 @@ public class ThirdPersonCamera : MonoBehaviour
         if (!isZoomLocked && !isSequenceLocked)
         {
             HandleZoom();
+        }
+    }
+
+    private int _sequenceToken = 0;
+
+    public void PlayFocusSequenceUniTask(
+        Vector3 focusLookAtWorld,
+        Vector3 cameraPosWorld,
+        float blendIn = 0.35f,
+        float hold = 0.6f,
+        float blendOut = 0.35f,
+        Action onMidAction = null
+    )
+    {
+        // fire-and-forget
+        _ = PlayFocusSequenceAsync(focusLookAtWorld, cameraPosWorld, blendIn, hold, blendOut, onMidAction);
+    }
+
+    private async UniTaskVoid PlayFocusSequenceAsync(
+        Vector3 lookAtWorld,
+        Vector3 camPosWorld,
+        float blendIn,
+        float hold,
+        float blendOut,
+        Action onMidAction
+    )
+    {
+        if (isPlayingSequence) return;
+        isPlayingSequence = true;
+
+        int myToken = ++_sequenceToken;
+        var ct = this.GetCancellationTokenOnDestroy();
+
+        // 현재 카메라 포즈 저장
+        Vector3 savedPos = transform.position;
+        Quaternion savedRot = transform.rotation;
+
+        // 입력/줌 잠금
+        bool prevZoomLocked = isZoomLocked;
+        bool prevSeqLocked = isSequenceLocked;
+        isZoomLocked = true;
+        isSequenceLocked = true;
+
+        try
+        {
+            // 목표 포즈 계산
+            Vector3 seqFromPos = savedPos;
+            Quaternion seqFromRot = savedRot;
+
+            Vector3 seqToPos = camPosWorld;
+            Vector3 dir = (lookAtWorld - seqToPos);
+            if (dir.sqrMagnitude < 0.0001f) dir = transform.forward;
+            Quaternion seqToRot = Quaternion.LookRotation(dir.normalized, Vector3.up);
+
+            // --- Blend In ---
+            await LerpPoseAsync(seqFromPos, seqFromRot, seqToPos, seqToRot, blendIn, myToken, ct);
+
+            // 펜스 OFF 같은 핵심 액션
+            onMidAction?.Invoke();
+
+            // --- Hold ---
+            if (hold > 0f)
+                await UniTask.Delay(TimeSpan.FromSeconds(hold), cancellationToken: ct);
+
+            // --- Blend Out ---
+            await LerpPoseAsync(seqToPos, seqToRot, savedPos, savedRot, blendOut, myToken, ct);
+        }
+        catch (OperationCanceledException)
+        {
+            // 파괴되면 그냥 종료
+        }
+        finally
+        {
+            // 잠금 해제 
+            isZoomLocked = prevZoomLocked;
+            isSequenceLocked = prevSeqLocked;
+
+            isPlayingSequence = false;
+        }
+    }
+
+    private async UniTask LerpPoseAsync(
+        Vector3 fromPos, Quaternion fromRot,
+        Vector3 toPos, Quaternion toRot,
+        float duration,
+        int myToken,
+        CancellationToken ct
+    )
+    {
+        if (duration <= 0.0001f)
+        {
+            transform.position = toPos;
+            transform.rotation = toRot;
+            return;
+        }
+
+        float t = 0f;
+        while (t < 1f)
+        {
+            if (myToken != _sequenceToken) return;
+
+            ct.ThrowIfCancellationRequested();
+
+            t += Time.deltaTime / duration;
+            float u = Mathf.Clamp01(t);
+
+            transform.position = Vector3.Lerp(fromPos, toPos, u);
+            transform.rotation = Quaternion.Slerp(fromRot, toRot, u);
+
+            await UniTask.Yield(PlayerLoopTiming.PostLateUpdate, ct);
         }
     }
 

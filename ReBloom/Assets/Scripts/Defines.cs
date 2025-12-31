@@ -20,6 +20,7 @@ public enum EntranceType
     AbandonedSchool = 401,   // 폐교
     DepartmentStore = 402,   // 백화점
     Factory = 403,           // 공장
+    ElectricSubstation = 910020, // 변전소
 }
 
 
