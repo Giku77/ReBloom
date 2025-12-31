@@ -14,7 +14,6 @@ public class GatherObject : MonoBehaviour, IInteractable
     private GameInventory inventoryItemData;
     private InteractionHighlight highlight;
     private PlayerEquipManager playerEquipManager;
-    private DayNightCycle dayNightCycle;
 
     private int objectNameID;
     private string gatherName;
@@ -31,31 +30,14 @@ public class GatherObject : MonoBehaviour, IInteractable
     [Header("망치 필요 여부")]
     public bool requireHammer = false;
 
-    public float HoldTime
-    {
-        get
-        {
-            if (gatherObjectData == null) return 1f;
-
-            int searchType = GetCurrentSearchType();
-
-            if (searchType == 0) return float.MaxValue;
-            if (searchType == 1) return gatherObjectData.searchTime;
-            if (searchType == 2)
-            {
-                return gatherObjectData.searchTime * playerEquipManager.GetToolPerform();
-            }
-
-            return gatherObjectData.searchTime;
-        }
-    }
+    public float HoldTime =>
+        gatherObjectData.searchTime * playerEquipManager.GetToolPerform();
 
     private void Awake()
     {
         highlight = GetComponent<InteractionHighlight>();
         playerEquipManager = FindFirstObjectByType<PlayerEquipManager>();
         inventoryItemData = FindFirstObjectByType<GameInventory>();
-        dayNightCycle = FindFirstObjectByType<DayNightCycle>();
     }
 
     private void Update()
@@ -93,34 +75,27 @@ public class GatherObject : MonoBehaviour, IInteractable
         if (player == null) return;
         if (!isAvailable) return;
 
-        //if (requireHammer && !HasHammerEquipped())
-        //{
-        //    ToastMessageUI.Instance?.Show("망치가 필요합니다.");
-        //    Debug.Log("[GatherObject] 망치가 장착되지 않음");
-        //    return;
-        //}
-
-        string failReason = GetInteractionFailReason();
-        if (!string.IsNullOrEmpty(failReason))
+        if (requireHammer && !HasHammerEquipped())
         {
-            ToastMessageUI.Instance?.Show(failReason);
-            Debug.Log($"[GatherObject] {failReason}");
+            ToastMessageUI.Instance?.Show("망치가 필요합니다.");
+            Debug.Log("[GatherObject] 망치가 장착되지 않음");
             return;
         }
 
         Debug.Log($"[GatherObject] 상호작용 시작 - gatherObjectID: {gatherObjectID}");
 
-        bool isNight = dayNightCycle != null && dayNightCycle.IsNightTime();
-
-        //var drops = gatherManager.GetDropResult(gatherObjectID);
-
-        var drops = gatherManager.GetDropResult(gatherObjectID, isNight);
+        var drops = gatherManager.GetDropResult(gatherObjectID);
 
         if (drops != null && drops.item != null)
         {
-            inventoryItemData.TryAddItemFromWorld(drops.item.itemID, drops.amount);
+            inventoryItemData.TryAddItemFromWorld(
+                drops.item.itemID,
+                drops.amount
+            );
 
-            Debug.Log($"[GatherObject] {drops.item.itemName} {drops.amount}개 획득");
+            Debug.Log(
+                $"[GatherObject] {drops.item.itemName} {drops.amount}개 획득"
+            );
         }
         else
         {
@@ -144,7 +119,6 @@ public class GatherObject : MonoBehaviour, IInteractable
                 highlight.Hide();
             }
 
-            gameObject.SetActive(false);
             Destroy(gameObject);
         }
         else
@@ -152,9 +126,8 @@ public class GatherObject : MonoBehaviour, IInteractable
             if (highlight != null)
             {
                 highlight.isPermanent = false;
-               // highlight.Hide();
+                highlight.Hide();
                 highlight.promptFormat = gatherNotAvailableText;
-                highlight.ShowPrompt();
             }
         }
     }
@@ -167,6 +140,8 @@ public class GatherObject : MonoBehaviour, IInteractable
         {
             respawnTime = gatherObjectData.respawnTime;
             timer = respawnTime;
+
+            Debug.Log($"채집 오브젝트 초기화 {gatherObjectData.objectNameId}");
 
             objectNameID = gatherObjectData.objectNameId;
             gatherName = gatherManager.GatherObjectDB.GetTextKR(objectNameID);
@@ -183,27 +158,35 @@ public class GatherObject : MonoBehaviour, IInteractable
 
     private void UpdatePromptText()
     {
-        gatherAvailableText = $"{gatherName} 조사 [E]";
+        if (requireHammer)
+        {
+            gatherAvailableText = $"{gatherName} 파괴 (망치 필요) [E]";
+        }
+        else
+        {
+            gatherAvailableText = $"{gatherName} 조사 [E]";
+        }
+
         gatherNotAvailableText = $"{gatherName} 조사 완료";
     }
 
-    //private bool HasHammerEquipped()
-    //{
-    //    var equipData = playerEquipManager.GetComponent<PlayerEquipData>();
+    private bool HasHammerEquipped()
+    {
+        var equipData = playerEquipManager.GetComponent<PlayerEquipData>();
 
-    //    if (equipData == null || equipData.currentToolEquip == null)
-    //        return false;
+        if (equipData == null || equipData.currentToolEquip == null)
+            return false;
 
-    //    return equipData.currentToolEquip.toolCategory == ToolCategory.Hammer;
-    //}
+        return equipData.currentToolEquip.toolCategory == ToolCategory.Hammer;
+    }
 
     public bool CanInteract()
     {
         if (!isAvailable) return false;
+        if (requireHammer && !HasHammerEquipped()) return false;
 
-        return string.IsNullOrEmpty(GetInteractionFailReason());
+        return true;
     }
-
 
     public void DestroyAfterTutorialClear()
     {
@@ -218,144 +201,5 @@ public class GatherObject : MonoBehaviour, IInteractable
         }
 
         Debug.Log("[GatherObject] 튜토리얼 오브젝트들 파괴하였습니다.");
-    }
-
-    public string GetCurrentPromptText()
-    {
-        if (isAvailable)
-        {
-            return gatherAvailableText;
-        }
-        else
-        {
-            return gatherNotAvailableText;
-        }
-    }
-
-    private int GetCurrentSearchType()
-    {
-        if (gatherObjectData == null) return 0;
-
-        var equipData = playerEquipManager?.GetComponent<PlayerEquipData>();
-
-        if (equipData == null || equipData.currentToolEquip == null)
-        {
-            return gatherObjectData.handSearchType;
-        }
-
-        var tool = equipData.currentToolEquip;
-
-        switch (tool.toolCategory)
-        {
-            case ToolCategory.Hand:
-                return gatherObjectData.handSearchType;
-            case ToolCategory.Shovel:
-                return gatherObjectData.shovelSearchType;
-            case ToolCategory.Hammer:
-                return gatherObjectData.hammerSearchType;
-            default:
-                return 0;
-        }
-    }
-
-    //private string GetRequiredToolText()
-    //{
-    //    if (gatherObjectData == null) return "";
-
-    //    bool handOk = gatherObjectData.handSearchType > 0;
-    //    bool shovelOk = gatherObjectData.shovelSearchType > 0;
-    //    bool hammerOk = gatherObjectData.hammerSearchType > 0;
-
-    //    if (handOk && !shovelOk && !hammerOk)
-    //        return "(맨손)";
-    //    else if (!handOk && shovelOk && !hammerOk)
-    //        return "(삽 필요)";
-    //    else if (!handOk && !shovelOk && hammerOk)
-    //        return "(망치 필요)";
-    //    else if ((handOk ? 1 : 0) + (shovelOk ? 1 : 0) + (hammerOk ? 1 : 0) > 1)
-    //        return "";
-
-    //    return "";
-    //}
-
-    private string GetInteractionFailReason()
-    {
-        if (gatherObjectData == null) return "데이터 없음";
-
-        if (gatherObjectData.nightOnly == 1)
-        {
-            if (dayNightCycle == null || !dayNightCycle.IsNightTime())
-            {
-                return "밤에만 채집할 수 있습니다.";
-            }
-        }
-
-        var equipData = playerEquipManager?.GetComponent<PlayerEquipData>();
-
-        Debug.Log($"[GatherObject] 현재 장비 확인 - equipData null: {equipData == null}, tool null: {equipData?.currentToolEquip == null}");
-
-
-        if (equipData == null || equipData.currentToolEquip == null)
-        {
-            Debug.Log($"[GatherObject] 맨손 체크 - handSearchType: {gatherObjectData.handSearchType}");
-
-            if (gatherObjectData.handSearchType == 0)
-            {
-                return GetToolRequirementMessage();
-            }
-            return null;
-        }
-
-        var tool = equipData.currentToolEquip;
-
-        switch (tool.toolCategory)
-        {
-            case ToolCategory.Hand:
-                if (gatherObjectData.handSearchType == 0)
-                    return GetToolRequirementMessage();
-                break;
-
-            case ToolCategory.Shovel:
-                if (gatherObjectData.shovelSearchType == 0)
-                    return GetToolRequirementMessage();
-                break;
-
-            case ToolCategory.Hammer:
-                if (gatherObjectData.hammerSearchType == 0)
-                    return GetToolRequirementMessage();
-                break;
-        }
-
-        return null;
-    }
-
-    private string GetToolRequirementMessage()
-    {
-        if (gatherObjectData == null) return "도구가 필요합니다.";
-
-        bool handOk = gatherObjectData.handSearchType > 0;
-        bool shovelOk = gatherObjectData.shovelSearchType > 0;
-        bool hammerOk = gatherObjectData.hammerSearchType > 0;
-
-        if (shovelOk && hammerOk)
-            return "도구가 필요합니다.";
-        else if (shovelOk)
-            return "삽이 필요합니다.";
-        else if (hammerOk)
-            return "망치가 필요합니다.";
-        else if (handOk)
-            return null;
-
-        return "채집할 수 없습니다.";
-    }
-
-    public string GetCannotInteractMessage()
-    {
-        if (!isAvailable)
-        {
-            return "아직 재생성 중입니다.";
-        }
-
-        return GetInteractionFailReason();
     }
 }
