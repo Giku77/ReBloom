@@ -7,7 +7,8 @@ public enum QuestGoalType
     Collect = 1,
     Craft = 2,
     Enter = 3,
-    Interact = 4
+    Interact = 4,
+    Ending = 5
 }
 
 [Serializable]
@@ -23,21 +24,31 @@ public class QuestGoal
     {
         switch (type)
         {
+            case QuestGoalType.None:
+                return true;
+
             case QuestGoalType.Collect:
                 return inv.GetItemCount(objectId) >= amount;
+
             case QuestGoalType.Craft:
                 return currentCount >= amount;
+
             case QuestGoalType.Enter:
                 var currentStage = stageDetector.CurrentStage;
-                if (currentStage != null)
-                {
-                    return currentStage.StageID == objectId;
-                }
-                return false;
+                return currentStage != null && currentStage.StageID == objectId;
+
+            case QuestGoalType.Interact:
+                return currentCount >= amount;  
+
+            case QuestGoalType.Ending:
+                return currentCount >= amount;
+
+
             default:
-                return true;
+                return false; 
         }
     }
+
 }
 
 [Serializable]

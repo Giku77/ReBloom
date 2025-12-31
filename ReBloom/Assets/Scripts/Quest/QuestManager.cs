@@ -53,6 +53,12 @@ public class QuestManager : MonoBehaviour
                 break;
             }
         }
+
+        if (ResearchManager.I != null)
+            ResearchManager.I.OnGreeningChanged += HandleGreeningChanged;
+
+        SyncEndingGoalsWithWorld(_current);
+
     }
 
     private void HandleInventoryChanged()
@@ -60,10 +66,49 @@ public class QuestManager : MonoBehaviour
         RaiseQuestChanged();
     }
 
+    private void HandleGreeningChanged(float value)
+    {
+        if (_current == null || _current.goals == null) return;
+
+        bool changed = SyncEndingGoalsWithWorld(_current);
+
+        if (changed)
+        {
+            RaiseQuestChanged();
+            if (IsQuestSatisfied(_current))
+                PlayQuestCompleteAnimation();
+        }
+    }
+
+    private bool SyncEndingGoalsWithWorld(QuestData quest)
+    {
+        if (quest == null || quest.goals == null) return false;
+        if (ResearchManager.I == null) return false;
+
+        bool changed = false;
+        int greeningInt = Mathf.FloorToInt(ResearchManager.I.CurrentGreening);
+
+        foreach (var g in quest.goals)
+        {
+            if (g == null) continue;
+            if (g.type != QuestGoalType.Ending) continue;
+
+            int prev = g.currentCount;
+            g.currentCount = greeningInt;  
+            if (prev != g.currentCount) changed = true;
+        }
+
+        return changed;
+    }
+
+
     private void OnDestroy()
     {
         if (_inventory != null && _inventory.Container != null)
             _inventory.Container.OnContainerChanged -= HandleInventoryChanged;
+
+        if (ResearchManager.I != null)
+            ResearchManager.I.OnGreeningChanged -= HandleGreeningChanged;
 
         if (I == this) I = null;
     }
@@ -78,6 +123,7 @@ public class QuestManager : MonoBehaviour
 
         _current = data;
 
+        SyncEndingGoalsWithWorld(_current);
         SyncBuildGoalsWithWorld(_current);
 
         questUI?.SetShowPathGuide(false);
@@ -128,6 +174,61 @@ public class QuestManager : MonoBehaviour
             PlayQuestCompleteAnimation();
         }
     }
+
+    public void NotifyInteracted(int interactedObjectId)
+    {
+        if (_current == null || _current.goals == null) return;
+
+        bool changed = false;
+
+        foreach (var g in _current.goals)
+        {
+            if (g == null) continue;
+
+            if (g.type == QuestGoalType.Interact && g.objectId == interactedObjectId)
+            {
+                g.currentCount = Mathf.Clamp(g.currentCount + 1, 0, g.amount);
+                changed = true;
+            }
+        }
+
+        if (changed)
+        {
+            RaiseQuestChanged();
+
+            if (IsQuestSatisfied(_current))
+                PlayQuestCompleteAnimation();
+        }
+    }
+
+    public void DebugForceCompleteAndGoNext()
+    {
+        if (_current == null) return;
+
+        int completedQuestId = _current.questId;
+
+        TutorialEventBus.RaiseTarget(completedQuestId);
+
+        if (completedQuestId == _firstQuestId)
+            OnFirstQuestCompleted?.Invoke();
+
+        var nextId = FindNextByFormer(completedQuestId);
+        if (nextId == 0)
+        {
+            _current = null;
+            Debug.Log("[Quest] Force complete: next quest 없음");
+        }
+        else
+        {
+            SetCurrent(nextId);
+            questTextSwitcher?.ResetQuestText();
+            Debug.Log($"[Quest] Force complete: {completedQuestId} -> {nextId}");
+        }
+
+        AutoSaveService.I?.RequestSave("QuestProgress");
+    }
+
+
 
     public void ClearPathGuide()
     {

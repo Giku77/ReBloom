@@ -33,6 +33,9 @@ public class GatherObject : MonoBehaviour, IInteractable
 
     [Header("군수공장 펜스")]
     [SerializeField] private GameObject fence;
+    [SerializeField] private Transform fenceCamPos;  
+    [SerializeField] private Transform fenceLookAt;   
+
 
     public float HoldTime
     {
@@ -133,6 +136,8 @@ public class GatherObject : MonoBehaviour, IInteractable
         isAvailable = false;
         timer = 0f;
 
+        QuestManager.I?.NotifyInteracted(gatherObjectID);
+
         if (isDestroyObject)
         {
             Debug.Log($"[GatherObject] 오브젝트 제거: {gatherName}");
@@ -142,10 +147,37 @@ public class GatherObject : MonoBehaviour, IInteractable
                 ToastMessageUI.Instance?.Show("다리를 막는 버스를 부쉈습니다.");
             }
 
-            if (gatherObjectID == 910020 && fence != null)
+           if (gatherObjectID == 910020 && fence != null)
             {
-                fence.SetActive(false);
                 ToastMessageUI.Instance?.Show("군수공장의 문이 열렸습니다.");
+
+                var cam = Camera.main ? Camera.main.GetComponent<ThirdPersonCamera>() : null;
+
+                if (cam != null && fenceCamPos != null)
+                {
+                    Vector3 lookAt = fenceLookAt != null
+                        ? fenceLookAt.position
+                        : (fence.transform.position + Vector3.up * 1.2f);
+
+                    Vector3 camPos = fenceCamPos.position;
+
+                    cam.PlayFocusSequenceUniTask(
+                        focusLookAtWorld: lookAt,
+                        cameraPosWorld: camPos,
+                        blendIn: 0.35f,
+                        hold: 0.7f,
+                        blendOut: 0.35f,
+                        onMidAction: () =>
+                        {
+                            fence.SetActive(false);   
+                        }
+                    );
+                }
+                else
+                {
+                    // 포인트/카메라 없으면 그냥 제거
+                    fence.SetActive(false);
+                }
             }
 
             if (highlight != null)
