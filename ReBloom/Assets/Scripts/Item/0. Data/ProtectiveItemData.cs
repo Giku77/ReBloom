@@ -54,6 +54,7 @@ public class ProtectiveItemData : ItemBase
         Defense = meta.GetField<int>("Defense");
         Insulation = meta.GetField<float>("Insulation");
         Addressable_Key = meta.GetField<string>("Addressable_Key");
+        Description = meta.GetField<string>("Description");
 
         explanationMeta = BGRepo.I["Item_Explanation_String"];
 
