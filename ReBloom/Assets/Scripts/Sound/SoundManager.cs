@@ -61,6 +61,8 @@ public class SoundManager : MonoBehaviour
     public AudioClip tvOn;
     public AudioClip tvOff;
     public AudioClip bagUpgrade;
+    public AudioClip seed;
+    public AudioClip getSeed;
 
     [Header("기타 사운드")]
     public AudioClip scan;
@@ -376,6 +378,7 @@ public class SoundManager : MonoBehaviour
     public void PlayBagUpgrade() => PlaySFX(bagUpgrade);
     public void PlayAreaTransition() => PlaySFX(areaTransition, 0.2f);
     public void PlaySurprise() => PlaySFX(surprise);
-
     public void PlayScan() => PlaySFX(scan);
+    public void PlaySeed() => PlaySFX(seed);
+    public void PlayGetSeed() => PlaySFX(getSeed);
 }

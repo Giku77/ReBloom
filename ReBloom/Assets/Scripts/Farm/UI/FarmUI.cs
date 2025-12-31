@@ -166,19 +166,23 @@ public class FarmUI : UIBase
 
         if (!currentPlot.CanWater(cellIndex))
         {
+            SoundManager.I?.PlayError();
             ToastMessageUI.Instance?.Show("지금은 물을 줄 수 없습니다.");
             return;
         }
 
         if (!currentPlot.TryWaterByPlayer(cellIndex, inventoryItemData, WaterItemId, 1))
         {
+            SoundManager.I?.PlayError();
             ToastMessageUI.Instance?.Show("물이 부족합니다.");
             return;
         }
 
+        SoundManager.I?.PlayWater();
         RefreshGrid();
         infoPanel.Refresh();
         ToastMessageUI.Instance?.Show("물을 주었습니다.");
+
     }
 
 
@@ -188,6 +192,7 @@ public class FarmUI : UIBase
 
         if (!currentPlot.CanHarvest(cellIndex))
         {
+            SoundManager.I?.PlayError();
             ToastMessageUI.Instance?.Show("아직 수확할 수 없습니다.");
             return;
         }
@@ -195,7 +200,8 @@ public class FarmUI : UIBase
         currentPlot.Harvest(cellIndex, currentPlayer);
 
         RefreshGrid();
-        infoPanel.Hide(); 
+        infoPanel.Hide();
+        SoundManager.I?.PlayGetSeed();
         ToastMessageUI.Instance?.Show("수확 완료!");
     }
 
@@ -211,6 +217,7 @@ public class FarmUI : UIBase
 
         RefreshGrid();
         infoPanel.Hide();
+        SoundManager.I?.PlayGetSeed();
         ToastMessageUI.Instance?.Show("뽑았습니다.");
     }
 
@@ -224,6 +231,7 @@ public class FarmUI : UIBase
         if (cell == null || cell.state == CropSlotState.Empty)
         {
             infoPanel.Hide();
+            SoundManager.I?.PlayError();
             ToastMessageUI.Instance?.Show("자라고 있는 씨앗이 없습니다.");
             return;
         }
@@ -238,9 +246,12 @@ public class FarmUI : UIBase
     {
         if (currentCellIndex < 0)
         {
+            SoundManager.I?.PlayError();
             ToastMessageUI.Instance?.Show("심을 칸을 먼저 선택해 주세요.");
             return;
         }
+
+        SoundManager.I?.PlayUIClick();
 
         OnSeedDroppedToCell(seedItemId, currentCellIndex);
     }
@@ -251,23 +262,28 @@ public class FarmUI : UIBase
 
         if (!currentPlot.FarmDB.TryGetBySeedId(seedItemId, out var cropRow))
         {
+            SoundManager.I?.PlayError();
             ToastMessageUI.Instance?.Show("이 씨앗은 심을 수 없습니다.");
             return;
         }
 
         if (!currentPlot.CanPlant(cellIndex, cropRow.cropId))
         {
+            SoundManager.I?.PlayError();
             ToastMessageUI.Instance?.Show("여기에는 심을 수 없습니다.");
             return;
         }
 
         if (!inventoryItemData.TryRemoveItem(seedItemId, 1))
         {
+            SoundManager.I?.PlayError();
             ToastMessageUI.Instance?.Show("씨앗이 부족합니다.");
             return;
         }
 
         currentPlot.Plant(cellIndex, cropRow.cropId);
+
+        SoundManager.I?.PlaySeed();
 
         ToastMessageUI.Instance?.Show($"{cropRow.cropName} 심기 완료!");
     }
@@ -282,10 +298,12 @@ public class FarmUI : UIBase
                 FarmConst.FertilizerItemId,
                 FarmConst.FertilizerDuration))
         {
+            SoundManager.I?.PlayError();
             ToastMessageUI.Instance?.Show("비료를 사용할 수 없습니다. (비료 부족/대상 아님)");
             return;
         }
 
+        SoundManager.I?.PlayWater();
         ToastMessageUI.Instance?.Show("비료를 사용했습니다!");
         infoPanel.Refresh();
     }

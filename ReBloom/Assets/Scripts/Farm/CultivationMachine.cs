@@ -43,12 +43,14 @@ public class CultivationMachine : MonoBehaviour
 
         if (slot.state != CultivationSlotState.Empty)
         {
+            SoundManager.I?.PlayError();
             reason = "이미 사용 중입니다.";
             return false;
         }
 
         if (!farmDB.TryGetBySeedId(seedItemId, out var cropRow))
         {
+            SoundManager.I?.PlayError();
             reason = "배양할 수 없는 아이템입니다.";
             return false;
         }
@@ -56,6 +58,7 @@ public class CultivationMachine : MonoBehaviour
         float reqKw = GetRequiredPowerKw(cropRow.cropId);
         if (!HasEnoughPower(reqKw))
         {
+            SoundManager.I?.PlayError();
             reason = "전력이 부족합니다.";
             return false;
         }
@@ -117,12 +120,14 @@ public class CultivationMachine : MonoBehaviour
 
         if (slot.state != CultivationSlotState.ReadyToCollect)
         {
+            SoundManager.I?.PlayError();
             reason = "수거할 수 없습니다.";
             return false;
         }
 
         if (slot.outputItemId <= 0 || slot.outputCount <= 0)
         {
+            SoundManager.I?.PlayError();
             reason = "수거할 아이템이 없습니다.";
             return false;
         }
@@ -131,6 +136,7 @@ public class CultivationMachine : MonoBehaviour
         var s = player.Inventory.AddItemFromWorld(slot.outputItemId, slot.outputCount);
         if (s <= 0)
         {
+            SoundManager.I?.PlayError();
             reason = "인벤토리에 공간이 부족합니다.";
             return false;
         }

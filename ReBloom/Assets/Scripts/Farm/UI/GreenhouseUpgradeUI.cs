@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class GreenhouseUpgradeUI : UIBase
@@ -96,6 +96,7 @@ public class GreenhouseUpgradeUI : UIBase
         }
         else
         {
+            SoundManager.I?.PlayError();
             ToastMessageUI.Instance?.Show("재료가 부족합니다.");
         }
     }
