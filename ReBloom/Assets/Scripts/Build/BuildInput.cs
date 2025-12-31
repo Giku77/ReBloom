@@ -27,12 +27,15 @@ public class BuildInput : MonoBehaviour
         buildAction.performed += OnBuild;
         toggleBuildUIAction.Enable();
         toggleBuildUIAction.performed += OnToggleBuildUI;
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         addMouse.Enable();
         addMouse.performed += OnDebugAddMouse;
         subMouse.Enable();
         subMouse.performed += OnDebugSubMouse;
         debugBuildingModeAction.Enable();
         debugBuildingModeAction.performed += OnDebugBuildingMode;
+#endif
     }
 
     private void OnDisable()
@@ -41,12 +44,15 @@ public class BuildInput : MonoBehaviour
         buildAction.Disable();
         toggleBuildUIAction.performed -= OnToggleBuildUI;
         toggleBuildUIAction.Disable();
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         addMouse.performed -= OnDebugAddMouse;
         addMouse.Disable();
         subMouse.performed -= OnDebugSubMouse;
         subMouse.Disable();
         debugBuildingModeAction.performed -= OnDebugBuildingMode;
         debugBuildingModeAction.Disable();
+#endif
     }
 
     private void OnBuild(InputAction.CallbackContext ctx)
@@ -68,6 +74,7 @@ public class BuildInput : MonoBehaviour
         }
     }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
     private void OnDebugAddMouse(InputAction.CallbackContext ctx)
     {
         var camera = Camera.main.GetComponent<ThirdPersonCamera>();
@@ -86,4 +93,5 @@ public class BuildInput : MonoBehaviour
         ResearchManager.I.DebugFillToMax();
         BuildManager.I.ToggleDebugBuildingMode();
     }
+#endif
 }

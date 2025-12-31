@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
 using TMPro;
@@ -376,7 +376,7 @@ public class InventoryStatUI : MonoBehaviour
         lowHealthCTS = new CancellationTokenSource();
         CancellationToken token = lowHealthCTS.Token;
 
-        SoundManager.I?.StartBreathingHeavy();
+        //SoundManager.I?.StartBreathingHeavy();
 
         try
         {
@@ -404,7 +404,7 @@ public class InventoryStatUI : MonoBehaviour
             }
         }
 
-        SoundManager.I?.StopBreathingHeavy();
+        //SoundManager.I?.StopBreathingHeavy();
     }
 
     private Color GetTempColor(float temp)

@@ -152,6 +152,10 @@ public class PlayerStats : MonoBehaviour
     }
     private void AssignmentDebugKeys()
     {
+#if !UNITY_EDITOR && !DEVELOPMENT_BUILD
+    return;
+#endif
+
         if (Keyboard.current.kKey.wasPressedThisFrame)
         {
             PrintStats();

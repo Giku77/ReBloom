@@ -15,6 +15,9 @@ public class StageDetector : MonoBehaviour
     [SerializeField] private GameObject radioEffect;
     [SerializeField] private GameObject thunderEffect;
 
+    private bool canBuild = true;
+    public bool CanBuild => canBuild;
+
     public StageBase CurrentStage => currentStage;
 
     private bool isInside = false;
@@ -79,6 +82,7 @@ public class StageDetector : MonoBehaviour
                     ToastMessageUI.Instance.Show($"오염도 지역에 진입했습니다 : 1초마다 오염도({stage.Data.stagePollution}) 증가");
                      if (changed)
                         AutoSaveService.I?.RequestSave($"StageChanged:{stage.StageID}");
+                    SoundManager.I?.PlayAreaTransition();
                 }
             }
             else
@@ -108,6 +112,15 @@ public class StageDetector : MonoBehaviour
                 OnEnterDoor?.Invoke(isInside);
             }
             ApplyWeather(currentStage.CurrentWeather);
+        }
+
+        if (other.gameObject.layer == LayerMask.NameToLayer("Buildable"))
+        {
+            canBuild = true;
+        }
+        else if (other.gameObject.layer == LayerMask.NameToLayer("Unbuildable"))
+        {
+            canBuild = false;
         }
     }
 

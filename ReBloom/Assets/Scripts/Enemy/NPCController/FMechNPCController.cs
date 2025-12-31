@@ -177,6 +177,7 @@ public class FMechNPCController : BaseNPCController
     {
         isPlayingJumpscare = true;
 
+        SoundManager.I?.PlaySurprise();
         sound.PlayLaugh();
 
         playerController.SetBlocked(true);

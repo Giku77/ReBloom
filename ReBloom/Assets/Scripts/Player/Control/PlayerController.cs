@@ -375,6 +375,7 @@ public class PlayerController : MonoBehaviour
             Anim.PlayWatering();
         }
 
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
         if (Keyboard.current.f3Key.wasPressedThisFrame)
         {
             debugMode = !debugMode;
@@ -383,6 +384,7 @@ public class PlayerController : MonoBehaviour
                 playerStats.DebugMode = debugMode;
             Debug.Log("디버그 모드 온오프");
         }
+#endif
         CheckStorageDistance();
 
         if (isStunned == true)
@@ -701,7 +703,7 @@ public class PlayerController : MonoBehaviour
 
         //Debug.Log("점프 실행! Jump = true");
         Anim.SetJumping(true);
-        SoundManager.I?.StopBreathingHeavy();
+        //SoundManager.I?.StopBreathingHeavy();
         SoundManager.I?.PlayJump();
 
         jumpRequested = false;
@@ -744,6 +746,8 @@ public class PlayerController : MonoBehaviour
         rb.linearVelocity = Vector3.zero;
         UIManager.Instance.SetBlockingInput(true);
         UIManager.Instance.CloseAllUIs();
+
+        SoundManager.I?.PlayGetDamage();
 
         Anim.SetToolType(0);
         Anim.HandLayerChange();
@@ -818,6 +822,15 @@ public class PlayerController : MonoBehaviour
         }
         else if (!wasGround && isGround)
         {
+            if (IsInWater())
+            {
+                if (playerStats != null)
+                    playerStats.TakeDamage(9999f);
+                Debug.Log("물에 빠져 즉사!");
+                return;
+            }
+
+
             float fallHeight = (highestY - transform.position.y) * transform.localScale.y;
 
             if (fallHeight > maxDropHeight)
@@ -952,5 +965,18 @@ public class PlayerController : MonoBehaviour
         {
             jumpRequested = true;
         }
+    }
+
+    private bool IsInWater()
+    {
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, 0.5f);
+        foreach (var hitCollider in hitColliders)
+        {
+            if (hitCollider.gameObject.layer == LayerMask.NameToLayer("Water"))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

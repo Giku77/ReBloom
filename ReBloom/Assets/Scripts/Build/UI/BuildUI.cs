@@ -137,6 +137,7 @@ public class BuildUI : UIBase
             }
         }
 
+        SoundManager.I?.PlayUIClick();
         UpdateTabVisuals(arcType);
     }
 

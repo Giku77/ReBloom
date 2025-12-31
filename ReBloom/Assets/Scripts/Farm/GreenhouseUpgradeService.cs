@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public static class GreenhouseUpgradeService
@@ -72,16 +72,20 @@ public static class GreenhouseUpgradeService
         {
             case 1: // 재배 구역 추가
                 // 필요하면 FarmBed에 "유효 구역 확장" 같은 로직 연결
+                SoundManager.I?.PlayBuild();
                 break;
             case 2: // 스프링클러 설치
+                SoundManager.I?.PlayBuild();
                 ctx.GetComponentInChildren<GreenhouseSprinklerSystem>(true)?.gameObject.SetActive(true);
                 break;
             case 3: // 물 탱크 정화기 설치
                 break;
             case 4: // 농사용 드론 설치
+                SoundManager.I?.PlayUIClick();
                 ctx.GetComponentInChildren<GreenhouseFarmDroneSystem>(true)?.gameObject.SetActive(true);
                 break;
             case 5: // 농사용 드론 강화
+                SoundManager.I?.PlayUIClick();
                 ctx.GetComponentInChildren<GreenhouseFarmDroneSystem>(true)?.SetAutoFertilize(true);    
                 break;
         }

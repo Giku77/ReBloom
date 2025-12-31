@@ -57,6 +57,18 @@ public class SoundManager : MonoBehaviour
     public AudioClip eat;
     public AudioClip drink;
     public AudioClip healPack;
+    public AudioClip emp;
+    public AudioClip tvOn;
+    public AudioClip tvOff;
+    public AudioClip bagUpgrade;
+    public AudioClip seed;
+    public AudioClip getSeed;
+
+    [Header("기타 사운드")]
+    public AudioClip scan;
+    public AudioClip areaTransition;
+    public AudioClip surprise;
+    public AudioClip ocean;
 
     [Header("Volume")]
     [SerializeField, Range(0f, 1f)] private float masterVolume = 1f;
@@ -360,4 +372,13 @@ public class SoundManager : MonoBehaviour
     public void PlayOpenBox() => PlaySFX(openBox);
     public void PlayWater() => PlaySFX(water);
     public void PlayHeal() => PlaySFX(healPack);
+    public void PlayEMP() => PlaySFX(emp);
+    public void PlayTvOn() => PlaySFX(tvOn);
+    public void PlayTvOff() => PlaySFX(tvOff);
+    public void PlayBagUpgrade() => PlaySFX(bagUpgrade);
+    public void PlayAreaTransition() => PlaySFX(areaTransition, 0.2f);
+    public void PlaySurprise() => PlaySFX(surprise);
+    public void PlayScan() => PlaySFX(scan);
+    public void PlaySeed() => PlaySFX(seed);
+    public void PlayGetSeed() => PlaySFX(getSeed);
 }

@@ -70,6 +70,7 @@ public class BuildPlacementController : MonoBehaviour
 
         if (!BuildManager.I.HasMaterials(arcRecipe) && !BuildManager.I.debugMode)
         {
+            SoundManager.I?.PlayError();
             ToastMessageUI.Instance.Show("재료가 부족합니다.");
             return;
         }
@@ -83,6 +84,8 @@ public class BuildPlacementController : MonoBehaviour
         previewInstance = Instantiate(prefab);
         SetupPreview(previewInstance);
         previewVisual = previewInstance.GetComponent<BuildPreviewVisual>();
+
+        SoundManager.I?.PlayUIClick();
 
         isPlacing = true;
     }

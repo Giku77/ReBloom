@@ -368,6 +368,12 @@ public class BuildManager : MonoBehaviour
 
         if (!IsInBuildableZone())
         {
+            if (!stageDetector.CanBuild && stageDetector.CurrentStage.stageID == 400)
+            {
+                ToastMessageUI.Instance.Show("다리에서는 건물을 지을 수 없습니다.");
+                return false;
+            }
+
             ToastMessageUI.Instance.Show("이 지역에서는 건물을 지을 수 없습니다.");
             return false;
         }
@@ -501,7 +507,7 @@ public class BuildManager : MonoBehaviour
     {
        if (stageDetector == null)
             return true;
-       if (stageDetector.CurrentStage.StageID != (int)EntranceType.Shelter)
+       if (stageDetector.CurrentStage.StageID != (int)EntranceType.Shelter || !stageDetector.CanBuild)
             return false;
        return true;
     }

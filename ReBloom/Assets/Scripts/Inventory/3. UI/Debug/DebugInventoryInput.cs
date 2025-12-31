@@ -190,26 +190,30 @@ public class DebugInventoryInput : MonoBehaviour
     #region UI 제어
     public void ToggleDebugUI()
     {
+#if !UNITY_EDITOR && !DEVELOPMENT_BUILD
+    return;
+#endif
+
         if (debugUI == null)
         {
             Debug.LogError("[DebugInventoryInput] DebugInventoryUI가 할당되지 않았습니다!");
             return;
         }
 
-    //     isUIOpen = !isUIOpen;
+        //     isUIOpen = !isUIOpen;
 
-    //     if (isUIOpen)
-    //     {
-    //         debugUI.OpenDebugInventory();
-    //     }
-    //     else
-    //     {
-    //         debugUI.CloseDebugInventory();
-    //     }
+        //     if (isUIOpen)
+        //     {
+        //         debugUI.OpenDebugInventory();
+        //     }
+        //     else
+        //     {
+        //         debugUI.CloseDebugInventory();
+        //     }
 
-    //    HandleCursorState(isUIOpen);
-    //     Debug.Log($"[디버그 인벤토리] {(isUIOpen ? "열림" : "닫힘")}");
-          debugUI.ToggleUI();
+        //    HandleCursorState(isUIOpen);
+        //     Debug.Log($"[디버그 인벤토리] {(isUIOpen ? "열림" : "닫힘")}");
+        debugUI.ToggleUI();
     }
 
     public void OpenDebugUI()

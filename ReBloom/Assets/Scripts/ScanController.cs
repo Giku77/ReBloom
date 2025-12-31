@@ -87,6 +87,8 @@ public class ScanController : MonoBehaviour
 
         animController?.PlayAnimation("Scan");
 
+        SoundManager.I?.PlayScan();
+
         Vector3 origin = scanOrigin.position;
 
         if (ringPrefab != null)

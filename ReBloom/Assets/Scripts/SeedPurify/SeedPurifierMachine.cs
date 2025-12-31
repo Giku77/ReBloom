@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 
 public class SeedPurifierMachine : MonoBehaviour
@@ -106,10 +106,16 @@ public class SeedPurifierMachine : MonoBehaviour
 
     public bool StartProcess()
     {
-        if (!CanStart()) return false;
+        if (!CanStart())
+        {
+            SoundManager.I?.PlayError();
+            return false;
+        }
 
         state = State.Processing;
         endTime = Time.time + processSeconds;
+
+        SoundManager.I?.PlayUIClick();
 
         // 재현 가능한 시드 저장
         rollSeed = UnityEngine.Random.Range(int.MinValue, int.MaxValue);
@@ -145,6 +151,8 @@ public class SeedPurifierMachine : MonoBehaviour
         if (inputItemId != 0 && inputCount > 0)
             inventory.AddItemFromWorld(inputItemId, inputCount, true);
 
+        SoundManager.I?.PlayError();
+
         ResetAll();
         RaiseChanged();
         return true;
@@ -160,6 +168,8 @@ public class SeedPurifierMachine : MonoBehaviour
         if (inventory == null) return false;
 
         inventory.AddItemFromWorld(outputItemId, 1, true);
+
+        SoundManager.I?.PlayGetSeed();
 
         ResetAll();
         RaiseChanged();

@@ -81,17 +81,20 @@ public class SeedPurifierUI : UIBase
             // 이미 input 있으면 막기
             if (machine.PeekInputItemId() != 0)
             {
+                SoundManager.I?.PlayError();
                 ToastMessageUI.Instance?.Show("이미 미확인 종자가 들어있습니다.");
                 return;
             }
 
             if (TryConsumeAnyUnidentifiedSeed(player, out int usedItemId))
             {
+                SoundManager.I?.PlaySeed();
                 machine.SetInput(usedItemId, 1); 
                 Refresh();
             }
             else
             {
+                SoundManager.I?.PlayError();
                 ToastMessageUI.Instance?.Show("미확인 종자가 없습니다.");
             }
         });
@@ -193,5 +196,17 @@ public class SeedPurifierUI : UIBase
                     outputIcon.gameObject.SetActive(false);
             }
         }
+    }
+
+    protected override void OnShow()
+    {
+        base.OnShow();
+        SoundManager.I?.PlayOpenBox();
+    }
+
+    protected override void OnHide()
+    {
+        base.OnHide();
+        SoundManager.I?.PlayCloseCraftingTable();
     }
 }
