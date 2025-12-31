@@ -1,8 +1,9 @@
 ﻿using DG.Tweening;
+using System.Collections.Generic;
+using System.Drawing;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections.Generic;
 
 
 public class ItemToastMessageUI : MonoBehaviour
@@ -21,15 +22,15 @@ public class ItemToastMessageUI : MonoBehaviour
 
     private Queue<GameObject> activeMessages = new Queue<GameObject>();
 
-    public void Show(string message, Sprite icon)
+    public void Show(string message, Sprite icon, int tier)
     {
         GameObject obj = Instantiate(messageItemPrefab, messageContainer);
         activeMessages.Enqueue(obj);
 
-        if (activeMessages.Count > maxMessageCount)
-            RemoveOldest();
-
-        SetupUI(obj, message, icon);
+        if (activeMessages.Count > maxMessageCount) RemoveOldest();
+        
+        var color = GameInventoryToolTip.GetTierColor(tier);
+        SetupUI(obj, message, color, icon);
         PlayToastAnimation(obj);
     }
     public void ShowWarning(string message)
@@ -37,14 +38,13 @@ public class ItemToastMessageUI : MonoBehaviour
         GameObject obj = Instantiate(messageItemPrefab, messageContainer);
         activeMessages.Enqueue(obj);
 
-        if (activeMessages.Count > maxMessageCount)
-            RemoveOldest();
-
-        SetupUI(obj, message);
+        if (activeMessages.Count > maxMessageCount) RemoveOldest();
+        var color = new UnityEngine.Color(255, 20, 0);
+        SetupUI(obj, message, color);
         PlayToastAnimation(obj);
     }
 
-    private void SetupUI(GameObject obj, string message, Sprite icon = null)
+    private void SetupUI(GameObject obj, string message, UnityEngine.Color color, Sprite icon = null)
     {
         var messageItem = obj.GetComponent<InventoryInfoMessageItem>();
 
@@ -53,6 +53,7 @@ public class ItemToastMessageUI : MonoBehaviour
         if (messageItem != null && icon != null)
         {
             messageItem.itemIcon.sprite = icon;
+            messageItem.background.color = color;
             messageItem.enabled = true;
         }
     }
@@ -60,8 +61,7 @@ public class ItemToastMessageUI : MonoBehaviour
     private void PlayToastAnimation(GameObject obj)
     {
         CanvasGroup cg = obj.GetComponent<CanvasGroup>();
-        if (cg == null)
-            cg = obj.AddComponent<CanvasGroup>();
+        if (cg == null) cg = obj.AddComponent<CanvasGroup>();
 
         obj.transform.localScale = Vector3.one * 0.9f;
         cg.alpha = 0f;

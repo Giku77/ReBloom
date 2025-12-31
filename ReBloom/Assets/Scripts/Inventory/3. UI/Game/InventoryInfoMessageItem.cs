@@ -6,6 +6,7 @@ public class InventoryInfoMessageItem : MonoBehaviour
 {
     public TextMeshProUGUI infoTxt;
     public Image itemIcon;
+    public Image background;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
