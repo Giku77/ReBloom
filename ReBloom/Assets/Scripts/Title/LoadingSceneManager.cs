@@ -40,21 +40,23 @@ public class LoadingSceneManager : MonoBehaviour
         var asyncLoad = SceneManager.LoadSceneAsync(sceneName);
         asyncLoad.allowSceneActivation = false;
 
-        float duration = 2f;
+        const float minShowTime = 2f;
         float elapsed = 0f;
 
-        while (elapsed < duration)
+        while (asyncLoad.progress < 0.9f || elapsed < minShowTime)
         {
             elapsed += Time.deltaTime;
-            loadingBar.value = elapsed / duration;
 
-            Debug.Log($"Loading: {loadingBar.value * 100:F1}%");
+            float real = Mathf.Clamp01(asyncLoad.progress / 0.9f);
+
+            float time = Mathf.Clamp01(elapsed / minShowTime);
+
+            loadingBar.value = Mathf.Max(real, time);
 
             await UniTask.Yield();
         }
 
         loadingBar.value = 1f;
-        //await UniTask.Delay(300);
         asyncLoad.allowSceneActivation = true;
     }
 }
