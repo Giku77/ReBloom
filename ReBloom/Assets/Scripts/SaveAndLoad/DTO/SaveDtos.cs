@@ -138,6 +138,8 @@ public class WorldSaveDTO
     // 컨테이너(창고/시체박스/상자/보관함 등) 데이터는 여기로 분리
     public List<ContainerSaveDTO> containers = new List<ContainerSaveDTO>();
 
+    public List<int> visitedStages = new();
+
     // TODO: farms / incubators / quests 등도 여기에 확장
 }
 

@@ -64,7 +64,7 @@ public class CutSceneManager : MonoBehaviour
 
     private bool isFirst = true;
     private string currentImgName = "";
-    public async UniTask PlayCutSceneSequenceAsync(int startCutSceneId)
+    public async UniTask PlayCutSceneSequenceAsync(int startCutSceneId, bool playVoice = true)
     {
         if (isPlaying)
         {
@@ -130,9 +130,13 @@ public class CutSceneManager : MonoBehaviour
                 await UniTask.Delay(TimeSpan.FromSeconds(0.2f), cancellationToken: token);
 
                 Debug.Log($"[CutScene] VarcoID로 음성 재생 시도: {data.VarcoID}");
-                if (data.VarcoID > 0)
+                if (playVoice && data.VarcoID > 0)
                 {
                     VoiceManager.I?.PlayVoice(data.VarcoID);
+                }
+                else
+                {
+                    VoiceManager.I?.Stop();
                 }
 
                 if (dialogueUI != null)

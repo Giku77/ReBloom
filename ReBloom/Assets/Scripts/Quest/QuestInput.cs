@@ -32,6 +32,7 @@ public class QuestInput : MonoBehaviour
         Debug.Log("Quest Complete Input Received");
         //QuestManager.I?.CompleteCurrent();
         QuestManager.I?.TryCompleteCurrent();
+        QuestManager.I?.TryAdvanceOrPlayEnding();
         //QuestManager.I?.PlayQuestCompleteAnimation();
     }
 
@@ -40,6 +41,7 @@ public class QuestInput : MonoBehaviour
         Debug.Log("Quest Complete Input Received");
         //QuestManager.I?.CompleteCurrent();
         QuestManager.I?.TryCompleteCurrent();
+        QuestManager.I?.TryAdvanceOrPlayEnding();
         //QuestManager.I?.PlayQuestCompleteAnimation();
     }
 

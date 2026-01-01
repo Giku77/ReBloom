@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class FarmDroneOrbitController : MonoBehaviour
@@ -57,7 +57,6 @@ public class FarmDroneOrbitController : MonoBehaviour
         // 부드럽게 이동
         transform.position = Vector3.MoveTowards(transform.position, desired, moveSpeed * Time.deltaTime);
 
-        // (선택) 바라보게
         Vector3 look = (center - transform.position);
         look.y = 0f;
         if (look.sqrMagnitude > 0.001f)
