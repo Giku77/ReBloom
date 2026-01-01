@@ -1,4 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -37,23 +40,46 @@ public class InitialItemSpawner : MonoBehaviour
     [Header("참조")]
     [SerializeField] private ItemSpawner itemSpawner;
 
-    private async void Start()
+    public int[] GetPlannedItemIDs()
     {
-        if (itemSpawner == null)
-        {
-            itemSpawner = FindFirstObjectByType<ItemSpawner>();
-        }
+        var set = new HashSet<int>();
 
-        if (itemSpawner == null)
-        {
-            Debug.LogError("[InitialItemSpawner] ItemSpawner를 찾을 수 없습니다!");
-            return;
-        }
+        if (itemsToSpawn != null)
+            foreach (var s in itemsToSpawn)
+                if (s != null && s.itemID != 0) set.Add(s.itemID);
 
+        if (useRandomSpawn && randomItemIDs != null)
+            foreach (var id in randomItemIDs)
+                if (id != 0) set.Add(id);
+
+        return set.ToArray();
+    }
+
+    public async UniTask Begin()
+    {
+        if (itemSpawner == null) itemSpawner = FindFirstObjectByType<ItemSpawner>();
         await UniTask.WaitUntil(() => ItemDatabase.I.IsInitialized);
-        await UniTask.Delay(System.TimeSpan.FromSeconds(spawnDelay));
+        await UniTask.Delay(TimeSpan.FromSeconds(spawnDelay));
         await SpawnInitialItems();
     }
+
+    //private async void Start()
+    //{
+    //    if (itemSpawner == null)
+    //    {
+    //        itemSpawner = FindFirstObjectByType<ItemSpawner>();
+    //    }
+
+    //    if (itemSpawner == null)
+    //    {
+    //        Debug.LogError("[InitialItemSpawner] ItemSpawner를 찾을 수 없습니다!");
+    //        return;
+    //    }
+
+    //    await UniTask.WaitUntil(() => ItemDatabase.I.IsInitialized);
+    //    await UniTask.Delay(System.TimeSpan.FromSeconds(spawnDelay));
+    //    await SpawnInitialItems();
+    //}
 
     private async UniTask SpawnInitialItems()
     {
@@ -146,8 +172,8 @@ public class InitialItemSpawner : MonoBehaviour
 
         for (int i = 0; i < randomSpawnCount; i++)
         {
-            Transform spawnPoint = randomSpawnPoints[Random.Range(0, randomSpawnPoints.Length)];
-            int randomItemID = randomItemIDs[Random.Range(0, randomItemIDs.Length)];
+            Transform spawnPoint = randomSpawnPoints[UnityEngine.Random.Range(0, randomSpawnPoints.Length)];
+            int randomItemID = randomItemIDs[UnityEngine.Random.Range(0, randomItemIDs.Length)];
             ItemBase itemData = ItemDatabase.I.GetItem(randomItemID);
 
             if (itemData == null)
@@ -156,7 +182,7 @@ public class InitialItemSpawner : MonoBehaviour
                 continue;
             }
 
-            Vector3 spawnPosition = spawnPoint.position + Random.insideUnitSphere * 2f;
+            Vector3 spawnPosition = spawnPoint.position + UnityEngine.Random.insideUnitSphere * 2f;
             spawnPosition.y = spawnPoint.position.y;
 
             await itemSpawner.SpawnItemInWorld(itemData, spawnPosition, this.GetCancellationTokenOnDestroy());

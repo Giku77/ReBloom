@@ -72,6 +72,29 @@ public class ItemSpawner : MonoBehaviour
 
     //    return null;
     //}
+
+    public async UniTask PrewarmOneItemAsync(int itemID, int count, CancellationToken ct)
+    {
+        var item = ItemDatabase.I.GetItem(itemID);
+        if (item == null) return;
+
+        if (!itemPools.ContainsKey(itemID))
+        {
+            bool ok = await CreatePoolForItemAsync(item, ct);
+            if (!ok) return;
+        }
+
+        var pool = itemPools[itemID];
+
+        // count 만큼 실제 1~2개만 생성해서 바로 되돌림(=첫 Instantiate 비용을 미리 지불)
+        var temp = new GameObject[count];
+        for (int i = 0; i < count; i++)
+            temp[i] = pool.Get();
+
+        for (int i = 0; i < count; i++)
+            pool.Release(temp[i]);
+    }
+
     public async UniTask<GameObject> SpawnItemInWorld(ItemBase itemData, Vector3 position, CancellationToken ctx)
     {
         if (itemData == null)
