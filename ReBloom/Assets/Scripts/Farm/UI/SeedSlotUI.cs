@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -36,7 +36,7 @@ public class SeedSlotUI : MonoBehaviour, IDragSource, IBeginDragHandler, IDragHa
             return;
         }
 
-        //if (icon) icon.sprite = itemData.icon;
+        if (icon) icon.sprite = itemData.icon;
         if (nameText) nameText.text = itemData.itemName;
         if (countText) countText.text = count.ToString();
 
