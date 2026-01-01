@@ -40,6 +40,10 @@ public class GameInventoryToolTip : MonoBehaviour
     [SerializeField] private bool useFixedPosition = true;  // true: 슬롯 기준 고정, false: 마우스 따라다님
     [SerializeField] private float followSpeed = 10f;  // 마우스 따라다닐 때 속도
 
+    [Header("Fixed Anchor (Mobile)")]
+    [SerializeField] private RectTransform fixedAnchor;    
+    [SerializeField] private Vector2 fixedAnchoredPos = new Vector2(-30f, 0f); 
+
     private QuickSlot quickSlot;
     private GameInventory inventory;
 
@@ -171,9 +175,16 @@ public class GameInventoryToolTip : MonoBehaviour
         tooltipRoot.SetActive(true);
 
         // 위치 설정
-        if (useFixedPosition)
+        if (PlatformManager.Instance != null && PlatformManager.Instance.IsMobile)
         {
-            PositionTooltipAtSlot();
+            PositionTooltipFixed();
+        }
+        else
+        {
+            if (useFixedPosition)
+            {
+                PositionTooltipAtSlot();
+            }
         }
 
         ForceUpdateLayout();
@@ -420,4 +431,24 @@ public class GameInventoryToolTip : MonoBehaviour
             return "기타";
         return "알 수 없음";
     }
+
+    private void PositionTooltipFixed()
+    {
+        RectTransform targetRect = tooltipRect != null ? tooltipRect : rectTransform;
+
+        if (fixedAnchor != null)
+        {
+            targetRect.SetParent(fixedAnchor, worldPositionStays: false);
+            targetRect.anchoredPosition = fixedAnchoredPos;
+        }
+        else
+        {
+            targetRect.SetParent(canvasRect, worldPositionStays: false);
+            targetRect.anchorMin = new Vector2(1f, 0.5f);
+            targetRect.anchorMax = new Vector2(1f, 0.5f);
+            targetRect.pivot = new Vector2(1f, 0.5f);
+            targetRect.anchoredPosition = fixedAnchoredPos;
+        }
+    }
+
 }

@@ -47,7 +47,6 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerClickHandler, IDragSource,
         //        Debug.Log("[GameInventorySlot] 툴팁을 Canvas에서 찾았습니다.");
         //    }
         //}
-        tooltip = FindFirstObjectByType<GameInventoryToolTip>();
         var dropZone = GetComponent<DropZoneMarker>();
         if (dropZone == null)
         {
@@ -56,6 +55,19 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerClickHandler, IDragSource,
         dropZone.SetZoneType(DropZoneType.Equipment);
         dropZone.SetPriority(80);
 
+    }
+
+    private void Start()
+    {
+        Canvas parentCanvas = GetComponentInParent<Canvas>();
+        if (parentCanvas != null)
+        {
+            tooltip = parentCanvas.GetComponentInChildren<GameInventoryToolTip>();
+            if (tooltip != null)
+            {
+                Debug.Log("[EquipmentSlotUI] 툴팁을 Canvas에서 찾았습니다.");
+            }
+        }
     }
 
     public void Initialize(PlayerEquipManager manager, GearType type)
