@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public class FarmCellInfoPanel : MonoBehaviour
 {
+    [SerializeField] private Image cropIcon;
+
     [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private TextMeshProUGUI stateText;
     [SerializeField] private TextMeshProUGUI remainText;
@@ -94,6 +96,17 @@ public class FarmCellInfoPanel : MonoBehaviour
         var cell = plot.Slots[currentIndex];
         if (plot.FarmDB.TryGet(cell.cropId, out var cropData))
         {
+            // 수확물 아이콘 설정 (첫 번째 드랍 아이템)
+            if (cropIcon != null)
+            {
+                if (cropData.drops != null && cropData.drops.Length > 0)
+                {
+                    var harvestItem = ItemDatabase.I.GetItem(cropData.drops[0].itemId);
+                    if (harvestItem != null && harvestItem.icon != null)
+                        cropIcon.sprite = harvestItem.icon;
+                }
+            }
+
             if (titleText)
                 titleText.text = $"{cropData.cropName}";
             switch (cell.state)
