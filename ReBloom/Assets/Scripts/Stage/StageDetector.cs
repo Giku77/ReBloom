@@ -49,11 +49,13 @@ public class StageDetector : MonoBehaviour
     private void OnEnable()
     {
         StageManager.OnWeatherChange += OnWeatherChanged;
+        PlayerController.OnRessuraction += PlaceOutDoor;
     }
 
     private void OnDisable()
     {
         StageManager.OnWeatherChange -= OnWeatherChanged;
+        PlayerController.OnRessuraction -= PlaceOutDoor;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -222,6 +224,17 @@ public class StageDetector : MonoBehaviour
         {
             ApplyWeather(weather);
             AutoSaveService.I?.RequestSave($"WeatherChanged:{stageID}:{weather}");
+        }
+    }
+
+    private void PlaceOutDoor()
+    {
+        canBuild = true;
+
+        if (isInside == true)
+        { 
+            isInside = false;
+            OnEnterDoor?.Invoke(isInside);
         }
     }
 }

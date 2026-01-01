@@ -34,6 +34,8 @@ public class WaterSource : MonoBehaviour, IInteractable
         }
 
         return true;
+
+        //return Available;
     }
 
     public void Interact(PlayerController player)
