@@ -383,14 +383,11 @@ public class GatherObject : MonoBehaviour, IInteractable
 
         if (shovelOk && hammerOk)
             return "도구가 필요합니다.";
-
-        if (shovelOk)
+        else if (shovelOk)
             return "삽이 필요합니다.";
-
-        if (hammerOk)
+        else if (hammerOk)
             return "망치가 필요합니다.";
-
-        if (handOk)
+        else if (handOk)
             return null;
 
         return "채집할 수 없습니다.";

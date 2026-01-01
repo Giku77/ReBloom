@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -45,6 +46,7 @@ public class ThirdPersonCamera : MonoBehaviour
 
     // EnhancedTouch용 카메라 터치 추적
     private Touch? cameraTouch = null;
+    private HashSet<int> joystickFingerIndices = new HashSet<int>();
 
     // 플랫폼 정보 캐싱
     private bool isMobile;
@@ -461,63 +463,35 @@ public class ThirdPersonCamera : MonoBehaviour
         distance = Mathf.Clamp(distance, maxZoominDistance, maxZoomOutDistance);
     }
 
-    #region Mobile Touch Handling
-    //private void HandleMobileTouch()
-    //{
-    //    // 기존 터치 처리
-    //    if (cameraTouch.HasValue)
-    //    {
-    //        Touch touch = cameraTouch.Value;
+    private void UpdateJoystickTouches()
+    {
+        joystickFingerIndices.RemoveWhere(fingerIndex =>
+        {
+            foreach (Touch touch in Touch.activeTouches)
+            {
+                if (touch.finger.index == fingerIndex)
+                    return false; // 아직 활성 터치
+            }
+            return true; // 종료된 터치
+        });
 
-    //        // 터치 종료 확인
-    //        if (!touch.valid || touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
-    //        {
-    //            cameraTouch = null;
-    //            Debug.Log("[Camera] 터치 종료");
-    //            return;
-    //        }
+        foreach (Touch touch in Touch.activeTouches)
+        {
+            if (touch.phase == TouchPhase.Began)
+            {
+                if (joystickArea != null && IsPointInRectTransform(joystickArea, touch.screenPosition))
+                {
+                    joystickFingerIndices.Add(touch.finger.index);
+                    Debug.Log($"[Camera] 조이스틱 터치 추가: finger={touch.finger.index}");
+                }
+            }
+        }
+    }
 
-    //        // 현재 터치가 UI 영역으로 이동했는지 체크
-    //        if (IsTouchOverUI(touch))
-    //        {
-    //            Debug.Log("[Camera] UI 영역으로 이동 - 카메라 회전 중단");
-    //            return; // UI 위로 이동하면 회전 안 함
-    //        }
-
-    //        // UI 밖에서 움직이는 중이면 카메라 회전
-    //        if (touch.phase == TouchPhase.Moved)
-    //        {
-    //            Vector2 delta = touch.delta;
-    //            RotateCameraByTouch(delta);
-    //        }
-    //    }
-
-    //    // 새로운 터치 감지
-    //    if (!cameraTouch.HasValue)
-    //    {
-    //        foreach (Touch touch in Touch.activeTouches)
-    //        {
-    //            if (touch.phase == TouchPhase.Began)
-    //            {
-    //                // 터치 시작 시 UI 체크
-    //                if (IsTouchOverUI(touch))
-    //                {
-    //                    Debug.Log("[Camera] UI 터치 시작 - 무시");
-    //                    continue;
-    //                }
-
-    //                cameraTouch = touch;
-    //                Debug.Log($"[Camera] 카메라 드래그 시작 - 위치: {touch.screenPosition}");
-    //                break;
-    //            }
-    //        }
-    //    }
-    //}
-
-    #region Mobile Touch Handling
     private void HandleMobileTouch()
     {
-        // 기존 카메라 터치 처리
+        UpdateJoystickTouches();
+
         if (cameraTouch.HasValue)
         {
             Touch currentTouch = cameraTouch.Value;
@@ -541,30 +515,35 @@ public class ThirdPersonCamera : MonoBehaviour
             }
             else
             {
-                // UI 영역으로 이동했는지 체크
                 if (IsTouchOverUI(currentTouch))
                 {
                 }
                 else if (currentTouch.phase == TouchPhase.Moved)
                 {
-                    // 카메라 회전 처리
+
                     Vector2 delta = currentTouch.delta;
                     RotateCameraByTouch(delta);
                 }
 
-                // 최신 터치 정보 저장
                 cameraTouch = currentTouch;
                 return;
             }
         }
 
-        // 새로운 카메라 터치 찾기
         foreach (Touch touch in Touch.activeTouches)
         {
-            if (!IsTouchOverUI(touch))
+            if (joystickFingerIndices.Contains(touch.finger.index))
             {
-                cameraTouch = touch;
-                return;
+                continue;
+            }
+
+            if (touch.phase == TouchPhase.Began)
+            {
+                if (!IsTouchOverUI(touch))
+                {
+                    cameraTouch = touch;
+                    return;
+                }
             }
         }
     }
@@ -573,7 +552,6 @@ public class ThirdPersonCamera : MonoBehaviour
     {
         Vector2 touchPos = touch.screenPosition;
 
-        // RaycastAll로 정확히 체크
         PointerEventData pointerData = new PointerEventData(EventSystem.current)
         {
             position = touchPos
@@ -582,7 +560,6 @@ public class ThirdPersonCamera : MonoBehaviour
         List<RaycastResult> results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(pointerData, results);
 
-        // WorldDropZone 제외하고 실제 UI만 체크
         bool hasRealUI = false;
         if (results.Count > 0)
         {
@@ -590,13 +567,11 @@ public class ThirdPersonCamera : MonoBehaviour
             {
                 string objName = result.gameObject.name;
 
-                // WorldDropZone은 무시
                 if (objName == "WorldDropZone")
                 {
                     continue;
                 }
 
-                // 실제 UI 발견
                 hasRealUI = true;
                 break;
             }
@@ -607,13 +582,11 @@ public class ThirdPersonCamera : MonoBehaviour
             return true;
         }
 
-        // 조이스틱 영역 직접 체크
         if (joystickArea != null && IsPointInRectTransform(joystickArea, touchPos))
         {
             return true;
         }
 
-        // 추가 UI 영역들 체크
         if (uiAreas != null)
         {
             foreach (var uiArea in uiAreas)
@@ -653,6 +626,4 @@ public class ThirdPersonCamera : MonoBehaviour
         pitch -= delta.y * currentSensitivity;
         pitch = Mathf.Clamp(pitch, minVerticalAngle, maxVerticalAngle);
     }
-    #endregion
-    #endregion
 }

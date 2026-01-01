@@ -49,13 +49,13 @@ public class StageDetector : MonoBehaviour
     private void OnEnable()
     {
         StageManager.OnWeatherChange += OnWeatherChanged;
-        PlayerController.onRessuraction += PlaceOutDoor;
+        PlayerController.OnRessuraction += PlaceOutDoor;
     }
 
     private void OnDisable()
     {
         StageManager.OnWeatherChange -= OnWeatherChanged;
-        PlayerController.onRessuraction -= PlaceOutDoor;
+        PlayerController.OnRessuraction -= PlaceOutDoor;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -230,7 +230,11 @@ public class StageDetector : MonoBehaviour
     private void PlaceOutDoor()
     {
         canBuild = true;
-        isInside = false;
-        OnEnterDoor?.Invoke(isInside);
+
+        if (isInside == true)
+        { 
+            isInside = false;
+            OnEnterDoor?.Invoke(isInside);
+        }
     }
 }

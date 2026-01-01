@@ -37,7 +37,7 @@ public class PlayerController : MonoBehaviour
 
     public event Action onPassOut;
 
-    public static event Action onRessuraction;
+    public static event Action OnRessuraction;
 
     private float originalRotationSpeed;
     private float originalTurnSpeed;
@@ -772,6 +772,7 @@ public class PlayerController : MonoBehaviour
         if (thirdPersonCamera != null)
         {
             originalZoomDistance = thirdPersonCamera.distance;
+            Debug.Log($"[Death] 현재 distance 저장: {originalZoomDistance}");
             thirdPersonCamera.enabled = false;
         }
 
@@ -785,6 +786,7 @@ public class PlayerController : MonoBehaviour
 
         if (thirdPersonCamera != null)
         {
+            Debug.Log($"[Death] distance 복원 시도: {originalZoomDistance}");
             thirdPersonCamera.distance = originalZoomDistance;
             thirdPersonCamera.enabled = true;
         }
@@ -807,7 +809,7 @@ public class PlayerController : MonoBehaviour
         VoiceManager.I?.PlayVoice(80051);
         isDead = false;
 
-        onRessuraction?.Invoke();
+        OnRessuraction?.Invoke();
 
         SetBlocked(false);
     }
