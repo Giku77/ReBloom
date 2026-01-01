@@ -23,6 +23,7 @@ public class StageDetector : MonoBehaviour
     private bool isInside = false;
 
     public static event Action<bool> OnEnterDoor;
+    public static event Action<int> OnStageChanged;
 
     private StageManager stageManager;
 
@@ -83,7 +84,10 @@ public class StageDetector : MonoBehaviour
                     }
                     ToastMessageUI.Instance.Show($"오염도 지역에 진입했습니다 : 1초마다 오염도({stage.Data.stagePollution}) 증가");
                      if (changed)
+                    {
+                        OnStageChanged?.Invoke(stage.StageID);
                         AutoSaveService.I?.RequestSave($"StageChanged:{stage.StageID}");
+                    }
                     SoundManager.I?.PlayAreaTransition();
                 }
             }
@@ -153,10 +157,16 @@ public class StageDetector : MonoBehaviour
         {
             if (s.StageID == stageId)
             {
+                bool changed = (currentStage == null || currentStage.StageID != s.StageID);
+
                 previousStage = currentStage != null ? currentStage : s;
                 currentStage = s;
 
                 ApplyWeather(currentStage.CurrentWeather);
+
+                if (changed)
+                    OnStageChanged?.Invoke(currentStage.StageID);
+
                 return;
             }
         }

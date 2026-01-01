@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
+using System;
 using UnityEngine;
 
 public class QuestManager : MonoBehaviour
@@ -18,6 +19,13 @@ public class QuestManager : MonoBehaviour
     public static event Action OnFirstQuestCompleted;
     private int _firstQuestId;
 
+    [SerializeField] private CutSceneManager cutSceneManager;
+    [SerializeField] private GreeningVisualController greeningVisualController;
+
+    [SerializeField] private int endingCutSceneStartId = 1301021; // CutScene10 시작
+    private bool endingPlayed;
+
+
 
     private void Awake() => I = this;
 
@@ -31,6 +39,37 @@ public class QuestManager : MonoBehaviour
         OnQuestStateChanged?.Invoke();
         PlayQuestCompleteAnimation();
     }
+
+    public void TryAdvanceOrPlayEnding()
+    {
+        if (endingPlayed) return;
+
+        bool isEndingReady = ResearchManager.I != null && ResearchManager.I.CurrentGreening >= 100f;
+        if (!isEndingReady) return;
+
+        if (_current != null)
+        {
+            int nextId = FindNextByFormer(_current.questId);
+            if (nextId != 0) return; 
+        }
+
+        PlayEndingSequence().Forget();
+    }
+
+    private async UniTaskVoid PlayEndingSequence()
+    {
+        endingPlayed = true;
+
+        if (greeningVisualController != null)
+            greeningVisualController.ForceDisableInGameFog();
+
+        if (cutSceneManager != null)
+            await cutSceneManager.PlayCutSceneSequenceAsync(endingCutSceneStartId, false);
+
+        AutoSaveService.I?.RequestSave("EndingCutScenePlayed");
+    }
+
+
 
     public void Init(QuestDB db, GameInventory inventory, StageDetector stageDetector)
     {

@@ -319,11 +319,23 @@ public class DayNightCycle : MonoBehaviour
 
         if (controlRenderFog)
         {
-           RenderSettings.fog = true;
-           RenderSettings.fogMode = FogMode.Exponential;
+            Color baseFog = Color.Lerp(nightFogColor, dayFogColor, dayFactor);
+            float baseDensity = Mathf.Lerp(nightFogDensity, dayFogDensity, dayFactor);
 
-           RenderSettings.fogColor = Color.Lerp(nightFogColor, dayFogColor, dayFactor);
-           RenderSettings.fogDensity = Mathf.Lerp(nightFogDensity, dayFogDensity, dayFactor);
+            if (_disableFogByGreening)
+            {
+                RenderSettings.fog = false;
+            }
+            else
+            {
+                RenderSettings.fog = true;
+                RenderSettings.fogMode = FogMode.Exponential;
+
+                Color finalFog = _useGreeningFog ? (baseFog * _greeningFogColor) : baseFog;
+
+                RenderSettings.fogColor = finalFog;
+                RenderSettings.fogDensity = baseDensity;
+            }
         }
     }
 
@@ -474,6 +486,24 @@ public class DayNightCycle : MonoBehaviour
         }
 
         AdvanceHours(hoursToAdvance);
+    }
+
+    private bool _useGreeningFog;
+    private Color _greeningFogColor = Color.white;  
+    private bool _disableFogByGreening;
+
+    public void SetGreeningFog(Color greeningFogColor01, bool disableFog)
+    {
+        _useGreeningFog = true;
+        _greeningFogColor = greeningFogColor01;
+        _disableFogByGreening = disableFog;
+    }
+
+    public void ClearGreeningFog()
+    {
+        _useGreeningFog = false;
+        _greeningFogColor = Color.white;
+        _disableFogByGreening = false;
     }
 
     //private void UpdateSkybox()
