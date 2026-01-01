@@ -69,6 +69,11 @@ public class GamePauseUI : UIBase
         Time.timeScale = 1f;
         SoundManager.I?.PlayCloseInventory();
         UIManager.Instance?.SetPaused(false);
+
+        if (popup.activeSelf)
+        {
+            ClosePopup();
+        }
     }
 
     private void OnGameResumeButtonClicked()

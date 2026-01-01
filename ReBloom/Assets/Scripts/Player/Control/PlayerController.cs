@@ -37,6 +37,8 @@ public class PlayerController : MonoBehaviour
 
     public event Action onPassOut;
 
+    public static event Action onRessuraction;
+
     private float originalRotationSpeed;
     private float originalTurnSpeed;
     private bool wasBuildPlacing = false;
@@ -797,11 +799,15 @@ public class PlayerController : MonoBehaviour
 
         playerStats.GetResurrection();
 
-        if (robotPet != null)
-        {
-            robotPet.PlayPoppyVoice(80051);  // "아프지마.."
-        }
+        //if (robotPet != null)
+        //{
+        //    robotPet.PlayPoppyVoice(80051);  // "아프지마.."
+        //}
+
+        VoiceManager.I?.PlayVoice(80051);
         isDead = false;
+
+        onRessuraction?.Invoke();
 
         SetBlocked(false);
     }
@@ -822,33 +828,49 @@ public class PlayerController : MonoBehaviour
         }
         else if (!wasGround && isGround)
         {
-            if (IsInWater())
-            {
-                if (playerStats != null)
-                    playerStats.TakeDamage(9999f);
-                Debug.Log("물에 빠져 즉사!");
-                return;
-            }
+            ProcessLanding();
+        }
+        else if (!wasGround && !isGround && CheckWaterGround())
+        {
+            if (playerStats != null)
+                playerStats.TakeDamage(9999f);
+            Debug.Log("물속 바닥에 떨어져 즉사!");
+        }
+    }
 
+    private bool CheckWaterGround()
+    {
+        // 물 레이어만 체크
+        int waterLayer = LayerMask.GetMask("Water");
+        return Physics.CheckSphere(groundCheck.position, groundCheckRadius, waterLayer);
+    }
 
-            float fallHeight = (highestY - transform.position.y) * transform.localScale.y;
+    private void ProcessLanding()
+    {
+        if (IsInWater())
+        {
+            if (playerStats != null)
+                playerStats.TakeDamage(9999f);
+            Debug.Log("물에 빠져 즉사!");
+            return;
+        }
 
-            if (fallHeight > maxDropHeight)
-                fallHeight = maxDropHeight;
+        float fallHeight = (highestY - transform.position.y) * transform.localScale.y;
+        if (fallHeight > maxDropHeight)
+            fallHeight = maxDropHeight;
 
-            if (fallHeight > minDropHeight)
-            {
-                float effectiveHeight = fallHeight - minDropHeight;
-                float shoeResist = playerEquip.GetHeightResist();
+        if (fallHeight > minDropHeight)
+        {
+            float effectiveHeight = fallHeight - minDropHeight;
+            float shoeResist = playerEquip.GetHeightResist();
 
-                float damage = Mathf.Pow(effectiveHeight, 1.8f) * shoeResist;
+            float damage = Mathf.Pow(effectiveHeight, 1.8f) * shoeResist;
 
-                if (playerStats != null)
-                    playerStats.TakeDamage(damage);
+            if (playerStats != null)
+                playerStats.TakeDamage(damage);
 
-                ApplyLandingSlow().Forget();
-                Debug.Log($"낙하 높이: {fallHeight:F2}m, 데미지: {damage:F2}");
-            }
+            ApplyLandingSlow().Forget();
+            Debug.Log($"낙하 높이: {fallHeight:F2}m, 데미지: {damage:F2}");
         }
     }
 
