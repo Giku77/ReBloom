@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public abstract class DebuffBase : IDebuff
 {
@@ -11,7 +11,9 @@ public abstract class DebuffBase : IDebuff
     public string Name => data.name;
     public int Category => data.debuffCat;
     public bool IsActive => isActive;
-    
+    public float HpLoss => data.hpLoss;
+    public float SpeedReduce => data.speedReduce;
+
     public DebuffBase(DebuffData data, PlayerStats target)
     {
         this.data = data;
