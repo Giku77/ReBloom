@@ -974,15 +974,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void SetMobileInput(Vector2 input, bool sprint)
-    {
-        if (PlatformManager.Instance != null && PlatformManager.Instance.IsMobile)
-        {
-            moveInput = input;
-            isSprinting = sprint;
-        }
-    }
-
     public void RequestJump()
     {
         if (isGround && !IsMovementLocked && !isStunned)

@@ -26,6 +26,9 @@ public class PlayerStats : MonoBehaviour
     public bool DebugMode { get; set; } = false;
     public bool StatDebugMode { get; set; } = false;
 
+    private bool isInvincible = false;
+    public bool IsInvincible => isInvincible;
+
     private void Awake()
     {
         EquipManager = GetComponent<PlayerEquipManager>();
@@ -115,6 +118,8 @@ public class PlayerStats : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
+        if (isInvincible) return;
+
         Health.Modify(-damage);
         anim.SetHitAnim();
         SoundManager.I?.PlayGetDamage();
@@ -175,5 +180,10 @@ public class PlayerStats : MonoBehaviour
         {
             RevertStats();
         }
+    }
+
+    public void SetInvincible(bool invincible)
+    {
+        isInvincible = invincible;
     }
 }

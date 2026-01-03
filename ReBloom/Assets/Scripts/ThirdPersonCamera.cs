@@ -429,6 +429,11 @@ public class ThirdPersonCamera : MonoBehaviour
         List<Touch> validTouches = new List<Touch>();
         foreach (Touch touch in Touch.activeTouches)
         {
+            if (joystickFingerIndices.Contains(touch.finger.index))
+            {
+                continue;
+            }
+
             if (!IsTouchOverUI(touch))
             {
                 validTouches.Add(touch);

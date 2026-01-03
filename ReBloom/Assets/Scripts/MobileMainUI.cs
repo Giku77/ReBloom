@@ -191,6 +191,8 @@ public class MobileMainUI : UIBase
         //if (interactButton != null)
         //    interactButton.onClick.AddListener(OnInteract);
 
+        if (crouchToggleButton != null)
+            crouchToggleButton.onClick.AddListener(OnCrouchToggle);
 
 
         UpdateRunImage();
@@ -202,6 +204,9 @@ public class MobileMainUI : UIBase
 
         if (sprintToggleButton != null)
             sprintToggleButton.onClick.RemoveListener(OnSprintToggle);
+
+        if (crouchToggleButton != null)
+            crouchToggleButton.onClick.RemoveListener(OnCrouchToggle);
 
         if (jumpButton != null)
             jumpButton.onClick.RemoveListener(OnJumpClicked);

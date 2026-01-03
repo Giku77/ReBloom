@@ -177,6 +177,11 @@ public class FMechNPCController : BaseNPCController
     {
         isPlayingJumpscare = true;
 
+        if (playerController?.playerStats != null)
+        {
+            playerController.playerStats.SetInvincible(true);
+        }
+
         SoundManager.I?.PlaySurprise();
         sound.PlayLaugh();
 
@@ -262,10 +267,13 @@ public class FMechNPCController : BaseNPCController
             }
 
             Debug.Log("[F-Mech] Jumpscare 종료");
-            
-            // 플레이어 데미지
-            playerController.playerStats.TakeDamage(100);
-            
+
+            if (playerController?.playerStats != null)
+            {
+                playerController.playerStats.SetInvincible(false);
+                playerController.playerStats.TakeDamage(100);
+            }
+
             // Return 상태로 전환
             ChangeState(new FMechNPCReturnState(this));
         }
