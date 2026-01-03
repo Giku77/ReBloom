@@ -8,14 +8,23 @@ public class SaveManager : MonoBehaviour
 {
     public static SaveManager I { get; private set; }
 
+    [Header("Serialize")]
     [SerializeField] private bool compressGzip = true;
+
+    [Header("Remote")]
     [SerializeField] private bool usePlayFab = true;
 
     public bool IsLoading { get; private set; }
     public bool HasLoadedOnce { get; private set; }
+    public bool RemoteReady => remoteReady;
 
-    private ISaveStorage storage;
+    private ISaveStorage localStorage;
+    private ISaveStorage remoteStorage;
+
     private bool ready;
+    private bool remoteReady;
+
+    private const string PendingUploadKeyPrefix = "save_pending_upload_";
 
     private async void Awake()
     {
@@ -23,23 +32,53 @@ public class SaveManager : MonoBehaviour
         I = this;
         DontDestroyOnLoad(gameObject);
 
+        localStorage = new LocalFileSaveStorage();
+
+        remoteReady = false;
+        remoteStorage = null;
+
         if (usePlayFab)
         {
-            await PlayFabAuth.LoginAsync();
-            storage = new PlayFabSaveStorage();
-        }
-        else
-        {
-            storage = new LocalFileSaveStorage();
+            try
+            {
+                await PlayFabAuth.LoginAsync();
+                remoteStorage = new PlayFabSaveStorage();
+                remoteReady = true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[SaveManager] Remote init failed. Local only. {e}");
+                remoteReady = false;
+                remoteStorage = null;
+            }
         }
 
-        ready = true;
+        ready = (localStorage != null);
     }
+
+    private async UniTask WaitReadyAsync()
+    {
+        await UniTask.WaitUntil(() => ready && localStorage != null);
+    }
+
+    // ----------------------------
+    // Public API
+    // ----------------------------
 
     public async UniTask<bool> HasSaveAsync(string slotId = "slot1")
     {
         await WaitReadyAsync();
-        return await storage.ExistsAsync(slotId);
+
+        if (remoteReady && remoteStorage != null)
+        {
+            try
+            {
+                if (await remoteStorage.ExistsAsync(slotId)) return true;
+            }
+            catch { /* ignore */ }
+        }
+
+        return await localStorage.ExistsAsync(slotId);
     }
 
     public async UniTask<bool> SaveAsync(string slotId = "slot1")
@@ -54,6 +93,206 @@ public class SaveManager : MonoBehaviour
 
         Debug.Log("[SaveAsync] Start");
 
+        var save = BuildSaveDTO(slotId);
+
+        var saveables = SaveRegistry.FindAllSaveablesInScene();
+        Debug.Log("[Save] saveables = " + string.Join(", ", saveables.ConvertAll(s => s.GetType().Name)));
+        foreach (var s in saveables)
+            s.Capture(save);
+
+        var bytes = SaveSerializerNewtonsoft.ToBytes(save, compressGzip);
+
+        await localStorage.SaveAsync(slotId, bytes);
+
+        if (remoteReady && remoteStorage != null)
+        {
+            try
+            {
+                await remoteStorage.SaveAsync(slotId, bytes);
+                SetPendingUpload(slotId, false);
+                Debug.Log($"[SaveAsync] Remote upload OK slot={slotId}");
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[SaveAsync] Remote upload failed -> pending. {e}");
+                SetPendingUpload(slotId, true);
+            }
+        }
+        else
+        {
+            SetPendingUpload(slotId, true);
+        }
+
+        Debug.Log($"[SaveAsync] slot={slotId} buildings={save.world.placedBuildings.Count} containers={save.world.containers.Count}");
+        return true;
+    }
+
+    public async UniTask<bool> LoadAsync(string slotId = "slot1")
+    {
+        await WaitReadyAsync();
+
+        IsLoading = true;
+        try
+        {
+            byte[] remoteBytes = null;
+            byte[] localBytes = null;
+
+            if (remoteReady && remoteStorage != null)
+            {
+                try { remoteBytes = await remoteStorage.LoadAsync(slotId); }
+                catch (Exception e) { Debug.LogWarning($"[LoadAsync] Remote load failed. {e}"); }
+            }
+
+            try { localBytes = await localStorage.LoadAsync(slotId); }
+            catch (Exception e) { Debug.LogWarning($"[LoadAsync] Local load failed. {e}"); }
+
+            if ((remoteBytes == null || remoteBytes.Length == 0) &&
+                (localBytes == null || localBytes.Length == 0))
+            {
+                Debug.LogWarning($"[LoadAsync] No data slot={slotId} (remote & local empty)");
+                return false;
+            }
+
+            SaveGameDTO remoteSave = null;
+            SaveGameDTO localSave = null;
+
+            if (remoteBytes != null && remoteBytes.Length > 0)
+            {
+                try { remoteSave = SaveSerializerNewtonsoft.FromBytes<SaveGameDTO>(remoteBytes, compressGzip); }
+                catch (Exception e) { Debug.LogWarning($"[LoadAsync] Remote deserialize failed. {e}"); }
+            }
+
+            if (localBytes != null && localBytes.Length > 0)
+            {
+                try { localSave = SaveSerializerNewtonsoft.FromBytes<SaveGameDTO>(localBytes, compressGzip); }
+                catch (Exception e) { Debug.LogWarning($"[LoadAsync] Local deserialize failed. {e}"); }
+            }
+
+            var chosen = ChooseNewer(remoteSave, localSave);
+            if (chosen == null)
+            {
+                Debug.LogWarning($"[LoadAsync] Both saves invalid slot={slotId}");
+                return false;
+            }
+
+            if (chosen == localSave && remoteReady && remoteStorage != null)
+            {
+                SetPendingUpload(slotId, true);
+            }
+
+            if (SettingManager.I != null && chosen.settings != null)
+                SettingManager.I.Apply(chosen.settings);
+
+            if (!string.IsNullOrEmpty(chosen.meta.sceneName) &&
+                SceneManager.GetActiveScene().name != chosen.meta.sceneName)
+            {
+                await SceneManager.LoadSceneAsync(chosen.meta.sceneName);
+            }
+
+            await UniTask.WaitUntil(() => BuildManager.I != null && BuildManager.I.ArcDB != null);
+            await UniTask.DelayFrame(1);
+
+            var saveables = SaveRegistry.FindAllSaveablesInScene();
+            foreach (var s in saveables)
+                s.Restore(chosen);
+
+            HasLoadedOnce = true;
+            AutoSaveService.I?.MarkClean();
+
+            Debug.Log($"[LoadAsync] slot={slotId} commit={chosen.meta.commitId} savedAt={chosen.meta.savedAtUtcTicks} (remoteReady={remoteReady})");
+
+            TryFlushPendingUpload(slotId).Forget();
+
+            return true;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    public async UniTask<bool> ResetSlotAsync(string slotId = "slot1", bool saveDefaultImmediately = true)
+    {
+        await WaitReadyAsync();
+
+        try { await localStorage.DeleteAsync(slotId); } catch { }
+        if (remoteReady && remoteStorage != null)
+        {
+            try { await remoteStorage.DeleteAsync(slotId); } catch { }
+        }
+
+        SetPendingUpload(slotId, false);
+
+        if (!saveDefaultImmediately)
+            return true;
+
+        await SaveAsync(slotId);
+        return true;
+    }
+
+    // ----------------------------
+    // Pending Upload Flush
+    // ----------------------------
+
+    private async UniTaskVoid TryFlushPendingUpload(string slotId)
+    {
+        if (!remoteReady || remoteStorage == null) return;
+        if (!IsPendingUpload(slotId)) return;
+
+        try
+        {
+            var localBytes = await localStorage.LoadAsync(slotId);
+            if (localBytes == null || localBytes.Length == 0) return;
+
+            await remoteStorage.SaveAsync(slotId, localBytes);
+            SetPendingUpload(slotId, false);
+            Debug.Log($"[SaveManager] Pending upload flushed OK slot={slotId}");
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"[SaveManager] Pending upload flush failed. {e}");
+        }
+    }
+
+    private void OnApplicationPause(bool pause)
+    {
+#if UNITY_EDITOR
+        return;
+#else
+        if (pause) AutoSaveService.I?.FlushAsync().Forget();
+#endif
+    }
+
+    private void OnApplicationQuit()
+    {
+#if UNITY_EDITOR
+        return;
+#else
+        SaveAsync("slot1").Forget();
+#endif
+    }
+
+    private void Update()
+    {
+        if (Keyboard.current == null) return;
+
+        if (Keyboard.current.homeKey.wasPressedThisFrame)
+        {
+            ResetSlotAsync("slot1", saveDefaultImmediately: false).Forget();
+        }
+
+        //if (Keyboard.current.pKey.wasPressedThisFrame)
+        //{
+        //    TryFlushPendingUpload("slot1").Forget();
+        //}
+    }
+
+    // ----------------------------
+    // Helpers
+    // ----------------------------
+
+    private SaveGameDTO BuildSaveDTO(string slotId)
+    {
         var save = new SaveGameDTO
         {
             meta =
@@ -69,114 +308,28 @@ public class SaveManager : MonoBehaviour
         if (SettingManager.I != null)
             save.settings = SettingManager.I.Capture();
 
-        var saveables = SaveRegistry.FindAllSaveablesInScene();
-        Debug.Log("[Save] saveables = " + string.Join(", ", saveables.ConvertAll(s => s.GetType().Name)));
-        foreach (var s in saveables)
-            s.Capture(save);
-
-        var bytes = SaveSerializerNewtonsoft.ToBytes(save, compressGzip);
-        await storage.SaveAsync(slotId, bytes);
-
-        Debug.Log($"[SaveAsync] slot={slotId} containers={save.world.containers.Count}");
-        Debug.Log($"[SaveAsync] buildings={save.world.placedBuildings.Count} containers={save.world.containers.Count}");
-        return true;
+        return save;
     }
 
-    private async UniTask WaitReadyAsync()
+    private SaveGameDTO ChooseNewer(SaveGameDTO a, SaveGameDTO b)
     {
-        await UniTask.WaitUntil(() => ready && storage != null);
+        if (a == null) return b;
+        if (b == null) return a;
+
+        if (a.meta.savedAtUtcTicks > b.meta.savedAtUtcTicks) return a;
+        if (b.meta.savedAtUtcTicks > a.meta.savedAtUtcTicks) return b;
+
+        return a;
     }
 
-    public async UniTask<bool> LoadAsync(string slotId = "slot1")
+    private void SetPendingUpload(string slotId, bool pending)
     {
-        await WaitReadyAsync();
-
-        IsLoading = true;
-        try
-        {
-
-            var bytes = await storage.LoadAsync(slotId);
-            if (bytes == null || bytes.Length == 0)
-            {
-                Debug.LogWarning($"[LoadAsync] No data slot={slotId}");
-                return false;
-            }
-
-            var save = SaveSerializerNewtonsoft.FromBytes<SaveGameDTO>(bytes, compressGzip);
-
-            if (SettingManager.I != null && save.settings != null)
-                SettingManager.I.Apply(save.settings);
-
-            // 저장된 씬과 다르면 씬 로드 후 Restore 해야 함
-            if (!string.IsNullOrEmpty(save.meta.sceneName) &&
-                SceneManager.GetActiveScene().name != save.meta.sceneName)
-            {
-                await SceneManager.LoadSceneAsync(save.meta.sceneName);
-            }
-
-            await UniTask.WaitUntil(() => BuildManager.I != null && BuildManager.I.ArcDB != null);
-            await UniTask.DelayFrame(1);
-
-            var saveables = SaveRegistry.FindAllSaveablesInScene();
-            foreach (var s in saveables)
-                s.Restore(save);
-
-            HasLoadedOnce = true;
-
-            AutoSaveService.I?.MarkClean();
-
-            Debug.Log($"[LoadAsync] slot={slotId} commit={save.meta.commitId}");
-            return true;
-        }
-        finally
-        {
-            IsLoading = false;
-        }
+        PlayerPrefs.SetInt(PendingUploadKeyPrefix + slotId, pending ? 1 : 0);
+        PlayerPrefs.Save();
     }
 
-    private void OnApplicationPause(bool pause)
+    private bool IsPendingUpload(string slotId)
     {
-        #if UNITY_EDITOR
-            return;
-        #else
-            if (pause) AutoSaveService.I?.FlushAsync().Forget(); // 또는 SaveAsync
-        #endif
+        return PlayerPrefs.GetInt(PendingUploadKeyPrefix + slotId, 0) == 1;
     }
-
-    private void OnApplicationQuit()
-    {
-        #if UNITY_EDITOR
-            return;
-        #else
-            SaveAsync("slot1").Forget();
-        #endif
-    }
-
-    public async UniTask<bool> ResetSlotAsync(string slotId = "slot1", bool saveDefaultImmediately = true)
-    {
-        await WaitReadyAsync();
-
-        await storage.DeleteAsync(slotId);
-
-        if (!saveDefaultImmediately)
-            return true;
-
-        // 기본 상태를 저장하고 싶으면:
-        // 1) 새 게임 상태로 씬/플레이어/인벤 초기화
-        // 2) SaveAsync 호출
-
-        await SaveAsync(slotId);
-        return true;
-    }
-
-    private void Update()
-    {
-        if (Keyboard.current == null) return;
-
-        if (Keyboard.current.homeKey.wasPressedThisFrame)
-        {
-            ResetSlotAsync("slot1", saveDefaultImmediately:false).Forget();
-        }
-    }
-
 }

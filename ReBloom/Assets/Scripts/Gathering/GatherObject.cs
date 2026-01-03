@@ -1,4 +1,5 @@
-﻿using Unity.VisualScripting;
+﻿using Cysharp.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GatherObject : MonoBehaviour, IInteractable
@@ -34,7 +35,11 @@ public class GatherObject : MonoBehaviour, IInteractable
     [Header("군수공장 펜스")]
     [SerializeField] private GameObject fence;
     [SerializeField] private Transform fenceCamPos;  
-    [SerializeField] private Transform fenceLookAt;   
+    [SerializeField] private Transform fenceLookAt;
+
+    [Header("Save Key (고정)")]
+    [SerializeField] private string persistentId; // 예: bridge_bus_1, fence_gate_1
+    public string SaveKey => $"gather_destroyed:{persistentId}";
 
 
     public float HoldTime
@@ -86,12 +91,35 @@ public class GatherObject : MonoBehaviour, IInteractable
 
     private void OnEnable()
     {
+        if (isDestroyObject)
+            CheckDestroyedDeferred().Forget();
+
+        if (isTutorialObject && QuestManager.I != null && QuestManager.I.FirstQuestCompleted)
+        {
+            DestroyAfterTutorialClear();
+            return;
+        }
         QuestManager.OnFirstQuestCompleted += DestroyAfterTutorialClear;
     }
 
     private void OnDisable()
     {
         QuestManager.OnFirstQuestCompleted -= DestroyAfterTutorialClear;
+    }
+
+    private async UniTaskVoid CheckDestroyedDeferred()
+    {
+        await UniTask.WaitUntil(() => SaveManager.I != null && SaveManager.I.HasLoadedOnce);
+        await UniTask.DelayFrame(1);
+
+        if (!this || !gameObject) return;
+
+        if (DestroyedObjectRegistry.I != null && DestroyedObjectRegistry.I.IsDestroyed(SaveKey))
+        {
+            if (fence != null) fence.SetActive(false);
+            gameObject.SetActive(false);
+            Destroy(gameObject);
+        }
     }
 
     public void Interact(PlayerController player)
@@ -141,6 +169,7 @@ public class GatherObject : MonoBehaviour, IInteractable
         if (isDestroyObject)
         {
             Debug.Log($"[GatherObject] 오브젝트 제거: {gatherName}");
+            DestroyedObjectRegistry.I?.MarkDestroyed(SaveKey);
 
             if (gatherObjectID == 910019)
             {
@@ -257,8 +286,6 @@ public class GatherObject : MonoBehaviour, IInteractable
 
             Destroy(gameObject);
         }
-
-        Debug.Log("[GatherObject] 튜토리얼 오브젝트들 파괴하였습니다.");
     }
 
     public string GetCurrentPromptText()

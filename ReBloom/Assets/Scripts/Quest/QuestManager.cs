@@ -18,6 +18,10 @@ public class QuestManager : MonoBehaviour
     //채집 오브젝트 첫번째 퀘스트 후 삭제 관련 필드
     public static event Action OnFirstQuestCompleted;
     private int _firstQuestId;
+    private bool _firstQuestCompleted;
+    public bool FirstQuestCompleted => _firstQuestCompleted;
+    public int FirstQuestId => _firstQuestId;
+
 
     [SerializeField] private CutSceneManager cutSceneManager;
     [SerializeField] private GreeningVisualController greeningVisualController;
@@ -69,6 +73,14 @@ public class QuestManager : MonoBehaviour
         AutoSaveService.I?.RequestSave("EndingCutScenePlayed");
     }
 
+    public void SetFirstQuest(bool completed)
+    {
+        _firstQuestCompleted = completed;
+        if (completed)
+        {
+            OnFirstQuestCompleted?.Invoke();
+        }
+    }
 
 
     public void Init(QuestDB db, GameInventory inventory, StageDetector stageDetector)
@@ -249,7 +261,10 @@ public class QuestManager : MonoBehaviour
         TutorialEventBus.RaiseTarget(completedQuestId);
 
         if (completedQuestId == _firstQuestId)
+        {
+            _firstQuestCompleted = true;
             OnFirstQuestCompleted?.Invoke();
+        }
 
         var nextId = FindNextByFormer(completedQuestId);
         if (nextId == 0)
@@ -306,6 +321,7 @@ public class QuestManager : MonoBehaviour
 
         if (completedQuestId == _firstQuestId)
         {
+            _firstQuestCompleted = true;
             OnFirstQuestCompleted?.Invoke();
         }
 

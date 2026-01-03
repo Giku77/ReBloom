@@ -10,6 +10,9 @@ public class QuestManagerSaveable : MonoBehaviour, ISaveable
         save.quest.currentQuestId = QuestManager.I != null && QuestManager.I.Current != null
             ? QuestManager.I.Current.questId
             : 0;
+        save.quest.firstQuestCompleted = QuestManager.I != null
+            ? QuestManager.I.FirstQuestCompleted
+            : false;
     }
     public void Restore(SaveGameDTO save)
     {
@@ -21,8 +24,10 @@ public class QuestManagerSaveable : MonoBehaviour, ISaveable
         await UniTask.WaitUntil(() => BuildManager.I != null && BuildManager.I.ArcDB != null);
         await UniTask.DelayFrame(1);
 
+        QuestManager.I.SetFirstQuest(save.quest.firstQuestCompleted);
         int id = save.quest.currentQuestId;
         if (id > 0) QuestManager.I.SetCurrent(id);
         if (QuestManager.I.Current != null) QuestManager.I.PlayQuestCompleteAnimation();
+        
     }
 }
