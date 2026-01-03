@@ -37,7 +37,7 @@ public class PlayerController : MonoBehaviour
 
     public event Action onPassOut;
 
-    public static event Action OnRessuraction;
+    public static event Action OnResurrection;
 
     private float originalRotationSpeed;
     private float originalTurnSpeed;
@@ -809,7 +809,7 @@ public class PlayerController : MonoBehaviour
         VoiceManager.I?.PlayVoice(80051);
         isDead = false;
 
-        OnRessuraction?.Invoke();
+        OnResurrection?.Invoke();
 
         SetBlocked(false);
     }
@@ -1002,5 +1002,15 @@ public class PlayerController : MonoBehaviour
             }
         }
         return false;
+    }
+
+    public void SetMobileInput(Vector2 input, bool sprint, bool crouch = false)
+    {
+        if (PlatformManager.Instance != null && PlatformManager.Instance.IsMobile)
+        {
+            moveInput = input;
+            isSprinting = sprint;
+            isSlow = crouch;
+        }
     }
 }
