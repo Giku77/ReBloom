@@ -138,26 +138,26 @@ public class BuildUI : UIBase
         }
 
         SoundManager.I?.PlayUIClick();
-        UpdateTabVisuals(arcType);
+        //UpdateTabVisuals(arcType);
     }
 
-    /// <summary>
-    /// 선택된 탭 버튼 하이라이트
-    /// </summary>
-    private void UpdateTabVisuals(int selectedType)
-    {
-        for (int i = 0; i < tabButtons.Length; i++)
-        {
-            int typeIndex = i + 1;
-            var colors = tabButtons[i].colors;
-            colors.normalColor = (typeIndex == selectedType) ? activeTabColor : inactiveTabColor;
-            tabButtons[i].colors = colors;
+    ///// <summary>
+    ///// 선택된 탭 버튼 하이라이트
+    ///// </summary>
+    //private void UpdateTabVisuals(int selectedType)
+    //{
+    //    for (int i = 0; i < tabButtons.Length; i++)
+    //    {
+    //        int typeIndex = i + 1;
+    //        var colors = tabButtons[i].colors;
+    //        colors.normalColor = (typeIndex == selectedType) ? activeTabColor : inactiveTabColor;
+    //        tabButtons[i].colors = colors;
 
-            // 또는 Image 컴포넌트 직접 변경
-            // tabButtons[i].GetComponent<Image>().color = 
-            //     (typeIndex == selectedType) ? activeTabColor : inactiveTabColor;
-        }
-    }
+    //        // 또는 Image 컴포넌트 직접 변경
+    //        // tabButtons[i].GetComponent<Image>().color = 
+    //        //     (typeIndex == selectedType) ? activeTabColor : inactiveTabColor;
+    //    }
+    //}
 
     private void UpdateResearchPointDisplay(float p)
     {

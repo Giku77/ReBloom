@@ -110,13 +110,15 @@ public class StatTooltipUI : MonoBehaviour
         float pollutionValue = playerStats.Pollution.Value;
         float pollutionMax = playerStats.Pollution.MaxValue;
         int pollutionPercent = Mathf.RoundToInt((pollutionValue / pollutionMax) * 100f);
-        
+
         if (statValueText != null)
         {
             statValueText.text = $"현재 수치: {pollutionPercent}%";
         }
-        
+
         string state = "정상";
+        float totalHpLoss = 0f;
+
         if (debuffManager != null)
         {
             var activeDebuffs = debuffManager.GetActiveDebuffs();
@@ -125,24 +127,27 @@ public class StatTooltipUI : MonoBehaviour
                 if (debuff.Category == 1)
                 {
                     state = debuff.Name;
+                    totalHpLoss += debuff.HpLoss;
                     break;
                 }
             }
         }
-        
+
         if (stateText != null)
         {
             stateText.text = $"상태 : {state}";
         }
-        
-        //float actualRate = 0f;
-        
+
         if (playerStats.Pollution is PollutionStat pollutionStat)
         {
-            //actualRate = pollutionStat.ActualRate;
             if (hpDecreaseRateText != null)
             {
-                hpDecreaseRateText.text = $"초당 체력 감소량 : ??";
+                hpDecreaseRateText.text = $"초당 체력 감소량: {totalHpLoss:F1}";
+            }
+            // 오염도는 속도 감소 없음 - 숨기거나 비활성화
+            if (speedDecreaseRateText != null)
+            {
+                speedDecreaseRateText.gameObject.SetActive(false);
             }
             descriptionText.text = "오염도 수치가 100%에 도달하면 중독 상태에 빠져 체력이 감소합니다.";
             stateBorder.color = GetStateColor(StatType.Pollution);
@@ -155,13 +160,16 @@ public class StatTooltipUI : MonoBehaviour
         float thirstValue = playerStats.Thirst.Value;
         float thirstMax = playerStats.Thirst.MaxValue;
         int thirstPercent = Mathf.RoundToInt((thirstValue / thirstMax) * 100f);
-        
+
         if (statValueText != null)
         {
             statValueText.text = $"현재 수치: {thirstPercent}%";
         }
-        
+
         string state = "정상";
+        float totalHpLoss = 0f;
+        float totalSpeedReduce = 0f;
+
         if (debuffManager != null)
         {
             var activeDebuffs = debuffManager.GetActiveDebuffs();
@@ -170,29 +178,30 @@ public class StatTooltipUI : MonoBehaviour
                 if (debuff.Category == 2)
                 {
                     state = debuff.Name;
+                    totalHpLoss += debuff.HpLoss;
+                    totalSpeedReduce += debuff.SpeedReduce;
                     break;
                 }
             }
         }
-        
+
         if (stateText != null)
         {
             stateText.text = $"상태 : {state}";
         }
-        
-        //float actualRate = 0f;
-        
+
         if (playerStats.Thirst is ThirstStat thirstStat)
         {
-           // actualRate = thirstStat.ActualRate;
-           //actualRate:F3;
             if (hpDecreaseRateText != null)
             {
-                hpDecreaseRateText.text = $"초당 체력 감소량: ??";
+                hpDecreaseRateText.text = $"초당 체력 감소량: {totalHpLoss:F1}";
             }
             if (speedDecreaseRateText != null)
             {
-                speedDecreaseRateText.text = $"이동 속도 감소량: ??";
+                speedDecreaseRateText.gameObject.SetActive(true);
+                // ★ 수정: totalSpeedReduce를 %로 변환
+                int speedPercent = Mathf.RoundToInt(totalSpeedReduce * 100f);
+                speedDecreaseRateText.text = $"이동 속도 감소량: {speedPercent}%";
             }
             descriptionText.text = "갈증 수치가 30% / 60% / 100% 에 도달하면 상태 이상 단계가 상승하고 디버프가 적용됩니다.";
             stateBorder.color = GetStateColor(StatType.Thirst);
@@ -205,13 +214,16 @@ public class StatTooltipUI : MonoBehaviour
         float hungerValue = playerStats.Hunger.Value;
         float hungerMax = playerStats.Hunger.MaxValue;
         int hungerPercent = Mathf.RoundToInt((hungerValue / hungerMax) * 100f);
-        
+
         if (statValueText != null)
         {
-            statValueText.text = $"허기 : {hungerPercent}%";
+            statValueText.text = $"현재 수치: {hungerPercent}%";
         }
-        
+
         string state = "정상";
+        float totalHpLoss = 0f;
+        float totalSpeedReduce = 0f;
+
         if (debuffManager != null)
         {
             var activeDebuffs = debuffManager.GetActiveDebuffs();
@@ -220,28 +232,29 @@ public class StatTooltipUI : MonoBehaviour
                 if (debuff.Category == 3)
                 {
                     state = debuff.Name;
+                    totalHpLoss += debuff.HpLoss;
+                    totalSpeedReduce += debuff.SpeedReduce;
                     break;
                 }
             }
         }
-        
+
         if (stateText != null)
         {
             stateText.text = $"상태 : {state}";
         }
-        
-        //float actualRate = 0f;
-        
+
         if (playerStats.Hunger is HungerStat hungerStat)
         {
-            //actualRate = hungerStat.ActualRate;
             if (hpDecreaseRateText != null)
             {
-                hpDecreaseRateText.text = $"초당 체력 감소량: ??";
+                hpDecreaseRateText.text = $"초당 체력 감소량: {totalHpLoss:F1}";
             }
             if (speedDecreaseRateText != null)
             {
-                speedDecreaseRateText.text = $"이동 속도 감소량: ??";
+                speedDecreaseRateText.gameObject.SetActive(true);
+                int speedPercent = Mathf.RoundToInt(totalSpeedReduce * 100f);
+                speedDecreaseRateText.text = $"이동 속도 감소량: {speedPercent}%";
             }
             descriptionText.text = "허기 수치가 30% / 60% / 100% 에 도달하면 상태 이상 단계가 상승하고 디버프가 적용됩니다.";
             stateBorder.color = GetStateColor(StatType.Hunger);
@@ -259,14 +272,20 @@ public class StatTooltipUI : MonoBehaviour
         }
 
         string state = "정상";
+        float totalHpLoss = 0f;
+        float totalSpeedReduce = 0f;
+
         if (debuffManager != null)
         {
             var activeDebuffs = debuffManager.GetActiveDebuffs();
             foreach (var debuff in activeDebuffs)
             {
-                if (debuff.Category == 4)
+                // 체온 관련: Category 4(저체온), 5(중증저체온), 6(고열), 7(열사병)
+                if (debuff.Category >= 4 && debuff.Category <= 7)
                 {
                     state = debuff.Name;
+                    totalHpLoss += debuff.HpLoss;
+                    totalSpeedReduce += debuff.SpeedReduce;
                     break;
                 }
             }
@@ -277,18 +296,18 @@ public class StatTooltipUI : MonoBehaviour
             stateText.text = $"상태 : {state}";
         }
 
-        //float actualRate = 0f;
-
         if (playerStats.Temperature is TemperatureStat temperatureStat)
         {
-           // actualRate = temperatureStat.ActualRate;
             if (hpDecreaseRateText != null)
             {
-                hpDecreaseRateText.text = $"초당 체력 감소량: ??";
+                hpDecreaseRateText.text = $"초당 체력 감소량: {totalHpLoss:F1}";
             }
             if (speedDecreaseRateText != null)
             {
-                speedDecreaseRateText.text = $"이동 속도 감소량: ??";
+                speedDecreaseRateText.gameObject.SetActive(true);
+
+                int speedPercent = Mathf.RoundToInt(totalSpeedReduce * 100f);
+                speedDecreaseRateText.text = $"이동 속도 감소량: {speedPercent}%";
             }
             descriptionText.text = "34°C 이하: 저체온증 / 31°C 이하: 중증 저체온 / 38°C 이상: 고열 / 41°C 이상: 열사병";
             stateBorder.color = GetStateColor(StatType.Temperature);
@@ -297,27 +316,41 @@ public class StatTooltipUI : MonoBehaviour
     private void UpdateHPTooltip()
     {
         statTitle.text = "체력";
-        float tempValue = playerStats.Temperature.Value;
+        float hpValue = playerStats.Health.Value;
+        float hpMax = playerStats.Health.MaxValue;
 
         if (statValueText != null)
         {
-            statValueText.text = $"현재 수치 : {tempValue:F1}°C";
+            statValueText.text = $"현재 수치 : {hpValue:F0} / {hpMax:F0}";
         }
 
-        //float actualRate = 0f;
+        // ★ 모든 활성 디버프의 영향 합산
+        float totalHpLoss = 0f;
+        float totalSpeedReduce = 0f;
+
+        if (debuffManager != null)
+        {
+            var activeDebuffs = debuffManager.GetActiveDebuffs();
+            foreach (var debuff in activeDebuffs)
+            {
+                totalHpLoss += debuff.HpLoss;
+                totalSpeedReduce += debuff.SpeedReduce;
+            }
+        }
 
         if (playerStats.Health is HealthStat health)
         {
-           // actualRate = temperatureStat.ActualRate;
             if (hpDecreaseRateText != null)
             {
-                hpDecreaseRateText.text = $"초당 체력 감소량: ??";
+                hpDecreaseRateText.text = $"초당 체력 감소량: {totalHpLoss:F1}";
             }
             if (speedDecreaseRateText != null)
             {
-                speedDecreaseRateText.text = $"이동 속도 감소량: ??";
+                speedDecreaseRateText.gameObject.SetActive(true);
+                int speedPercent = Mathf.RoundToInt(totalSpeedReduce * 100f);
+                speedDecreaseRateText.text = $"이동 속도 감소량: {speedPercent}%";
             }
-            descriptionText.text = " ";
+            descriptionText.text = "체력이 0이 되면 사망합니다.";
             stateBorder.color = GetStateColor(StatType.HP);
         }
     }
