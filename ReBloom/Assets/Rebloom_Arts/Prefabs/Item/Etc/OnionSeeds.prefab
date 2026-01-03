@@ -51,7 +51,7 @@ MeshRenderer:
   m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
+  m_DynamicOccludee: 0
   m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
@@ -97,7 +97,6 @@ GameObject:
   - component: {fileID: 9207058337588910037}
   - component: {fileID: -7923910649128619574}
   - component: {fileID: -4727530273322273658}
-  - component: {fileID: 7338045420435584288}
   - component: {fileID: 4128703175257705108}
   - component: {fileID: 4963448436099970688}
   - component: {fileID: -8770972376495735028}
@@ -161,20 +160,6 @@ MonoBehaviour:
   isPermanent: 0
   disableHighlight: 0
   disableOutline: 0
---- !u!114 &7338045420435584288
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8398609031013944687}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c78336feb3e4585449cf37641c839d64, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  velocityThreshold: 0.05
-  angularVelocityThreshold: 0.05
 --- !u!114 &4128703175257705108
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -301,7 +286,7 @@ MeshRenderer:
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
+  m_DynamicOccludee: 0
   m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
