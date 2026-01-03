@@ -88,6 +88,7 @@ public class EquipmentSaveDTO
 public class QuestSaveDTO
 {
     public int currentQuestId; // 0이면 없음
+    public bool firstQuestCompleted;
 }
 
 [Serializable]
@@ -139,6 +140,8 @@ public class WorldSaveDTO
     public List<ContainerSaveDTO> containers = new List<ContainerSaveDTO>();
 
     public List<int> visitedStages = new();
+
+    public List<string> destroyedKeys = new List<string>();
 
     // TODO: farms / incubators / quests 등도 여기에 확장
 }

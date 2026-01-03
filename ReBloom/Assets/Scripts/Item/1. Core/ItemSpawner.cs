@@ -708,6 +708,7 @@ public class ItemSpawner : MonoBehaviour
     #region Unity 생명주기
     private async void Start()
     {
+        if (PlatformManager.Instance != null && PlatformManager.Instance.IsMobile) return;
         try
         {
             await PreloadAllItemsAsync(this.GetCancellationTokenOnDestroy());
