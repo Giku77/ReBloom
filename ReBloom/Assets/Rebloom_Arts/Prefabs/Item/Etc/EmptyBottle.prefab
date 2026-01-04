@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &9210242413060623600
+--- !u!1 &6422275064797824540
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,56 +8,50 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7462091522689639194}
-  - component: {fileID: 5633883213177472855}
-  - component: {fileID: 6450062313629882329}
-  - component: {fileID: 2702528337109873836}
-  - component: {fileID: 8670279268387352578}
-  - component: {fileID: 1764972538906808219}
-  - component: {fileID: 2578039876759995521}
-  - component: {fileID: 1977724006645071203}
-  - component: {fileID: 2159474746335715541}
+  - component: {fileID: 7134213985478498671}
+  - component: {fileID: 7630610014305585959}
+  - component: {fileID: 8600686661669200854}
   m_Layer: 11
-  m_Name: EmptyBottle
+  m_Name: mesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7462091522689639194
+--- !u!4 &7134213985478498671
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9210242413060623600}
+  m_GameObject: {fileID: 6422275064797824540}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.38268343, z: 0, w: 0.92387956}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 5, y: 5, z: 5}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.0103, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
---- !u!33 &5633883213177472855
+  m_Father: {fileID: 7462091522689639194}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &7630610014305585959
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9210242413060623600}
+  m_GameObject: {fileID: 6422275064797824540}
   m_Mesh: {fileID: 2534964839176971238, guid: 9f33cfc6179c8c54eac09832f467c241, type: 3}
---- !u!23 &6450062313629882329
+--- !u!23 &8600686661669200854
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9210242413060623600}
+  m_GameObject: {fileID: 6422275064797824540}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
+  m_DynamicOccludee: 0
   m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
@@ -92,6 +86,44 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &9210242413060623600
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7462091522689639194}
+  - component: {fileID: 2702528337109873836}
+  - component: {fileID: 8670279268387352578}
+  - component: {fileID: 1764972538906808219}
+  - component: {fileID: 2578039876759995521}
+  - component: {fileID: 1977724006645071203}
+  - component: {fileID: 2159474746335715541}
+  m_Layer: 11
+  m_Name: EmptyBottle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7462091522689639194
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9210242413060623600}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.38268343, z: 0, w: 0.92387956}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 5, y: 5, z: 5}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7134213985478498671}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
 --- !u!54 &2702528337109873836
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -185,8 +217,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.021089159, y: 0.021089155, z: 0.059440196}
-  m_Center: {x: -8.795429e-10, y: 0, z: 0.006943781}
+  m_Size: {x: 0.021089159, y: 0.02108915, z: 0.059440196}
+  m_Center: {x: -0.0000000010536712, y: 0.010277152, z: 0.00694378}
 --- !u!114 &2159474746335715541
 MonoBehaviour:
   m_ObjectHideFlags: 0

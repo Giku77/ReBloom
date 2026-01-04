@@ -143,7 +143,6 @@ public class WorldItem : MonoBehaviour, IInteractable
     {
         itemData = null;
         quantity = 1;
-        isPersistent = false;
 
         var highlight = GetComponent<InteractionHighlight>();
         if (highlight != null)
