@@ -37,7 +37,7 @@ public class PlayerController : MonoBehaviour
 
     public event Action onPassOut;
 
-    public static event Action OnRessuraction;
+    public static event Action OnResurrection;
 
     private float originalRotationSpeed;
     private float originalTurnSpeed;
@@ -809,7 +809,7 @@ public class PlayerController : MonoBehaviour
         VoiceManager.I?.PlayVoice(80051);
         isDead = false;
 
-        OnRessuraction?.Invoke();
+        OnResurrection?.Invoke();
 
         SetBlocked(false);
     }
@@ -832,12 +832,12 @@ public class PlayerController : MonoBehaviour
         {
             ProcessLanding();
         }
-        else if (!wasGround && !isGround && CheckWaterGround())
-        {
-            if (playerStats != null)
-                playerStats.TakeDamage(9999f);
-            Debug.Log("물속 바닥에 떨어져 즉사!");
-        }
+        //else if (!wasGround && !isGround && CheckWaterGround())
+        //{
+        //    if (playerStats != null)
+        //        playerStats.TakeDamage(9999f);
+        //    Debug.Log("물속 바닥에 떨어져 즉사!");
+        //}
     }
 
     private bool CheckWaterGround()
@@ -849,13 +849,13 @@ public class PlayerController : MonoBehaviour
 
     private void ProcessLanding()
     {
-        if (IsInWater())
-        {
-            if (playerStats != null)
-                playerStats.TakeDamage(9999f);
-            Debug.Log("물에 빠져 즉사!");
-            return;
-        }
+        //if (IsInWater())
+        //{
+        //    if (playerStats != null)
+        //        playerStats.TakeDamage(9999f);
+        //    Debug.Log("물에 빠져 즉사!");
+        //    return;
+        //}
 
         float fallHeight = (highestY - transform.position.y) * transform.localScale.y;
         if (fallHeight > maxDropHeight)
@@ -974,15 +974,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void SetMobileInput(Vector2 input, bool sprint)
-    {
-        if (PlatformManager.Instance != null && PlatformManager.Instance.IsMobile)
-        {
-            moveInput = input;
-            isSprinting = sprint;
-        }
-    }
-
     public void RequestJump()
     {
         if (isGround && !IsMovementLocked && !isStunned)
@@ -1002,5 +993,15 @@ public class PlayerController : MonoBehaviour
             }
         }
         return false;
+    }
+
+    public void SetMobileInput(Vector2 input, bool sprint, bool crouch = false)
+    {
+        if (PlatformManager.Instance != null && PlatformManager.Instance.IsMobile)
+        {
+            moveInput = input;
+            isSprinting = sprint;
+            isSlow = crouch;
+        }
     }
 }

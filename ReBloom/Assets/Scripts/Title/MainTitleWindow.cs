@@ -41,12 +41,15 @@ public class MainTitleWindow : Window
 
     private void OnEnable()
     {
-        EventSystem.current.SetSelectedGameObject(null);
-        EventSystem.current.SetSelectedGameObject(newGameButton.gameObject);
-
         popup.SetActive(false);
 
         cts = new CancellationTokenSource();
+
+        if (PlatformManager.Instance == null || !PlatformManager.Instance.IsMobile)
+        {
+            EventSystem.current.SetSelectedGameObject(null);
+            EventSystem.current.SetSelectedGameObject(newGameButton.gameObject);
+        }
     }
 
     private void OnDisable()
@@ -83,6 +86,9 @@ public class MainTitleWindow : Window
             return;
 
         if (UIButtonHoverDeselect.IsMouseHoveringButton)
+            return;
+
+        if (PlatformManager.Instance != null && PlatformManager.Instance.IsMobile)
             return;
 
         if (Keyboard.current == null)
@@ -184,13 +190,19 @@ public class MainTitleWindow : Window
         if (popup.activeSelf) return;
 
         popup.SetActive(true);
-        EventSystem.current.SetSelectedGameObject(executeButton.gameObject);
+        if (PlatformManager.Instance == null || !PlatformManager.Instance.IsMobile)
+        {
+            EventSystem.current.SetSelectedGameObject(executeButton.gameObject);
+        }
     }
 
     private void ClosePopup()
     {
         popup.SetActive(false);
-        EventSystem.current.SetSelectedGameObject(newGameButton.gameObject);
+        if (PlatformManager.Instance == null || !PlatformManager.Instance.IsMobile)
+        {
+            EventSystem.current.SetSelectedGameObject(newGameButton.gameObject);
+        }
     }
 
     private void OnExecuteButtonClicked()

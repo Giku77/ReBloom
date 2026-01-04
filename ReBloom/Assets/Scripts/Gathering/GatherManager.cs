@@ -49,22 +49,22 @@ public class GatherManager : MonoBehaviour
 
         float nightMultiplier = (isNight && data.nightMultiple > 0) ? data.nightMultiple : 1f;
 
-        if (Random.Range(0, 100) < data.item1Probability)
+        int randomValue = Random.Range(0, 100);
+
+        if (randomValue < data.item1Probability)
         {
             int baseAmount = Random.Range(data.item1MinAmount, data.item1MaxAmount + 1);
             int finalAmount = Mathf.RoundToInt(baseAmount * nightMultiplier);
-
             return new DropResult
             {
                 item = ItemDatabase.I.GetItem(data.getItem1),
                 amount = finalAmount
             };
         }
-        else if (data.getItem2 != 0 && Random.Range(0, 100) < data.item2Probability)
+        else if (data.getItem2 != 0 && randomValue < data.item1Probability + data.item2Probability)
         {
             int baseAmount = Random.Range(data.item2MinAmount, data.item2MaxAmount + 1);
             int finalAmount = Mathf.RoundToInt(baseAmount * nightMultiplier);
-
             return new DropResult
             {
                 item = ItemDatabase.I.GetItem(data.getItem2),

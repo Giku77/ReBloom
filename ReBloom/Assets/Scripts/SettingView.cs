@@ -78,7 +78,13 @@ public class SettingView : MonoBehaviour
 
     private void Init()
     {
-        InitResolutionDropdown();
+        bool isMobile = PlatformManager.Instance != null && PlatformManager.Instance.IsMobile;
+
+        if (!isMobile)
+        {
+            InitResolutionDropdown();
+        }
+
         InitGraphicsQualityDropdown();
         InitFrameRateDropdown();
 
@@ -89,8 +95,16 @@ public class SettingView : MonoBehaviour
         sfxSlider.SetValueWithoutNotify(SettingManager.I.SFXVolume);
         mouseSensitivitySlider.SetValueWithoutNotify(SettingManager.I.MouseSensitivity);
 
-        fullscreenToggle.SetIsOnWithoutNotify(SettingManager.I.IsFullScreen);
-        vsyncToggle.SetIsOnWithoutNotify(SettingManager.I.IsVSyncEnabled);
+        if (isMobile)
+        {
+            HidePCOnlySettings();
+        }
+        else
+        {
+            fullscreenToggle.SetIsOnWithoutNotify(SettingManager.I.IsFullScreen);
+            vsyncToggle.SetIsOnWithoutNotify(SettingManager.I.IsVSyncEnabled);
+        }
+
         graphicsQualityDropdown.SetValueWithoutNotify(SettingManager.I.GraphicsQuality);
         frameRateDropdown.SetValueWithoutNotify(GetFrameRateDropdownIndex(SettingManager.I.TargetFrameRate));
 
@@ -105,14 +119,20 @@ public class SettingView : MonoBehaviour
         masterSlider.onValueChanged.AddListener(SettingManager.I.SetMasterVolume);
         bgmSlider.onValueChanged.AddListener(SettingManager.I.SetBGMVolume);
         sfxSlider.onValueChanged.AddListener(SettingManager.I.SetSFXVolume);
+        mouseSensitivitySlider.onValueChanged.AddListener(SettingManager.I.SetMouseSensitivity);
 
-        resolutionDropdown.onValueChanged.AddListener(OnResolutionChanged);
-        fullscreenToggle.onValueChanged.AddListener(SettingManager.I.SetFullScreen);
-        vsyncToggle.onValueChanged.AddListener(SettingManager.I.SetVSync);
+        bool isMobile = PlatformManager.Instance != null && PlatformManager.Instance.IsMobile;
+
+        if (!isMobile)
+        {
+            resolutionDropdown.onValueChanged.AddListener(OnResolutionChanged);
+            fullscreenToggle.onValueChanged.AddListener(SettingManager.I.SetFullScreen);
+            vsyncToggle.onValueChanged.AddListener(SettingManager.I.SetVSync);
+        }
         graphicsQualityDropdown.onValueChanged.AddListener(SettingManager.I.SetGraphicsQuality);
         frameRateDropdown.onValueChanged.AddListener(OnFrameRateChanged);
 
-        mouseSensitivitySlider.onValueChanged.AddListener(SettingManager.I.SetMouseSensitivity);
+
     }
 
     private void RemoveListeners()
@@ -120,14 +140,18 @@ public class SettingView : MonoBehaviour
         masterSlider.onValueChanged.RemoveAllListeners();
         bgmSlider.onValueChanged.RemoveAllListeners();
         sfxSlider.onValueChanged.RemoveAllListeners();
+        mouseSensitivitySlider.onValueChanged.RemoveAllListeners();
 
-        resolutionDropdown.onValueChanged.RemoveAllListeners();
-        fullscreenToggle.onValueChanged.RemoveAllListeners();
-        vsyncToggle.onValueChanged.RemoveAllListeners();
+        bool isMobile = PlatformManager.Instance != null && PlatformManager.Instance.IsMobile;
+
+        if (!isMobile)
+        {
+            resolutionDropdown.onValueChanged.RemoveAllListeners();
+            fullscreenToggle.onValueChanged.RemoveAllListeners();
+            vsyncToggle.onValueChanged.RemoveAllListeners();
+        }
         graphicsQualityDropdown.onValueChanged.RemoveAllListeners();
         frameRateDropdown.onValueChanged.RemoveAllListeners();
-
-        mouseSensitivitySlider.onValueChanged.RemoveAllListeners();
     }
 
     private void OnPoppyVoiceLeftClicked()
@@ -281,5 +305,20 @@ public class SettingView : MonoBehaviour
 
         target.SetActive(true);
         //SoundManager.I?.PlayUIClick();
+    }
+
+    private void HidePCOnlySettings()
+    {
+        // 해상도 관련
+        if (resolutionDropdown != null)
+            resolutionDropdown.transform.parent.gameObject.SetActive(false);
+
+        // 전체화면
+        if (fullscreenToggle != null)
+            fullscreenToggle.transform.parent.gameObject.SetActive(false);
+
+        // VSync
+        if (vsyncToggle != null)
+            vsyncToggle.transform.parent.gameObject.SetActive(false);
     }
 }

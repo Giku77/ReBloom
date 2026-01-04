@@ -50,13 +50,13 @@ public class StageDetector : MonoBehaviour
     private void OnEnable()
     {
         StageManager.OnWeatherChange += OnWeatherChanged;
-        PlayerController.OnRessuraction += PlaceOutDoor;
+        PlayerController.OnResurrection += PlaceOutDoor;
     }
 
     private void OnDisable()
     {
         StageManager.OnWeatherChange -= OnWeatherChanged;
-        PlayerController.OnRessuraction -= PlaceOutDoor;
+        PlayerController.OnResurrection -= PlaceOutDoor;
     }
 
     private void OnTriggerEnter(Collider other)

@@ -20,6 +20,7 @@ public class MobileMainUI : UIBase
 
     [Header("Buttons")]
     [SerializeField] private Button sprintToggleButton;
+    [SerializeField] private Button crouchToggleButton;
     [SerializeField] private Button jumpButton;
     [SerializeField] private Button interactButton;
     [SerializeField] private Button inventoryButton;
@@ -45,6 +46,7 @@ public class MobileMainUI : UIBase
     private float updateTimer = 0f;
 
     private bool isSprinting = false;
+    private bool isCrouching = false;
 
     private void Start()
     {
@@ -189,6 +191,8 @@ public class MobileMainUI : UIBase
         //if (interactButton != null)
         //    interactButton.onClick.AddListener(OnInteract);
 
+        if (crouchToggleButton != null)
+            crouchToggleButton.onClick.AddListener(OnCrouchToggle);
 
 
         UpdateRunImage();
@@ -200,6 +204,9 @@ public class MobileMainUI : UIBase
 
         if (sprintToggleButton != null)
             sprintToggleButton.onClick.RemoveListener(OnSprintToggle);
+
+        if (crouchToggleButton != null)
+            crouchToggleButton.onClick.RemoveListener(OnCrouchToggle);
 
         if (jumpButton != null)
             jumpButton.onClick.RemoveListener(OnJumpClicked);
@@ -217,7 +224,7 @@ public class MobileMainUI : UIBase
 
         Vector2 input = new Vector2(movementJoystick.Horizontal, movementJoystick.Vertical);
 
-        playerController.SetMobileInput(input, isSprinting);
+        playerController.SetMobileInput(input, isSprinting, isCrouching);
 
         if (scanController != null && exploreCooldownSlider != null)
         {
@@ -301,5 +308,16 @@ public class MobileMainUI : UIBase
     private void OnSettingClicked()
     { 
         UIManager.Instance?.ShowUI(UIType.GamePause);
+    }
+
+    private void OnCrouchToggle()
+    {
+        isCrouching = !isCrouching;
+
+        if (isCrouching && isSprinting)
+        {
+            isSprinting = false;
+            UpdateRunImage();
+        }
     }
 }
