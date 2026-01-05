@@ -468,10 +468,20 @@ public class BuildManager : MonoBehaviour
             return false;
         }
         var p = Instantiate(buildprefab, adjustedPos, rot);
+        p.SetActive(false);
+
+        var id = p.GetComponent<SaveableEntity>();
+        if (id != null) id.AssignNewId();
+
+        var ws = p.GetComponent<WorldStorage>();
+        if (ws != null && id != null)
+            ws.SetContainerGuid($"container:{id.PersistentId}");
+
+        p.SetActive(true);
         SoundManager.I?.PlayBuild();
         var bInstance = p.GetComponent<BuildingInstance>();
         bInstance.arcId = arc.arcId;
-        RegisterBuilding(bInstance);
+        //RegisterBuilding(bInstance);
         var fp = footprintProvider.GetFootprint(arc);
         var cells = GetCellsFromFootprint(fp, p.transform.position, p.transform.rotation);
         GridOccupancyManager.I?.Occupy(bInstance, cells);
@@ -574,7 +584,7 @@ public class BuildManager : MonoBehaviour
     }
 
 
-    public BuildingInstance SpawnForLoad(int arcId, Vector3 pos, Quaternion rot, string guid)
+    public BuildingInstance SpawnForLoad(int arcId, Vector3 pos, Quaternion rot, string guid, string containerGuid)
     {
         if (!arcDB.TryGet(arcId, out var arc) || arc.buildPrefab == null)
             return null;
@@ -588,7 +598,7 @@ public class BuildManager : MonoBehaviour
         var idComp = p.GetComponent<SaveableEntity>();
         if (idComp != null) idComp.ForceSetId(guid);
 
-        RegisterBuilding(bi);
+        //RegisterBuilding(bi);
 
         // corridor/패스스루 등도 Spawn과 동일 처리
         if (p.TryGetComponent<CorridorNode>(out var corridorNode))
@@ -598,6 +608,11 @@ public class BuildManager : MonoBehaviour
             CorridorConnectionManager.I.Register(corridorNode);
         }
         SetupTemporaryPassThrough(p);
+
+        if (p.TryGetComponent<WorldStorage>(out var ws))
+        {
+            ws.SetContainerGuid(containerGuid);
+        }
         return bi;
     }
 

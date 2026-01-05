@@ -19,12 +19,14 @@ public class WorldBuildingsSaveable : MonoBehaviour, ISaveable
             var id = inst.GetComponent<SaveableEntity>();
             if (id == null) continue;
 
+            var storage = inst.GetComponent<WorldStorage>();
+
             save.world.placedBuildings.Add(new BuildingInstanceSaveDTO
             {
                 guid = id.PersistentId,
                 prefabId = inst.ArcId,                      
                 transform = TransformDTO.From(inst.transform),
-                containerGuid = null                         // 창고 연결은 다음 단계에서 확장
+                containerGuid = storage != null ? storage.ContainerGuid : null
             });
         }
         Debug.Log($"[Buildings Capture] found={bm.EnumerateAllInstances().Count()}, saved={save.world.placedBuildings.Count}");
@@ -32,6 +34,8 @@ public class WorldBuildingsSaveable : MonoBehaviour, ISaveable
 
     public void Restore(SaveGameDTO save)
     {
+        Debug.Log($"[Buildings Restore] frame={Time.frameCount} count={save.world.placedBuildings.Count}");
+
         var bm = BuildManager.I;
         if (bm == null) return;
 
@@ -41,7 +45,7 @@ public class WorldBuildingsSaveable : MonoBehaviour, ISaveable
         {
             var pos = new Vector3(b.transform.px, b.transform.py, b.transform.pz);
             var rot = Quaternion.Euler(b.transform.rx, b.transform.ry, b.transform.rz);
-            bm.SpawnForLoad(b.prefabId, pos, rot, b.guid);
+            bm.SpawnForLoad(b.prefabId, pos, rot, b.guid, b.containerGuid);
         }
     }
 }

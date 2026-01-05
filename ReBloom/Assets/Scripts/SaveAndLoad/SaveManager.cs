@@ -196,6 +196,12 @@ public class SaveManager : MonoBehaviour
             foreach (var s in saveables)
                 s.Restore(chosen);
 
+            await UniTask.DelayFrame(1);
+
+            var saveables2 = SaveRegistry.FindAllSaveablesInScene();
+            foreach (var s in saveables2)
+                if (s is not WorldBuildingsSaveable) s.Restore(chosen);
+
             HasLoadedOnce = true;
             AutoSaveService.I?.MarkClean();
 

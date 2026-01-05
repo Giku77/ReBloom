@@ -205,10 +205,10 @@ public class MainTitleWindow : Window
         }
     }
 
-    private void OnExecuteButtonClicked()
+    private async void OnExecuteButtonClicked()
     {
         GameStartContext.StartMode = GameStartContext.Mode.NewGame;
-        SaveManager.I?.ResetSlotAsync("slot1", saveDefaultImmediately: false).Forget();
+        await SaveManager.I.ResetSlotAsync("slot1", saveDefaultImmediately:false);
         SceneManager.LoadScene("LoadingScene");
     }
 

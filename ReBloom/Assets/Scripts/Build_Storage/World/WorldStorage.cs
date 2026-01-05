@@ -13,25 +13,30 @@ public class WorldStorage : WorldItemContainerBase
     protected override IItemContainer Container => storageData;
     public override bool CanInteract() => storageData != null;
 
+    [SerializeField] private string containerGuid; // 고정 키
+
+    public string ContainerGuid => containerGuid;
+
+    public void SetContainerGuid(string guid)
+    {
+        containerGuid = guid;
+    }
+
     protected override void Awake()
     {
         base.Awake();
 
-        // 고유 ID 생성
-        storageID = $"{gameObject.name}_{GetInstanceID()}";
+        // data instantiate
+        storageData = Instantiate(storageDataRef);
 
-        if (storageDataRef != null)
+        // guid 자동 세팅
+        if (string.IsNullOrEmpty(containerGuid))
         {
-            // 데이터 인스턴스 생성
-            storageData = Instantiate(storageDataRef);
-            storageData.name = $"StorageData_{storageID}";
-
-            Debug.Log($"[WorldStorage] 창고 생성: {storageID}");
-            Debug.Log($"→ Data Instance ID: {storageData.GetInstanceID()}");
-        }
-        else
-        {
-            Debug.LogError($"[WorldStorage] {gameObject.name}: StorageDataRef 미할당!");
+            var id = GetComponent<SaveableEntity>();
+            if (id != null && !string.IsNullOrEmpty(id.PersistentId))
+            {
+                containerGuid = $"container:{id.PersistentId}";
+            }
         }
 
         // StorageUI 찾기 (싱글톤)
