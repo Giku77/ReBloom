@@ -152,19 +152,27 @@ public class GatherObject : MonoBehaviour, IInteractable
 
         if (drops != null && drops.item != null)
         {
-            inventoryItemData.TryAddItemFromWorld(drops.item.itemID, drops.amount);
-
-            Debug.Log($"[GatherObject] {drops.item.itemName} {drops.amount}개 획득");
+            if (inventoryItemData.TryAddItemFromWorld(drops.item.itemID, drops.amount))
+            {
+                Debug.Log($"[GatherObject] {drops.item.itemName} {drops.amount}개 획득");
+                isAvailable = false;
+                timer = 0f;
+                QuestManager.I?.NotifyInteracted(gatherObjectID);
+            }
+            else
+            {
+                return;
+            }
         }
         else
         {
             Debug.Log("[GatherObject] 보관 아이템이 null입니다.");
         }
 
-        isAvailable = false;
-        timer = 0f;
+        //isAvailable = false;
+        //timer = 0f;
 
-        QuestManager.I?.NotifyInteracted(gatherObjectID);
+        //QuestManager.I?.NotifyInteracted(gatherObjectID);
 
         if (isDestroyObject)
         {

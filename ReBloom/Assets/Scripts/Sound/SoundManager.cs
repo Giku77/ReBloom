@@ -376,7 +376,7 @@ public class SoundManager : MonoBehaviour
     public void PlayTvOn() => PlaySFX(tvOn);
     public void PlayTvOff() => PlaySFX(tvOff);
     public void PlayBagUpgrade() => PlaySFX(bagUpgrade);
-    public void PlayAreaTransition() => PlaySFX(areaTransition, 0.2f);
+    public void PlayAreaTransition() => PlaySFX(areaTransition, 0.4f);
     public void PlaySurprise() => PlaySFX(surprise);
     public void PlayScan() => PlaySFX(scan);
     public void PlaySeed() => PlaySFX(seed);
