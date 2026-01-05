@@ -14,6 +14,9 @@ public class StorageSlot : MonoBehaviour,
     [SerializeField] private TextMeshProUGUI itemName;
     [SerializeField] private GameObject emptyIndicator;
     [SerializeField] private Image background;
+    [SerializeField] private GameInventoryToolTip tooltipPrefab;
+
+    private GameInventoryToolTip tooltip;
 
     [Header("Settings")]
     [SerializeField] private float doubleClickDelay = 0.25f;
@@ -200,6 +203,10 @@ public class StorageSlot : MonoBehaviour,
                 hoverPrefab.SetActive(true);
             }
         }
+        if (tooltip != null)
+        {
+            tooltip.Show(itemData, this.GetComponent<RectTransform>());
+        }
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -208,6 +215,18 @@ public class StorageSlot : MonoBehaviour,
         {
             hoverPrefab.SetActive(false);
         }
+        if (tooltip != null)
+        {
+            tooltip.Hide();
+        }
     }
     #endregion
+    private void Awake()
+    {
+        Canvas parentCanvas = GetComponentInParent<Canvas>();
+        if (parentCanvas != null)
+        {
+            tooltip = parentCanvas.GetComponentInChildren<GameInventoryToolTip>();
+        }
+    }
 }
