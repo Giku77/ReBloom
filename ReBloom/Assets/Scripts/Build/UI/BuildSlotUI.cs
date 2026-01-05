@@ -91,10 +91,7 @@ public class BuildSlotUI : MonoBehaviour
 
         buildButton.onClick.AddListener(() =>
         {
-            // var playerPos = player.transform.position;
-            // playerPos += player.transform.forward * 2.0f;
-            // BuildManager.I.TryBuild(arc.arcId, playerPos, Quaternion.identity);
-            //var previewPrefab = arc.previewPrefab != null ? arc.previewPrefab : BuildManager.I.prefab;
+            if (!isUnlocked) return;
             BuildPlacementController.I.StartPlacement(arc, recipe, testPrefab);
             parentUI.Toggle();
         });
