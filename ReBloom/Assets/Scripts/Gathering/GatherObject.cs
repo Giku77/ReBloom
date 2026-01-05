@@ -186,6 +186,7 @@ public class GatherObject : MonoBehaviour, IInteractable
 
            if (gatherObjectID == 910020 && fence != null)
             {
+                QuestManager.I?.NotifyInteracted(gatherObjectID);
                 ToastMessageUI.Instance?.Show("군수공장의 문이 열렸습니다.");
 
                 var cam = Camera.main ? Camera.main.GetComponent<ThirdPersonCamera>() : null;
