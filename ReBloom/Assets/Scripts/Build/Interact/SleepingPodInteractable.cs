@@ -66,10 +66,10 @@ public class SleepingPodInteractable : BuildingInteractableBase
         if (playerStats != null)
         {
             playerStats.Health.Set(100f);
-            playerStats.Hunger.Set(0f);
-            playerStats.Pollution.Set(0f);
-            playerStats.Thirst.Set(0f);
-            playerStats.Temperature.Set(36.5f);
+            //playerStats.Hunger.Set(0f);
+            //playerStats.Pollution.Set(0f);
+            //playerStats.Thirst.Set(0f);
+            //playerStats.Temperature.Set(36.5f);
         }
 
         //player.Anim?.PlaySleep();
