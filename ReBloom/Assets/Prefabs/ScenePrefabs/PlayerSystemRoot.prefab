@@ -258,6 +258,14 @@ MonoBehaviour:
   flashSpeed: 1
   lowHealthAlphaMin: 0.1
   lowHealthAlphaMax: 0.5
+  blinkColor: {r: 1, g: 0, b: 0, a: 1}
+  blinkDuration: 0.15
+  blinkCount: 3
+  hpGlow: {fileID: 0}
+  pollutionGlow: {fileID: 0}
+  hungerGlow: {fileID: 0}
+  thirstGlow: {fileID: 0}
+  tempGlow: {fileID: 0}
 --- !u!114 &3482500408598617695
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5792,12 +5800,10 @@ GameObject:
   - component: {fileID: 1093642245201128653}
   - component: {fileID: 3310707603313469427}
   - component: {fileID: 8904375506488151209}
-  - component: {fileID: 9205691496568499889}
   - component: {fileID: 7813804179764609466}
-  - component: {fileID: 1298479421790347166}
   - component: {fileID: 1754829579696612478}
-  - component: {fileID: 7069436826193111148}
-  - component: {fileID: 7323235656613185220}
+  - component: {fileID: 8701080344014375402}
+  - component: {fileID: 5123917960512447676}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -6573,38 +6579,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   equipManager: {fileID: 3683887210291562536}
   equipData: {fileID: 5813627158112115396}
---- !u!114 &9205691496568499889
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3915509196807712028}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 16d6a3a74e36e344ebc759c5930e3cc4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tpsCam: {fileID: 0}
-  intros:
-  - stageId: 401
-    lookAt: {fileID: 0}
-    cameraPos: {fileID: 0}
-    blendIn: 0
-    hold: 2
-    blendOut: 0
-  - stageId: 402
-    lookAt: {fileID: 0}
-    cameraPos: {fileID: 0}
-    blendIn: 0
-    hold: 2
-    blendOut: 0
-  - stageId: 403
-    lookAt: {fileID: 0}
-    cameraPos: {fileID: 0}
-    blendIn: 0
-    hold: 2
-    blendOut: 0
 --- !u!114 &7813804179764609466
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6617,39 +6591,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ce458ae071804a4fbc470639ea6c192, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  director: {fileID: 9205691496568499889}
---- !u!114 &1298479421790347166
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3915509196807712028}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 16d6a3a74e36e344ebc759c5930e3cc4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tpsCam: {fileID: 0}
-  intros:
-  - stageId: 401
-    lookAt: {fileID: 0}
-    cameraPos: {fileID: 0}
-    blendIn: 0
-    hold: 2
-    blendOut: 0
-  - stageId: 402
-    lookAt: {fileID: 0}
-    cameraPos: {fileID: 0}
-    blendIn: 0
-    hold: 2
-    blendOut: 0
-  - stageId: 403
-    lookAt: {fileID: 0}
-    cameraPos: {fileID: 0}
-    blendIn: 0
-    hold: 2
-    blendOut: 0
+  director: {fileID: 0}
 --- !u!114 &1754829579696612478
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6662,8 +6604,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ce458ae071804a4fbc470639ea6c192, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  director: {fileID: 1298479421790347166}
---- !u!114 &7069436826193111148
+  director: {fileID: 0}
+--- !u!114 &8701080344014375402
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -6695,7 +6637,7 @@ MonoBehaviour:
     blendIn: 0
     hold: 2
     blendOut: 0
---- !u!114 &7323235656613185220
+--- !u!114 &5123917960512447676
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -6707,7 +6649,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ce458ae071804a4fbc470639ea6c192, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  director: {fileID: 7069436826193111148}
+  director: {fileID: 0}
 --- !u!1 &3951941231071691645
 GameObject:
   m_ObjectHideFlags: 0
@@ -8752,6 +8694,14 @@ MonoBehaviour:
   flashSpeed: 1
   lowHealthAlphaMin: 0.1
   lowHealthAlphaMax: 0.5
+  blinkColor: {r: 1, g: 0, b: 0, a: 1}
+  blinkDuration: 0.15
+  blinkCount: 3
+  hpGlow: {fileID: 0}
+  pollutionGlow: {fileID: 0}
+  hungerGlow: {fileID: 0}
+  thirstGlow: {fileID: 0}
+  tempGlow: {fileID: 0}
 --- !u!1 &5111713090932696924
 GameObject:
   m_ObjectHideFlags: 0
@@ -16795,6 +16745,14 @@ MonoBehaviour:
   flashSpeed: 1
   lowHealthAlphaMin: 0.1
   lowHealthAlphaMax: 0.5
+  blinkColor: {r: 1, g: 0, b: 0, a: 1}
+  blinkDuration: 0.15
+  blinkCount: 3
+  hpGlow: {fileID: 0}
+  pollutionGlow: {fileID: 0}
+  hungerGlow: {fileID: 0}
+  thirstGlow: {fileID: 0}
+  tempGlow: {fileID: 0}
 --- !u!114 &6268266284152294394 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8239890425569281333, guid: 236ddfc192e9c8c4a8046551549e9b6d, type: 3}
@@ -17708,7 +17666,7 @@ PrefabInstance:
     - target: {fileID: 7525951092544635978, guid: 4eccaeb1939f0604c9626d481b0a9475, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: -6734620852318575487, guid: d22c3060bafc13e4da82ba0b757365a0, type: 3}
     - target: {fileID: 8851003960474436401, guid: 4eccaeb1939f0604c9626d481b0a9475, type: 3}
       propertyPath: m_Name
       value: PlayerModel2
