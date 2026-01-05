@@ -106,9 +106,9 @@ public class PlayerStats : MonoBehaviour
     public void GetResurrection()
     {
         Health.Set(50f);
-        Hunger.Set(0f);
-        Pollution.Set(0f);
-        Thirst.Set(0f);
+        //Hunger.Set(0f);
+        //Pollution.Set(0f);
+        //Thirst.Set(0f);
         Temperature.Set(36.5f);
 
 

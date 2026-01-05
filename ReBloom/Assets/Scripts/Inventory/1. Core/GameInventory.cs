@@ -181,6 +181,11 @@ public class GameInventory : MonoBehaviour, IGameInventory
     {
         var result = inventoryData.AddItemWithOverflow(itemID, count, out int overflow);
         uiService?.ShowItemAcquired(ItemDatabase.I.GetItem(itemID), result);
+
+        if (overflow > 0)
+        {
+            uiService?.ShowWarning("인벤토리가 가득 찼습니다!");
+        }
         return overflow == 0;
     }
     public bool CanUnequip(int itemID)

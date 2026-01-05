@@ -103,7 +103,7 @@ public class GamePauseUI : UIBase
     }
 
     private void OnEscapeButtonClicked()
-    { 
+    {
         currentPopupType = PopupType.Escape;
         OpenPopup();
     }
@@ -114,6 +114,8 @@ public class GamePauseUI : UIBase
 
         executeButton.onClick.RemoveAllListeners();
         cancelButton.onClick.RemoveAllListeners();
+
+        SoundManager.I?.PlayUIClick();
 
         switch (currentPopupType)
         {
@@ -141,6 +143,8 @@ public class GamePauseUI : UIBase
         cancelButton.onClick.RemoveAllListeners();
         popupText.text = string.Empty;
 
+        SoundManager.I?.PlayUIClick();
+
         popup.SetActive(false);
 
         currentPopupType = PopupType.None;
@@ -148,6 +152,7 @@ public class GamePauseUI : UIBase
 
     private void LoadTitleScene()
     {
+        SoundManager.I?.PlayUIClick();
         SceneManager.LoadScene("TitleScene");
     }
 
@@ -164,6 +169,8 @@ public class GamePauseUI : UIBase
     private void Escape()
     {
         if (player == null) return;
+
+        SoundManager.I?.PlayUIClick();
 
         player.TakeDamage(100);
     }
