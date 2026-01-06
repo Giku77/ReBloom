@@ -144,6 +144,13 @@ public class DialogueUI : UIBase
         //     canvasGroup.alpha = 0f;
         //     FadeAsync(0f, 1f, fadeDuration).Forget();
         // }
+
+        // 부모 CanvasGroup alpha 확인용
+        var parentCG = GetComponentInParent<CanvasGroup>();
+        if (parentCG != null && parentCG != canvasGroup)
+        {
+            parentCG.alpha = 1f;
+        }
     }
 
     private string GetNextHintTag()

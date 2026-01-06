@@ -1020,12 +1020,12 @@ MonoBehaviour:
   imgBorder: {fileID: 5342534846949223356}
   useButton: {fileID: 4926286090854478873}
   quickslotButton: {fileID: 691538556184032214}
-  offset: {x: 525, y: 20}
+  pcOffset: {x: 120, y: 0}
   padding: 10
-  useFixedPosition: 1
+  followMouse: 0
   followSpeed: 10
-  fixedAnchor: {fileID: 0}
-  fixedAnchoredPos: {x: -30, y: 0}
+  mobileAnchoredPos: {x: -30, y: 0}
+  mobileFixedAnchor: {fileID: 0}
 --- !u!1 &703872812685845724
 GameObject:
   m_ObjectHideFlags: 0
@@ -1212,8 +1212,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -246, y: 0}
+  m_SizeDelta: {x: -492, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7025218112483417570
 CanvasRenderer:
@@ -14525,7 +14525,7 @@ MonoBehaviour:
   stateColor: {r: 0.67901653, g: 0.35826805, b: 0.9150943, a: 1}
   playerStats: {fileID: 0}
   debuffManager: {fileID: 0}
-  offset: {x: -200, y: 250}
+  offset: {x: -200, y: 100}
 --- !u!1 &5986265300533511015
 GameObject:
   m_ObjectHideFlags: 0
