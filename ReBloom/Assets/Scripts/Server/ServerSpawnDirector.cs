@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -34,13 +34,21 @@ public class PlayerSpawnService : MonoBehaviour
     }
 
     private void OnLoadEventCompleted(string sceneName, LoadSceneMode mode,
-        List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
+        System.Collections.Generic.List<ulong> clientsCompleted,
+        System.Collections.Generic.List<ulong> clientsTimedOut)
     {
         if (!nm.IsServer) return;
         if (sceneName != "MainScene") return;
 
-        // MainScene 로드 끝난 시점에, 로드 완료된 클라들 전부 스폰 보장
-        foreach (var clientId in clientsCompleted)
+        // 핵심: clientsCompleted 말고 "현재 접속 중 전체"를 대상으로 스폰 보장
+        StartCoroutine(SpawnAllConnectedNextFrame());
+    }
+
+    private IEnumerator SpawnAllConnectedNextFrame()
+    {
+        yield return null; // 1프레임 대기 (ConnectedClients 갱신 안정화)
+
+        foreach (var clientId in nm.ConnectedClientsIds)
             EnsurePlayerSpawned(clientId);
     }
 
@@ -48,17 +56,36 @@ public class PlayerSpawnService : MonoBehaviour
     {
         if (!nm.IsServer) return;
 
-        // 이미 MainScene인 상태에서 늦게 접속한 클라 처리
+        // 메인씬 이미 켜진 상태에서 늦게 들어온 애 즉시 스폰
         if (SceneManager.GetActiveScene().name == "MainScene")
-            EnsurePlayerSpawned(clientId);
+            StartCoroutine(SpawnLateJoinerNextFrame(clientId));
+    }
+
+    private IEnumerator SpawnLateJoinerNextFrame(ulong clientId)
+    {
+        yield return null;
+        EnsurePlayerSpawned(clientId);
     }
 
     private void EnsurePlayerSpawned(ulong clientId)
     {
-        if (!nm.ConnectedClients.TryGetValue(clientId, out var client)) return;
+        if (!nm.ConnectedClients.TryGetValue(clientId, out var client))
+        {
+            Debug.LogWarning($"[Spawn] ConnectedClients에 {clientId} 없음");
+            return;
+        }
 
-        // 이미 있으면 스킵
-        if (client.PlayerObject != null) return;
+        if (client.PlayerObject != null)
+        {
+            Debug.Log($"[Spawn] clientId={clientId} already has PlayerObject");
+            return;
+        }
+
+        if (spawnPoints == null || spawnPoints.Length == 0)
+        {
+            Debug.LogError("[Spawn] spawnPoints 비었음 (MainScene 오브젝트 참조 문제 가능)");
+            return;
+        }
 
         var sp = spawnPoints[spawnIndex % spawnPoints.Length];
         spawnIndex++;
@@ -66,6 +93,6 @@ public class PlayerSpawnService : MonoBehaviour
         var player = Instantiate(playerPrefab, sp.position, sp.rotation);
         player.SpawnAsPlayerObject(clientId, true);
 
-        Debug.Log($"[Spawn] clientId={clientId} spawned at {sp.position}");
+        Debug.Log($"[Spawn] clientId={clientId} spawned. owner={player.OwnerClientId} netId={player.NetworkObjectId}");
     }
 }
