@@ -34,19 +34,26 @@ public class PlayerEffectUI : UIBase
     private void Start()
     {
         blurrObject.SetActive(false);
-        passOutLoadingScreen.SetActive(false);
+        //passOutLoadingScreen.SetActive(false);
     }
 
     private void OnEnable()
     {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned += BindLocalPlayer;
         if (player != null)
             player.onPassOut += PassOutUI;
     }
 
     private void OnDestroy()
     {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned -= BindLocalPlayer;
         if (player != null)
             player.onPassOut -= PassOutUI;
+    }
+
+    private void BindLocalPlayer(GameObject localPlayer)
+    {
+        player = localPlayer.GetComponent<PlayerController>();
     }
 
     private void PassOutUI()
@@ -62,7 +69,7 @@ public class PlayerEffectUI : UIBase
 
         blurrObject.SetActive(false);
 
-        passOutLoadingScreen.SetActive(true);
+        //passOutLoadingScreen.SetActive(true);
         UIManager.Instance.ToggleUI(UIType.PlayerEffect);
 
         await MoveLoadingImage();
@@ -70,7 +77,7 @@ public class PlayerEffectUI : UIBase
         UIManager.Instance.ToggleUI(UIType.PlayerEffect);
         UIManager.Instance.SetBlockingInput(false);
 
-        passOutLoadingScreen?.SetActive(false);
+        //passOutLoadingScreen?.SetActive(false);
     }
 
     private async UniTask MoveLoadingImage()
