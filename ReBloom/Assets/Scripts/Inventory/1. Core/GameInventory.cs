@@ -34,9 +34,9 @@ public class GameInventory : MonoBehaviour, IGameInventory
     //private int currentEquippedShoesId = -1;       // 신발
     private void Awake()
     {
-        var player = GameObject.FindWithTag("Player");
-        playerController = player.GetComponent<PlayerController>();
-        playerEquipmanager = player.GetComponent<PlayerEquipManager>();
+        //var player = GameObject.FindWithTag("Player");
+        //playerController = player.GetComponent<PlayerController>();
+        //playerEquipmanager = player.GetComponent<PlayerEquipManager>();
         InitializeServices();
         //// 초기화
     }
@@ -61,13 +61,33 @@ public class GameInventory : MonoBehaviour, IGameInventory
         if (uiService == null)
             uiService = GetComponent<InventoryMessageService>();
     }
+
+    private void BindLocalPlayer(GameObject playerObj)
+    {
+        playerController = playerObj.GetComponent<PlayerController>();
+        playerEquipmanager = playerObj.GetComponent<PlayerEquipManager>();
+        robotPet = playerObj.GetComponentInChildren<InventoryRobotPet>(true);
+
+        // 이제 안전하게 초기화 가능
+        inventoryData.Initialize();
+        quickSlot?.SyncInventoryQuickSlots();
+
+        if (PlatformManager.Instance != null && PlatformManager.Instance.IsMobile)
+            currentInvUI = mobileinventoryUI;
+        else
+            currentInvUI = inventoryUI;
+
+        Debug.Log("[GameInventory] Local player bound.");
+    }
     private void OnEnable()
     {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned += BindLocalPlayer;
         if (inventoryData != null)
             inventoryData.OnContainerChanged += OnInvChanged;
     }
     private void OnDisable()
     {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned -= BindLocalPlayer;
         if (inventoryData != null)
             inventoryData.OnContainerChanged -= OnInvChanged;
     }

@@ -26,8 +26,32 @@ public class EquipmentUI : MonoBehaviour
     private EquipmentSlotUI toolSlotUI;
     private void Awake()
     {
-        ValidateReferences();
+        //ValidateReferences();
         InitializeSlotUIs();
+    }
+
+    private void OnEnable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned += BindLocalPlayer;
+    }
+
+    private void OnDisable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned -= BindLocalPlayer;
+    }
+
+    private void BindLocalPlayer(GameObject playerObj)
+    {
+        equipManager = playerObj.GetComponent<PlayerEquipManager>();
+        equipData = playerObj.GetComponent<PlayerEquipData>();
+        playerController = playerObj.GetComponent<PlayerController>();
+
+        if (equipManager == null) Debug.LogError("[EquipmentUI] PlayerEquipManager 없음");
+        if (equipData == null) Debug.LogError("[EquipmentUI] PlayerEquipData 없음");
+
+        // 이제 초기 갱신
+        RefreshAllSlots();
+        UpdateResistText();
     }
     private void Start()
     {

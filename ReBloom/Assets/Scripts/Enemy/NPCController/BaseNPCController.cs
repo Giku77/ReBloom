@@ -25,27 +25,30 @@ public abstract class BaseNPCController : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponentInChildren<Animator>();
 
-        if (playerController == null)
-        {
-            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-            if (playerObj != null)
-            {
-                playerController = playerObj.GetComponent<PlayerController>();
-            }
-        }
-
-        if (playerController != null)
-            player = playerController.transform;
-        else
-            Debug.LogError("[NPC] 플레이어컨트롤러를 찾을 수 없습니다.");
-
         initialPosition = transform.position;
         initialRotation = transform.rotation;
 
         PlayerFootstep.OnFootstep += HandleFootstep;
-
         InitializeState();
     }
+
+    protected virtual void OnEnable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned += OnLocalPlayerSpawned;
+    }
+
+    protected virtual void OnDisable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned -= OnLocalPlayerSpawned;
+    }
+
+    private void OnLocalPlayerSpawned(GameObject playerObj)
+    {
+        // NPC가 로컬 플레이어를 타겟팅 하는 구조라면(싱글처럼) 일단 이렇게
+        playerController = playerObj.GetComponent<PlayerController>();
+        player = playerController != null ? playerController.transform : null;
+    }
+
 
     protected abstract void InitializeState();
 

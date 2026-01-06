@@ -2185,6 +2185,7 @@ GameObject:
   - component: {fileID: 829604664}
   - component: {fileID: 829604663}
   - component: {fileID: 829604665}
+  - component: {fileID: 829604666}
   m_Layer: 0
   m_Name: MainSceneBootstrapper
   m_TagString: Untagged
@@ -2237,6 +2238,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerPrefab: {fileID: 6831787204144805168, guid: f42eefd2eae456c43a513e424da4f60b, type: 3}
+--- !u!114 &829604666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 829604662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0788c5442419fdb4a90d310c08fcc53a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  thirdPersonCamera: {fileID: 366669680}
 --- !u!1001 &836694649
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4062,7 +4076,6 @@ MonoBehaviour:
   - {fileID: 9077612824963568314}
   - {fileID: 1646804711}
   - {fileID: 3071402431937619816}
-  - {fileID: 0}
   - {fileID: 1979078241}
   - {fileID: 19936204}
   - {fileID: 1403054016}
@@ -4078,6 +4091,7 @@ MonoBehaviour:
   - {fileID: 3712990810249083369}
   - {fileID: 3402450967138524880}
   - {fileID: 1998295785637706467}
+  - {fileID: 8998223615911078913}
 --- !u!4 &1943603726
 Transform:
   m_ObjectHideFlags: 0
@@ -13691,6 +13705,7 @@ GameObject:
   - component: {fileID: 5261616464250205784}
   - component: {fileID: 3623032202384943692}
   - component: {fileID: 8998223615911078912}
+  - component: {fileID: 8998223615911078913}
   m_Layer: 5
   m_Name: DamageImage
   m_TagString: Untagged
@@ -24013,6 +24028,32 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8998223615911078913
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4082259211729969807}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfbc115185f315a42a7e44af8749d387, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 12
+  layer: 1
+  blocksGameplayInput: 1
+  root: {fileID: 4082259211729969807}
+  cursorMode: 1
+  locksCameraZoom: 1
+  autoAttachCloseButtonOnMobile: 1
+  closeButtonPrefab: {fileID: 0}
+  closeButtonParent: {fileID: 0}
+  blurrObject: {fileID: 7151317025144473396}
+  passOutLoadingScreen: {fileID: 2601172064050816961}
+  loadingImage: {fileID: 4455705235374724447}
+  fadeImage: {fileID: 3272433979745556640}
+  fadeDuration: 1.5
 --- !u!224 &9018343666852007004
 RectTransform:
   m_ObjectHideFlags: 0

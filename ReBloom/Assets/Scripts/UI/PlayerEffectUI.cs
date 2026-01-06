@@ -34,7 +34,7 @@ public class PlayerEffectUI : UIBase
     private void Start()
     {
         blurrObject.SetActive(false);
-        //passOutLoadingScreen.SetActive(false);
+        passOutLoadingScreen.SetActive(false);
     }
 
     private void OnEnable()
@@ -62,7 +62,7 @@ public class PlayerEffectUI : UIBase
 
         blurrObject.SetActive(false);
 
-        //passOutLoadingScreen.SetActive(true);
+        passOutLoadingScreen.SetActive(true);
         UIManager.Instance.ToggleUI(UIType.PlayerEffect);
 
         await MoveLoadingImage();
@@ -70,7 +70,7 @@ public class PlayerEffectUI : UIBase
         UIManager.Instance.ToggleUI(UIType.PlayerEffect);
         UIManager.Instance.SetBlockingInput(false);
 
-        //passOutLoadingScreen?.SetActive(false);
+        passOutLoadingScreen?.SetActive(false);
     }
 
     private async UniTask MoveLoadingImage()
