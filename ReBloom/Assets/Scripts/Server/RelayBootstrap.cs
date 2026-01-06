@@ -14,6 +14,10 @@ public class RelayBootstrap : MonoBehaviour
 
     [SerializeField] private Button HostButton;
     [SerializeField] private Button ClientButton;
+    [SerializeField] private GameObject JoinPanel;
+    [SerializeField] private TMPro.TMP_InputField JoinCodeInput;
+    [SerializeField] private Button JoinConfirmButton;
+    [SerializeField] private Button JoinCancelButton;
 
     private async void Awake()
     {
@@ -26,7 +30,23 @@ public class RelayBootstrap : MonoBehaviour
         if (HostButton)
             HostButton.onClick.AddListener(() => StartHostRelay());
         if (ClientButton)
-            ClientButton.onClick.AddListener(() => StartClientRelay("ENTER_JOIN_CODE_HERE"));
+        {
+            ClientButton.onClick.AddListener(() =>
+            {
+                if (JoinPanel) JoinPanel.SetActive(true);
+                else return;
+                if (JoinCancelButton)
+                    JoinCancelButton.onClick.AddListener(() => {
+                        if (JoinPanel) JoinPanel.SetActive(false);
+                    });
+                if (JoinConfirmButton)
+                    JoinConfirmButton.onClick.AddListener(() => {
+                        string joinCode = JoinCodeInput ? JoinCodeInput.text : "";
+                        StartClientRelay(joinCode);
+                        if (JoinPanel) JoinPanel.SetActive(false);
+                    });
+            });
+        }
     }
 
     public async void StartHostRelay(int maxConnections = 3, string connectionType = "dtls")
@@ -47,5 +67,32 @@ public class RelayBootstrap : MonoBehaviour
         utp.SetRelayServerData(AllocationUtils.ToRelayServerData(joinAlloc, connectionType));
 
         nm.StartClient();
+        Debug.Log($"[Net] After StartClient: IsClient={nm.IsClient}, IsConnectedClient={nm.IsConnectedClient}, IsListening={nm.IsListening}");
     }
+
+    private void OnEnable()
+    {
+        var nm = NetworkManager.Singleton;
+        nm.OnClientConnectedCallback += OnClientConnected;
+        nm.OnClientDisconnectCallback += OnClientDisconnected;
+    }
+
+    private void OnDisable()
+    {
+        if (NetworkManager.Singleton == null) return;
+        var nm = NetworkManager.Singleton;
+        nm.OnClientConnectedCallback -= OnClientConnected;
+        nm.OnClientDisconnectCallback -= OnClientDisconnected;
+    }
+
+    private void OnClientConnected(ulong clientId)
+    {
+        Debug.Log($"[Net] ClientConnected: {clientId} | IsHost={NetworkManager.Singleton.IsHost} IsServer={NetworkManager.Singleton.IsServer} IsClient={NetworkManager.Singleton.IsClient}");
+    }
+
+    private void OnClientDisconnected(ulong clientId)
+    {
+        Debug.LogWarning($"[Net] ClientDisconnected: {clientId} | IsHost={NetworkManager.Singleton.IsHost} IsServer={NetworkManager.Singleton.IsServer} IsClient={NetworkManager.Singleton.IsClient}");
+    }
+
 }
