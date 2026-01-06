@@ -94,6 +94,22 @@ public class ThirdPersonCamera : MonoBehaviour
         }
     }
 
+    public void SetTarget(Transform newTarget, bool snap = true)
+    {
+        target = newTarget;
+
+        if (!target) return;
+
+        if (snap)
+        {
+            // 첫 프레임에 카메라 튀는 거 방지용
+            yaw = target.eulerAngles.y;
+            pitch = Mathf.Clamp(pitch, minVerticalAngle, maxVerticalAngle);
+            Look();
+        }
+    }
+
+
     private int _sequenceToken = 0;
 
     public void PlayFocusSequenceUniTask(
@@ -299,15 +315,16 @@ public class ThirdPersonCamera : MonoBehaviour
     {
         if (target == null)
         {
-            var player = GameObject.FindWithTag("Player");
-            if (player != null)
-            {
-                target = player.transform;
-            }
-            else
-            {
-                return;
-            }
+            //var player = GameObject.FindWithTag("Player");
+            // if (player != null)
+            // {
+            //     target = player.transform;
+            // }
+            // else
+            // {
+            //     return;
+            // }
+            return;
         }
 
         if (!isSequenceLocked)
