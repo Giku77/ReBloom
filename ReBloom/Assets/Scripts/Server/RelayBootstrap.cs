@@ -28,6 +28,7 @@ public class RelayBootstrap : MonoBehaviour
         await UnityServices.InitializeAsync();
         if (!AuthenticationService.Instance.IsSignedIn)
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
+        SetupApproval();
         if (HostButton)
             HostButton.onClick.AddListener(() => StartHostRelay());
         if (ClientButton)
@@ -70,6 +71,21 @@ public class RelayBootstrap : MonoBehaviour
 
         nm.StartClient();
         Debug.Log($"[Net] After StartClient: IsClient={nm.IsClient}, IsConnectedClient={nm.IsConnectedClient}, IsListening={nm.IsListening}");
+    }
+
+    private void SetupApproval()
+    {
+        var nm = NetworkManager.Singleton;
+        nm.NetworkConfig.ConnectionApproval = true;
+        nm.ConnectionApprovalCallback = Approval;
+    }
+
+    private void Approval(NetworkManager.ConnectionApprovalRequest req,
+                        NetworkManager.ConnectionApprovalResponse res)
+    {
+        res.Approved = true;
+        res.CreatePlayerObject = false; 
+        res.Pending = false;
     }
 
     private void OnEnable()
