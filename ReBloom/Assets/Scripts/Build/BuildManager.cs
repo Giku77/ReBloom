@@ -470,6 +470,10 @@ public class BuildManager : MonoBehaviour
         var p = Instantiate(buildprefab, adjustedPos, rot);
         p.SetActive(false);
 
+        var bInstance = p.GetComponent<BuildingInstance>();
+        if (bInstance != null) bInstance.arcId = arc.arcId;
+
+
         var id = p.GetComponent<SaveableEntity>();
         if (id != null) id.AssignNewId();
 
@@ -479,8 +483,6 @@ public class BuildManager : MonoBehaviour
 
         p.SetActive(true);
         SoundManager.I?.PlayBuild();
-        var bInstance = p.GetComponent<BuildingInstance>();
-        bInstance.arcId = arc.arcId;
         //RegisterBuilding(bInstance);
         var fp = footprintProvider.GetFootprint(arc);
         var cells = GetCellsFromFootprint(fp, p.transform.position, p.transform.rotation);
