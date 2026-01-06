@@ -5,6 +5,7 @@ using Unity.Services.Core;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class RelayBootstrap : MonoBehaviour
@@ -58,6 +59,7 @@ public class RelayBootstrap : MonoBehaviour
 
         nm.StartHost();
         Debug.Log($"[Relay] Join Code: {joinCode}");
+        nm.SceneManager.LoadScene("LoadingScene", LoadSceneMode.Single);
     }
 
     public async void StartClientRelay(string joinCode, string connectionType = "dtls")
