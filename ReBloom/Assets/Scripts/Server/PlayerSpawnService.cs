@@ -19,13 +19,24 @@ public class PlayerSpawnService : MonoBehaviour
 
     private IEnumerator SpawnAllNextFrame()
     {
-        yield return null;
         var nm = NetworkManager.Singleton;
 
-        Debug.Log($"[Spawn] ConnectedClientsIds = {string.Join(",", nm.ConnectedClientsIds)}");
+        float timeout = 2f;
+        float t = 0f;
+
+        // client 1이 들어올 때까지(또는 timeout) 잠깐 기다림
+        while (t < timeout && nm.ConnectedClientsIds.Count < 2) // host(0)+client(1)
+        {
+            t += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        Debug.Log($"[Spawn] ConnectedClientsIds = {string.Join(",", nm.ConnectedClientsIds)} (waited {t:F2}s)");
+
         foreach (var id in nm.ConnectedClientsIds)
             EnsureSpawn(id);
     }
+
 
     private void OnClientConnected(ulong clientId)
     {
