@@ -1,6 +1,7 @@
 ﻿using BansheeGz.BGDatabase;
 using System;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -69,6 +70,13 @@ public class PlayerEquipManager : MonoBehaviour
         }
     }
 
+    private bool IsLocalOwner()
+    {
+        var no = GetComponent<NetworkObject>();
+        return no == null || no.IsOwner; // 싱글플레이도 고려
+    }
+
+
     //private void Update()
     //{
     //    if (Keyboard.current.rKey.wasPressedThisFrame)
@@ -109,7 +117,7 @@ public class PlayerEquipManager : MonoBehaviour
 
         Debug.Log($"[EquipManager] 장착 완료: {item.itemName} (오염 저항: {item.GetPollutionResist()}%)");
 
-        if (currentEquipmentUI != null)
+        if (IsLocalOwner() && currentEquipmentUI != null)
         {
             currentEquipmentUI.RefreshAllSlots();
             currentEquipmentUI.UpdateResistText();
@@ -149,7 +157,7 @@ public class PlayerEquipManager : MonoBehaviour
 
         Debug.Log($"[EquipManager] 장착 완료: {item.itemName}");
 
-        if (currentEquipmentUI != null)
+        if (IsLocalOwner() && currentEquipmentUI != null)
         {
             currentEquipmentUI.RefreshAllSlots();
             currentEquipmentUI.UpdateResistText();
@@ -226,7 +234,7 @@ public class PlayerEquipManager : MonoBehaviour
         }
 
         // UI 갱신
-        if (currentEquipmentUI != null)
+        if (IsLocalOwner() && currentEquipmentUI != null)
         {
             currentEquipmentUI.RefreshAllSlots();
             currentEquipmentUI.UpdateResistText();
@@ -291,7 +299,7 @@ public class PlayerEquipManager : MonoBehaviour
 
         // Debug.Log($"아이템 해제 완료");
 
-        if (currentEquipmentUI != null)
+        if (IsLocalOwner() && currentEquipmentUI != null)
         {
             currentEquipmentUI.RefreshAllSlots();
             currentEquipmentUI.UpdateResistText();
@@ -453,7 +461,7 @@ public class PlayerEquipManager : MonoBehaviour
         Debug.Log($"[PlayerEquipManager] 장착 데이터 {clearedCount}개 초기화 완료");
 
         // UI 갱신
-        if (currentEquipmentUI != null)
+        if (IsLocalOwner() && currentEquipmentUI != null)
         {
             currentEquipmentUI.RefreshAllSlots();
             currentEquipmentUI.UpdateResistText();
@@ -461,6 +469,14 @@ public class PlayerEquipManager : MonoBehaviour
 
         OnToolTypeChange?.Invoke(0);
     }
+    public void BindUI(EquipmentUI pcUI, EquipmentUI mobileUI, GameObject equipInventoryRoot, GameInventory inv)
+    {
+        equipmentUI = pcUI;
+        mobileequipmentUI = mobileUI;
+        equipInventory = equipInventoryRoot;
+        inventoryItemData = inv;
+    }
+
 
     #endregion
 }

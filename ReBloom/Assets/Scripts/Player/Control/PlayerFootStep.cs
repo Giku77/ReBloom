@@ -16,6 +16,11 @@ public class PlayerFootstep : MonoBehaviour
         stageDetector = GetComponent<StageDetector>();
     }
 
+    private void Start()
+    {
+        if (stageDetector == null) stageDetector = StageDetector.I;
+    }
+
     private void Update()
     {
         if (playerController.currentSpeed > 0.1f) // 움직일 때만

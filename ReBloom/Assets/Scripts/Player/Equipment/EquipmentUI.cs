@@ -30,6 +30,18 @@ public class EquipmentUI : MonoBehaviour
         InitializeSlotUIs();
     }
 
+    public void Bind(PlayerController pc)
+    {
+        equipManager = pc.GetComponent<PlayerEquipManager>();
+        equipData = pc.GetComponent<PlayerEquipData>();
+        playerController = pc;
+        if (equipManager == null) Debug.LogError("[EquipmentUI] PlayerEquipManager 없음");
+        if (equipData == null) Debug.LogError("[EquipmentUI] PlayerEquipData 없음");
+        // 이제 초기 갱신
+        RefreshAllSlots();
+        UpdateResistText();
+    }
+
     private void OnEnable()
     {
         NetworkPlayerOwnerGate.OnLocalPlayerSpawned += BindLocalPlayer;

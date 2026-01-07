@@ -25,6 +25,9 @@ public class TemperatureStat : StatBase
 
     public override void Tick()
     {
+        if (stageDetector == null)
+            stageDetector = StageDetector.I;
+
         if (stageDetector?.CurrentStage == null) return;
 
         if (stageDetector.CurrentStage.stageID == 400)

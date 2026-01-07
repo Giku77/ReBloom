@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -19,6 +19,8 @@ public class NetworkPlayerOwnerGate : NetworkBehaviour
     {
         bool isLocal = IsOwner;
 
+        Debug.Log($"[Gate] spawn name={name} netId={NetworkObjectId} owner={OwnerClientId} local={NetworkManager.Singleton.LocalClientId} IsOwner={IsOwner} IsLocalPlayer={IsLocalPlayer} IsServer={IsServer} IsClient={IsClient}");
+
         if (playerController) playerController.enabled = isLocal;
         if (playerInput) playerInput.enabled = isLocal;
         if (rb) rb.isKinematic = !isLocal;
@@ -26,6 +28,7 @@ public class NetworkPlayerOwnerGate : NetworkBehaviour
         if (isLocal)
         {
             CameraRig.I?.Follow(transform);
+            UIRoot.I?.BindLocalPlayer(playerController);
             OnLocalPlayerSpawned?.Invoke(gameObject);
         }
     }

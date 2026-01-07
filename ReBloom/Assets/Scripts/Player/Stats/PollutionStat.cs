@@ -18,6 +18,9 @@ public class PollutionStat : StatBase
 
     public override void Tick()
     {
+        if (stageDetector == null)
+            stageDetector = StageDetector.I;
+
         float baseMultiplier = stageDetector != null ? stageDetector.GetCurrentPollutionMultiplier() : 0f;
 
         float equipResist = 0f;

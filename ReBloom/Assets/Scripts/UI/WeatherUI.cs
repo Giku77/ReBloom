@@ -19,11 +19,35 @@ public class WeatherUI : UIBase
     [Header("References")]
     [SerializeField] private PlayerStats playerStats;
     [SerializeField] private StageDetector stageDetector;
-    
+
     [Header("Update Settings")]
     [SerializeField] private float updateInterval = 0.5f;
     
     private float updateTimer = 0f;
+
+    private void OnEnable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned += HandleLocalPlayerSpawned;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned += HandleLocalPlayerDespawned;
+    }
+
+    private void OnDisable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned -= HandleLocalPlayerSpawned;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned -= HandleLocalPlayerDespawned;
+    }
+
+    private void HandleLocalPlayerSpawned(GameObject go)
+    {
+        playerStats = go.GetComponent<PlayerStats>();
+
+        UpdateWeatherUI();
+    }
+
+    private void HandleLocalPlayerDespawned()
+    {
+        playerStats = null;
+    }
 
     // 날씨별 색상 딕셔너리
     private static readonly Dictionary<WeatherType, Color> WeatherColors = new Dictionary<WeatherType, Color>
@@ -48,15 +72,10 @@ public class WeatherUI : UIBase
     };
 
     private void Start()
-    {
-        if (playerStats == null)
+    {        
+        if (stageDetector == null)
         {
-            playerStats = FindFirstObjectByType<PlayerStats>();
-        }
-        
-        if (stageDetector == null && playerStats != null)
-        {
-            stageDetector = playerStats.GetComponent<StageDetector>();
+            stageDetector = StageDetector.I;
         }
         
         UpdateWeatherUI();

@@ -22,7 +22,10 @@ public class DebuffManager : MonoBehaviour
         playerStats = GetComponent<PlayerStats>();
         debuffDB = new DebuffDB();
         stageDetector = GetComponent<StageDetector>();
-        
+        if (stageDetector == null)
+            stageDetector = StageDetector.I;
+
+
         InitializeFactory();
         LoadDebuffData();
     }

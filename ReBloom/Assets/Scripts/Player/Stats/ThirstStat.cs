@@ -19,6 +19,9 @@ public class ThirstStat : StatBase
 
     public override void Tick()
     {
+        if (stageDetector == null)
+            stageDetector = StageDetector.I;
+
         float weatherRate = stageDetector != null ? stageDetector.GetCurrentThirst(): 0;
 
         actualRate = increaseRate + weatherRate;

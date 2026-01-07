@@ -151,6 +151,15 @@ public class PlayerController : MonoBehaviour
             waterTankUI.Toggle();
     }
 
+    public void OnLook(InputAction.CallbackContext context)
+    {
+        if (Cursor.lockState != CursorLockMode.Locked) return;
+
+        var v = context.ReadValue<Vector2>();
+        CameraRig.I?.ThirdPersonCamera?.SetLookInput(v);
+    }
+
+
     public WorldStorage CurrentOpenedStorage { get; private set; }
 
     /// <summary>

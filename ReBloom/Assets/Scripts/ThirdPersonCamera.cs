@@ -648,4 +648,9 @@ public class ThirdPersonCamera : MonoBehaviour
         pitch -= delta.y * currentSensitivity;
         pitch = Mathf.Clamp(pitch, minVerticalAngle, maxVerticalAngle);
     }
+    public void SetLookInput(Vector2 v)
+    {
+        lookInput = v;
+    }
+
 }

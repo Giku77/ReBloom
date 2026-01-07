@@ -2,249 +2,153 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-
 public class StageDetector : MonoBehaviour
 {
     [SerializeField] private RegionDefinition[] regions;
-    private StageBase currentStage;
-    private StageBase previousStage;
 
-    [Header("Weather FX")]
-    [SerializeField] private GameObject rainEffect;
-    [SerializeField] private GameObject snowEffect;
-    [SerializeField] private GameObject radioEffect;
-    [SerializeField] private GameObject thunderEffect;
-
-    private bool canBuild = true;
-    public bool CanBuild => canBuild;
-
-    public StageBase CurrentStage => currentStage;
-
-    private bool isInside = false;
+    public static StageDetector I { get; private set; }
 
     public static event Action<bool> OnEnterDoor;
     public static event Action<int> OnStageChanged;
 
     private StageManager stageManager;
+    private StageService stageService;
+
+    public StageBase CurrentStage => stageService != null ? stageService.CurrentStage : null;
+    public bool CanBuild => stageService != null && stageService.CanBuild;
+
+    private void Awake()
+    {
+        I = this;
+        stageService = StageService.I != null ? StageService.I : FindFirstObjectByType<StageService>();
+    }
 
     private void Start()
     {
-        //임시로 시작 구역 거점으로 지정
-        //currentStage = startStage;
         stageManager = GetComponent<StageManager>();
+    }
 
-        if (currentStage != null)
+    private void OnEnable()
+    {
+        if (stageService != null)
         {
-            ApplyWeather(currentStage.CurrentWeather);
+            stageService.OnStageChanged += HandleStageChanged;
+            stageService.OnInsideChanged += HandleInsideChanged;
         }
+
+        StageManager.OnWeatherChange += OnWeatherChanged;
+        PlayerController.OnResurrection += PlaceOutDoor;
+    }
+
+    public void ForceSetStage(int stageId)
+    {
+        if (stageService == null)
+            stageService = StageService.I != null ? StageService.I : FindFirstObjectByType<StageService>();
+
+        stageService?.ForceSetStage(stageId);
+    }
+
+
+    private void OnDisable()
+    {
+        if (stageService != null)
+        {
+            stageService.OnStageChanged -= HandleStageChanged;
+            stageService.OnInsideChanged -= HandleInsideChanged;
+        }
+
+        StageManager.OnWeatherChange -= OnWeatherChanged;
+        PlayerController.OnResurrection -= PlaceOutDoor;
     }
 
     private void Update()
     {
         if (Keyboard.current.kKey.wasPressedThisFrame)
-        {
             PrintWeathers();
-        }
     }
 
-    private void OnEnable()
+    private void HandleInsideChanged(bool inside)
     {
-        StageManager.OnWeatherChange += OnWeatherChanged;
-        PlayerController.OnResurrection += PlaceOutDoor;
+        OnEnterDoor?.Invoke(inside);
     }
 
-    private void OnDisable()
+    private void HandleStageChanged(StageBase prev, StageBase cur)
     {
-        StageManager.OnWeatherChange -= OnWeatherChanged;
-        PlayerController.OnResurrection -= PlaceOutDoor;
-    }
+        if (cur == null) return;
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.TryGetComponent<StageBase>(out StageBase stage))
+        if (cur.Data != null)
         {
-            bool changed = (currentStage == null || currentStage.StageID != stage.StageID);
-            previousStage = currentStage != null ? currentStage : stage;
-            currentStage = stage;
+            Debug.Log($"[StageDetector] 지역 진입: {cur.Data.name}");
 
-            ApplyWeather(currentStage.CurrentWeather);
-
-            if (stage.Data != null)
+            // 여기 조건은 너 기존 코드 그대로 유지
+            if (ToastMessageUI.Instance != null &&
+                prev != null && prev.Data != null &&
+                prev.Data.id == 400 &&
+                cur.Data.stagePollution > 0)
             {
-                Debug.Log($"[StageDetector] 지역 진입: {stage.Data.name}");
-                if (ToastMessageUI.Instance != null && previousStage != null && previousStage.Data.id == 400 && stage.Data.stagePollution > 0)
+                var stageId = QuestManager.I.Current.goals[0].objectId;
+                var enterName = stageManager.DB.TryGet(stageId, out var questStage) ? questStage.name : "";
+
+                RegionTitleUI.Instance.ShowRegion(regions[(cur.Data.id % 400) - 1]);
+
+                if (enterName == cur.Data.name)
                 {
-                    var stageId = QuestManager.I.Current.goals[0].objectId;
-                    var enterName = stageManager.DB.TryGet(stageId, out var questStage) ? questStage.name : "";
-                    RegionTitleUI.Instance.ShowRegion(regions[(stage.Data.id % 400) - 1]);
-                    if (enterName == stage.Data.name)
-                    {
-                        QuestManager.I?.PlayQuestCompleteAnimation();
-                        QuestManager.I?.ClearPathGuide();
-                    }
-                    ToastMessageUI.Instance.Show($"오염도 지역에 진입했습니다 : 1초마다 오염도({stage.Data.stagePollution}) 증가");
-                     if (changed)
-                    {
-                        OnStageChanged?.Invoke(stage.StageID);
-                        AutoSaveService.I?.RequestSave($"StageChanged:{stage.StageID}");
-                    }
-                    SoundManager.I?.PlayAreaTransition();
+                    QuestManager.I?.PlayQuestCompleteAnimation();
+                    QuestManager.I?.ClearPathGuide();
                 }
-            }
-            else
-            {
-                Debug.LogWarning($"[StageDetector] Stage ID={stage.StageID}가 초기화되지 않았습니다!");
+
+                ToastMessageUI.Instance.Show($"오염도 지역에 진입했습니다 : 1초마다 오염도({cur.Data.stagePollution}) 증가");
+
+                OnStageChanged?.Invoke(cur.StageID);
+                AutoSaveService.I?.RequestSave($"StageChanged:{cur.StageID}");
+                SoundManager.I?.PlayAreaTransition();
             }
         }
-
-        if (other.gameObject.layer == LayerMask.NameToLayer("Inside"))
+        else
         {
-            Debug.Log("[StageDetector] 건물 안으로 들어갔습니다.");
-
-            if (isInside == false)
-            {
-                isInside = true;
-                OnEnterDoor?.Invoke(isInside);
-            }
-            ClearWeatherEffect();
-        }
-        else if (other.gameObject.layer == LayerMask.NameToLayer("Outside"))
-        {
-            Debug.Log("[StageDetector] 건물 밖으로 나왔습니다.");
-
-            if (isInside == true)
-            {
-                isInside = false;
-                OnEnterDoor?.Invoke(isInside);
-            }
-            ApplyWeather(currentStage.CurrentWeather);
-        }
-
-        if (other.gameObject.layer == LayerMask.NameToLayer("Buildable"))
-        {
-            canBuild = true;
-        }
-        else if (other.gameObject.layer == LayerMask.NameToLayer("Unbuildable"))
-        {
-            canBuild = false;
+            Debug.LogWarning($"[StageDetector] Stage ID={cur.StageID}가 초기화되지 않았습니다!");
         }
     }
-
 
     public float GetCurrentPollutionMultiplier()
-    {
-        if (currentStage != null && currentStage.Data != null)
-        {
-            return currentStage.Data.stagePollution + currentStage.CurrentPollution; ;
-        }
-
-        return 0.0f;
-    }
+        => stageService != null ? stageService.GetCurrentPollutionMultiplier() : 0f;
 
     public float GetCurrentThirst()
-    {
-        if (currentStage != null && currentStage.Data != null)
-        {
-            return currentStage.CurrentThirst;
-        }
-        return 0.0f;
-    }
-
-    public void ForceSetStage(int stageId)
-    {
-        var all = FindObjectsByType<StageBase>(FindObjectsSortMode.None);
-        foreach (var s in all)
-        {
-            if (s.StageID == stageId)
-            {
-                bool changed = (currentStage == null || currentStage.StageID != s.StageID);
-
-                previousStage = currentStage != null ? currentStage : s;
-                currentStage = s;
-
-                ApplyWeather(currentStage.CurrentWeather);
-
-                if (changed)
-                    OnStageChanged?.Invoke(currentStage.StageID);
-
-                return;
-            }
-        }
-    }
-
+        => stageService != null ? stageService.GetCurrentThirst() : 0f;
 
     public float GetCurrentTemperatureMultiplier()
     {
-        if (currentStage != null && currentStage.Data != null)
-        {
-            return currentStage.Data.stageTemp + currentStage.CurrentWeatherTemp + DayNightCycle.Instance.TimeTempDelta;
-        }
+        var cur = CurrentStage;
+        if (cur != null && cur.Data != null)
+            return cur.Data.stageTemp + cur.CurrentWeatherTemp + DayNightCycle.Instance.TimeTempDelta;
 
-        //거점 + 맑음 온도 적용
         return 30.0f;
     }
 
     private void PrintWeathers()
     {
+        var cur = CurrentStage;
+        if (cur?.Data == null) return;
+
         Debug.Log("========== 현재 날씨 ==========");
-        Debug.Log($"Stage: {currentStage.Data.name}");
-        Debug.Log($"Weather: {currentStage.CurrentWeather.ToString()}");
-        Debug.Log($"Duration: {currentStage.WeatherTimer:F2} /{currentStage.WeatherDuration:F2}");
-
-    }
-    private void ApplyWeather(WeatherType weather)
-    {
-        thunderEffect?.SetActive(false);
-        rainEffect?.SetActive(false);
-        snowEffect?.SetActive(false);
-        radioEffect?.SetActive(false);
-
-        switch (weather)
-        {
-            case WeatherType.Rain:
-                rainEffect?.SetActive(true);
-                break;
-            case WeatherType.Snow:
-                snowEffect?.SetActive(true);
-                break;
-            case WeatherType.Radio:
-                radioEffect?.SetActive(true);
-                break;
-            case WeatherType.Thunder:
-                rainEffect?.SetActive(true);
-                thunderEffect?.SetActive(true);
-                break;
-            case WeatherType.Sunny:
-            case WeatherType.Hot:
-            default:
-                break;
-        }
-    }
-
-    private void ClearWeatherEffect()
-    {
-        thunderEffect?.SetActive(false);
-        rainEffect?.SetActive(false);
-        snowEffect?.SetActive(false);
+        Debug.Log($"Stage: {cur.Data.name}");
+        Debug.Log($"Weather: {cur.CurrentWeather}");
+        Debug.Log($"Duration: {cur.WeatherTimer:F2} /{cur.WeatherDuration:F2}");
     }
 
     private void OnWeatherChanged(int stageID, WeatherType weather)
     {
-        if (currentStage != null && currentStage.StageID == stageID)
+        var cur = CurrentStage;
+        if (cur != null && cur.StageID == stageID)
         {
-            ApplyWeather(weather);
             AutoSaveService.I?.RequestSave($"WeatherChanged:{stageID}:{weather}");
         }
     }
 
     private void PlaceOutDoor()
     {
-        canBuild = true;
-
-        if (isInside == true)
-        { 
-            isInside = false;
-            OnEnterDoor?.Invoke(isInside);
-        }
+        // 부활 시 실내 상태 강제로 밖으로
+        stageService?.SetCanBuild(true);
+        stageService?.SetInside(false);
     }
 }

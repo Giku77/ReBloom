@@ -37,8 +37,7 @@ public class QuestTest : MonoBehaviour
         var stageDetector = playerObj.GetComponent<StageDetector>();
         if (stageDetector == null)
         {
-            Debug.LogError("[QuestTest] local player에 StageDetector가 없습니다!");
-            return;
+            stageDetector = StageDetector.I;
         }
 
         var db = new QuestDB();
