@@ -16,10 +16,32 @@ public class BuildManager : MonoBehaviour
         var arcRecipeDB = new ArcRecipeDB();
         arcRecipeDB.LoadFromBG();
 
-        player = GameObject.FindWithTag("Player");
-
         Init(arcDB, arcRecipeDB, inventory);
         IsInitialized = true;
+    }
+
+    private void OnEnable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned += BindLocalPlayer;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned += UnbindLocalPlayer;
+    }
+
+    private void OnDisable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned -= BindLocalPlayer;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned -= UnbindLocalPlayer;
+    }
+
+    private void BindLocalPlayer(GameObject go)
+    {
+        player = go;
+        Debug.Log($"[BuildManager] Bound Local Player: {go.name}");
+    }
+
+    private void UnbindLocalPlayer()
+    {
+        if (player != null) Debug.Log("[BuildManager] Unbound Local Player");
+        player = null;
     }
 
     private BuildingFootprintProvider footprintProvider;

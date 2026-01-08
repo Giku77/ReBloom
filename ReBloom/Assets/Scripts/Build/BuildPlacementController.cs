@@ -46,6 +46,37 @@ public class BuildPlacementController : MonoBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned += BindLocalPlayer;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned += UnbindLocalPlayer;
+    }
+
+    private void OnDisable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned -= BindLocalPlayer;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned -= UnbindLocalPlayer;
+    }
+
+    private void BindLocalPlayer(GameObject go)
+    {
+        playerTransform = go.transform;
+
+        playerCamera = Camera.main;
+
+        // 안전장치
+        if (playerCamera == null)
+            playerCamera = FindFirstObjectByType<Camera>();
+
+        Debug.Log($"[BuildPlacement] Bound LocalPlayer: {go.name}, Cam={playerCamera?.name}");
+    }
+
+    private void UnbindLocalPlayer()
+    {
+        playerTransform = null;
+        playerCamera = null;
+    }
+
     private void Awake()
     {
         I = this;
@@ -104,6 +135,8 @@ public class BuildPlacementController : MonoBehaviour
 
     private void Update()
     {
+        if (playerTransform == null || playerCamera == null)
+            return;
         var keyboard = Keyboard.current;
         if (keyboard != null && keyboard.cKey.wasPressedThisFrame && !isPlacing)
         {

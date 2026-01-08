@@ -23,6 +23,6 @@ public class UIRoot : MonoBehaviour
         var equip = pc.GetComponent<PlayerEquipManager>();
         if (equip == null) return;
 
-        //equip.BindUI(pcEquipmentUI, mobileEquipmentUI, equipInventoryRoot, localInventory);
+        equip.BindUI(pcEquipmentUI, mobileEquipmentUI, equipInventoryRoot, localInventory);
     }
 }

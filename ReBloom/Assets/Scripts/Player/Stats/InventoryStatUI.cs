@@ -56,9 +56,19 @@ public class InventoryStatUI : MonoBehaviour
     {
         NetworkPlayerOwnerGate.OnLocalPlayerSpawned += BindLocalPlayer;
 
-        // (선택) 이미 로컬 플레이어가 떠있는 케이스까지 커버하고 싶으면,
-        // LocalPlayer.GO 같은 전역 캐시가 있을 때 여기서 바로 Bind 해주면 됨.
-        // if (LocalPlayer.GO != null) BindLocalPlayer(LocalPlayer.GO);
+        TryBindFromExistingLocalPlayer();
+    }
+    private void TryBindFromExistingLocalPlayer()
+    {
+        var all = FindObjectsByType<Unity.Netcode.NetworkObject>(FindObjectsSortMode.None);
+        foreach (var no in all)
+        {
+            if (no != null && no.IsOwner)
+            {
+                BindLocalPlayer(no.gameObject);
+                return;
+            }
+        }
     }
 
     private void OnDisable()

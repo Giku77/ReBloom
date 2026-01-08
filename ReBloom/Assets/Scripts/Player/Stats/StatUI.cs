@@ -44,8 +44,20 @@ public class StatUI : UIBase
     {
         NetworkPlayerOwnerGate.OnLocalPlayerSpawned += BindLocalPlayer;
 
-        // (선택) 이미 로컬플레이어가 떠있는데 UI가 늦게 켜진 경우 대비:
-        // if (LocalPlayer.GO != null) BindLocalPlayer(LocalPlayer.GO);
+        TryBindExistingOwner();
+    }
+
+    private void TryBindExistingOwner()
+    {
+        var all = FindObjectsByType<Unity.Netcode.NetworkObject>(FindObjectsSortMode.None);
+        foreach (var no in all)
+        {
+            if (no != null && no.IsOwner)
+            {
+                BindLocalPlayer(no.gameObject);
+                return;
+            }
+        }
     }
 
     private void OnDisable()

@@ -40,17 +40,51 @@ public class StatTooltipUI : MonoBehaviour
             DisableRaycastTarget(tooltipPanel);
         }
     }
-    
-    private void Start()
+
+    private void OnEnable()
     {
-        if (playerStats == null)
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned += BindLocalPlayer;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned += UnbindLocalPlayer;
+
+        TryBindFromExisting();
+    }
+
+    private void OnDisable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned -= BindLocalPlayer;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned -= UnbindLocalPlayer;
+    }
+
+    private void BindLocalPlayer(GameObject playerGo)
+    {
+        playerStats = playerGo.GetComponent<PlayerStats>();
+        debuffManager = playerGo.GetComponent<DebuffManager>();
+
+        Debug.Log($"[StatTooltipUI] Bound -> PlayerStats={(playerStats ? playerStats.name : "null")}, Debuff={(debuffManager ? debuffManager.name : "null")}");
+    }
+
+    private void UnbindLocalPlayer()
+    {
+        playerStats = null;
+        debuffManager = null;
+        HideTooltip();
+    }
+
+    private void TryBindFromExisting()
+    {
+        // "이미 로컬 플레이어가 있는데 이벤트를 놓친" 케이스 방지용
+        // 프로젝트에 LocalPlayerRef 같은 서비스가 있다면 그걸 쓰는 게 더 좋음.
+        var allStats = FindObjectsByType<PlayerStats>(FindObjectsSortMode.None);
+        foreach (var ps in allStats)
         {
-            playerStats = FindFirstObjectByType<PlayerStats>();
-        }
-        
-        if (debuffManager == null && playerStats != null)
-        {
-            debuffManager = playerStats.GetComponent<DebuffManager>();
+            // 가장 안전: 로컬 플레이어 구분 컴포넌트가 있으면 그걸로 체크(예: NetworkObject.IsOwner)
+            var no = ps.GetComponent<Unity.Netcode.NetworkObject>();
+            if (no != null && no.IsOwner)
+            {
+                playerStats = ps;
+                debuffManager = ps.GetComponent<DebuffManager>();
+                return;
+            }
         }
     }
     
