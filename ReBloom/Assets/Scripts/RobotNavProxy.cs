@@ -1,4 +1,5 @@
 using System;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -35,7 +36,7 @@ public class RobotNavProxy : MonoBehaviour
     private float lastPathOkTime;
     private float stuckTime;
 
-    void Awake()
+    private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
         agent.updateRotation = false;
@@ -45,13 +46,55 @@ public class RobotNavProxy : MonoBehaviour
         lastPathOkTime = Time.time;
     }
 
-    void Start()
+    private void OnEnable()
     {
-        if (player == null)
-            player = GameObject.FindGameObjectWithTag("Player")?.transform;
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned += BindLocalPlayer;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned += UnbindLocalPlayer;
+
+        TryBindFromExistingOwner();
     }
 
-    void Update()
+    private void OnDisable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned -= BindLocalPlayer;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned -= UnbindLocalPlayer;
+    }
+
+    public void SetPlayer(Transform t)
+    {
+        player = t;
+        lastSeenTime = Time.time;
+        lastPathOkTime = Time.time;
+    }
+
+    private void BindLocalPlayer(GameObject go)
+    {
+        SetPlayer(go != null ? go.transform : null);
+        // Debug.Log($"[RobotNavProxy] Bound local player = {player?.name}");
+    }
+
+    private void UnbindLocalPlayer()
+    {
+        player = null;
+        agent.ResetPath();
+    }
+
+    private void TryBindFromExistingOwner()
+    {
+        var nos = FindObjectsByType<NetworkObject>(FindObjectsSortMode.None);
+        foreach (var no in nos)
+        {
+            if (!no.IsOwner) continue;
+
+            if (no.GetComponent<PlayerController>() != null)
+            {
+                SetPlayer(no.transform);
+                return;
+            }
+        }
+    }
+
+    private void Update()
     {
         if (player == null) return;
 

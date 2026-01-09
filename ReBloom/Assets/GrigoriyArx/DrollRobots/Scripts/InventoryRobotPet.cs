@@ -1,4 +1,5 @@
 ﻿using System;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -125,25 +126,74 @@ public class InventoryRobotPet : MonoBehaviour
         }
     }
 
-    private void Start()
+    private void OnEnable()
     {
-        if (player == null)
-            player = GameObject.FindGameObjectWithTag("Player")?.transform;
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned += BindLocalPlayer;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned += UnbindLocalPlayer;
 
-        if (followTarget == null)
-            followTarget = player; // fallback
-
-        proxy = followTarget != null ? followTarget.GetComponent<RobotNavProxy>() : null;
-        if (proxy != null)
-            proxy.OnWarp += HandleProxyWarp;
-
-        PlayGreeting();
+        TryBindFromExistingOwner();
     }
 
-    private void OnDestroy()
+    private void OnDisable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned -= BindLocalPlayer;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned -= UnbindLocalPlayer;
+        UnhookProxy();
+    }
+
+    private void BindLocalPlayer(GameObject playerGo)
+    {
+        if (playerGo == null) return;
+
+        player = playerGo.transform;
+
+        proxy = followTarget != null ? followTarget.GetComponent<RobotNavProxy>() : null;
+
+        if (proxy == null)
+            proxy = GetComponentInChildren<RobotNavProxy>(true);
+
+        if (proxy != null)
+        {
+            proxy.SetPlayer(player);          // 프록시도 로컬 플레이어 주입
+            followTarget = proxy.transform;   // 로봇은 프록시를 따라감
+            HookProxy(proxy);
+        }
+
+        // Debug.Log($"[RobotPet] Bound local player={player?.name}, proxy={(proxy ? proxy.name : "null")}");
+    }
+
+    private void UnbindLocalPlayer()
+    {
+        player = null;
+        followTarget = null;
+        UnhookProxy();
+    }
+
+    private void HookProxy(RobotNavProxy p)
+    {
+        UnhookProxy();
+        proxy = p;
+        proxy.OnWarp += HandleProxyWarp;
+    }
+
+    private void UnhookProxy()
     {
         if (proxy != null)
             proxy.OnWarp -= HandleProxyWarp;
+        proxy = null;
+    }
+
+    private void TryBindFromExistingOwner()
+    {
+        var nos = FindObjectsByType<NetworkObject>(FindObjectsSortMode.None);
+        foreach (var no in nos)
+        {
+            if (!no.IsOwner) continue;
+            if (no.GetComponent<PlayerController>() == null) continue;
+
+            BindLocalPlayer(no.gameObject);
+            return;
+        }
     }
 
     private void FixedUpdate()

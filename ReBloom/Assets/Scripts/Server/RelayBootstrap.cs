@@ -17,6 +17,7 @@ public class RelayBootstrap : MonoBehaviour
     [SerializeField] private Button ClientButton;
     [SerializeField] private GameObject JoinPanel;
     [SerializeField] private TMPro.TMP_InputField JoinCodeInput;
+    [SerializeField] private TMPro.TMP_InputField NameTagInput;
     [SerializeField] private Button JoinConfirmButton;
     [SerializeField] private Button JoinCancelButton;
 
