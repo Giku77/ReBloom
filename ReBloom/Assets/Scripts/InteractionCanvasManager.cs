@@ -11,14 +11,20 @@ public class InteractionCanvasManager : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Debug.LogWarning("InteractionCanvasManager가 중복 생성되었습니다!");
-        }
+        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        Instance = this;
+        HideAll();
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
+    }
+
+    public void HideAll()
+    {
+        holdInteractionUI?.Hide();
+        if (sharedPromptCanvas) sharedPromptCanvas.gameObject.SetActive(false);
     }
 
     public Canvas GetCanvas() => sharedPromptCanvas;

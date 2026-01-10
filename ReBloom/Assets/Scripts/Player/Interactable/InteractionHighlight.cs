@@ -52,6 +52,11 @@ public class InteractionHighlight : MonoBehaviour
         }
     }
 
+    private bool CanShowUI()
+    {
+        return InteractionCanvasManager.Instance != null;
+    }
+
     private void Awake()
     {
         highlightLight = gameObject.AddComponent<Light>();
@@ -113,6 +118,7 @@ public class InteractionHighlight : MonoBehaviour
     {
         ShowHighlightOnly();
         _wantPrompt = true;
+        if (!CanShowUI()) return;
         if (!ShouldSuppressPrompt())
         {
             Debug.Log($"[InteractionHighlight] Prompt not suppressed, showing prompt");

@@ -34,7 +34,7 @@ public class RelayBootstrap : MonoBehaviour
         {
             HostButton.onClick.AddListener(() =>
             {
-                NicknameStore.CurrentName = "Host";
+                NicknameStore.CurrentName = "방장";
                 StartHostRelay();
             });
         }

@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+﻿using Unity.Netcode;
+using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
 using UnityEngine;
@@ -12,6 +13,8 @@ public class PlayerInteractable : MonoBehaviour
     private PlayerController player;
     private PlayerAnimation anim;
 
+    private NetworkObject netObj;
+
     private CancellationTokenSource cts;
     private InteractionHighlight currentHighlight;
     private InteractionHighlight hilight;
@@ -21,10 +24,13 @@ public class PlayerInteractable : MonoBehaviour
 
     public int toolType = 0;
 
+    private bool IsLocal => netObj != null && netObj.IsOwner;
+
     private void Awake()
     {
         player = GetComponent<PlayerController>();
         anim = GetComponent<PlayerAnimation>();
+        netObj = GetComponent<NetworkObject>();
     }
 
     private void OnEnable()
@@ -39,6 +45,7 @@ public class PlayerInteractable : MonoBehaviour
 
     private void Update()
     {
+        if (!IsLocal) return;
         if (player.isDead || player.WasJumping || player.JumpRequested)
         {
             CancelInteract();
@@ -81,6 +88,7 @@ public class PlayerInteractable : MonoBehaviour
 
     public void OnInteract(InputAction.CallbackContext context)
     {
+        if (!IsLocal) return;
         if (context.started)
             StartInteract().Forget();
         else if (context.canceled && player.isInteracting)
@@ -288,6 +296,7 @@ public class PlayerInteractable : MonoBehaviour
 
     public void TriggerInteract()
     {
+        if (!IsLocal) return;
         StartInteract().Forget();
     }
 
