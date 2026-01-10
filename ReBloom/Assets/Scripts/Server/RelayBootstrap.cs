@@ -1,4 +1,4 @@
-using Unity.Netcode;
+﻿using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
@@ -31,25 +31,42 @@ public class RelayBootstrap : MonoBehaviour
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
         SetupApproval();
         if (HostButton)
-            HostButton.onClick.AddListener(() => StartHostRelay());
+        {
+            HostButton.onClick.AddListener(() =>
+            {
+                NicknameStore.CurrentName = "Host";
+                StartHostRelay();
+            });
+        }
+
+        if (JoinCodeInput)
+        {
+            JoinCodeInput.onValueChanged.AddListener(v =>
+            {
+                var up = v.ToUpperInvariant();
+                if (up != v)
+                    JoinCodeInput.SetTextWithoutNotify(up);
+            });
+        }
         if (ClientButton)
         {
             ClientButton.onClick.AddListener(() =>
             {
                 if (JoinPanel) JoinPanel.SetActive(true);
                 else return;
-                if (JoinCancelButton)
-                    JoinCancelButton.onClick.AddListener(() => {
-                        if (JoinPanel) JoinPanel.SetActive(false);
-                    });
-                if (JoinConfirmButton)
-                    JoinConfirmButton.onClick.AddListener(() => {
-                        string joinCode = JoinCodeInput ? JoinCodeInput.text : "";
-                        StartClientRelay(joinCode);
-                        if (JoinPanel) JoinPanel.SetActive(false);
-                    });
             });
         }
+        if (JoinCancelButton)
+            JoinCancelButton.onClick.AddListener(() => {
+                if (JoinPanel) JoinPanel.SetActive(false);
+            });
+        if (JoinConfirmButton)
+            JoinConfirmButton.onClick.AddListener(() => {
+                NicknameStore.CurrentName = NameTagInput ? NameTagInput.text : "Player";
+                string joinCode = JoinCodeInput ? JoinCodeInput.text : "";
+                StartClientRelay(joinCode);
+                if (JoinPanel) JoinPanel.SetActive(false);
+            });
     }
 
     public async void StartHostRelay(int maxConnections = 3, string connectionType = "dtls")
