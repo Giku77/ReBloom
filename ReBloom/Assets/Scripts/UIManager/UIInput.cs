@@ -1,12 +1,15 @@
-﻿using UnityEngine;
+﻿using Unity.Netcode;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class UIInput : MonoBehaviour
 {
     [SerializeField] private DialogueUI dialogueUI;
+    [SerializeField] private ServerInfoUI serverInfoUI;
     [SerializeField] private InputAction EscapeAction;
     [SerializeField] private InputAction DialogueAction;
+    [SerializeField] private InputAction ServerInfoAction;
 
     [Header("Skip CutScene")]
     [SerializeField] private InputAction SkipCutScene;   // PC용(키보드/패드)
@@ -27,6 +30,9 @@ public class UIInput : MonoBehaviour
         DialogueAction.Enable();
         DialogueAction.performed += dialogueUI.OnNextInput;
 
+        ServerInfoAction.Enable();
+        ServerInfoAction.performed += OnServerInfo;
+
 #if !(UNITY_ANDROID || UNITY_IOS)
         SkipCutScene.Enable();
         SkipCutScene.started += OnSkipStarted;
@@ -41,6 +47,9 @@ public class UIInput : MonoBehaviour
 
         DialogueAction.performed -= dialogueUI.OnNextInput;
         DialogueAction.Disable();
+
+        ServerInfoAction.performed -= OnServerInfo;
+        ServerInfoAction.Disable();
 
 #if !(UNITY_ANDROID || UNITY_IOS)
         SkipCutScene.started -= OnSkipStarted;
@@ -73,6 +82,17 @@ public class UIInput : MonoBehaviour
     private void OnEsc(InputAction.CallbackContext ctx)
     {
         UIManager.Instance.OnEscPressed();
+    }
+
+    private void OnServerInfo(InputAction.CallbackContext ctx)
+    {
+        if (NetworkManager.Singleton == null) return;
+        if (!NetworkManager.Singleton.IsServer) return;
+
+        if (serverInfoUI != null)
+        {
+            serverInfoUI.ToggleUI();
+        }
     }
 
     private void Update()

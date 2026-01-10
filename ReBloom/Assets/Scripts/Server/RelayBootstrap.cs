@@ -78,6 +78,7 @@ public class RelayBootstrap : MonoBehaviour
 
         nm.StartHost();
         Debug.Log($"[Relay] Join Code: {joinCode}");
+        JoinCodeStore.Current = joinCode;
         nm.SceneManager.LoadScene("LoadingScene", LoadSceneMode.Single);
     }
 
