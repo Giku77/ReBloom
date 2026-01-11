@@ -1,4 +1,4 @@
-﻿using Unity.Netcode;
+using Unity.Netcode;
 using Unity.Collections;
 using UnityEngine;
 
@@ -80,5 +80,16 @@ public class PlayerRegistry : NetworkBehaviour
         s = s.Trim();
         if (s.Length > 16) s = s.Substring(0, 16);
         return new FixedString32Bytes(s);
+    }
+
+
+public string GetName(ulong clientId)
+    {
+        for (int i = 0; i < Players.Count; i++)
+        {
+            if (Players[i].ClientId == clientId)
+                return Players[i].Name.ToString();
+        }
+        return $"Player#{clientId}";
     }
 }
