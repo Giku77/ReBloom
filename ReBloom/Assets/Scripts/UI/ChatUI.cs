@@ -107,12 +107,11 @@ public class ChatUI : MonoBehaviour
         // 백업: 레거시 Input으로도 체크 (InputAction이 안 먹히는 경우 대비)
         if (Keyboard.current != null)
         {
-            if (Keyboard.current.enterKey.wasPressedThisFrame || 
-                Keyboard.current.numpadEnterKey.wasPressedThisFrame)
+            if (!isChatMode && (Keyboard.current.enterKey.wasPressedThisFrame || Keyboard.current.numpadEnterKey.wasPressedThisFrame))
             {
-                Debug.Log("[ChatUI] Keyboard.current로 Enter 감지!");
-                ToggleChatMode();
+                SetChatMode(true);
             }
+
             
             // ESC 키로 채팅 모드 끄기
             if (isChatMode && Keyboard.current.escapeKey.wasPressedThisFrame)
@@ -124,6 +123,7 @@ public class ChatUI : MonoBehaviour
 
     private void OnChatToggle(InputAction.CallbackContext context)
     {
+        if (isChatMode) return;
         Debug.Log($"[ChatUI] OnChatToggle 호출됨! Phase: {context.phase}, Value: {context.ReadValueAsButton()}");
         ToggleChatMode();
     }
@@ -136,6 +136,8 @@ public class ChatUI : MonoBehaviour
     private void SetChatMode(bool enabled)
     {
         isChatMode = enabled;
+
+        UIManager.Instance?.SetBlockingInput(isChatMode);
 
         if (isChatMode)
         {

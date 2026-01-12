@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -18,6 +19,8 @@ public class UIManager : MonoBehaviour
     public bool IsBlockedInput => isBlockedInput;
 
     public bool IsGamePaused { get; private set; }
+
+    public event Action<bool> OnBlockingInputChanged;
 
     private void Awake()
     {
@@ -245,7 +248,10 @@ public class UIManager : MonoBehaviour
     
     public void SetBlockingInput(bool isBlocked)
     {
+        if (isBlockedInput == isBlocked) return;
+
         isBlockedInput = isBlocked;
+        OnBlockingInputChanged?.Invoke(isBlockedInput);
         UpdateInputLock();
     }
 

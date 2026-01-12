@@ -233,6 +233,9 @@ public class PlayerController : MonoBehaviour
         if (playerStats != null)
             playerStats.OnDeath += HandleDeath;
 
+        if (UIManager.Instance != null)
+            UIManager.Instance.OnBlockingInputChanged += SetBlocked;
+
         SoundManager.I?.PlayMainBGM();
     }
 
@@ -542,6 +545,8 @@ public class PlayerController : MonoBehaviour
     {
         if (playerStats != null)
             playerStats.OnDeath -= HandleDeath;
+        if (UIManager.Instance != null)
+            UIManager.Instance.OnBlockingInputChanged -= SetBlocked;
     }
 
     public void OnMove(InputAction.CallbackContext context)
