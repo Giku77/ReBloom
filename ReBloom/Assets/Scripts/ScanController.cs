@@ -70,6 +70,10 @@ public class ScanController : MonoBehaviour
 
     public void TriggerScan()
     {
+        if (UIManager.Instance != null && UIManager.Instance.IsBlockedInput)
+        {
+            return;
+        }
         if (Time.time < lastScanTime + cooldown)
         {
             float remain = Mathf.Max(0f, (lastScanTime + cooldown) - Time.time);

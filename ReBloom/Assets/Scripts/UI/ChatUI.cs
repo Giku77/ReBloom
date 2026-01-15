@@ -28,6 +28,8 @@ public class ChatUI : MonoBehaviour
     private bool isChatMode = false;
     private InputAction toggleAction;
 
+    private Coroutine bindCo;
+
     private void Awake()
     {
         Debug.Log("[ChatUI] Awake 시작");
@@ -69,11 +71,24 @@ public class ChatUI : MonoBehaviour
         {
             ChatManager.I.Messages.OnListChanged += OnMessagesChanged;
         }
+        bindCo = StartCoroutine(BindChatManagerWhenReady());
+        Refresh();
+    }
+
+    
+    private System.Collections.IEnumerator BindChatManagerWhenReady()
+    {
+        while (ChatManager.I == null)
+            yield return null;
+
+        ChatManager.I.Messages.OnListChanged += OnMessagesChanged;
         Refresh();
     }
 
     private void OnDisable()
     {
+        if (bindCo != null) StopCoroutine(bindCo);
+        
         if (toggleAction != null)
         {
             toggleAction.performed -= OnChatToggle;
