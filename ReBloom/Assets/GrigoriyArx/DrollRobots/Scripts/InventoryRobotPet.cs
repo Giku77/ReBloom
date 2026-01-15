@@ -216,6 +216,14 @@ public class InventoryRobotPet : MonoBehaviour
         FollowProxy();
     }
 
+    private void Update()
+    {
+        if (Keyboard.current.lKey.wasPressedThisFrame)
+        {
+            ToggleFlashlight();
+        }
+    }
+
     private void UpdateIsNearPlayer()
     {
         if (player == null)

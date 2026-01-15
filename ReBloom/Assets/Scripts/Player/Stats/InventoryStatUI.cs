@@ -98,7 +98,7 @@ public class InventoryStatUI : MonoBehaviour
 
         if (playerStats == null)
         {
-            Debug.LogError("[InventoryStatUI] PlayerStats 없음");
+            //Debug.LogError("[InventoryStatUI] PlayerStats 없음");
             return;
         }
 

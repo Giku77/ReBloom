@@ -87,7 +87,7 @@ public class StatUI : UIBase
 
         if (playerStats == null)
         {
-            Debug.LogError("[StatUI] PlayerStats 없음");
+            //Debug.LogError("[StatUI] PlayerStats 없음");
             return;
         }
 

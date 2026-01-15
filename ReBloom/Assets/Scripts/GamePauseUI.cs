@@ -64,6 +64,45 @@ public class GamePauseUI : UIBase
         UIManager.Instance?.SetPaused(true);
     }
 
+      private void OnEnable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned += BindLocalPlayer;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned += UnbindLocalPlayer;
+
+        TryBindFromExistingOwner();
+    }
+
+    private void OnDisable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned -= BindLocalPlayer;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned -= UnbindLocalPlayer;
+        player = null;
+    }
+
+    private void BindLocalPlayer(GameObject playerGo)
+    {
+        if (playerGo == null) return;
+        player = playerGo.GetComponent<PlayerStats>();
+    }
+
+    private void UnbindLocalPlayer()
+    {
+        player = null;
+    }
+
+    private void TryBindFromExistingOwner()
+    {
+        var nos = FindObjectsByType<Unity.Netcode.NetworkObject>(FindObjectsSortMode.None);
+        foreach (var no in nos)
+        {
+            if (!no.IsOwner) continue;
+            if (no.GetComponent<PlayerController>() == null) continue;
+
+            BindLocalPlayer(no.gameObject);
+            return;
+        }
+    }
+
     protected override void OnHide()
     {
         Time.timeScale = 1f;

@@ -1,5 +1,4 @@
 ﻿using Cysharp.Threading.Tasks;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,8 +17,8 @@ public class PlayerEffectUI : UIBase
 
     protected override void Awake()
     {
+        //player = GetComponent<PlayerController>();
         base.Awake();
-        player = GetComponent<PlayerController>();
 
         if (fadeImage != null)
         {
@@ -30,21 +29,14 @@ public class PlayerEffectUI : UIBase
         }
     }
 
-
-    private void Start()
-    {
-        blurrObject.SetActive(false);
-        //passOutLoadingScreen.SetActive(false);
-    }
-
     private void OnEnable()
     {
+        blurrObject.SetActive(false);
         NetworkPlayerOwnerGate.OnLocalPlayerSpawned += BindLocalPlayer;
-        if (player != null)
-            player.onPassOut += PassOutUI;
+        TryExistingBind();
     }
 
-    private void OnDestroy()
+    private void OnDisable()
     {
         NetworkPlayerOwnerGate.OnLocalPlayerSpawned -= BindLocalPlayer;
         if (player != null)
@@ -54,6 +46,19 @@ public class PlayerEffectUI : UIBase
     private void BindLocalPlayer(GameObject localPlayer)
     {
         player = localPlayer.GetComponent<PlayerController>();
+        if (player != null)
+            player.onPassOut += PassOutUI;
+    }
+
+    private void TryExistingBind()
+    {
+        var nm = Unity.Netcode.NetworkManager.Singleton;
+        if (nm == null) return;
+
+        var po = nm.LocalClient?.PlayerObject;
+        if (po == null) return;
+
+        BindLocalPlayer(po.gameObject);
     }
 
     private void PassOutUI()
@@ -69,15 +74,15 @@ public class PlayerEffectUI : UIBase
 
         blurrObject.SetActive(false);
 
-        //passOutLoadingScreen.SetActive(true);
-        UIManager.Instance.ToggleUI(UIType.PlayerEffect);
+        passOutLoadingScreen?.SetActive(true);
+        //UIManager.Instance.ToggleUI(UIType.PlayerEffect);
 
         await MoveLoadingImage();
 
-        UIManager.Instance.ToggleUI(UIType.PlayerEffect);
+        //UIManager.Instance.ToggleUI(UIType.PlayerEffect);
         UIManager.Instance.SetBlockingInput(false);
 
-        //passOutLoadingScreen?.SetActive(false);
+        passOutLoadingScreen?.SetActive(false);
     }
 
     private async UniTask MoveLoadingImage()

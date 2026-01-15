@@ -35,9 +35,9 @@ public class FMechNPCController : BaseNPCController
     [SerializeField] Transform factorySpawnPoint;
 
 
-    private DayNightCycle dayNightCycle;
+    [SerializeField] private DayNightCycle dayNightCycle;
 
-    private StageDetector playerStageDetector;
+    [SerializeField] private StageDetector playerStageDetector;
 
     private FMechNPCSound sound;
 
@@ -48,16 +48,16 @@ public class FMechNPCController : BaseNPCController
         sound = GetComponentInChildren<FMechNPCSound>();
         
         // Player의 StageDetector 찾기
-        if (player != null)
-        {
-            playerStageDetector = player.GetComponent<StageDetector>();
-            if (playerStageDetector == null)
-            {
-                Debug.LogError("[F-Mech] Player에서 StageDetector를 찾을 수 없습니다!");
-            }
+        // if (player != null)
+        // {
+        //     playerStageDetector = player.GetComponent<StageDetector>();
+        //     if (playerStageDetector == null)
+        //     {
+        //         Debug.LogError("[F-Mech] Player에서 StageDetector를 찾을 수 없습니다!");
+        //     }
 
-            dayNightCycle = player.GetComponent<DayNightCycle>();
-        }
+        //     dayNightCycle = player.GetComponent<DayNightCycle>();
+        // }
         
         initialPosition = transform.position;
         initialRotation = transform.rotation;

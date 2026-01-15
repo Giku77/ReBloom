@@ -88,7 +88,7 @@ public class ChatUI : MonoBehaviour
     private void OnDisable()
     {
         if (bindCo != null) StopCoroutine(bindCo);
-        
+
         if (toggleAction != null)
         {
             toggleAction.performed -= OnChatToggle;
@@ -129,10 +129,10 @@ public class ChatUI : MonoBehaviour
 
             
             // ESC 키로 채팅 모드 끄기
-            if (isChatMode && Keyboard.current.escapeKey.wasPressedThisFrame)
-            {
-                SetChatMode(false);
-            }
+            // if (isChatMode && Keyboard.current.escapeKey.wasPressedThisFrame)
+            // {
+            //     SetChatMode(false);
+            // }
         }
     }
 

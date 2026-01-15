@@ -24,32 +24,67 @@ public class DeathBoxHandler : MonoBehaviour
 
     private void Awake()
     {
-        FindReferences();
-    }
-
-    private void FindReferences()
-    {
-        // 플레이어
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null)
-        {
-            playerTransform = player.transform;
-
-            if (playerEquipManager == null)
-            {
-                playerEquipManager = player.GetComponent<PlayerEquipManager>();
-            }
-        }
-
-        // 강아지
         if (poppi == null)
         {
             poppi = FindFirstObjectByType<InventoryRobotPet>();
         }
+        if (playerInventory == null)
+        {
+            playerInventory = FindFirstObjectByType<GameInventory>();
+        }
+    }
+
+    private void OnEnable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned += BindLocalPlayer;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned += UnbindLocalPlayer;
+
+        TryBindFromExistingOwner();
+    }
+
+    private void OnDisable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned -= BindLocalPlayer;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned -= UnbindLocalPlayer;
+    }
+
+    private void BindLocalPlayer(GameObject playerGo)
+    {
+        if (playerGo == null) return;
+
+        playerTransform = playerGo.transform;
+        playerEquipManager = playerGo.GetComponent<PlayerEquipManager>();
+    }
+
+    private void UnbindLocalPlayer()
+    {
+        playerTransform = null;
+        playerEquipManager = null;
+    }
+
+    private void TryBindFromExistingOwner()
+    {
+        var nm = Unity.Netcode.NetworkManager.Singleton;
+        if (nm == null) return;
+
+        var po = nm.LocalClient?.PlayerObject;
+        if (po == null) return;
+
+        BindLocalPlayer(po.gameObject);
     }
 
     public void OnCreateDeathBox()
     {
+        if (playerEquipManager == null || playerTransform == null)
+        {
+            TryBindFromExistingOwner();
+            if (playerEquipManager == null || playerTransform == null)
+            {
+                Debug.LogWarning("[DeathBoxHandler] 로컬 플레이어 바인딩 안됨 - 시체박스 생성 중단");
+                return;
+            }
+        }
+
         Debug.Log($"[DeathBoxHandler] ========== 시체박스 생성 시작 ==========");
 
         // 현재 인벤토리 상태 상세 출력

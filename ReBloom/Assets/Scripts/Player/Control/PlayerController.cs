@@ -414,14 +414,6 @@ public class PlayerController : MonoBehaviour
             Anim.SetStun(isStunned);
         }
 
-        if (Keyboard.current.lKey.wasPressedThisFrame)
-        {
-            if (robotPet != null)
-            {
-                robotPet.ToggleFlashlight();
-            }
-        }
-
         if (WaterTankService.I?.Manager != null)
         {
             WaterTankService.I.Manager.Tick(Time.deltaTime);
