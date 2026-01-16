@@ -9,11 +9,11 @@ public class LimitRule : IBuildRule
         buildManager = manager;
     }
 
-    public bool Validate(ArcContext ctx, out string errorCode)
+    public bool Validate(ArcContext ctx, out BuildError errorCode)
     {
         if (ctx.Data.installLimit <= 0)
         {
-            errorCode = null;
+            errorCode = BuildError.None;
             return true;
         }
 
@@ -24,11 +24,11 @@ public class LimitRule : IBuildRule
 
         if (current >= ctx.Data.installLimit)
         {
-            errorCode = "LIMIT_REACHED";
+            errorCode = BuildError.LimitReached;
             return false;
         }
 
-        errorCode = null;
+        errorCode = BuildError.None;
         return true;
     }
 }

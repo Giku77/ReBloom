@@ -4,7 +4,7 @@ public class FlatSurfaceRule : IBuildRule
 {
     private LayerMask buildableLayer;
     private float maxHeightDiff;
-    private float maxSlopeDot; // Vector3.Dot(normal, Vector3.up) ÃÖ¼Ò°ª
+    private float maxSlopeDot; // Vector3.Dot(normal, Vector3.up) ï¿½Ö¼Ò°ï¿½
 
     public FlatSurfaceRule(LayerMask buildableLayer, float maxHeightDiff, float maxSlopeAngleDeg)
     {
@@ -13,17 +13,17 @@ public class FlatSurfaceRule : IBuildRule
         this.maxSlopeDot = Mathf.Cos(maxSlopeAngleDeg * Mathf.Deg2Rad);
     }
 
-    public bool Validate(ArcContext ctx, out string errorCode)
+    public bool Validate(ArcContext ctx, out BuildError errorCode)
     {
         var fp = ctx.FootPrint;
-        // ºôµù ±âÁØ ·ÎÄÃ ÁÂÇ¥¿¡¼­ ³× ¸ð¼­¸® Á¡ °è»ê
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç¥ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ð¼­¸ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½
         Vector3[] localPoints =
         {
             new Vector3(-fp.sizeX/2f, 0, -fp.sizeZ/2f),
             new Vector3(-fp.sizeX/2f, 0, fp.sizeZ/2f),
             new Vector3(fp.sizeX/2f, 0, -fp.sizeZ/2f),
             new Vector3(fp.sizeX/2f, 0, fp.sizeZ/2f),
-            Vector3.zero // Áß¾Óµµ ÇÑ ¹ø Ã¼Å©ÇÏ°í ½ÍÀ¸¸é
+            Vector3.zero // ï¿½ß¾Óµï¿½ ï¿½ï¿½ ï¿½ï¿½ Ã¼Å©ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         };
 
         float minY = float.MaxValue;
@@ -31,23 +31,23 @@ public class FlatSurfaceRule : IBuildRule
 
         for (int i = 0; i < localPoints.Length; i++)
         {
-            // ·ÎÄÃ -> ¿ùµå º¯È¯
+            // ï¿½ï¿½ï¿½ï¿½ -> ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¯
             Vector3 worldPoint = ctx.Position + ctx.Rotation * localPoints[i] + Vector3.up * 2f;
-            // À§ÂÊ¿¡¼­ ¾Æ·¡·Î ½î±â (2f´Â ¿©À¯ ³ôÀÌ)
+            // ï¿½ï¿½ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½Æ·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ (2fï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 
             if (!Physics.Raycast(worldPoint, Vector3.down, out RaycastHit hit, 5f, buildableLayer))
             {
-                errorCode = "NO_FLOOR";
+                errorCode = BuildError.NoGround;
                 return false;
             }
 
-            // ¹Ù´Ú ÅÂ±× °Ë»ç(ÇÊ¿äÇÏ´Ù¸é)
+            // ï¿½Ù´ï¿½ ï¿½Â±ï¿½ ï¿½Ë»ï¿½(ï¿½Ê¿ï¿½ï¿½Ï´Ù¸ï¿½)
             // if (!hit.collider.CompareTag("Floor")) { ... }
 
-            // ÆòÆò / °æ»çµµ °Ë»ç
+            // ï¿½ï¿½ï¿½ï¿½ / ï¿½ï¿½çµµ ï¿½Ë»ï¿½
             if (Vector3.Dot(hit.normal, Vector3.up) < maxSlopeDot)
             {
-                errorCode = "SLOPE_TOO_STEEP";
+                errorCode = BuildError.SlopeTooHigh;
                 return false;
             }
 
@@ -59,11 +59,11 @@ public class FlatSurfaceRule : IBuildRule
 
         if (maxY - minY > maxHeightDiff)
         {
-            errorCode = "NOT_FLAT";
+            errorCode = BuildError.NotFlat;
             return false;
         }
 
-        errorCode = null;
+        errorCode = BuildError.None;
         return true;
     }
 }

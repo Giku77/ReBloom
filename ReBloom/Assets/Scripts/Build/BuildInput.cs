@@ -62,7 +62,7 @@ public class BuildInput : MonoBehaviour
         //Debug.Log($"Trying to build ID: {buildId}");
         var playerPos = player.transform.position;
         playerPos += player.transform.forward * 2.0f;
-        BuildManager.I?.TryBuild(buildId, playerPos, Quaternion.identity);
+        BuildManager.I?.TryBuild(buildId, playerPos, Quaternion.identity, out var error);
     }
     private void OnToggleBuildUI(InputAction.CallbackContext ctx)
     {

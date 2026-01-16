@@ -3,15 +3,15 @@ using UnityEngine;
 
 public class OccupancyRule : IBuildRule
 {
-    public bool Validate(ArcContext ctx, out string errorCode)
+    public bool Validate(ArcContext ctx, out BuildError errorCode)
     {
-        errorCode = null;
+        errorCode = BuildError.None;
 
         var cells = FootprintToCells(ctx);
 
         if (!GridOccupancyManager.I.CanOccupy(cells, ctx.IgnoreOccupancyInstance))
         {
-            errorCode = "CELL_OCCUPIED";
+            errorCode = BuildError.CellOccupied;
             return false;
         }
 

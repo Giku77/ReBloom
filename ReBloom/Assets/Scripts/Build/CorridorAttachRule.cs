@@ -2,9 +2,9 @@
 
 public class CorridorAttachRule : IBuildRule
 {
-    public bool Validate(ArcContext ctx, out string errorCode)
+    public bool Validate(ArcContext ctx, out BuildError errorCode)
     {
-        errorCode = null;
+        errorCode = BuildError.None;
 
         // 통로가 아니면 이 룰은 패스
         if (ctx.ArcPrefab == null || !ctx.ArcPrefab.TryGetComponent<CorridorNode>(out var nodePrefab))
@@ -42,7 +42,7 @@ public class CorridorAttachRule : IBuildRule
             // => 이 방향으로는 "막힌 벽끼리 맞닥뜨리는" 상황이니 설치 금지
             if (!(hasOpeningLocal && neighborHasOpening))
             {
-                errorCode = "CORRIDOR_BLOCKED_SIDE";
+                errorCode = BuildError.CorridorBlockedSide;
                 return false;
             }
 
@@ -55,7 +55,7 @@ public class CorridorAttachRule : IBuildRule
             // 소켓이 존재하는데, 우리 쪽 opening이 없으면 막힌 면이라서 금지
             if (neighborHasSocket && !hasOpeningLocal)
             {
-                errorCode = "CORRIDOR_BLOCKED_SIDE";
+                errorCode = BuildError.CorridorBlockedSide;
                 return false;
             }
         }

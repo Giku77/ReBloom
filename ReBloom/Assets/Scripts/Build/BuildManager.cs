@@ -137,7 +137,7 @@ public class BuildManager : MonoBehaviour
     }
 
 
-    private bool TryAdjustToGround(ArcContext ctx, out Vector3 adjustedPos, out string errorCode)
+    private bool TryAdjustToGround(ArcContext ctx, out Vector3 adjustedPos, out BuildError errorCode)
     {
         var fp = ctx.FootPrint;
         Vector3 center = ctx.Position;
@@ -178,7 +178,7 @@ public class BuildManager : MonoBehaviour
 
         if (hitCount == 0)
         {
-            errorCode = "NO_GROUND";
+            errorCode = BuildError.NoGround;
             adjustedPos = center;
             return false;
         }
@@ -186,7 +186,7 @@ public class BuildManager : MonoBehaviour
         float heightDiff = maxY - minY;
         if (heightDiff > maxHeightDiff)
         {
-            errorCode = "SLOPE_TOO_HIGH";
+            errorCode = BuildError.SlopeTooHigh;
             adjustedPos = center;
             return false;
         }
@@ -194,7 +194,7 @@ public class BuildManager : MonoBehaviour
         float finalY = maxY - ctx.DepthOffset;
 
         adjustedPos = new Vector3(center.x, finalY, center.z);
-        errorCode = null;
+        errorCode = BuildError.None;
         return true;
     }
 
@@ -222,18 +222,18 @@ public class BuildManager : MonoBehaviour
         footprintProvider = GetComponent<BuildingFootprintProvider>();
     }
 
-    public bool Validate(ArcContext ctx, out string errorCode)
+    public bool Validate(ArcContext ctx, out BuildError errorCode)
     {
         foreach (var rule in buildRules)
         {
             if (!rule.Validate(ctx, out errorCode))
                 return false;
         }
-        errorCode = null;
+        errorCode = BuildError.None;
         return true;
     }
 
-    public bool CanBuildAt(ArcData arc, Vector3 pos, Quaternion rot, out string errorCode, bool isMove = false)
+    public bool CanBuildAt(ArcData arc, Vector3 pos, Quaternion rot, out BuildError errorCode, bool isMove = false)
     {
         float depthOffset = 0.1f; 
 
@@ -262,20 +262,21 @@ public class BuildManager : MonoBehaviour
             return false;
 
         ctx.Position = adjustedPos;
+        errorCode = BuildError.None;
         return true;
     }
 
-    public bool TryMoveBuilding(BuildingInstance inst, Vector3 desiredPos, Quaternion desiredRot, out string errorCode)
+    public bool TryMoveBuilding(BuildingInstance inst, Vector3 desiredPos, Quaternion desiredRot, out BuildError errorCode)
     {
         if (inst == null)
         {
-            errorCode = "NULL_INSTANCE";
+            errorCode = BuildError.None;
             return false;
         }
 
         if (!arcDB.TryGet(inst.ArcId, out var arc))
         {
-            errorCode = "ARC_NOT_FOUND";
+            errorCode = BuildError.ArcNotFound;
             return false;
         }
 
@@ -317,7 +318,7 @@ public class BuildManager : MonoBehaviour
 
         SetupTemporaryPassThrough(inst.gameObject);
 
-        errorCode = null;
+        errorCode = BuildError.None;
         AutoSaveService.I?.RequestSave("MoveBuilding");
         GridOccupancyManager.I?.Release(inst);
         var fp = footprintProvider.GetFootprint(arc);
@@ -326,12 +327,11 @@ public class BuildManager : MonoBehaviour
         return true;
     }
 
-    public bool CanMoveAt(BuildingInstance inst, Vector3 pos, Quaternion rot, out string errorCode)
+    public bool CanMoveAt(BuildingInstance inst, Vector3 pos, Quaternion rot, out BuildError errorCode)
     {
-        errorCode = null;
-        if (inst == null) { errorCode = "NULL"; return false; }
-        if (!arcDB.TryGet(inst.ArcId, out var arc)) { errorCode = "ARC_NOT_FOUND"; return false; }
-
+        errorCode = BuildError.None;
+        if (inst == null) { errorCode = BuildError.None; return false; }
+        if (!arcDB.TryGet(inst.ArcId, out var arc)) { errorCode = BuildError.ArcNotFound; return false; }
         float depthOffset = 0.1f;
         if (arc.buildPrefab != null && arc.buildPrefab.TryGetComponent<BuildingInstance>(out var bi) && bi.depthOffset != 0f)
             depthOffset = bi.depthOffset;
@@ -358,11 +358,12 @@ public class BuildManager : MonoBehaviour
     }
 
 
-    public bool TryBuild(int arcId, Vector3 pos, Quaternion rot)
+    public bool TryBuild(int arcId, Vector3 pos, Quaternion rot, out BuildError error)
     {
         if (!arcDB.TryGet(arcId, out var arc))
         {
             Debug.LogWarning($"없는 건물: {arcId}");
+            error = BuildError.ArcNotFound;
             return false;
         }
 
@@ -370,23 +371,23 @@ public class BuildManager : MonoBehaviour
         {
             if (!stageDetector.CanBuild && stageDetector.CurrentStage.stageID == 400)
             {
-                ToastMessageUI.Instance.Show("다리에서는 건물을 지을 수 없습니다.");
+                error = BuildError.NotBuildableZone;
                 return false;
             }
 
-            ToastMessageUI.Instance.Show("이 지역에서는 건물을 지을 수 없습니다.");
+            error = BuildError.NotBuildableZone;
             return false;
         }
 
         if (!CanBuildAt(arc, pos, rot, out var errorCode))
         {
-            ToastMessageUI.Instance.Show($"건물 설치 불가: {errorCode}");
+            error = errorCode;
             return false;
         }
 
         if (!recipeDB.TryGetRecipe(arcId, out var recipe))
         {
-            Debug.LogWarning($"건물 {arcId} 는 레시피가 없음. 테스트용으로 그냥 짓기");
+            error = BuildError.None;
             return Spawn(arc, pos, rot);
         }
 
@@ -394,7 +395,7 @@ public class BuildManager : MonoBehaviour
         {
                 if (!HasMaterials(recipe))
                 {
-                    ToastMessageUI.Instance.Show("재료가 부족합니다.");
+                    error = BuildError.LackMaterials;
                     return false;
                 }
 
@@ -418,8 +419,15 @@ public class BuildManager : MonoBehaviour
         //    QuestManager.I?.NotifyBuildingBuilt(arc.arcId);
         //    AutoSaveService.I?.RequestSave("Build");
         //}
+        if (!spawned)
+        {
+            error = BuildError.SpawnFailed; 
+            return false;
+        }
 
-        return spawned;
+        error = BuildError.None;
+        return true;
+
     }
 
     public bool HasMaterials(ArcRecipe recipe)

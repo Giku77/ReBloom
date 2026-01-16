@@ -82,3 +82,19 @@ public enum UILayer
     Overlay,
     MobileHUD,
 }
+
+public enum BuildError
+{
+    None,
+    CellOccupied,
+    NoGround,
+    SlopeTooHigh,
+    NotBuildableZone,
+    LackMaterials,
+    ArcNotFound,
+    LimitReached,
+    Colllision,
+    CorridorBlockedSide,
+    NotFlat,
+    SpawnFailed
+}

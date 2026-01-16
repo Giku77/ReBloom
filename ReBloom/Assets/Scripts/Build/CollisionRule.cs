@@ -6,14 +6,14 @@ public class CollisionRule : IBuildRule
 {
     private LayerMask obstacleLayers;
 
-    // ºôµù µ¥ÀÌÅÍ¿¡ µû·Î bounds Á¤º¸¸¦ ÀúÀåÇØµÎ°Å³ª,
-    // prefab¿¡¼­ °¡Á®¿Í¼­ Ä³½ÃÇØµµ µÊ.
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¿ï¿½ ï¿½ï¿½ï¿½ï¿½ bounds ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ØµÎ°Å³ï¿½,
+    // prefabï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¼ï¿½ Ä³ï¿½ï¿½ï¿½Øµï¿½ ï¿½ï¿½.
     public CollisionRule(LayerMask obstacleLayers)
     {
         this.obstacleLayers = obstacleLayers;
     }
 
-    public bool Validate(ArcContext ctx, out string errorCode)
+    public bool Validate(ArcContext ctx, out BuildError errorCode)
     {
         var fp = ctx.FootPrint;
         // const float margin = 0.02f;
@@ -22,11 +22,11 @@ public class CollisionRule : IBuildRule
         //     2f,
         //     fp.sizeZ / 2f - margin
         // );
-        Vector3 halfExtents = new Vector3(fp.sizeX / 2f, 2f, fp.sizeZ / 2f); // ³ôÀÌ´Â ´ëÃæ 2~3m ¿©À¯
+        Vector3 halfExtents = new Vector3(fp.sizeX / 2f, 2f, fp.sizeZ / 2f); // ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½ï¿½ï¿½ 2~3m ï¿½ï¿½ï¿½ï¿½
 
         DrawWireBox(ctx.Position + Vector3.up * halfExtents.y, halfExtents, ctx.Rotation, Color.red, 1f);
 
-        // È¸Àü °í·ÁÇØ¼­ OverlapBox
+        // È¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ø¼ï¿½ OverlapBox
         Collider[] hits = Physics.OverlapBox(
             ctx.Position + Vector3.up * halfExtents.y,
             halfExtents,
@@ -44,17 +44,17 @@ public class CollisionRule : IBuildRule
 
         foreach (var col in hits)
         {
-            // ÀÚ±â ÇÁ¸®ºä³ª Æ¯Á¤ ÅÂ±×/·¹ÀÌ¾î´Â ¿©±â¼­µµ °É·¯ÁÙ ¼ö ÀÖÀ½
+            // ï¿½Ú±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ä³ª Æ¯ï¿½ï¿½ ï¿½Â±ï¿½/ï¿½ï¿½ï¿½Ì¾ï¿½ï¿½ ï¿½ï¿½ï¿½â¼­ï¿½ï¿½ ï¿½É·ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
             // if (col.CompareTag("BuildPreview")) continue;
             if (isCorridor)
             {
                 var otherNode = col.GetComponentInParent<CorridorNode>();
                 if (otherNode != null)
                 {
-                    // °°Àº ¼¿¿¡ ÀÌ¹Ì Åë·Î°¡ ÀÖÀ¸¸é ¸·±â
+                    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ì¹ï¿½ ï¿½ï¿½Î°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                     if (otherNode.Cell == candidateCell)
                     {
-                        errorCode = "COLLISION";
+                        errorCode = BuildError.Colllision;
                         return false;
                     }
 
@@ -62,19 +62,19 @@ public class CollisionRule : IBuildRule
                 }
             }
 
-            errorCode = "COLLISION";
+            errorCode = BuildError.Colllision;
             return false;
         }
 
 
         // if (hits.Length > 0)
         // {
-        //     // ¿©±â¼­ ÅÂ±×·Î ÀÚ±â ÇÁ¸®ºä/¹«½Ã ´ë»ó Á¦¿Ü ·ÎÁ÷ ³Ö¾îµµ µÊ
+        //     // ï¿½ï¿½ï¿½â¼­ ï¿½Â±×·ï¿½ ï¿½Ú±ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ö¾îµµ ï¿½ï¿½
         //     errorCode = "COLLISION";
         //     return false;
         // }
 
-        errorCode = null;
+        errorCode = BuildError.None;
         return true;
     }
 

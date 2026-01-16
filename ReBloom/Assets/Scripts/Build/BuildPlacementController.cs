@@ -23,7 +23,7 @@ public class BuildPlacementController : MonoBehaviour
     private Vector3 lastValidPos;
     private Quaternion lastRot;
     private bool lastCanBuild;
-    private string lastError;
+    private BuildError lastError;
 
     private bool isEditMode = false;              // C로 토글되는 전체 “건축 편집 모드”
     private bool isMovingExisting = false;        // 기존 건물 이동 중인지
@@ -31,8 +31,10 @@ public class BuildPlacementController : MonoBehaviour
     private BuildingInstance movingBuilding;      // 실제로 이동 중인 건물
     private Vector3 moveStartPos;
     private Quaternion moveStartRot;
-    private string moveError;
+    private BuildError moveError;
     private bool moveCanBuild;
+
+    private BuildMessageResolver messageResolver;
 
     public bool IsEditMode => isEditMode;
     public BuildingInstance CurrentEditingTarget
@@ -49,6 +51,7 @@ public class BuildPlacementController : MonoBehaviour
     private void Awake()
     {
         I = this;
+        messageResolver = GetComponent<BuildMessageResolver>();
     }
 
     private void SetupPreview(GameObject preview)
@@ -478,7 +481,8 @@ public class BuildPlacementController : MonoBehaviour
 
         if (!lastCanBuild)
         {
-            ToastMessageUI.Instance?.Show($"설치 불가: {lastError}");
+            var msg = messageResolver.Resolve(lastError);
+            ToastMessageUI.Instance?.Show(msg);
             return;
         }
 
@@ -488,8 +492,14 @@ public class BuildPlacementController : MonoBehaviour
         if (Physics.Raycast(lastValidPos + Vector3.up * 5f, Vector3.down, out var hit, 20f, groundMask))
             spawnPos = hit.point;
 
-        bool built = BuildManager.I.TryBuild(currentArc.arcId, spawnPos, spawnRot);
-        if (built)
+        bool built = BuildManager.I.TryBuild(currentArc.arcId, spawnPos, spawnRot, out var error);
+        
+        if (!built)
+        {
+            var msg = messageResolver.Resolve(error);
+            ToastMessageUI.Instance?.Show(msg);
+            return;
+        }
             CancelPlacement();
     }
 

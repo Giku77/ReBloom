@@ -1,4 +1,4 @@
 public interface IBuildRule
 {
-    bool Validate(ArcContext ctx, out string errorCode);
+    bool Validate(ArcContext ctx, out BuildError errorCode);
 }
