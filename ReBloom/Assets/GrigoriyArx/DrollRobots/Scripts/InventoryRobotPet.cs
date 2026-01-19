@@ -220,6 +220,8 @@ public class InventoryRobotPet : MonoBehaviour
     {
         if (Keyboard.current.lKey.wasPressedThisFrame)
         {
+            if (UIManager.Instance != null && UIManager.Instance.IsBlockedInput)
+                return;
             ToggleFlashlight();
         }
     }

@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using System.Text;
+using UnityEngine.EventSystems;
 
 public class ChatUI : MonoBehaviour
 {
@@ -29,6 +30,7 @@ public class ChatUI : MonoBehaviour
     private InputAction toggleAction;
 
     private Coroutine bindCo;
+    private Coroutine focusCo;
 
     private void Awake()
     {
@@ -152,6 +154,12 @@ public class ChatUI : MonoBehaviour
     {
         isChatMode = enabled;
 
+        if (focusCo != null)
+        {
+            StopCoroutine(focusCo);
+            focusCo = null;
+        }
+
         UIManager.Instance?.SetBlockingInput(isChatMode);
 
         if (isChatMode)
@@ -166,7 +174,7 @@ public class ChatUI : MonoBehaviour
             if (inputField != null)
             {
                 // 강제로 포커스 설정
-                StartCoroutine(FocusInputField());
+                focusCo = StartCoroutine(FocusInputField());
             }
 
             Debug.Log("[ChatUI] 채팅 모드 활성화 - 마우스 표시");
@@ -184,6 +192,9 @@ public class ChatUI : MonoBehaviour
             {
                 inputField.DeactivateInputField();
             }
+
+            if (EventSystem.current != null)
+                EventSystem.current.SetSelectedGameObject(null);
 
             Debug.Log("[ChatUI] 게임 모드로 복귀 - 마우스 숨김");
         }
