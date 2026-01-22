@@ -6,17 +6,20 @@ public class ServerAuthoritativeAnimBridge : NetworkBehaviour
     [SerializeField] private PlayerAnimation anim;
     [SerializeField] private Rigidbody rb;
 
-    // 오너 -> 서버로 보낼 때
+    [SerializeField] private float sendInterval = 0.05f; // 20Hz
+    [SerializeField] private float clientSmooth = 18f;   // 클라에서 보간 강하게
+    [SerializeField] private float minDeltaToSend = 0.005f;
+
+    private float _nextSendTime;
     private float _lastSent;
 
-    // 서버가 최종적으로 애니에 넣을 값
-    private float _serverTargetSpeed;
-    private float _serverSmoothedSpeed;
+    // 서버가 쓰고 모두가 읽는 목표 speed
+    private NetworkVariable<float> _serverTargetSpeed =
+        new NetworkVariable<float>(0f,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server);
 
-    [SerializeField] private float sendInterval = 0.05f;   // 20Hz
-    private float _nextSendTime;
-
-    [SerializeField] private float serverSmooth = 12f;     // 클수록 더 빠르게 따라감
+    private float _displaySpeed; // 각 클라가 최종 표시할 보간 값
 
     private void Awake()
     {
@@ -26,7 +29,7 @@ public class ServerAuthoritativeAnimBridge : NetworkBehaviour
 
     private void Update()
     {
-        // ===== 오너에서 speed 계산/전송 =====
+        // 오너: 로컬 즉시 반영(예측) + 서버에 주기적으로 제출
         if (IsOwner)
         {
             float speed = 0f;
@@ -37,33 +40,36 @@ public class ServerAuthoritativeAnimBridge : NetworkBehaviour
                 speed = v.magnitude;
             }
 
-            // 전송 주기 제한(프레임마다 보내지 않기)
+            // 로컬 즉시 적용(체감 부드러움 ↑)
+            // (오너는 서버값을 기다리지 말고 바로 애니 돌려도 됨)
+            anim?.SetSpeed(speed);
+
             if (Time.unscaledTime >= _nextSendTime)
             {
                 _nextSendTime = Time.unscaledTime + sendInterval;
 
-                // 아주 작은 변화는 무시(선택)
-                if (Mathf.Abs(speed - _lastSent) >= 0.02f)
+                if (Mathf.Abs(speed - _lastSent) >= minDeltaToSend)
                 {
                     _lastSent = speed;
 
-                    if (IsServer) _serverTargetSpeed = speed;
+                    if (IsServer) _serverTargetSpeed.Value = speed;
                     else SubmitSpeedServerRpc(speed);
                 }
             }
         }
 
-        // ===== 서버에서 애니 값 스무딩 =====
-        if (IsServer)
+        // 비오너(원격 프록시 포함): 서버 목표값을 로컬에서 매 프레임 스무딩
+        if (!IsOwner)
         {
-            _serverSmoothedSpeed = Mathf.Lerp(_serverSmoothedSpeed, _serverTargetSpeed, Time.deltaTime * serverSmooth);
-            anim?.SetSpeed(_serverSmoothedSpeed);
+            _displaySpeed = Mathf.Lerp(_displaySpeed, _serverTargetSpeed.Value, Time.deltaTime * clientSmooth);
+            anim?.SetSpeed(_displaySpeed);
         }
     }
 
+    // 여기서는 "서버 목표값만 갱신"
     [ServerRpc(Delivery = RpcDelivery.Unreliable)]
     private void SubmitSpeedServerRpc(float speed)
     {
-        _serverTargetSpeed = speed;
+        _serverTargetSpeed.Value = speed;
     }
 }

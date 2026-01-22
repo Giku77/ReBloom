@@ -27,47 +27,14 @@ public class ChatUI : MonoBehaviour
     [SerializeField] private Color playerMessageColor = Color.white;
 
     private bool isChatMode = false;
-    private InputAction toggleAction;
 
     private Coroutine bindCo;
     private Coroutine focusCo;
 
-    private void Awake()
-    {
-        Debug.Log("[ChatUI] Awake 시작");
-        
-        // InputAction 설정
-        if (chatToggleAction != null)
-        {
-            toggleAction = chatToggleAction.action;
-            Debug.Log("[ChatUI] InputActionReference 사용");
-        }
-        else if (createDefaultAction)
-        {
-            // 기본 액션 생성 (Enter 키)
-            toggleAction = new InputAction("ChatToggle", binding: "<Keyboard>/enter");
-            Debug.Log("[ChatUI] 기본 Enter 키 액션 생성됨");
-        }
-        else
-        {
-            Debug.LogWarning("[ChatUI] InputAction이 설정되지 않았습니다!");
-        }
-    }
 
     private void OnEnable()
     {
         Debug.Log("[ChatUI] OnEnable 시작");
-        
-        if (toggleAction != null)
-        {
-            toggleAction.Enable();
-            toggleAction.performed += OnChatToggle;
-            Debug.Log($"[ChatUI] InputAction 활성화됨 - Binding: {toggleAction.bindings[0].effectivePath}");
-        }
-        else
-        {
-            Debug.LogError("[ChatUI] toggleAction이 null입니다!");
-        }
 
         if (ChatManager.I != null)
         {
@@ -90,12 +57,6 @@ public class ChatUI : MonoBehaviour
     private void OnDisable()
     {
         if (bindCo != null) StopCoroutine(bindCo);
-
-        if (toggleAction != null)
-        {
-            toggleAction.performed -= OnChatToggle;
-            toggleAction.Disable();
-        }
 
         if (ChatManager.I != null)
         {
@@ -121,22 +82,53 @@ public class ChatUI : MonoBehaviour
 
     private void Update()
     {
-        // 백업: 레거시 Input으로도 체크 (InputAction이 안 먹히는 경우 대비)
-        if (Keyboard.current != null)
+        if (Keyboard.current == null) return;
+
+        bool enter =
+            Keyboard.current.enterKey.wasPressedThisFrame ||
+            Keyboard.current.numpadEnterKey.wasPressedThisFrame;
+
+        if (!enter) return;
+
+        // 채팅모드면: 입력필드 기준으로 처리 (빈값이면 닫기)
+        if (isChatMode)
         {
-            if (!isChatMode && (Keyboard.current.enterKey.wasPressedThisFrame || Keyboard.current.numpadEnterKey.wasPressedThisFrame))
+            if (inputField == null) { SetChatMode(false); return; }
+
+            var text = inputField.text;
+
+            if (string.IsNullOrWhiteSpace(text))
             {
-                SetChatMode(true);
+                SetChatMode(false);
+            }
+            else
+            {
+                OnSendClicked();
             }
 
-            
-            // ESC 키로 채팅 모드 끄기
-            // if (isChatMode && Keyboard.current.escapeKey.wasPressedThisFrame)
-            // {
-            //     SetChatMode(false);
-            // }
+            return;
+        }
+
+        // 채팅모드가 아니면: 채팅모드 켜기
+        SetChatMode(true);
+    }
+
+    private void LateUpdate()
+    {
+        if (!isChatMode) return;
+        if (inputField == null) return;
+        if (EventSystem.current == null) return;
+
+        // 현재 선택된 오브젝트가 inputField가 아니면 포커스 복구
+        if (EventSystem.current.currentSelectedGameObject != inputField.gameObject)
+        {
+            // 설정 UI가 열려있는 중에는 복구하면 안 될 수 있으니 조건 추가 가능
+            inputField.ActivateInputField();
+            inputField.Select();
         }
     }
+
+
 
     private void OnChatToggle(InputAction.CallbackContext context)
     {
@@ -299,11 +291,6 @@ public class ChatUI : MonoBehaviour
         if (inputField != null)
         {
             inputField.onSubmit.RemoveListener(OnInputSubmit);
-        }
-
-        if (toggleAction != null && createDefaultAction)
-        {
-            toggleAction.Dispose();
         }
     }
 }

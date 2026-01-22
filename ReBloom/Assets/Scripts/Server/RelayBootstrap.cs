@@ -1,4 +1,5 @@
-﻿using Unity.Netcode;
+﻿using TMPro;
+using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
@@ -20,6 +21,7 @@ public class RelayBootstrap : MonoBehaviour
     [SerializeField] private TMPro.TMP_InputField NameTagInput;
     [SerializeField] private Button JoinConfirmButton;
     [SerializeField] private Button JoinCancelButton;
+    [SerializeField] private float connectTimeout = 10f;
 
     private async void Awake()
     {
@@ -66,10 +68,11 @@ public class RelayBootstrap : MonoBehaviour
                 string joinCode = JoinCodeInput ? JoinCodeInput.text : "";
                 StartClientRelay(joinCode);
                 if (JoinPanel) JoinPanel.SetActive(false);
+                if (ToastService.I != null) ToastService.I.Show("서버에 접속 중입니다...", 30000);
             });
     }
 
-    public async void StartHostRelay(int maxConnections = 3, string connectionType = "dtls")
+    public async void StartHostRelay(int maxConnections = 10, string connectionType = "dtls")
     {
         var alloc = await RelayService.Instance.CreateAllocationAsync(maxConnections);
         var joinCode = await RelayService.Instance.GetJoinCodeAsync(alloc.AllocationId);
@@ -82,15 +85,43 @@ public class RelayBootstrap : MonoBehaviour
         nm.SceneManager.LoadScene("LoadingScene", LoadSceneMode.Single);
     }
 
+
     public async void StartClientRelay(string joinCode, string connectionType = "dtls")
     {
-        var joinAlloc = await RelayService.Instance.JoinAllocationAsync(joinCode);
+        try
+        {
+            var joinAlloc = await RelayService.Instance.JoinAllocationAsync(joinCode);
+            utp.SetRelayServerData(AllocationUtils.ToRelayServerData(joinAlloc, connectionType));
 
-        utp.SetRelayServerData(AllocationUtils.ToRelayServerData(joinAlloc, connectionType));
+            if (!nm.StartClient())
+            {
+                FailJoin("클라이언트 시작 실패");
+                return;
+            }
 
-        nm.StartClient();
-        Debug.Log($"[Net] After StartClient: IsClient={nm.IsClient}, IsConnectedClient={nm.IsConnectedClient}, IsListening={nm.IsListening}");
+            nm.StartClient();
+
+            float end = Time.unscaledTime + connectTimeout;
+            while (Time.unscaledTime < end && !nm.IsConnectedClient)
+                await System.Threading.Tasks.Task.Yield();
+
+            if (!nm.IsConnectedClient)
+            {
+                FailJoin("서버 접속 시간 초과");
+                nm.Shutdown();
+            }
+        }
+        catch (RelayServiceException e)
+        {
+            // 조인코드 잘못됨 / 릴레이 오류 등
+            FailJoin($"참여 실패: {e.Reason}");
+        }
+        catch (System.Exception e)
+        {
+            FailJoin($"참여 실패: {e.Message}");
+        }
     }
+
 
     private void SetupApproval()
     {
@@ -124,12 +155,22 @@ public class RelayBootstrap : MonoBehaviour
 
     private void OnClientConnected(ulong clientId)
     {
-        Debug.Log($"[Net] ClientConnected: {clientId} | IsHost={NetworkManager.Singleton.IsHost} IsServer={NetworkManager.Singleton.IsServer} IsClient={NetworkManager.Singleton.IsClient}");
+        Debug.Log($"[Net] ClientConnected: {clientId}");
     }
 
     private void OnClientDisconnected(ulong clientId)
     {
-        Debug.LogWarning($"[Net] ClientDisconnected: {clientId} | IsHost={NetworkManager.Singleton.IsHost} IsServer={NetworkManager.Singleton.IsServer} IsClient={NetworkManager.Singleton.IsClient}");
+        Debug.LogWarning($"[Net] ClientDisconnected: {clientId}");
     }
+
+    private void FailJoin(string msg)
+    {
+        if (ToastService.I != null)
+            ToastService.I.Show(msg);
+
+        Debug.LogError($"[Net] {msg}");
+    }
+
+
 
 }

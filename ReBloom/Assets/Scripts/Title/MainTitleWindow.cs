@@ -10,7 +10,6 @@ using UnityEngine.UI;
 
 public class MainTitleWindow : Window
 {
-    [SerializeField] private TextMeshProUGUI toastMessage;
     [SerializeField] private Button newGameButton;
     [SerializeField] private Button continueGameButton;
     [SerializeField] private Button settingButton;
@@ -65,7 +64,6 @@ public class MainTitleWindow : Window
 
     private void Start()
     {
-        toastMessage.gameObject.SetActive(false);
 
         SoundManager.I.PlayTitleBGM();
 
@@ -161,19 +159,7 @@ public class MainTitleWindow : Window
         cts?.Cancel();
         cts = new CancellationTokenSource();
 
-        toastMessage.gameObject.SetActive(true);
-
-        toastMessage.text = "저장 데이터가 없습니다.";
-
-        try
-        {
-            await UniTask.Delay(2000, cancellationToken: cts.Token);
-            toastMessage.gameObject.SetActive(false);
-        }
-        catch (OperationCanceledException)
-        {
-            Debug.Log("[MainTitleWindow] 메세지 안전하게 취소");
-        }
+        if (ToastService.I != null) ToastService.I.Show("저장 데이터가 없습니다.");
     }
 
     public void OnQuitButtonClicked()

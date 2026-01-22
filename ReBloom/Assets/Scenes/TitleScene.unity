@@ -7805,7 +7805,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 90fb9016475d8b246a4ff58045ff8d83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  toastMessage: {fileID: 1811955570}
   newGameButton: {fileID: 1639623827}
   continueGameButton: {fileID: 271078047}
   settingButton: {fileID: 623814514}
@@ -9428,6 +9427,7 @@ MonoBehaviour:
   NameTagInput: {fileID: 1315783711}
   JoinConfirmButton: {fileID: 8083293194892571355}
   JoinCancelButton: {fileID: 8609432888249045733}
+  connectTimeout: 30
 --- !u!4 &1419772802
 Transform:
   m_ObjectHideFlags: 0
@@ -11531,6 +11531,7 @@ GameObject:
   - component: {fileID: 1811955569}
   - component: {fileID: 1811955571}
   - component: {fileID: 1811955570}
+  - component: {fileID: 1811955572}
   m_Layer: 5
   m_Name: ToastMassage
   m_TagString: Untagged
@@ -11656,6 +11657,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1811955568}
   m_CullTransparentMesh: 1
+--- !u!114 &1811955572
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1811955568}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eee2acdb9ea2d344bb233a45764e2707, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  toastText: {fileID: 1811955570}
+  defaultMs: 2000
 --- !u!1 &1817551378
 GameObject:
   m_ObjectHideFlags: 0
