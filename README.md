@@ -31,21 +31,26 @@
 - **그리드 기반 모듈형 건축**
   - 프리뷰/스냅/회전/편집(이동·삭제)까지 일관된 배치 UX
   - “왜 설치가 안 되는지”를 에러 코드로 즉시 안내(토스트/피드백)
-  - 🔗 Code: [Build System](./Assets/Scripts/Build/)
+  - 🔗 Code: [Build System](./ReBloom/Assets/Scripts/Build/)
 
 - **상태 기반 농사 + 자동화(스프링클러/드론)**
   - Tick 기반 성장/수확, 대규모 밭에서도 스파이크를 억제하는 분산 처리
   - 저장 가능성 검증으로 유실 방지(수납 가능할 때만 확정)
-  - 🔗 Code: [Farm System](./Assets/Scripts/Farm/)
+  - 🔗 Code: [Farm System](./ReBloom/Assets/Scripts/Farm/)
 
 - **Local-First + Remote Sync(PlayFab) 세이브/로드**
   - 로컬 우선 로드로 빠른 체감, 최신본 기준 자동 동기화
   - 실패 시 Pending 업로드로 재시도/복구
-  - 🔗 Code: [Save/Load](./Assets/Scripts/SaveAndLoad/)
+  - 🔗 Code: [Save/Load](./ReBloom/Assets/Scripts/SaveAndLoad/)
 
 - **UI 프레임워크(입력/커서/모달/ESC 스택 중앙 정책)**
   - UI 충돌을 중앙에서 통합 제어(게임 입력 차단, 커서 모드, 닫힘 우선순위)
-  - 🔗 Code: [UI Manager](./Assets/Scripts/UIManager/)
+  - 🔗 Code: [UI Manager](./ReBloom/Assets/Scripts/UIManager/)
+
+- **데이터 드리븐 콘텐츠 파이프라인(BGDATA)**
+  - 테이블 기반 데이터 로딩 → 컬렉션 캐싱 후 런타임에서 조회/사용
+  - 밸런싱/콘텐츠 추가 시 코드 수정 최소화
+  - 🔗 Code: [DB Layer](./ReBloom/Assets/Scripts/Quest/DB/)
 
 ---
 
