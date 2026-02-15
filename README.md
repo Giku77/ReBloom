@@ -1,74 +1,77 @@
 # 🌱 Re:Bloom
+> **오염된 폐허 도시를 ‘생존 거점’으로 되살리는 크로스플랫폼(PC/모바일) 생존·크래프팅 게임**
 
-> **환경오염으로 황폐해진 폐허 도시를 다시 푸르게**  
-> 포스트 아포칼립스 생존 크래프팅 게임
+![Key Art](docs/images/keyart.png)
 
----
-
-## 📖 게임 소개
-
-환경오염으로 황폐해진 **폐허 도시**에서 식물을 키우고 과거의 기술을 복구하며 생존 거점을 녹지화해 나가는 생존 크래프팅 게임입니다.
-
-| 항목 | 내용 |
-|------|------|
-| **장르** | 생존 크래프팅 |
-| **플랫폼** | Windows, Android |
-| **엔진** | Unity 6.0 |
-| **개발** | 7인 팀 프로젝트 |
+## 🔗 Links
+- 🎥 [**Gameplay Video**](https://youtu.be/CT6LHDLgIzk)
+- 📚 [**Tech Docs**](https://giku77.github.io/rebloom-tech-notes/)
 
 ---
 
-## ✨ 핵심 특징
-
-### 🔄 탐험지 ↔ 생존 거점 루프
-탐험지에서 자원을 수집하고, 생존 거점에서 농사와 건축을 진행하는 반복 플레이
-
-### 🏗️ 그리드 기반 모듈형 건축
-**그리드 시스템** 기반으로 전략적인 거점 구축
-
-### 🌿 거점 녹지화
-황폐한 거점을 점차 푸른 공간으로 복원하며 시각적 성장 체감
+## 📌 Overview
+- **Genre**: Survival / Crafting / Base-building  
+- **Engine**: Unity (URP)  
+- **Platform**: Windows, Android  
+- **Team**: 7 (Dev 3 / Design 4)  
+- **Duration**: 8 weeks  
 
 ---
 
-## 🎮 게임플레이
-
-### 초반: 생존
-- 폐허 탐험 및 자원 수집
-- 기초 전력 확보
-- 임시 거점 구축
-
-### 중반: 확장
-- 재배 시스템 구축
-- 건축물 강화
-- 거점 녹지화 시작
-
-### 후반: 자동화
-- 자동 수확 로봇 제작
-- 완전 자동화 시스템
-- 도시 전력 복원
+## 🎮 Core Loop
+1. **Explore**: 폐허 탐험 → 자원 수집  
+2. **Build**: 그리드 기반 거점 확장 / 시설 배치  
+3. **Grow**: 농사 & 자동화 → 안정적 생산  
+4. **Restore**: 거점 녹지화(진행/성장 체감) → 엔딩 조건 달성
 
 ---
 
-## 🏆 엔딩 조건
+## ✨ Key Features
 
-1. 최고 등급 건축물 건설
-2. 자동 농사 로봇 제작
-3. 생존 거점 녹지화 **100% 달성**
+- **그리드 기반 모듈형 건축**
+  - 프리뷰/스냅/회전/편집(이동·삭제)까지 일관된 배치 UX
+  - “왜 설치가 안 되는지”를 에러 코드로 즉시 안내(토스트/피드백)
+  - 🔗 Code: [Build System](./Assets/Scripts/Build/)
+
+- **상태 기반 농사 + 자동화(스프링클러/드론)**
+  - Tick 기반 성장/수확, 대규모 밭에서도 스파이크를 억제하는 분산 처리
+  - 저장 가능성 검증으로 유실 방지(수납 가능할 때만 확정)
+  - 🔗 Code: [Farm System](./Assets/Scripts/Farm/)
+
+- **Local-First + Remote Sync(PlayFab) 세이브/로드**
+  - 로컬 우선 로드로 빠른 체감, 최신본 기준 자동 동기화
+  - 실패 시 Pending 업로드로 재시도/복구
+  - 🔗 Code: [Save/Load](./Assets/Scripts/SaveAndLoad/)
+
+- **UI 프레임워크(입력/커서/모달/ESC 스택 중앙 정책)**
+  - UI 충돌을 중앙에서 통합 제어(게임 입력 차단, 커서 모드, 닫힘 우선순위)
+  - 🔗 Code: [UI Manager](./Assets/Scripts/UIManager/)
 
 ---
 
-## 🛠️ 기술 스택
-
-- **Unity 6.0** - 게임 엔진
-- **C#** - 프로그래밍
-- **Linear** - 이슈 관리
-- **Git/GitHub** - 버전 관리
+## 📈 Results
+- **Cross-platform 튜닝**: PC/Mobile 품질 프리셋 분리로 안정적 플레이 경험 확보
+- **Performance**: 메모리/스파이크 개선 및 프로파일링 기반 최적화
+- **Ops**: 자동 리포팅/문서화로 개발 리드타임 단축
 
 ---
 
-<div align="center">
+## 🛠️ Tech Stack
+- C#, Unity(URP)
+- PlayFab(Cloud Save/Storage)
+- Git / Git LFS
+- Linear, Notion, (선택) 자동 문서화 파이프라인
 
-**🌱 Re:Bloom 🌱**  
+---
 
-</div>
+## ▶️ How to Run
+1. Unity 버전: 6000.0.60f1
+2. `ReBloom/` 폴더를 Unity로 열기
+3. `TitleScene` 실행
+
+---
+
+## 📷 Media
+![Gameplay1](docs/images/gameplay_01.gif)
+![Gameplay2](docs/images/gameplay_02.gif)
+![Gameplay3](docs/images/gameplay_03.gif)
