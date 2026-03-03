@@ -200,7 +200,25 @@ public class NetworkWorldItem : NetworkBehaviour
         }
 
         int addedCount = player.Inventory.AddItemFromWorld(itemData.itemID, quantity.Value);
-        Debug.Log($"[Pickup] addedCount={addedCount}");
+        int overflow = quantity.Value - addedCount;
+
+        if (addedCount > 0 && NetworkQuestManager.I != null)
+        {
+            NetworkQuestManager.I.AddCollectProgressServer(itemData.itemID, addedCount);
+        }
+
+        // 습득한 클라이언트에게만 UI 피드백
+        if (addedCount > 0)
+        {
+            ShowPickupFeedbackRpc(
+                itemData.itemID,
+                addedCount,
+                overflow,
+                RpcTarget.Single(clientId, RpcTargetUse.Temp)
+            );
+        }
+
+        Debug.Log($"[Pickup] addedCount={addedCount}, overflow={overflow}");
 
         if (addedCount <= 0)
         {
@@ -217,5 +235,14 @@ public class NetworkWorldItem : NetworkBehaviour
 
         Debug.Log("[Pickup] 전량 습득 성공, Despawn");
         NetworkObject.Despawn(true);
+    }
+
+    [Rpc(SendTo.SpecifiedInParams)]
+    private void ShowPickupFeedbackRpc(int itemId, int added, int overflow, RpcParams rpcParams = default)
+    {
+        var inventory = FindFirstObjectByType<GameInventory>();
+        if (inventory == null) return;
+
+        inventory.NotifyPickupFeedback(itemId, added, overflow);
     }
 }

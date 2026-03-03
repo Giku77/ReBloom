@@ -89,8 +89,8 @@ public class ItemSpawner : MonoBehaviour
         var netItem = obj.GetComponent<NetworkWorldItem>();
         var netObj = obj.GetComponent<NetworkObject>();
 
-        netItem.InitializeServer(itemData, quantity, persistent);
         netObj.Spawn();
+        netItem.InitializeServer(itemData, quantity, persistent);
 
         return netItem;
     }
@@ -416,11 +416,11 @@ public class ItemSpawner : MonoBehaviour
             return null;
         }
 
-        // Spawn 전에 네트워크 변수 세팅
-        netItem.InitializeServer(itemData, quantity, persistent);
-
         // 실제 네트워크 spawn
         netObj.Spawn();
+
+        netItem.InitializeServer(itemData, quantity, persistent);
+
 
         if (applyDropPhysics && itemObj.TryGetComponent<Rigidbody>(out var rb))
         {

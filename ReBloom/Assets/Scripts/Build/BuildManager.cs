@@ -518,7 +518,7 @@ public class BuildManager : MonoBehaviour
         if (p.TryGetComponent<InteractionHighlight>(out var highlight))
           highlight.promptFormat = $"상호작용 [E] : {arc.name}";
         SetupTemporaryPassThrough(p);
-        QuestManager.I?.NotifyBuildingBuilt(arc.arcId);
+        NetworkQuestManager.I?.ReportCraft(arc.arcId);
         AutoSaveService.I?.RequestSave("Build");
         return true;
     }

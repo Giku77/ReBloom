@@ -157,7 +157,12 @@ public class GatherObject : MonoBehaviour, IInteractable
                 Debug.Log($"[GatherObject] {drops.item.itemName} {drops.amount}개 획득");
                 isAvailable = false;
                 timer = 0f;
-                QuestManager.I?.NotifyInteracted(gatherObjectID);
+
+                // 1) 상호작용 퀘스트 진행
+                NetworkQuestManager.I?.ReportInteract(gatherObjectID, 1);
+
+                // 2) 수집 퀘스트도 공용으로 올리고 싶으면 같이
+                NetworkQuestManager.I?.ReportCollect(drops.item.itemID, drops.amount);
             }
             else
             {
@@ -186,7 +191,7 @@ public class GatherObject : MonoBehaviour, IInteractable
 
            if (gatherObjectID == 910020 && fence != null)
             {
-                QuestManager.I?.NotifyInteracted(gatherObjectID);
+                //QuestManager.I?.NotifyInteracted(gatherObjectID);
                 ToastMessageUI.Instance?.Show("군수공장의 문이 열렸습니다.");
 
                 var cam = Camera.main ? Camera.main.GetComponent<ThirdPersonCamera>() : null;

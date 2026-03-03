@@ -104,6 +104,26 @@ public class GameInventory : MonoBehaviour, IGameInventory
         OnInventoryBound?.Invoke();  
         OnInventoryChanged?.Invoke();
     }
+
+    public void NotifyPickupFeedback(int itemID, int added, int overflow)
+    {
+        if (added > 0)
+        {
+            var item = ItemDatabase.I.GetItem(itemID);
+            if (item != null)
+            {
+                uiService?.ShowItemAcquired(item, added);
+                InventroyEventSystem.ItemAcquiredTier(item.tier);
+            }
+        }
+
+        if (overflow > 0)
+        {
+            robotPet?.PlayPoppyVoice(80052);
+            uiService?.ShowWarning($"인벤토리가 가득 차서 {overflow}개는 드랍되었습니다.");
+            InventroyEventSystem.InventoryFull();
+        }
+    }
     private void OnEnable()
     {
         NetworkPlayerOwnerGate.OnLocalPlayerSpawned += BindLocalPlayer;
