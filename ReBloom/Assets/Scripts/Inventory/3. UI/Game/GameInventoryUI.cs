@@ -16,9 +16,6 @@ public class GameInventoryUI : UIBase
     [Header("Controller Reference")]
     [SerializeField] private GameInventory gameInventory;
 
-    [Header("Data Reference")]
-    [SerializeField] private InventoryItemData inventoryData;
-
     [Header("UI References")]
     [SerializeField] private GameObject inventoryUIRoot;
     //[SerializeField] private TextMeshProUGUI messageText;
@@ -59,6 +56,8 @@ public class GameInventoryUI : UIBase
     #region Unity 생명주기
     protected override void Awake()
     {
+        base.Awake();
+
         InitializeTabButtons();
         questUI = FindFirstObjectByType<QuestUI>();
 
@@ -75,30 +74,28 @@ public class GameInventoryUI : UIBase
 
     private void Start()
     {
-        if (inventoryData == null)
+        if (gameInventory == null)
         {
-            Debug.LogError("[GameInventoryUI] InventoryData가 할당되지 않았습니다!", this);
+            Debug.LogError("[GameInventoryUI] gameInventory가 할당되지 않았습니다!", this);
             enabled = false;
             return;
         }
 
         DragDropManager.OnDragFeedback += HandleDragFeedback;
         DragDropManager.OnDragFeedback += HandleTrashFeedback;
-        base.Awake();
-        ////// 초기화
-        //inventoryData.Initialize();
-        //CreateEmptySlots();
-        //RefreshUI();
-        // 시작 시 인벤토리 닫기
-        //inventoryUIRoot.SetActive(false);
     }
 
     private void OnEnable()
     {
-        //인벤토리 UI가 열릴 때 정적 이벤트 발생
         InventroyEventSystem.InventoryOpened();
         removeGradientGameObject.SetActive(false);
-        inventoryData.OnContainerChanged += RefreshUI;
+
+        if (gameInventory != null)
+        {
+            gameInventory.OnInventoryChanged += RefreshUI;
+            gameInventory.OnInventoryBound += RefreshUI;
+        }
+
         EventSystem currentEventSystem = EventSystem.current;
         if (currentEventSystem == null)
         {
@@ -117,13 +114,17 @@ public class GameInventoryUI : UIBase
                 return true;
             });
         }
+
+        RefreshUI();
     }
 
     private void OnDisable()
     {
-        inventoryData.OnContainerChanged -= RefreshUI;
-
-        //인벤토리 UI가 닫힐 때 정적 이벤트 발생
+        if (gameInventory != null)
+        {
+            gameInventory.OnInventoryChanged -= RefreshUI;
+            gameInventory.OnInventoryBound -= RefreshUI;
+        }
 
         InventroyEventSystem.InventoryClosed();
     }
@@ -207,9 +208,14 @@ public class GameInventoryUI : UIBase
             return;
         }
 
-        // ===== 1단계: 현재 필요한 총 슬롯 개수 계산 =====
-        int baseSlots = inventoryData.SlotCount;
-        int lockSlots = inventoryData.LockedSlotCount;
+        if (gameInventory == null)
+        {
+            Debug.LogWarning("[GameInventoryUI] gameInventory가 없어 슬롯 생성 불가");
+            return;
+        }
+
+        int baseSlots = gameInventory.SlotCount;
+        int lockSlots = gameInventory.LockedSlotCount;
         int totalRequiredSlots = baseSlots + lockSlots;
 
         //Debug.Log($"[GameInventoryUI] 슬롯 체크 - Tier: {inventoryData.InventoryTier}, " + $"기본: {baseSlots}, 잠금: {lockSlots}, 총: {totalRequiredSlots}");
@@ -334,13 +340,18 @@ public class GameInventoryUI : UIBase
     /// </summary>
     public void RefreshUI()
     {
+        if (gameInventory == null)
+        {
+            Debug.LogWarning("[GameInventoryUI] gameInventory가 null이라 RefreshUI 중단");
+            return;
+        }
+
         CreateEmptySlots();
         ClearSlots();
 
-        var slots = inventoryData.GetAllSlots(); // Tier에 맞는 슬롯만
+        var slots = gameInventory.GetAllSlots();
 
-        // 인덱스 기반 배치
-        for (int i = 0; i < slots.Length; i++)
+        for (int i = 0; i < slots.Count; i++)
         {
             if (slots[i] != null && slots[i].itemID > 0)
             {
@@ -352,11 +363,8 @@ public class GameInventoryUI : UIBase
             }
         }
 
-        // 퀘스트 UI 갱신
         questUI?.Refresh();
         QuestManager.I?.PlayQuestCompleteAnimation();
-
-        //Debug.Log($"[GameInventoryUI] UI 갱신 완료 - Tier {inventoryData.InventoryTier}, 슬롯: {emptySlotList.Count}, 아이템: {slotIndex}");
     }
 
     private void ClearSlots()

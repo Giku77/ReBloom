@@ -91,9 +91,8 @@ public class PlayerController : MonoBehaviour
     // [SerializeField] private InventoryItemData inventory;
     public PlayerEquipManager playerEquip;
 
-    //LSY: 읽기 전용 인벤토리
-    [SerializeField] GameInventory inventory;
-    public GameInventory Inventory => inventory;
+    [SerializeField] private PlayerInventoryRuntime inventory;
+    public PlayerInventoryRuntime Inventory => inventory;
 
     [Header("Jump Setting")]
     [SerializeField] private Transform groundCheck;
@@ -219,7 +218,10 @@ public class PlayerController : MonoBehaviour
         Anim = GetComponent<PlayerAnimation>();
         playerStats = GetComponent<PlayerStats>();
         playerEquip = GetComponent<PlayerEquipManager>();
-        inventory = FindFirstObjectByType<GameInventory>();
+
+
+        if (inventory == null)
+            inventory = GetComponent<PlayerInventoryRuntime>();
     }
 
     private void Start()
@@ -245,16 +247,16 @@ public class PlayerController : MonoBehaviour
     /// <param name="slotType">확장할 인벤토리 타입</param>
     /// <param name="targetTier">목표 Tier (1, 2, 3)</param>
     /// 
-    public bool TryExpandInventoryWithChip(int tier)
-    {
-        if (Inventory == null)
-        {
-            Debug.LogError("[PlayerController] Inventory 없음");
-            return false;
-        }
+    //public bool TryExpandInventoryWithChip(int tier)
+    //{
+    //    if (Inventory == null)
+    //    {
+    //        Debug.LogError("[PlayerController] Inventory 없음");
+    //        return false;
+    //    }
 
-        return Inventory.TryExpandWithChip(tier);
-    }
+    //    return Inventory.TryExpandWithChip(tier);
+    //}
     //public bool ExpandInventory(int targetTier)
     //{
     //    if (Inventory == null)

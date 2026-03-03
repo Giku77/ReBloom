@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Pool;
@@ -31,6 +32,12 @@ public class ItemSpawner : MonoBehaviour
 
     // 디버그용 통계
     public PoolStatistics Statistics { get; private set; } = new PoolStatistics();
+
+    private bool IsNetworkSession =>
+    NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
+
+    private bool CanServerSpawnNetworkItem =>
+        IsNetworkSession && NetworkManager.Singleton.IsServer;
 
     #region 단일 아이템 스폰
 
@@ -73,6 +80,21 @@ public class ItemSpawner : MonoBehaviour
     //    return null;
     //}
 
+    public NetworkWorldItem SpawnNetworkItemInWorld(ItemBase itemData, Vector3 position, int quantity, bool persistent)
+    {
+        if (!NetworkManager.Singleton.IsServer) return null;
+
+        GameObject obj = Instantiate(itemData.itemPrefab, position, Quaternion.identity, itemParent);
+
+        var netItem = obj.GetComponent<NetworkWorldItem>();
+        var netObj = obj.GetComponent<NetworkObject>();
+
+        netItem.InitializeServer(itemData, quantity, persistent);
+        netObj.Spawn();
+
+        return netItem;
+    }
+
     public async UniTask PrewarmOneItemAsync(int itemID, int count, CancellationToken ct)
     {
         var item = ItemDatabase.I.GetItem(itemID);
@@ -99,36 +121,73 @@ public class ItemSpawner : MonoBehaviour
     {
         if (itemData == null)
         {
-            Debug.LogError($"[ItemSpawner] 아이템 데이터가 null입니다!");
+            Debug.LogError("[ItemSpawner] 아이템 데이터가 null입니다!");
             return null;
         }
 
-        int itemID = itemData.itemID;
-
-        if (!itemPools.ContainsKey(itemID))
+        // 멀티플레이 + 서버(호스트 포함)면 네트워크 스폰 경로 사용
+        if (CanServerSpawnNetworkItem)
         {
-            bool success = await CreatePoolForItemAsync(itemData, ctx);
-
-            if (!success || !itemPools.ContainsKey(itemID))
-            {
-                Debug.LogError($"[ItemSpawner] Pool 생성 실패: {itemData.itemName}");
-                return await SpawnDefaultItem(position);  // 여전히 폴백은 유지
-            }
+            return await SpawnNetworkItemInWorld(
+                itemData,
+                position,
+                quantity: 1,
+                persistent: false,
+                applyDropPhysics: false,
+                ctx
+            );
         }
 
-        if (itemPools.TryGetValue(itemID, out ObjectPool<GameObject> pool))
+        // 멀티플레이 클라이언트는 직접 월드 스폰하면 안 됨
+        if (IsNetworkSession)
         {
-            GameObject itemObj = pool.Get();
-            itemObj.transform.position = position;
-            itemObj.transform.rotation = Quaternion.identity;
-
-            var worldItem = itemObj.GetComponent<WorldItem>();
-            worldItem?.Initialize(itemData);
-
-            return itemObj;
+            Debug.LogWarning("[ItemSpawner] 클라이언트는 직접 SpawnItemInWorld를 호출할 수 없습니다. 서버 RPC를 통해 요청해야 합니다.");
+            return null;
         }
 
-        return null;
+        // 싱글/로컬 경로
+        return await SpawnItemInWorldLocal(itemData, position, ctx);
+    }
+
+    public async UniTask<GameObject> SpawnPersistentItemInWorld(ItemBase itemData, Vector3 position, int quantity, CancellationToken ctx)
+    {
+        if (itemData == null)
+        {
+            Debug.LogError("[ItemSpawner] 아이템 데이터가 null입니다!");
+            return null;
+        }
+
+        if (CanServerSpawnNetworkItem)
+        {
+            return await SpawnNetworkItemInWorld(
+                itemData,
+                position,
+                quantity,
+                persistent: true,
+                applyDropPhysics: false,
+                ctx
+            );
+        }
+
+        if (IsNetworkSession)
+        {
+            Debug.LogWarning("[ItemSpawner] 클라이언트는 직접 영구 월드 아이템을 생성할 수 없습니다.");
+            return null;
+        }
+
+        GameObject itemObj;
+
+        if (quantity > 1)
+            itemObj = await DropItemWithQuantityLocal(itemData, position, quantity);
+        else
+            itemObj = await SpawnItemInWorldLocal(itemData, position, ctx);
+
+        if (itemObj != null && itemObj.TryGetComponent<WorldItem>(out var worldItem))
+        {
+            worldItem.SetPersistent(true);
+        }
+
+        return itemObj;
     }
 
 
@@ -232,24 +291,143 @@ public class ItemSpawner : MonoBehaviour
     /// </summary>
     public async UniTask<GameObject> DropItemWithQuantity(ItemBase itemData, Vector3 position, int quantity)
     {
-        GameObject itemObj = await SpawnItemInWorld(itemData, position, this.GetCancellationTokenOnDestroy());
+        if (itemData == null)
+        {
+            Debug.LogError("[ItemSpawner] 아이템 데이터가 null입니다!");
+            return null;
+        }
+
+        if (CanServerSpawnNetworkItem)
+        {
+            return await SpawnNetworkItemInWorld(
+                itemData,
+                position,
+                quantity,
+                persistent: false,
+                applyDropPhysics: true,
+                this.GetCancellationTokenOnDestroy()
+            );
+        }
+
+        if (IsNetworkSession)
+        {
+            Debug.LogWarning("[ItemSpawner] 멀티플레이 클라이언트는 직접 드랍 아이템을 생성할 수 없습니다. 서버 RPC가 필요합니다.");
+            return null;
+        }
+
+        return await DropItemWithQuantityLocal(itemData, position, quantity);
+    }
+
+    private async UniTask<GameObject> SpawnItemInWorldLocal(ItemBase itemData, Vector3 position, CancellationToken ctx)
+    {
+        int itemID = itemData.itemID;
+
+        if (!itemPools.ContainsKey(itemID))
+        {
+            bool success = await CreatePoolForItemAsync(itemData, ctx);
+
+            if (!success || !itemPools.ContainsKey(itemID))
+            {
+                Debug.LogError($"[ItemSpawner] Pool 생성 실패: {itemData.itemName}");
+                return await SpawnDefaultItem(position);
+            }
+        }
+
+        if (itemPools.TryGetValue(itemID, out ObjectPool<GameObject> pool))
+        {
+            GameObject itemObj = pool.Get();
+            itemObj.transform.position = position;
+            itemObj.transform.rotation = Quaternion.identity;
+
+            var worldItem = itemObj.GetComponent<WorldItem>();
+            worldItem?.Initialize(itemData);
+
+            return itemObj;
+        }
+
+        return null;
+    }
+
+    private async UniTask<GameObject> DropItemWithQuantityLocal(ItemBase itemData, Vector3 position, int quantity)
+    {
+        GameObject itemObj = await SpawnItemInWorldLocal(itemData, position, this.GetCancellationTokenOnDestroy());
 
         if (itemObj != null)
         {
-            // WorldItem에 수량 설정
-            var worldItem = itemObj.GetComponent<WorldItem>();
-            if (worldItem != null)
+            if (itemObj.TryGetComponent<WorldItem>(out var worldItem))
             {
                 worldItem.SetQuantity(quantity);
             }
 
-            // 물리 적용
             if (itemObj.TryGetComponent<Rigidbody>(out var rb))
             {
                 rb.isKinematic = false;
                 rb.useGravity = true;
                 rb.angularVelocity = UnityEngine.Random.insideUnitSphere * 2f;
             }
+        }
+
+        return itemObj;
+    }
+
+    private async UniTask<GameObject> SpawnNetworkItemInWorld(
+    ItemBase itemData,
+    Vector3 position,
+    int quantity,
+    bool persistent,
+    bool applyDropPhysics,
+    CancellationToken ctx)
+    {
+        if (!CanServerSpawnNetworkItem)
+        {
+            Debug.LogWarning("[ItemSpawner] SpawnNetworkItemInWorld는 서버에서만 호출해야 합니다.");
+            return null;
+        }
+
+        GameObject prefab = await LoadItemPrefabAsync(itemData, ctx);
+        if (prefab == null)
+        {
+            Debug.LogError($"[ItemSpawner] 네트워크 스폰용 프리팹 로드 실패: {itemData.itemName}");
+            return null;
+        }
+
+        if (!prefab.TryGetComponent<NetworkObject>(out _))
+        {
+            Debug.LogError($"[ItemSpawner] 프리팹에 NetworkObject가 없습니다: {prefab.name}");
+            return null;
+        }
+
+        if (!prefab.TryGetComponent<NetworkWorldItem>(out _))
+        {
+            Debug.LogError($"[ItemSpawner] 프리팹에 NetworkWorldItem이 없습니다: {prefab.name}");
+            return null;
+        }
+
+        GameObject itemObj = Instantiate(prefab, position, Quaternion.identity, itemParent);
+        itemObj.name = $"NetItem_{itemData.itemID}";
+
+        var netItem = itemObj.GetComponent<NetworkWorldItem>();
+        var netObj = itemObj.GetComponent<NetworkObject>();
+
+        if (netItem == null || netObj == null)
+        {
+            Debug.LogError("[ItemSpawner] NetworkWorldItem 또는 NetworkObject를 찾을 수 없습니다.");
+            Destroy(itemObj);
+            return null;
+        }
+
+        // Spawn 전에 네트워크 변수 세팅
+        netItem.InitializeServer(itemData, quantity, persistent);
+
+        // 실제 네트워크 spawn
+        netObj.Spawn();
+
+        if (applyDropPhysics && itemObj.TryGetComponent<Rigidbody>(out var rb))
+        {
+            rb.isKinematic = false;
+            rb.useGravity = true;
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = UnityEngine.Random.insideUnitSphere * 2f;
         }
 
         return itemObj;

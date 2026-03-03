@@ -47,12 +47,12 @@ public class QuestInput : MonoBehaviour
 
     private void Update()
     {
-    #if UNITY_EDITOR || DEVELOPMENT_BUILD
-        if (Keyboard.current != null && Keyboard.current.gKey.wasPressedThisFrame)
-        {
-            QuestManager.I?.DebugForceCompleteAndGoNext();
-        }
-    #endif
+    //#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    //    if (Keyboard.current != null && Keyboard.current.gKey.wasPressedThisFrame)
+    //    {
+    //        QuestManager.I?.DebugForceCompleteAndGoNext();
+    //    }
+    //#endif
     }
 
 

@@ -1,4 +1,4 @@
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
@@ -31,6 +31,8 @@ public class ChatUI : MonoBehaviour
     private Coroutine bindCo;
     private Coroutine focusCo;
 
+    private bool blockEnterUntilRelease = false;
+
 
     private void OnEnable()
     {
@@ -39,12 +41,15 @@ public class ChatUI : MonoBehaviour
         if (ChatManager.I != null)
         {
             ChatManager.I.Messages.OnListChanged += OnMessagesChanged;
+            Refresh();
         }
-        bindCo = StartCoroutine(BindChatManagerWhenReady());
-        Refresh();
+        else
+        {
+            bindCo = StartCoroutine(BindChatManagerWhenReady());
+        }
     }
 
-    
+
     private System.Collections.IEnumerator BindChatManagerWhenReady()
     {
         while (ChatManager.I == null)
@@ -84,33 +89,26 @@ public class ChatUI : MonoBehaviour
     {
         if (Keyboard.current == null) return;
 
-        bool enter =
+        bool enterPressed =
             Keyboard.current.enterKey.wasPressedThisFrame ||
             Keyboard.current.numpadEnterKey.wasPressedThisFrame;
 
-        if (!enter) return;
+        bool enterHeld =
+            Keyboard.current.enterKey.isPressed ||
+            Keyboard.current.numpadEnterKey.isPressed;
 
-        // 채팅모드면: 입력필드 기준으로 처리 (빈값이면 닫기)
-        if (isChatMode)
+        if (blockEnterUntilRelease)
         {
-            if (inputField == null) { SetChatMode(false); return; }
-
-            var text = inputField.text;
-
-            if (string.IsNullOrWhiteSpace(text))
-            {
-                SetChatMode(false);
-            }
-            else
-            {
-                OnSendClicked();
-            }
+            if (!enterHeld)
+                blockEnterUntilRelease = false;
 
             return;
         }
 
-        // 채팅모드가 아니면: 채팅모드 켜기
-        SetChatMode(true);
+        if (!isChatMode && enterPressed)
+        {
+            SetChatMode(true);
+        }
     }
 
     private void LateUpdate()
@@ -213,24 +211,29 @@ public class ChatUI : MonoBehaviour
     public void OnSendClicked()
     {
         if (ChatManager.I == null) return;
-        if (string.IsNullOrWhiteSpace(inputField.text)) return;
+        if (inputField == null) return;
 
-        ChatManager.I.TrySend(inputField.text);
-        inputField.text = "";
-        
-        // 메시지 전송 후 채팅 모드 종료
+        if (!string.IsNullOrWhiteSpace(inputField.text))
+        {
+            ChatManager.I.TrySend(inputField.text);
+            inputField.text = "";
+        }
+
         SetChatMode(false);
     }
 
     private void OnInputSubmit(string text)
     {
+        if (!isChatMode) return;
+
+        blockEnterUntilRelease = true;
+
         if (!string.IsNullOrWhiteSpace(text))
         {
             OnSendClicked();
         }
         else
         {
-            // 빈 메시지면 채팅 모드 종료
             SetChatMode(false);
         }
     }

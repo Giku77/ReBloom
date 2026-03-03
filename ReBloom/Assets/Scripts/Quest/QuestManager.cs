@@ -85,17 +85,24 @@ public class QuestManager : MonoBehaviour
 
     public void Init(QuestDB db, GameInventory inventory, StageDetector stageDetector)
     {
-        if (_inventory != null && _inventory.Container != null)
-            _inventory.Container.OnContainerChanged -= HandleInventoryChanged;
+        if (_inventory != null)
+        {
+            _inventory.OnInventoryBound -= BindInventoryEvents;
+            if (_inventory.Container != null)
+                _inventory.Container.OnContainerChanged -= HandleInventoryChanged;
+        }
 
         _db = db;
         _inventory = inventory;
         _stageDetector = stageDetector;
 
         if (_inventory != null)
-            _inventory.Container.OnContainerChanged += HandleInventoryChanged;
+        {
+            _inventory.OnInventoryBound += BindInventoryEvents;
+            BindInventoryEvents(); // 이미 바인딩된 상태면 즉시 연결
+        }
 
-        foreach (var kv in db.GetAll())   
+        foreach (var kv in db.GetAll())
         {
             if (kv.Value.formerQuestId == 0)
             {
@@ -109,7 +116,17 @@ public class QuestManager : MonoBehaviour
             ResearchManager.I.OnGreeningChanged += HandleGreeningChanged;
 
         SyncEndingGoalsWithWorld(_current);
+    }
 
+    private void BindInventoryEvents()
+    {
+        if (_inventory == null || _inventory.Container == null)
+            return;
+
+        _inventory.Container.OnContainerChanged -= HandleInventoryChanged;
+        _inventory.Container.OnContainerChanged += HandleInventoryChanged;
+
+        Debug.Log("[QuestManager] Inventory OnContainerChanged 연결 완료");
     }
 
     private void HandleInventoryChanged()
@@ -155,8 +172,13 @@ public class QuestManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (_inventory != null && _inventory.Container != null)
-            _inventory.Container.OnContainerChanged -= HandleInventoryChanged;
+        if (_inventory != null)
+        {
+            _inventory.OnInventoryBound -= BindInventoryEvents;
+
+            if (_inventory.Container != null)
+                _inventory.Container.OnContainerChanged -= HandleInventoryChanged;
+        }
 
         if (ResearchManager.I != null)
             ResearchManager.I.OnGreeningChanged -= HandleGreeningChanged;

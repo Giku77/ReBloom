@@ -20,7 +20,7 @@ public class WaterPurificationFacilityInteractable : BuildingInteractableBase
             return;
         }
 
-        inventory.RemoveItem(4002001, 1);
+        inventory.TryRemoveItem(4002001, 1);
         inventory.AddItemFromWorld(4002002, 1); // LSY: 인벤토리 가득 찼을때 world에 떨어트리려면 AddItemFromWorld() 함수 사용
 
         SoundManager.I?.PlayWater();

@@ -636,6 +636,8 @@ GameObject:
   - component: {fileID: -12791196860430924}
   - component: {fileID: 2811487813131519889}
   - component: {fileID: -4561603923637725132}
+  - component: {fileID: -700765529571297987}
+  - component: {fileID: -3160814615982952774}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -1397,7 +1399,8 @@ MonoBehaviour:
   anim: {fileID: 1502305894362355190}
   rb: {fileID: 7407298883495281662}
   sendInterval: 0.05
-  serverSmooth: 12
+  clientSmooth: 18
+  minDeltaToSend: 0.005
 --- !u!114 &2811487813131519889
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1424,6 +1427,36 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &-700765529571297987
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8381181056806458885}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29400580b9a93aa40a938c17244c9f60, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  playerController: {fileID: 2673489368365301380}
+  itemSpawner: {fileID: 0}
+  dropForwardOffset: 1.25
+  dropUpOffset: 0.75
+--- !u!114 &-3160814615982952774
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8381181056806458885}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b9ced9084e546f4282c4272526d5b03, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inventoryTemplate: {fileID: 11400000, guid: 41148716041e3cf4ab0c49a08efc7a9e, type: 2}
 --- !u!1001 &2334966744218384017
 PrefabInstance:
   m_ObjectHideFlags: 0

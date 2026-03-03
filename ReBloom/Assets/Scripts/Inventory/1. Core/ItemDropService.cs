@@ -14,14 +14,19 @@ public class ItemDropService : MonoBehaviour
         {
             itemSpawner = FindFirstObjectByType<ItemSpawner>();
         }
+
         if (player == null)
         {
-            var playerController = FindFirstObjectByType<PlayerController>();
-            if (playerController != null)
+            var owner = GetComponentInParent<PlayerController>();
+            if (owner != null)
             {
-                player = playerController.transform;
+                player = owner.transform;
             }
         }
+    }
+    public void SetOwner(Transform owner)
+    {
+        player = owner;
     }
     public void DropItem(int itemID, int count)
     {
@@ -32,7 +37,7 @@ public class ItemDropService : MonoBehaviour
         if (item != null)
         {
             itemSpawner.DropItemWithQuantity(item, dropPos, count).Forget();
-            Debug.Log($"[DropItem]{item.itemName} x{count} 아이템을 드랍했습니다.");
+            Debug.Log($"[DropItem] {item.itemName} x{count} 아이템을 드랍했습니다.");
         }
     }
 

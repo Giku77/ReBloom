@@ -2,12 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Netcode;
 using UnityEngine;
 
 /// <summary>
 /// 게임 시작 시 월드에 아이템을 미리 배치하는 스크립트
 /// </summary>
-public class InitialItemSpawner : MonoBehaviour
+public class InitialItemSpawner : NetworkBehaviour
 {
     [System.Serializable]
     public class SpawnItemInfo
@@ -55,10 +56,36 @@ public class InitialItemSpawner : MonoBehaviour
         return set.ToArray();
     }
 
+    public override void OnNetworkSpawn()
+    {
+        if (!IsServer) return;
+        Begin().Forget();
+    }
+
     public async UniTask Begin()
     {
-        if (itemSpawner == null) itemSpawner = FindFirstObjectByType<ItemSpawner>();
-        await UniTask.WaitUntil(() => ItemDatabase.I.IsInitialized);
+        if (itemSpawner == null)
+            itemSpawner = FindFirstObjectByType<ItemSpawner>();
+
+        if (itemSpawner == null)
+        {
+            Debug.LogError("[InitialItemSpawner] ItemSpawner를 찾을 수 없습니다!");
+            return;
+        }
+
+        // 네트워크 세션이면 먼저 시작될 때까지 대기
+        if (NetworkManager.Singleton != null)
+        {
+            await UniTask.WaitUntil(() => NetworkManager.Singleton.IsListening);
+
+            if (!NetworkManager.Singleton.IsServer)
+            {
+                Debug.Log("[InitialItemSpawner] 클라이언트이므로 초기 스폰 생략");
+                return;
+            }
+        }
+
+        await UniTask.WaitUntil(() => ItemDatabase.I != null && ItemDatabase.I.IsInitialized);
         await UniTask.Delay(TimeSpan.FromSeconds(spawnDelay));
         await SpawnInitialItems();
     }
@@ -130,26 +157,12 @@ public class InitialItemSpawner : MonoBehaviour
 
             Vector3 spawnPosition = spawnInfo.Position;
 
-            GameObject spawnedItem = null;
-            
-            if (spawnInfo.quantity > 1)
-            {
-                spawnedItem = await itemSpawner.DropItemWithQuantity(itemData, spawnPosition, spawnInfo.quantity);
-            }
-            else
-            {
-                spawnedItem = await itemSpawner.SpawnItemInWorld(itemData, spawnPosition, this.GetCancellationTokenOnDestroy());
-            }
-
-            // 영구 아이템으로 설정 (시간 지나도 안 사라짐)
-            if (spawnedItem != null)
-            {
-                var worldItem = spawnedItem.GetComponent<WorldItem>();
-                if (worldItem != null)
-                {
-                    worldItem.SetPersistent(true);
-                }
-            }
+            GameObject spawnedItem = await itemSpawner.SpawnPersistentItemInWorld(
+                itemData,
+                spawnPosition,
+                spawnInfo.quantity,
+                this.GetCancellationTokenOnDestroy()
+            );
 
             Debug.Log($"[InitialItemSpawner] {itemData.itemName} x{spawnInfo.quantity} 스폰 완료 at {spawnPosition}");
             await UniTask.Yield();

@@ -1,4 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -9,9 +10,6 @@ public class GameInventory : MonoBehaviour, IGameInventory
     private InventoryItemData containerData;     // 순수 데이터
     private ItemDropService dropService;         // 드롭 처리
     private InventoryMessageService uiService;        // UI 처리
-
-    [Header("Data Reference")]
-    [SerializeField] private InventoryItemData inventoryData;
 
     [Header("UI References")]
     private GameInventoryUI currentInvUI;
@@ -27,7 +25,20 @@ public class GameInventory : MonoBehaviour, IGameInventory
     [Header("Manager")]
     [SerializeField] private ItemSpawner itemSpawner;
 
-    public IItemContainer Container => inventoryData;
+    private PlayerInventoryRuntime boundInventory;
+    private PlayerController boundPlayer;
+
+    public event Action OnInventoryBound;
+    public event Action OnInventoryChanged;
+
+    public int SlotCount => boundInventory != null ? boundInventory.SlotCount : 0;
+
+    public int LockedSlotCount =>
+        boundInventory != null && boundInventory.Data != null
+            ? boundInventory.Data.LockedSlotCount
+            : 0;
+
+    public IItemContainer Container => boundInventory != null ? boundInventory.Data : null;
 
     //private int currentEquippedToolId = -1;        // 도구
     //private int currentEquippedClothingId = -1;    // 옷
@@ -42,7 +53,6 @@ public class GameInventory : MonoBehaviour, IGameInventory
     }
     private void Start()
     {
-        inventoryData.Initialize();
         quickSlot?.SyncInventoryQuickSlots();
         if (PlatformManager.Instance != null && PlatformManager.Instance.IsMobile)
         {
@@ -64,54 +74,75 @@ public class GameInventory : MonoBehaviour, IGameInventory
 
     private void BindLocalPlayer(GameObject playerObj)
     {
-        playerController = playerObj.GetComponent<PlayerController>();
+        boundPlayer = playerObj.GetComponent<PlayerController>();
+        playerController = boundPlayer;
         playerEquipmanager = playerObj.GetComponent<PlayerEquipManager>();
         robotPet = playerObj.GetComponentInChildren<InventoryRobotPet>(true);
 
-        // 이제 안전하게 초기화 가능
-        inventoryData.Initialize();
+        if (boundInventory != null)
+            boundInventory.OnChanged -= OnInvChanged;
+
+        boundInventory = playerObj.GetComponent<PlayerInventoryRuntime>();
+
+        if (boundInventory == null)
+        {
+            Debug.LogError("[GameInventory] PlayerInventoryRuntime을 찾을 수 없습니다!");
+            return;
+        }
+
+        boundInventory.OnChanged += OnInvChanged;
+
+        dropService?.SetOwner(playerObj.transform);
         quickSlot?.SyncInventoryQuickSlots();
 
-        if (PlatformManager.Instance != null && PlatformManager.Instance.IsMobile)
-            currentInvUI = mobileinventoryUI;
-        else
-            currentInvUI = inventoryUI;
+        currentInvUI = (PlatformManager.Instance != null && PlatformManager.Instance.IsMobile)
+            ? mobileinventoryUI
+            : inventoryUI;
 
         Debug.Log("[GameInventory] Local player bound.");
+
+        OnInventoryBound?.Invoke();  
+        OnInventoryChanged?.Invoke();
     }
     private void OnEnable()
     {
         NetworkPlayerOwnerGate.OnLocalPlayerSpawned += BindLocalPlayer;
-        if (inventoryData != null)
-            inventoryData.OnContainerChanged += OnInvChanged;
     }
+
     private void OnDisable()
     {
         NetworkPlayerOwnerGate.OnLocalPlayerSpawned -= BindLocalPlayer;
-        if (inventoryData != null)
-            inventoryData.OnContainerChanged -= OnInvChanged;
+
+        if (boundInventory != null)
+            boundInventory.OnChanged -= OnInvChanged;
     }
 
     private void OnInvChanged()
     {
         AutoSaveService.I?.RequestSave("InventoryChanged");
+        quickSlot?.SyncInventoryQuickSlots();
+        OnInventoryChanged?.Invoke();
     }
 
     #region 단순 위임 메서드들
     public int GetItemCount(int itemID)
-        => inventoryData.GetItemCount(itemID);
+        => boundInventory != null ? boundInventory.GetItemCount(itemID) : 0;
 
     // HasItem 중복 제거 - 하나만 남김
-    public bool HasItem() => inventoryData.HasItems || playerEquipmanager.ExistEquipItem;
+    public bool HasItem() => (boundInventory != null && boundInventory.HasItems) || playerEquipmanager.ExistEquipItem;
     public bool HasItem(int itemID, int count)
-        => inventoryData.HasItem(itemID, count);
-   
+        => boundInventory != null && boundInventory.HasItem(itemID, count);
+
     public void RemoveItem(int itemID, int count)
-        => inventoryData.TryRemoveItem(itemID, count);
+    {
+        boundInventory?.TryRemoveItem(itemID, count);
+    }
     //public int AddItem(int itemID, int count)
     //    => inventoryData.TryAddItem(itemID, count);
     public void Clear()
-        => inventoryData.Clear();
+    {
+        boundInventory?.Clear();
+    }
 
     public bool TransferTo(IItemContainer target, int itemID, int count)
     {
@@ -121,13 +152,14 @@ public class GameInventory : MonoBehaviour, IGameInventory
         int added = target.TryAddItem(itemID, count);  // 인터페이스 메서드명
         if (added > 0)
         {
-            inventoryData.TryRemoveItem(itemID, added);  // inventoryData 사용
+            boundInventory.TryRemoveItem(itemID, added);  // inventoryData 사용
         }
 
         return added == count;
     }
 
-    public bool SwapSlots(int fromIndex, int toIndex) => inventoryData.SwapSlots(fromIndex, toIndex);
+    public bool SwapSlots(int fromIndex, int toIndex)
+        => boundInventory != null && boundInventory.SwapSlots(fromIndex, toIndex);
     public void Consume(int itemId, int amount)
     {
         UseItem(itemId, amount);
@@ -161,7 +193,7 @@ public class GameInventory : MonoBehaviour, IGameInventory
     /// <param name="count"></param>
     public int AddItemFromWorld(int itemID, int count, bool drop = false)
     {
-        int added = inventoryData.TryAddItem(itemID, count);  // TryAddItem 사용
+        int added = boundInventory != null ? boundInventory.AddItemFromWorld(itemID, count) : 0;
         int overflow = count - added;
 
         if (added > 0)
@@ -197,9 +229,10 @@ public class GameInventory : MonoBehaviour, IGameInventory
     /// </summary>
     /// <param name="itemID"></param>
     /// <param name="count"></param>
+    /// 
     public bool TryAddItemFromWorld(int itemID, int count)
     {
-        var result = inventoryData.AddItemWithOverflow(itemID, count, out int overflow);
+        var result = boundInventory.AddItemWithOverflow(itemID, count, out int overflow);
         uiService?.ShowItemAcquired(ItemDatabase.I.GetItem(itemID), result);
 
         if (overflow > 0)
@@ -208,13 +241,26 @@ public class GameInventory : MonoBehaviour, IGameInventory
         }
         return overflow == 0;
     }
+
+    public bool TryRemoveItemForDrop(int itemID, int count)
+    {
+        if (boundInventory == null) return false;
+        if (count <= 0) return false;
+        if (!boundInventory.HasItem(itemID, count)) return false;
+
+        bool ok = boundInventory.TryRemoveItem(itemID, count);
+        if (ok)
+            quickSlot?.SyncInventoryQuickSlots();
+
+        return ok;
+    }
     public bool CanUnequip(int itemID)
     {
-        var testSlots = inventoryData.GetAllSlots();
+        var testSlots = boundInventory.GetAllSlots();
         // 빈 슬롯이 있는지 체크하는 로직
-        for (int i = 0; i < inventoryData.SlotCount; i++)
+        for (int i = 0; i < boundInventory.SlotCount; i++)
         {
-            if (inventoryData.IsEmptySlot(i))
+            if (boundInventory.IsEmptySlot(i))
                 return true;
         }
 
@@ -237,7 +283,7 @@ public class GameInventory : MonoBehaviour, IGameInventory
         if (item.canUseable)
         {
             // 1. 먼저 아이템 보유 확인
-            if (!inventoryData.HasItem(itemId, amount))
+            if (!boundInventory.HasItem(itemId, amount))
                 return false;
 
             // 2. 효과 적용 시도
@@ -245,7 +291,7 @@ public class GameInventory : MonoBehaviour, IGameInventory
             if (!success) return false;
 
             // 3. 성공 시에만 제거
-            inventoryData.TryRemoveItem(itemId, amount);
+            boundInventory.TryRemoveItem(itemId, amount);
 
             // 4. 빈 캔 생성 (특정 아이템)
             if (itemId == 4002001 || itemId == 4002002)
@@ -273,7 +319,7 @@ public class GameInventory : MonoBehaviour, IGameInventory
     }
     public bool TryExpandWithChip(int tier)
     {
-        return inventoryData.ExpandWithChip(tier);
+        return boundInventory != null && boundInventory.TryExpandWithChip(tier);
     }
     #region 아이템 & 카테고리 분류
 
@@ -285,7 +331,7 @@ public class GameInventory : MonoBehaviour, IGameInventory
         var filtered = new Dictionary<int, int>();
 
         // ItemSlotData로 변경
-        foreach (var slot in inventoryData.Items)
+        foreach (var slot in boundInventory.Items)
         {
             InventorySlotType itemInventoryType = ItemIDParser.GetInventoryType(slot.itemID);
 
@@ -304,7 +350,7 @@ public class GameInventory : MonoBehaviour, IGameInventory
     public Dictionary<int, int> GetAllItems()
     {
         // itemSlotData -> Dictionary 변환
-        return inventoryData.Items.ToDictionary(
+        return boundInventory.Items.ToDictionary(
             slot => slot.itemID,
             slot => slot.count
         );
@@ -314,7 +360,7 @@ public class GameInventory : MonoBehaviour, IGameInventory
     /// </summary>
     public IReadOnlyList<ItemSlotData> GetAllSlots()
     {
-        return inventoryData.Items;
+        return boundInventory != null ? boundInventory.Items : Array.Empty<ItemSlotData>();
     }
     /// <summary>
     /// 아이템 정렬 (ID 기준)
@@ -367,7 +413,7 @@ public class GameInventory : MonoBehaviour, IGameInventory
         var result = new List<KeyValuePair<int, int>>();
 
         // ItemSlotData로 변경
-        foreach (var slot in inventoryData.Items)
+        foreach (var slot in boundInventory.Items)
         {
             ItemBase item = ItemDatabase.I.GetItem(slot.itemID);
             if (item != null && item.canQuickSlot)
@@ -395,7 +441,7 @@ public class GameInventory : MonoBehaviour, IGameInventory
 
         foreach (var slot in items)
         {
-            int added = inventoryData.TryAddItem(slot.itemID, slot.count);
+            int added = boundInventory.TryAddItem(slot.itemID, slot.count);
             if (added > 0)
             {
                 source.TryRemoveItem(slot.itemID, added);
@@ -414,10 +460,10 @@ public class GameInventory : MonoBehaviour, IGameInventory
     /// </summary>
     public bool DepositAllTo(IItemContainer target)
     {
-        if (target == null || !inventoryData.HasItems)
+        if (target == null || !boundInventory.HasItems)
             return false;
 
-        var items = inventoryData.Items
+        var items = boundInventory.Items
             .Where(s => s != null && s.itemID > 0 && s.count > 0)
             .ToList();
 
@@ -428,7 +474,7 @@ public class GameInventory : MonoBehaviour, IGameInventory
             int added = target.TryAddItem(slot.itemID, slot.count);
             if (added > 0)
             {
-                inventoryData.TryRemoveItem(slot.itemID, added);
+                boundInventory.TryRemoveItem(slot.itemID, added);
             }
             if (added < slot.count)
             {

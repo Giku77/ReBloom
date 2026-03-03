@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class GreenhouseUpgradeTerminal : BuildingInteractableBase
 {
@@ -39,7 +39,7 @@ public class GreenhouseUpgradeTerminal : BuildingInteractableBase
 
         GreenhouseUpgradeService.ApplyAllSaved(ctx, state, db);
         var ui = UIManager.Instance.GetUI<GreenhouseUpgradeUI>(UIType.FarmUpgrade);
-        ui.Open(ctx, state, db, player.Inventory.Container);
+        ui.Open(ctx, state, db, player.Inventory.Data);
     }
 
 }

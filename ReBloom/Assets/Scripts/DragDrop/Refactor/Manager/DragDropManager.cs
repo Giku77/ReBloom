@@ -29,12 +29,43 @@ public class DragDropManager : MonoBehaviour
 	private WorldStorage currentStorage;
 	private DropZoneMarker currentHoveredZone;
 
-	#region 이벤트 시스템
-	/// <summary>
-	/// 드래그 중 전역 피드백 이벤트
-	/// (예: 퀵슬롯 불가능 아이템 경고)
-	/// </summary>
-	public static event System.Action<DragContext, DropZoneMarker, bool> OnDragFeedback;
+    private PlayerItemNetworkBridge localDropBridge;
+    private DragSourceType pendingWorldDropSource;
+
+
+    #region 이벤트 시스템
+
+    private void OnEnable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned += BindLocalPlayer;
+    }
+
+    private void OnDisable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned -= BindLocalPlayer;
+    }
+
+    private void BindLocalPlayer(GameObject playerObj)
+    {
+        if (playerObj == null) return;
+
+        localDropBridge = playerObj.GetComponent<PlayerItemNetworkBridge>();
+
+        var playerInventory = playerObj.GetComponent<GameInventory>();
+        if (playerInventory != null)
+            inventoryData = playerInventory;
+
+        var playerEquip = playerObj.GetComponent<PlayerEquipManager>();
+        if (playerEquip != null)
+            equipManager = playerEquip;
+
+        Debug.Log("[DragDropManager] 로컬 플레이어 바인딩 완료");
+    }
+    /// <summary>
+    /// 드래그 중 전역 피드백 이벤트
+    /// (예: 퀵슬롯 불가능 아이템 경고)
+    /// </summary>
+    public static event System.Action<DragContext, DropZoneMarker, bool> OnDragFeedback;
 	#endregion
 
 	#region Singleton
@@ -174,26 +205,48 @@ public class DragDropManager : MonoBehaviour
 		Debug.Log($"창고 설정: {storage?.name}");
 	}
 
-	/// <summary>
-	/// 팝업에서 호출 - 확정된 수량으로 월드 드롭
-	/// </summary>
-	public async void DropItemFromPopup(ItemBase item, int quantity)
-	{
-		if (item == null || quantity <= 0)
-		{
-			Debug.LogWarning("[DragDropManager] 유효하지 않은 아이템 또는 수량입니다.");
-			return;
-		}
+    /// <summary>
+    /// 팝업에서 호출 - 확정된 수량으로 월드 드롭
+    /// </summary>
+    public void DropItemFromPopup(ItemBase item, int quantity)
+    {
+        if (item == null || quantity <= 0)
+        {
+            Debug.LogWarning("[DragDropManager] 유효하지 않은 아이템 또는 수량입니다.");
+            return;
+        }
 
-		Vector3 dropPosition = GetDropPosition();
-		await DropToWorldAsync(item, dropPosition, quantity);
-	}
-	#endregion
-	#region Private Methods - 드롭존 선택 및 검증
-	/// <summary>
-	/// 우선순위 기반 최적 드롭존 선택
-	/// </summary>
-	private DropZoneMarker FindBestDropZone(List<RaycastResult> results)
+        // 1) 인벤토리 -> 월드
+        if (pendingWorldDropSource == DragSourceType.Inventory)
+        {
+            if (localDropBridge == null)
+            {
+                Debug.LogError("[DragDropManager] localDropBridge가 없습니다!");
+                return;
+            }
+
+            localDropBridge.RequestDropFromInventory(item, quantity);
+            return;
+        }
+
+        // 2) 스토리지 -> 월드
+        // 아직 스토리지가 네트워크 권한 구조가 아니면 일단 기존 로컬 처리 유지하거나 막는 걸 추천
+        if (pendingWorldDropSource == DragSourceType.Storage)
+        {
+            Debug.LogWarning("[DragDropManager] Storage -> World 멀티 드랍은 아직 별도 네트워크 처리 필요");
+            return;
+        }
+
+        // 3) fallback
+        Vector3 dropPosition = GetDropPosition();
+        DropToWorldAsync(item, dropPosition, quantity).Forget();
+    }
+    #endregion
+    #region Private Methods - 드롭존 선택 및 검증
+    /// <summary>
+    /// 우선순위 기반 최적 드롭존 선택
+    /// </summary>
+    private DropZoneMarker FindBestDropZone(List<RaycastResult> results)
 	{
         DropZoneMarker bestZone = null;
         int highestPriority = -1;
@@ -377,39 +430,35 @@ public class DragDropManager : MonoBehaviour
 		}
 	}
 
-	/// <summary>
-	/// 월드 드롭 처리
-	/// </summary>
-	private void HandleWorldDrop(DragContext context)
-	{
-		if (context.IsFromDebug)
-		{
-			// 디버그: 즉시 드롭
-			Vector3 dropPosition = GetDropPosition();
-			DropToWorldAsync(context.Item, dropPosition, debugSpawnCount).Forget();
-		}
-		else if (context.IsFromQuickSlot)
-		{
-			// 퀵슬롯에서 제거만 (인벤토리는 유지)
-			quickSlotManager?.RemoveSlot(context.SourceSlotIndex);
-		}
-		else if (context.IsFromEquipment)
-		{
-			// TODO: 장비슬롯에서 바깥으로 빼면 장비 해제
-		}
-		else if (context.IsFromStorage)
+    /// <summary>
+    /// 월드 드롭 처리
+    /// </summary>
+    private void HandleWorldDrop(DragContext context)
+    {
+        if (context.IsFromDebug)
         {
-            // (context.IsFromStorage)
-            // 스토리지 -> 월드: 수량 선택 팝업
-            Debug.Log($"[DragDropManager] 스토리지에서 월드로 드롭: {context.Item.itemName} (팝업)");
-			removePopUp?.OnOpen(context.Item, DragSourceType.Storage);
-		}
-		//else
-		//{
-		//	// 인벤토리 -> 월드: 수량 선택 팝업
-		//	removePopUp?.OnOpen(context.Item, DragSourceType.Inventory);
-		//}
-	}
+            Vector3 dropPosition = GetDropPosition();
+            DropToWorldAsync(context.Item, dropPosition, debugSpawnCount).Forget();
+        }
+        else if (context.IsFromQuickSlot)
+        {
+            quickSlotManager?.RemoveSlot(context.SourceSlotIndex);
+        }
+        else if (context.IsFromEquipment)
+        {
+            // TODO: 장비 해제 처리
+        }
+        else if (context.IsFromStorage)
+        {
+            pendingWorldDropSource = DragSourceType.Storage;
+            removePopUp?.OnOpen(context.Item, DragSourceType.Storage);
+        }
+        else if (context.IsFromInventory)
+        {
+            pendingWorldDropSource = DragSourceType.Inventory;
+            removePopUp?.OnOpen(context.Item, DragSourceType.Inventory);
+        }
+    }
 
     /// <summary>
     /// 인벤토리 드롭 처리

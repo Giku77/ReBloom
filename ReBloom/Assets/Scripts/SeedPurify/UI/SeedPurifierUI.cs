@@ -61,7 +61,7 @@ public class SeedPurifierUI : UIBase
         {
             if (inv.HasItem(id, 1))
             {
-                inv.RemoveItem(id, 1);
+                inv.TryRemoveItem(id, 1);
                 usedItemId = id;
                 return true;
             }
