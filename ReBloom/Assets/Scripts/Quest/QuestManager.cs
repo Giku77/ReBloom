@@ -408,4 +408,15 @@ public class QuestManager : MonoBehaviour
         }
         return 0;
     }
+
+    public void PlayQuestCompleteAnimationForced()
+    {
+        SoundManager.I?.PlayMissionClear();
+        questTextSwitcher?.PlayQuestComplete();
+    }
+
+    public void HideQuestCompleteAnimation()
+    {
+        questTextSwitcher?.ResetQuestText();
+    }
 }

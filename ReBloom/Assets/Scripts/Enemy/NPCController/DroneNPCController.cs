@@ -2,6 +2,9 @@
 
 public class DroneNPCController : BaseNPCController
 {
+    private const int FxDetection = 1;
+    private const int FxLaser = 2;
+
     [Header("Drone Settings")]
     public Transform[] patrolPoints;
     public bool usePatrol = true;
@@ -37,6 +40,18 @@ public class DroneNPCController : BaseNPCController
         sound = GetComponentInChildren<DroneNPCSound>();
     }
 
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        AMechNPCController.OnPlayerDetected += HandleReinforce;
+    }
+
+    protected override void OnDisable()
+    {
+        AMechNPCController.OnPlayerDetected -= HandleReinforce;
+        base.OnDisable();
+    }
+
     protected override void InitializeState()
     {
         if (usePatrol)
@@ -51,8 +66,30 @@ public class DroneNPCController : BaseNPCController
 
         base.Update();
 
+        if (!HasServerAuthority)
+            return;
+
         if (currentState is DronePatrolState || currentState is DroneChaseState)
             CheckVision();
+    }
+
+    protected override void HandleFxEvent(int fxEventId, Vector3 position, Vector3 direction, float value)
+    {
+        switch (fxEventId)
+        {
+            case FxDetection:
+                sound?.PlayDetection();
+                break;
+            case FxLaser:
+                laser?.FireLaser(position, direction, value);
+                sound?.PlayLaser();
+                break;
+        }
+    }
+
+    public void PlayDetectionFx()
+    {
+        BroadcastFxEvent(FxDetection);
     }
 
     private void CheckVision()
@@ -83,19 +120,15 @@ public class DroneNPCController : BaseNPCController
 
     public void Attack()
     {
-        //if (Time.time - lastAttackTime < attackCooldown) return;
-
         animator.SetTrigger("Shoot1");
 
-        var stats = player.GetComponent<PlayerStats>();
-        if (stats != null)
-            stats.TakeDamage(attackDamage);
+        NetworkPlayerOwnerGate gate = player != null ? player.GetComponent<NetworkPlayerOwnerGate>() : null;
+        if (gate != null)
+            gate.ApplyAuthoritativeDamage(attackDamage);
 
         lastAttackTime = Time.time;
 
-        laser.FireLaser(laserOrigin.position, laserOrigin.forward, laserLength);
-
-        sound.PlayLaser();
+        BroadcastFxEvent(FxLaser, laserOrigin.position, laserOrigin.forward, laserLength);
 
         Debug.Log("드론 레이저 공격!");
     }
@@ -106,18 +139,11 @@ public class DroneNPCController : BaseNPCController
         ChangeState(new DroneRestState(this));
     }
 
-    private void OnEnable()
-    {
-        AMechNPCController.OnPlayerDetected += HandleReinforce;
-    }
-
-    private void OnDisable()
-    {
-        AMechNPCController.OnPlayerDetected -= HandleReinforce;
-    }
-
     private void HandleReinforce()
     {
+        if (!HasServerAuthority)
+            return;
+
         ChangeState(new DroneChaseState(this));
     }
 }

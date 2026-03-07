@@ -24,11 +24,9 @@ public class FMechNPCChaseState : NPCState
 
     public override void Update()
     {
+        if (fMechController == null) return;
         if (fMechController.isPlayingJumpscare) return;
 
-        if (fMechController == null) return;
-
-        // 플레이어가 스테이지를 벗어났는지 체크
         if (!fMechController.IsPlayerInMyStage())
         {
             Debug.Log("[F-Mech] 리턴 스테이트 진입");
@@ -36,7 +34,6 @@ public class FMechNPCChaseState : NPCState
             return;
         }
 
-        // 플레이어가 쳐다보고 있는지 체크
         if (fMechController.IsPlayerLookingAt())
         {
             Debug.Log("[F-Mech] 프로즌 스테이트 진입");
@@ -44,11 +41,9 @@ public class FMechNPCChaseState : NPCState
             return;
         }
 
-        // 플레이어 추격
-        Transform player = GameObject.FindGameObjectWithTag("Player")?.transform;
-        if (player != null)
+        if (controller.player != null)
         {
-            controller.agent.SetDestination(player.position);
+            controller.agent.SetDestination(controller.player.position);
         }
     }
 

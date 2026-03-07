@@ -1,18 +1,37 @@
-using System.Linq;
+﻿using System.Linq;
+using Unity.Netcode;
 using UnityEngine;
 
 public class PlayerInventorySaveable : MonoBehaviour, ISaveable
 {
-    [SerializeField] private InventoryItemData inventoryData;
+    [SerializeField] private PlayerInventoryRuntime inventoryRuntime;
+    [SerializeField] private NetworkObject networkObject;
 
     private const string PlayerInventoryGuid = "player_inventory";
     public string EntityGuid => PlayerInventoryGuid;
 
+    private void Awake()
+    {
+        if (inventoryRuntime == null)
+            inventoryRuntime = GetComponent<PlayerInventoryRuntime>();
+
+        if (networkObject == null)
+            networkObject = GetComponent<NetworkObject>();
+    }
+
+    private bool ShouldHandleSave()
+    {
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening)
+            return true;
+
+        return networkObject != null && networkObject.IsOwner && NetworkManager.Singleton.IsServer;
+    }
+
     public void Capture(SaveGameDTO save)
     {
-        if (inventoryData == null) return;
+        if (!ShouldHandleSave() || inventoryRuntime?.Data == null) return;
 
-        // 기존 동일 GUID 컨테이너 제거
+        var inventoryData = inventoryRuntime.Data;
         save.world.containers.RemoveAll(c => c.guid == PlayerInventoryGuid);
 
         var dto = new ContainerSaveDTO
@@ -23,15 +42,15 @@ public class PlayerInventorySaveable : MonoBehaviour, ISaveable
 
         for (int i = 0; i < inventoryData.SlotCount; i++)
         {
-            var s = inventoryData.GetSlot(i);
-            if (s == null || s.itemID <= 0 || s.count <= 0) 
+            var slot = inventoryData.GetSlot(i);
+            if (slot == null || slot.itemID <= 0 || slot.count <= 0)
                 continue;
 
             dto.items.Add(new ItemSlotDTO
             {
                 slot = i,
-                itemId = s.itemID,
-                amount = s.count,
+                itemId = slot.itemID,
+                amount = slot.count,
             });
         }
 
@@ -41,26 +60,22 @@ public class PlayerInventorySaveable : MonoBehaviour, ISaveable
 
     public void Restore(SaveGameDTO save)
     {
-        if (inventoryData == null) return;
+        if (!ShouldHandleSave() || inventoryRuntime?.Data == null || save == null) return;
 
+        var inventoryData = inventoryRuntime.Data;
         var dto = save.world.containers.FirstOrDefault(c => c.guid == PlayerInventoryGuid);
         if (dto == null) return;
 
-        // 기존 인벤 초기화
         inventoryData.Clear();
 
-        // 저장된 아이템 주입
-        foreach (var it in dto.items)
+        foreach (var item in dto.items)
         {
-            // 안전장치: SlotCount 바뀐 경우 대비
-            if (it.slot < 0 || it.slot >= inventoryData.SlotCount)
+            if (item.slot < 0 || item.slot >= inventoryData.SlotCount)
                 continue;
 
-            // InventoryItemData에 추가한 메서드 사용
-            inventoryData.SetSlotRaw(it.slot, it.itemId, it.amount);
+            inventoryData.SetSlotRaw(item.slot, item.itemId, item.amount);
         }
 
-        // UI 갱신
         inventoryData.NotifyChanged();
     }
 }

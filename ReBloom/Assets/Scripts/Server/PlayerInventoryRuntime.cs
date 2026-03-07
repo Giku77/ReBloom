@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerInventoryRuntime : MonoBehaviour
+[RequireComponent(typeof(NetworkObject))]
+public class PlayerInventoryRuntime : NetworkBehaviour
 {
     [Header("Template")]
     [SerializeField] private InventoryItemData inventoryTemplate;
@@ -24,12 +26,18 @@ public class PlayerInventoryRuntime : MonoBehaviour
             return;
         }
 
-        // 플레이어마다 런타임 복제본 생성
         runtimeData = Instantiate(inventoryTemplate);
         runtimeData.name = $"{inventoryTemplate.name}_Runtime_{gameObject.name}";
         runtimeData.Initialize();
-
         runtimeData.OnContainerChanged += HandleChanged;
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        if (IsServer)
+            SyncSnapshotToOwner();
     }
 
     private void OnDestroy()
@@ -43,6 +51,12 @@ public class PlayerInventoryRuntime : MonoBehaviour
 
     private void HandleChanged()
     {
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening || IsServer)
+            NetworkQuestManager.I?.RefreshCollectProgressServer();
+
+        if (IsServer && IsSpawned)
+            SyncSnapshotToOwner();
+
         OnChanged?.Invoke();
     }
 
@@ -115,5 +129,42 @@ public class PlayerInventoryRuntime : MonoBehaviour
             return 0;
 
         return runtimeData.AddItemWithOverflow(itemID, amount, out overflow);
+    }
+
+    private void SyncSnapshotToOwner()
+    {
+        if (!IsServer || runtimeData == null || NetworkManager.Singleton == null)
+            return;
+
+        ApplyInventorySnapshotClientRpc(
+            runtimeData.InventoryTier,
+            BuildSnapshot(),
+            RpcTarget.Single(OwnerClientId, RpcTargetUse.Temp));
+    }
+
+    private InventorySlotSyncState[] BuildSnapshot()
+    {
+        var slots = runtimeData.GetAllSlots();
+        var snapshot = new InventorySlotSyncState[slots.Length];
+
+        for (int i = 0; i < slots.Length; i++)
+        {
+            snapshot[i] = new InventorySlotSyncState
+            {
+                itemID = slots[i]?.itemID ?? 0,
+                count = slots[i]?.count ?? 0
+            };
+        }
+
+        return snapshot;
+    }
+
+    [Rpc(SendTo.SpecifiedInParams)]
+    private void ApplyInventorySnapshotClientRpc(int inventoryTier, InventorySlotSyncState[] snapshot, RpcParams rpcParams = default)
+    {
+        if (IsServer || runtimeData == null)
+            return;
+
+        runtimeData.ApplySnapshot(inventoryTier, snapshot);
     }
 }

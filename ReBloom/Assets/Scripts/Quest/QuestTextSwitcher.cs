@@ -67,8 +67,11 @@ public class QuestTextSwitcher : MonoBehaviour
 
     public void ResetQuestText()
     {
+        questRect.DOKill();
+        completeRect.DOKill();
+
         questText.gameObject.SetActive(true);
-        //questRect.anchoredPosition = centerPos;
+        questRect.anchoredPosition = centerPos;
 
         completeText.gameObject.SetActive(false);
         completeRect.anchoredPosition = centerPos + Vector2.left * slideDistance;

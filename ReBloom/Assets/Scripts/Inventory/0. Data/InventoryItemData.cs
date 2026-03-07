@@ -15,6 +15,7 @@ public class InventoryItemData : ScriptableObject, IItemContainer
 
     // ---- 속성 ----
     public int SlotCount => GetSlotCountForTier(inventoryTier);
+    public int InventoryTier => inventoryTier;
 
     public bool HasLockedSlots => inventoryTier < 3;
     public int LockedSlotCount => inventoryTier < 3 ? 5 : 0;
@@ -266,6 +267,34 @@ public class InventoryItemData : ScriptableObject, IItemContainer
             slots[index] = null;
         else
             slots[index] = new ItemSlotData { itemID = itemId, count = count };
+    }
+
+    public void ApplySnapshot(int tier, InventorySlotSyncState[] snapshot)
+    {
+        inventoryTier = Mathf.Clamp(tier, 0, MaxTier);
+
+        if (slots == null || slots.Length != 40)
+            slots = new ItemSlotData[40];
+
+        Array.Clear(slots, 0, slots.Length);
+
+        if (snapshot != null)
+        {
+            int limit = Mathf.Min(snapshot.Length, slots.Length);
+            for (int i = 0; i < limit; i++)
+            {
+                if (snapshot[i].itemID <= 0 || snapshot[i].count <= 0)
+                    continue;
+
+                slots[i] = new ItemSlotData
+                {
+                    itemID = snapshot[i].itemID,
+                    count = snapshot[i].count
+                };
+            }
+        }
+
+        OnContainerChanged?.Invoke();
     }
 
     public int GetSlotCountForSave() => SlotCount;

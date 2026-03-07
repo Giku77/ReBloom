@@ -1,4 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
+using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -22,6 +23,8 @@ public class GatherObject : MonoBehaviour, IInteractable
 
     private string gatherAvailableText = "조사 시작 [E]";
     private string gatherNotAvailableText = "조사 불가";
+
+    private NetworkGatherObject netGather;
 
     [Header("채집 후 파괴 설정")]
     public bool isDestroyObject = false;
@@ -67,10 +70,15 @@ public class GatherObject : MonoBehaviour, IInteractable
         playerEquipManager = FindFirstObjectByType<PlayerEquipManager>();
         inventoryItemData = FindFirstObjectByType<GameInventory>();
         dayNightCycle = FindFirstObjectByType<DayNightCycle>();
+        netGather = GetComponent<NetworkGatherObject>();
     }
 
     private void Update()
     {
+        if (netGather != null && netGather.IsSpawned)
+        {
+            return;
+        }
         if (!isAvailable)
         {
             timer += Time.deltaTime;
@@ -122,9 +130,42 @@ public class GatherObject : MonoBehaviour, IInteractable
         }
     }
 
+    public float GetRespawnSecondsSafe()
+    {
+        return respawnTime > 0f ? respawnTime : 3f;
+    }
+
+    public void RefreshFromNetwork()
+    {
+        if (highlight == null) return;
+        if (netGather == null || !netGather.IsSpawned) return;
+
+        highlight.isPermanent = false;
+        highlight.promptFormat = GetCurrentPromptText();
+    }
+
     public void Interact(PlayerController player)
     {
         if (player == null) return;
+        if (netGather != null && netGather.IsSpawned)
+        {
+            if (!netGather.IsAvailableNow())
+            {
+                ToastMessageUI.Instance?.Show("아직 재생성 중입니다.");
+                return;
+            }
+
+            string failReason = GetInteractionFailReason();
+            if (!string.IsNullOrEmpty(failReason))
+            {
+                ToastMessageUI.Instance?.Show(failReason);
+                return;
+            }
+
+            netGather.TryRequestGather(player);
+            return;
+        }
+
         if (!isAvailable) return;
 
         //if (requireHammer && !HasHammerEquipped())
@@ -134,11 +175,11 @@ public class GatherObject : MonoBehaviour, IInteractable
         //    return;
         //}
 
-        string failReason = GetInteractionFailReason();
-        if (!string.IsNullOrEmpty(failReason))
+        string failReason2 = GetInteractionFailReason();
+        if (!string.IsNullOrEmpty(failReason2))
         {
-            ToastMessageUI.Instance?.Show(failReason);
-            Debug.Log($"[GatherObject] {failReason}");
+            ToastMessageUI.Instance?.Show(failReason2);
+            Debug.Log($"[GatherObject] {failReason2}");
             return;
         }
 
@@ -283,35 +324,52 @@ public class GatherObject : MonoBehaviour, IInteractable
 
     public bool CanInteract()
     {
-        if (!isAvailable) return false;
+        if (netGather != null && netGather.IsSpawned)
+        {
+            if (!netGather.IsAvailableNow()) return false;
+            return string.IsNullOrEmpty(GetInteractionFailReason());
+        }
 
+        if (!isAvailable) return false;
         return string.IsNullOrEmpty(GetInteractionFailReason());
     }
 
 
     public void DestroyAfterTutorialClear()
     {
-        if (isTutorialObject)
-        {
-            if (highlight != null)
-            {
-                highlight.Hide();
-            }
+        if (!isTutorialObject) return;
 
-            Destroy(gameObject);
+        if (netGather != null && netGather.IsSpawned)
+        {
+            if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
+            {
+                netGather.ServerDisablePermanently();
+            }
+            else
+            {
+                gameObject.SetActive(false);
+            }
+            return;
         }
+
+        if (highlight != null) highlight.Hide();
+        Destroy(gameObject);
     }
 
     public string GetCurrentPromptText()
     {
-        if (isAvailable)
+        if (netGather != null && netGather.IsSpawned)
         {
-            return gatherAvailableText;
+            if (netGather.IsAvailableNow())
+                return gatherAvailableText;
+
+            int sec = Mathf.CeilToInt(netGather.GetCooldownRemaining());
+            return sec > 0
+                ? $"{gatherName} 조사 완료 ({sec}s)"
+                : $"{gatherName} 조사 완료";
         }
-        else
-        {
-            return gatherNotAvailableText;
-        }
+
+        return isAvailable ? gatherAvailableText : gatherNotAvailableText;
     }
 
     private int GetCurrentSearchType()
@@ -436,11 +494,14 @@ public class GatherObject : MonoBehaviour, IInteractable
 
     public string GetCannotInteractMessage()
     {
-        if (!isAvailable)
+        if (netGather != null && netGather.IsSpawned)
         {
-            return "아직 재생성 중입니다.";
+            if (!netGather.IsAvailableNow())
+                return "아직 재생성 중입니다.";
+            return GetInteractionFailReason();
         }
 
+        if (!isAvailable) return "아직 재생성 중입니다.";
         return GetInteractionFailReason();
     }
 }

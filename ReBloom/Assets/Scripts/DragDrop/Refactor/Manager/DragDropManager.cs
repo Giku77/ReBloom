@@ -216,7 +216,6 @@ public class DragDropManager : MonoBehaviour
             return;
         }
 
-        // 1) 인벤토리 -> 월드
         if (pendingWorldDropSource == DragSourceType.Inventory)
         {
             if (localDropBridge == null)
@@ -226,20 +225,26 @@ public class DragDropManager : MonoBehaviour
             }
 
             localDropBridge.RequestDropFromInventory(item, quantity);
+            pendingWorldDropSource = DragSourceType.Inventory;
             return;
         }
 
-        // 2) 스토리지 -> 월드
-        // 아직 스토리지가 네트워크 권한 구조가 아니면 일단 기존 로컬 처리 유지하거나 막는 걸 추천
         if (pendingWorldDropSource == DragSourceType.Storage)
         {
-            Debug.LogWarning("[DragDropManager] Storage -> World 멀티 드랍은 아직 별도 네트워크 처리 필요");
+            if (currentStorage == null)
+            {
+                Debug.LogError("[DragDropManager] currentStorage가 없습니다!");
+                return;
+            }
+
+            currentStorage.RequestDropToWorld(item, quantity);
+            pendingWorldDropSource = DragSourceType.Inventory;
             return;
         }
 
-        // 3) fallback
         Vector3 dropPosition = GetDropPosition();
         DropToWorldAsync(item, dropPosition, quantity).Forget();
+        pendingWorldDropSource = DragSourceType.Inventory;
     }
     #endregion
     #region Private Methods - 드롭존 선택 및 검증
@@ -381,54 +386,47 @@ public class DragDropManager : MonoBehaviour
 		}
 	}
 
-	/// <summary>
-	/// 창고 드롭 처리 (인벤토리 -> 스토리지)
-	/// </summary>
-	private void HandleStorageDrop(DragContext context)
-	{
-		if (currentStorage == null)
-		{
-			Debug.LogError("[DragDropManager] 창고가 설정되지 않았습니다!");
-			return;
-		}
-
-		if (!context.IsFromInventory)
-		{
-			Debug.LogWarning("[DragDropManager] 인벤토리에서만 창고로 드롭 가능합니다!");
-			return;
-		}
-
-		var storageData = currentStorage.GetStorageData();
-		if (storageData == null)
-		{
-			Debug.LogError("[DragDropManager] StorageData를 찾을 수 없습니다!");
-			return;
-		}
-
-		// 전체 수량 가져오기
-		int quantity = inventoryData.GetItemCount(context.Item.itemID);
-
-		// TransferTo 사용 (Inventory -> Storage)
-		bool success = inventoryData.TransferTo(storageData, context.Item.itemID, quantity);
-
-		if (success)
-		{
-			Debug.Log($"[DragDropManager] 창고에 {context.Item.itemName} x{quantity} 저장 완료");
-			
-			//StorageData 이벤트 명시적 발생
-			storageData.NotifyStorageChanged();
-            var storageUI = currentStorage.GetComponentInChildren<StorageUI>();
-            if (storageUI != null)
-            {
-                storageUI.RefreshUI();
-                Debug.Log("[DragDropManager] StorageUI 갱신 완료");
-            }
+    /// <summary>
+    /// 창고 드롭 처리 (인벤토리 -> 스토리지)
+    /// </summary>
+    private void HandleStorageDrop(DragContext context)
+    {
+        if (currentStorage == null)
+        {
+            Debug.LogError("[DragDropManager] 창고가 설정되지 않았습니다!");
+            return;
         }
-		else
-		{
-			Debug.LogWarning($"[DragDropManager] 창고 저장 실패: {context.Item.itemName} (스토리지 가득참?)");
-		}
-	}
+
+        if (!context.IsFromInventory)
+        {
+            Debug.LogWarning("[DragDropManager] 인벤토리에서만 창고로 드롭 가능합니다!");
+            return;
+        }
+
+        if (inventoryData == null)
+        {
+            Debug.LogError("[DragDropManager] inventoryData가 없습니다!");
+            return;
+        }
+
+        int quantity = inventoryData.GetItemCount(context.Item.itemID);
+        if (quantity <= 0)
+        {
+            Debug.LogWarning($"[DragDropManager] 인벤토리에 {context.Item.itemName}이(가) 없습니다!");
+            return;
+        }
+
+        bool success = currentStorage.RequestDepositFromInventory(context.Item.itemID, quantity);
+
+        if (success)
+        {
+            Debug.Log($"[DragDropManager] 창고에 {context.Item.itemName} x{quantity} 저장 요청 완료");
+        }
+        else
+        {
+            Debug.LogWarning($"[DragDropManager] 창고 저장 실패: {context.Item.itemName} (스토리지 가득참?)");
+        }
+    }
 
     /// <summary>
     /// 월드 드롭 처리
@@ -467,7 +465,7 @@ public class DragDropManager : MonoBehaviour
     {
         if (inventoryData == null)
         {
-            Debug.LogError("[DragDropManager] InventoryItemData를 찾을 수 없습니다!");
+            Debug.LogError("[DragDropManager] GameInventory를 찾을 수 없습니다!");
             return;
         }
 
@@ -508,15 +506,18 @@ public class DragDropManager : MonoBehaviour
                 return;
             }
 
-            // 전체 수량 가져오기
             int quantity = storageData.GetItemCount(context.Item.itemID);
+            if (quantity <= 0)
+            {
+                Debug.LogWarning($"[DragDropManager] 스토리지에 {context.Item.itemName}이(가) 없습니다!");
+                return;
+            }
 
-            // TransferTo 사용 (Storage → Inventory)
-            bool success = storageData.TransferTo(inventoryData.Container, context.Item.itemID, quantity);
+            bool success = currentStorage.RequestWithdrawToInventory(context.Item.itemID, quantity);
 
             if (success)
             {
-                Debug.Log($"[DragDropManager] 스토리지에서 인벤토리로 {context.Item.itemName} x{quantity} 이동 완료");
+                Debug.Log($"[DragDropManager] 스토리지에서 인벤토리로 {context.Item.itemName} x{quantity} 이동 요청 완료");
             }
             else
             {
@@ -538,7 +539,7 @@ public class DragDropManager : MonoBehaviour
 	{
 		if (inventoryData == null)
 		{
-			Debug.LogError("[DragDropManager] InventoryItemData를 찾을 수 없습니다!");
+			Debug.LogError("[DragDropManager] GameInventory를 찾을 수 없습니다!");
 		   // return;
 		}
 
@@ -687,3 +688,7 @@ public class DragDropManager : MonoBehaviour
 	}
 	#endregion
 }
+
+
+
+

@@ -1,11 +1,15 @@
-using System.IO;
+﻿using System.IO;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class LocalFileSaveStorage : ISaveStorage
 {
     private string PathForSlot(string slotId)
-        => System.IO.Path.Combine(Application.persistentDataPath, $"{slotId}.sav");
+    {
+        string accountNamespace = PlayFabAuth.CurrentStorageNamespace;
+        string root = System.IO.Path.Combine(Application.persistentDataPath, "saves", accountNamespace);
+        return System.IO.Path.Combine(root, $"{slotId}.sav");
+    }
 
     public async UniTask SaveAsync(string slotId, byte[] bytes)
     {

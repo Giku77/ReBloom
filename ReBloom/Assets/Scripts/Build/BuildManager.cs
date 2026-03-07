@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class BuildManager : MonoBehaviour
@@ -380,6 +381,10 @@ public class BuildManager : MonoBehaviour
     }
 
 
+    // 기존 로직 그대로 검사/재료처리까지는 "클라 UX용"으로 둘 수 있는데,
+    // 멀티에서는 실제 차감은 서버에서만 해야 안전함.
+    // 그래서 여기서는 "클라에서는 토스트/검사만", 재료 차감은 서버에서 처리하는 걸 추천.
+
     public bool TryBuild(int arcId, Vector3 pos, Quaternion rot)
     {
         if (!arcDB.TryGet(arcId, out var arc))
@@ -390,12 +395,6 @@ public class BuildManager : MonoBehaviour
 
         if (!IsInBuildableZone())
         {
-            if (!stageDetector.CanBuild && stageDetector.CurrentStage.stageID == 400)
-            {
-                ToastMessageUI.Instance.Show("다리에서는 건물을 지을 수 없습니다.");
-                return false;
-            }
-
             ToastMessageUI.Instance.Show("이 지역에서는 건물을 지을 수 없습니다.");
             return false;
         }
@@ -406,42 +405,121 @@ public class BuildManager : MonoBehaviour
             return false;
         }
 
-        if (!recipeDB.TryGetRecipe(arcId, out var recipe))
+        // 멀티면 서버에 요청만
+        if (NetworkBuildManager.I != null && NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
         {
-            Debug.LogWarning($"건물 {arcId} 는 레시피가 없음. 테스트용으로 그냥 짓기");
-            return Spawn(arc, pos, rot);
+            NetworkBuildManager.I.RequestBuild(arcId, pos, rot);
+            return true;
         }
 
-        if (!debugBuildingMode)
-        {
-                if (!HasMaterials(recipe))
-                {
-                    ToastMessageUI.Instance.Show("재료가 부족합니다.");
-                    return false;
-                }
+        // 오프라인/싱글이면 기존 방식 유지
+        return Spawn(arc, pos, rot);
+    }
 
-                Remove(recipe);
+    public void OccupyForNetworkSpawn(BuildingInstance inst)
+    {
+        if (inst == null) return;
+        if (!arcDB.TryGet(inst.ArcId, out var arc)) return;
+
+        var fp = footprintProvider.GetFootprint(arc);
+        var cells = GetCellsFromFootprint(fp, inst.transform.position, inst.transform.rotation);
+
+        GridOccupancyManager.I?.Occupy(inst, cells);
+
+        if (inst.TryGetComponent<CorridorNode>(out var corridorNode))
+        {
+            var cell = CorridorGrid.WorldToCell(inst.transform.position);
+            corridorNode.Cell = cell;
+            CorridorConnectionManager.I?.Register(corridorNode);
+        }
+    }
+
+    public void ReleaseForNetworkDespawn(BuildingInstance inst)
+    {
+        if (inst == null) return;
+
+        if (inst.TryGetComponent<CorridorNode>(out var node))
+            CorridorConnectionManager.I?.Unregister(node);
+
+        GridOccupancyManager.I?.Release(inst);
+
+        var sp = inst.GetComponent<CorridorSocketProvider>();
+        if (sp != null)
+            CorridorSocketManager.I?.UnregisterSockets(sp);
+    }
+
+    public bool CanBuildAt_Server(ArcData arc, Vector3 pos, Quaternion rot, Transform builder, out string errorCode, out Vector3 adjustedPos)
+    {
+        errorCode = null;
+        adjustedPos = pos;
+
+        if (arc == null)
+        {
+            errorCode = "ARC_NULL";
+            return false;
         }
 
-        // if (buildingCounts.ContainsKey(arc.arcId))
-        //     buildingCounts[arc.arcId]++;
-        // else
-        //     buildingCounts[arc.arcId] = 1;
+        float depthOffset = 0.1f;
+        if (arc.buildPrefab != null &&
+            arc.buildPrefab.TryGetComponent<BuildingInstance>(out var biOnPrefab) &&
+            biOnPrefab.depthOffset != 0f)
+        {
+            depthOffset = biOnPrefab.depthOffset;
+        }
 
-        // if (arc.researchInc > 0f)
-        // {
-        //     Debug.Log($"건물 건설로 연구 진척도 +{arc.researchInc}");
-        //     ResearchManager.I.AddProgress(arc.researchInc);
-        // }
+        var ctx = new ArcContext
+        {
+            Data = arc,
+            Position = pos,
+            Rotation = rot,
+            ArcPrefab = arc.buildPrefab,
+            FootPrint = footprintProvider.GetFootprint(arc),
+            PlayerTransform = builder,     // ✅ 서버에서도 정확한 플레이어 기준
+            DepthOffset = depthOffset,
+        };
 
-        bool spawned = Spawn(arc, pos, rot);
-        //if (spawned)
-        //{
-        //    QuestManager.I?.NotifyBuildingBuilt(arc.arcId);
-        //    AutoSaveService.I?.RequestSave("Build");
-        //}
+        if (!Validate(ctx, out errorCode))
+            return false;
 
-        return spawned;
+        if (!TryAdjustToGround(ctx, out adjustedPos, out errorCode))
+            return false;
+
+        return true;
+    }
+
+    // 서버에서 구역 제한 검증도 하려면 (StageDetector가 서버에도 존재한다는 전제)
+    public bool IsInBuildableZone_Server(Transform builder)
+    {
+        // 서버에서 stageDetector가 의미 있게 동작하도록 구성되어 있으면 그대로 사용 가능
+        return IsInBuildableZone();
+    }
+
+    public bool TryGetRecipe(int arcId, out ArcRecipe recipe)
+    {
+        return recipeDB.TryGetRecipe(arcId, out recipe);
+    }
+
+    public bool HasMaterials(PlayerInventoryRuntime inv, ArcRecipe recipe)
+    {
+        if (inv == null) return false;
+
+        foreach (var (itemId, amount) in recipe.materials)
+        {
+            if (!inv.HasItem(itemId, amount))
+                return false;
+        }
+
+        return true;
+    }
+
+    public void Remove(PlayerInventoryRuntime inv, ArcRecipe recipe)
+    {
+        if (inv == null) return;
+
+        foreach (var (itemId, amount) in recipe.materials)
+        {
+            inv.TryRemoveItem(itemId, amount);
+        }
     }
 
     public bool HasMaterials(ArcRecipe recipe)
@@ -550,13 +628,17 @@ public class BuildManager : MonoBehaviour
     {
         if (inst == null) return false;
 
-        // 퀘스트에 "건물 파괴" 같은 조건이 있으면 여기서 Notify 가능
-        // QuestManager.I.NotifyBuildingRemoved(inst.ArcId);
-
-        if (inst.TryGetComponent<CorridorNode>(out var node))
+        // 멀티면 서버 요청
+        var netObj = inst.GetComponent<NetworkObject>();
+        if (netObj != null && netObj.IsSpawned && NetworkBuildManager.I != null && NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
         {
-            CorridorConnectionManager.I.Unregister(node);
+            NetworkBuildManager.I.RequestRemove(netObj.NetworkObjectId);
+            return true;
         }
+
+        // 싱글 fallback
+        if (inst.TryGetComponent<CorridorNode>(out var node))
+            CorridorConnectionManager.I.Unregister(node);
 
         GridOccupancyManager.I?.Release(inst);
 

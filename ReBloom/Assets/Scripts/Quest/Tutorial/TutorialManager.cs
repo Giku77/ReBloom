@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -20,6 +21,7 @@ public class TutorialManager : MonoBehaviour
 
     private CancellationTokenSource tutorialCts;
     private bool isRunning;
+    private bool hasLocalPlayerBinding;
 
     private int resumeTutorialId = 0;
     private bool introCompleted = false;
@@ -27,12 +29,28 @@ public class TutorialManager : MonoBehaviour
     public int ResumeTutorialId => resumeTutorialId;
     public bool IntroCompleted => introCompleted;
 
+    private bool IsNetworkedSession => NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
+
     private void Awake()
     {
         I = this;
 
         tutorialDb = new TutorialDB();
         tutorialDb.LoadFromBG();
+        TryBindExistingLocalPlayer();
+    }
+
+    private void OnEnable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned += BindLocalPlayer;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned += UnbindLocalPlayer;
+        TryBindExistingLocalPlayer();
+    }
+
+    private void OnDisable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned -= BindLocalPlayer;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned -= UnbindLocalPlayer;
     }
 
     private void ShowTutorialText(string text)
@@ -53,9 +71,20 @@ public class TutorialManager : MonoBehaviour
 
     private async void Start()
     {
+        await EnsurePlayerBindingAsync();
+
+        if (IsNetworkedSession)
+        {
+            introCompleted = true;
+            resumeTutorialId = 0;
+            playerController?.SetBlocked(false);
+            enabled = false;
+            return;
+        }
+
         if (introCompleted)
         {
-            playerController.SetBlocked(false);
+            playerController?.SetBlocked(false);
             return;
         }
 
@@ -78,15 +107,15 @@ public class TutorialManager : MonoBehaviour
 
             VoiceManager.I?.Stop();
 
-            //유니티 플레이 후 비활성화 되는 문제로 인하여 If문 추가
             if (this != null && gameObject.scene.isLoaded)
             {
                 dialogueUI.Hide();
                 ClearTutorialText();
             }
-            playerController.SetBlocked(false);
 
-            tutorialCts.Dispose();
+            playerController?.SetBlocked(false);
+
+            tutorialCts?.Dispose();
             tutorialCts = null;
         }
     }
@@ -130,6 +159,16 @@ public class TutorialManager : MonoBehaviour
                !token.IsCancellationRequested &&
                tutorialDb.TryGetTutorial(currentId, out var node))
         {
+            if (playerController == null)
+            {
+                await EnsurePlayerBindingAsync();
+                if (playerController == null)
+                {
+                    Debug.LogWarning("[TutorialManager] Local PlayerController binding is missing.");
+                    break;
+                }
+            }
+
             playerController.SetBlocked(!node.IsControllable);
 
             string text = Localize(node.TutorialTextID);
@@ -138,12 +177,6 @@ public class TutorialManager : MonoBehaviour
             bool waitForNextInput = node.Condition == TutorialConditionType.NextImmediately;
             bool showPoppiImage = node.TextType == TutorialTextType.DialogueAndPoppiImg;
             bool showNextHint = waitForNextInput;
-
-            //await dialogueUI.ShowLineAsync(
-            //    text,
-            //    showCharacterImg,
-            //    waitForNextInput,
-            //    showNextHint);
 
             VoiceManager.I?.Stop();
 
@@ -171,7 +204,7 @@ public class TutorialManager : MonoBehaviour
                     showNextHint,
                     cancellationToken: token);
             }
-            else 
+            else
             {
                 dialogueUI.Hide();
                 ShowTutorialText(text);
@@ -195,9 +228,10 @@ public class TutorialManager : MonoBehaviour
             }
 
             currentId = node.NextTutorialID;
-            resumeTutorialId = currentId; // 다음 노드
+            resumeTutorialId = currentId;
             AutoSaveService.I?.RequestSave("Tutorial progress");
         }
+
         if (!token.IsCancellationRequested && currentId == 0)
         {
             introCompleted = true;
@@ -265,5 +299,60 @@ public class TutorialManager : MonoBehaviour
             return localizedText != null ? localizedText.MobileTextKR : "-";
         }
         return localizedText != null ? localizedText.TextKR : "-";
+    }
+
+    private async UniTask EnsurePlayerBindingAsync()
+    {
+        TryBindExistingLocalPlayer();
+
+        if (!IsNetworkedSession)
+        {
+            if (playerController == null)
+                playerController = FindFirstObjectByType<PlayerController>();
+            return;
+        }
+
+        if (playerController != null)
+        {
+            hasLocalPlayerBinding = true;
+            return;
+        }
+
+        await UniTask.WaitUntil(() => hasLocalPlayerBinding || playerController != null, cancellationToken: this.GetCancellationTokenOnDestroy());
+        TryBindExistingLocalPlayer();
+    }
+
+    private void BindLocalPlayer(GameObject playerObj)
+    {
+        if (playerObj == null)
+            return;
+
+        playerController = playerObj.GetComponent<PlayerController>();
+        hasLocalPlayerBinding = playerController != null;
+    }
+
+    private void UnbindLocalPlayer()
+    {
+        hasLocalPlayerBinding = false;
+        playerController = null;
+    }
+
+    private void TryBindExistingLocalPlayer()
+    {
+        if (!IsNetworkedSession)
+        {
+            if (playerController == null)
+                playerController = FindFirstObjectByType<PlayerController>();
+            hasLocalPlayerBinding = playerController != null;
+            return;
+        }
+
+        var nm = NetworkManager.Singleton;
+        if (nm == null || nm.SpawnManager == null)
+            return;
+
+        var localPlayerObject = nm.SpawnManager.GetLocalPlayerObject();
+        if (localPlayerObject != null)
+            BindLocalPlayer(localPlayerObject.gameObject);
     }
 }

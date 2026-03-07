@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -20,6 +20,7 @@ public class PlayerStats : MonoBehaviour
     public event Action OnDeath;
 
     private bool isDead = false;
+    public bool IsDead => isDead;
 
     [SerializeField] private bool isDebug = true;
 
@@ -41,14 +42,8 @@ public class PlayerStats : MonoBehaviour
         Pollution = new PollutionStat(this, data.pollutionMax, data.pollutionIncreaseRate);
         Temperature = new TemperatureStat(this, data.normalTemperature, data.maxTemperature, data.minTemperature);
 
-        //LSY: DeathBoxEvent
         RegisterToDeathBoxHandler();
     }
-
-    //private void Start()
-    //{
-    //    Pollution = new PollutionStat(this, data.pollutionMax, data.pollutionIncreaseRate);
-    //}
 
     private void Update()
     {
@@ -58,7 +53,7 @@ public class PlayerStats : MonoBehaviour
             return;
 
         Hunger.Tick();
-        Thirst.Tick();              
+        Thirst.Tick();
         Pollution.Tick();
         Temperature.Tick();
 
@@ -106,12 +101,7 @@ public class PlayerStats : MonoBehaviour
     public void GetResurrection()
     {
         Health.Set(50f);
-        //Hunger.Set(0f);
-        //Pollution.Set(0f);
-        //Thirst.Set(0f);
         Temperature.Set(36.5f);
-
-
         isDead = false;
         AutoSaveService.I?.RequestSave("PlayerStats");
     }
@@ -120,23 +110,48 @@ public class PlayerStats : MonoBehaviour
     {
         if (isInvincible) return;
 
-        Health.Modify(-damage);
-        anim.SetHitAnim();
-        SoundManager.I?.PlayGetDamage();
-        AutoSaveService.I?.RequestSave("PlayerStats");
+        float nextHealth = Mathf.Max(0f, Health.Value - damage);
+        SetAuthoritativeHealth(nextHealth, true);
     }
-    /// <summary>
-    /// LSY: DeathBoxHandler를 찾아서 자동 이벤트 등록
-    /// </summary>
+
+    public void SetAuthoritativeHealth(float newHealth, bool playFeedback)
+    {
+        float clampedHealth = Mathf.Clamp(newHealth, 0f, Health.MaxValue);
+        float previousHealth = Health.Value;
+
+        if (Mathf.Approximately(previousHealth, clampedHealth))
+            return;
+
+        Health.Set(clampedHealth);
+
+        if (clampedHealth > 0f)
+            isDead = false;
+
+        if (playFeedback && clampedHealth < previousHealth)
+        {
+            anim?.SetHitAnim();
+            SoundManager.I?.PlayGetDamage();
+            AutoSaveService.I?.RequestSave("PlayerStats");
+        }
+    }
+
+    public void ApplyRestoredState(float health, float hunger, float thirst, float pollution, float temperature, bool dead)
+    {
+        Health.Set(Mathf.Clamp(health, 0f, Health.MaxValue));
+        Hunger.Set(Mathf.Clamp(hunger, 0f, Hunger.MaxValue));
+        Thirst.Set(Mathf.Clamp(thirst, 0f, Thirst.MaxValue));
+        Pollution.Set(Mathf.Clamp(pollution, 0f, Pollution.MaxValue));
+        Temperature.Set(Mathf.Clamp(temperature, 0f, Temperature.MaxValue));
+        isDead = dead || Health.Value <= 0f;
+    }
+
     private void RegisterToDeathBoxHandler()
     {
         DeathBoxHandler handler = FindFirstObjectByType<DeathBoxHandler>();
 
         if (handler != null)
         {
-            // 기존 구독 해제 (중복 방지)
             OnDeath -= handler.OnCreateDeathBox;
-            // 새로 구독
             OnDeath += handler.OnCreateDeathBox;
 
             Debug.Log("[PlayerStats] DeathBoxHandler 이벤트 등록 완료");
@@ -155,6 +170,7 @@ public class PlayerStats : MonoBehaviour
         Thirst.Set(0f);
         Temperature.Set(36.5f);
     }
+
     private void AssignmentDebugKeys()
     {
 #if !UNITY_EDITOR && !DEVELOPMENT_BUILD

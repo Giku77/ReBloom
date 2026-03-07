@@ -1,21 +1,21 @@
-ï»¿using Newtonsoft.Json.Bson;
+using System.Collections;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public enum PopupType
-{ 
+{
     None,
     Title,
     QuitGame,
     Escape,
 }
 
-
 public class GamePauseUI : UIBase
 {
-    [Header("ë²„íŠ¼ UI")]
+    [Header("¹öÆ° UI")]
     [SerializeField] private Button gameResumeButton;
     [SerializeField] private Button settingButton;
     [SerializeField] private Button titleButton;
@@ -24,7 +24,7 @@ public class GamePauseUI : UIBase
     [SerializeField] private Button cancelButton;
     [SerializeField] private Button escapeButton;
 
-    [Header("íŒì—… UI")]
+    [Header("ÆË¾÷ UI")]
     [SerializeField] private GameObject popup;
     [SerializeField] private TextMeshProUGUI popupText;
 
@@ -32,9 +32,9 @@ public class GamePauseUI : UIBase
     [SerializeField] private PlayerStats player;
 
     private PopupType currentPopupType = PopupType.None;
-    private string titlePopUpText = "íƒ€ì´í‹€ë¡œ ëŒì•„ê°€ì‹œê² ìŠµë‹ˆê¹Œ?";
-    private string quitGamePopUpText = "ê²Œì„ì„ ì •ë§ ì¢…ë£Œí•˜ì‹œê² ìŠµë‹ˆê¹Œ?";
-    private string escapePopUpText = "ëª¨ë“  ì•„ì´í…œì„ ë“œëí•©ë‹ˆë‹¤. íƒˆì¶œí•˜ì‹œê² ìŠµë‹ˆê¹Œ?";
+    private readonly string titlePopUpText = "Å¸ÀÌÆ²·Î µ¹¾Æ°¡½Ã°Ú½À´Ï±î?";
+    private readonly string quitGamePopUpText = "°ÔÀÓÀ» Á¤¸» Á¾·áÇÏ½Ã°Ú½À´Ï±î?";
+    private readonly string escapePopUpText = "¸ğµç ¾ÆÀÌÅÛÀ» µå¶øÇÕ´Ï´Ù. Å»ÃâÇÏ½Ã°Ú½À´Ï±î?";
 
     protected override void Awake()
     {
@@ -53,8 +53,9 @@ public class GamePauseUI : UIBase
     {
         if (UIManager.Instance != null && UIManager.Instance.IsBlockedInput)
             return;
+
         UIManager.Instance?.ToggleUI(Type);
-        Debug.Log("[GamePuaseUI] ê²Œì„ì¼ì‹œì •ì§€ UI í† ê¸€ í˜¸ì¶œ");
+        Debug.Log("[GamePauseUI] °ÔÀÓÀÏ½ÃÁ¤Áö UI Åä±Û È£Ãâ");
     }
 
     protected override void OnShow()
@@ -64,11 +65,10 @@ public class GamePauseUI : UIBase
         UIManager.Instance?.SetPaused(true);
     }
 
-      private void OnEnable()
+    private void OnEnable()
     {
         NetworkPlayerOwnerGate.OnLocalPlayerSpawned += BindLocalPlayer;
         NetworkPlayerOwnerGate.OnLocalPlayerDespawned += UnbindLocalPlayer;
-
         TryBindFromExistingOwner();
     }
 
@@ -81,7 +81,9 @@ public class GamePauseUI : UIBase
 
     private void BindLocalPlayer(GameObject playerGo)
     {
-        if (playerGo == null) return;
+        if (playerGo == null)
+            return;
+
         player = playerGo.GetComponent<PlayerStats>();
     }
 
@@ -92,11 +94,13 @@ public class GamePauseUI : UIBase
 
     private void TryBindFromExistingOwner()
     {
-        var nos = FindObjectsByType<Unity.Netcode.NetworkObject>(FindObjectsSortMode.None);
+        var nos = FindObjectsByType<NetworkObject>(FindObjectsSortMode.None);
         foreach (var no in nos)
         {
-            if (!no.IsOwner) continue;
-            if (no.GetComponent<PlayerController>() == null) continue;
+            if (!no.IsOwner)
+                continue;
+            if (no.GetComponent<PlayerController>() == null)
+                continue;
 
             BindLocalPlayer(no.gameObject);
             return;
@@ -110,9 +114,7 @@ public class GamePauseUI : UIBase
         UIManager.Instance?.SetPaused(false);
 
         if (popup.activeSelf)
-        {
             ClosePopup();
-        }
     }
 
     private void OnGameResumeButtonClicked()
@@ -122,15 +124,13 @@ public class GamePauseUI : UIBase
 
     private void OnSettingButtonClicked()
     {
-        Debug.Log("[GamePauseUI] ì„¸íŒ…ë²„íŠ¼ í´ë¦­");
+        Debug.Log("[GamePauseUI] ¼¼ÆÃ¹öÆ° Å¬¸¯");
         UIManager.Instance?.ShowUI(UIType.Setting);
     }
 
     private void OnTitleButtonClicked()
     {
-        Debug.Log("[GamePauseUI] íƒ€ì´í‹€ ë²„íŠ¼ í´ë¦­");
-        //SceneManager.LoadScene("TitleScene");
-
+        Debug.Log("[GamePauseUI] Å¸ÀÌÆ² ¹öÆ° Å¬¸¯");
         currentPopupType = PopupType.Title;
         OpenPopup();
     }
@@ -177,21 +177,47 @@ public class GamePauseUI : UIBase
     }
 
     private void ClosePopup()
-    { 
+    {
         executeButton.onClick.RemoveAllListeners();
         cancelButton.onClick.RemoveAllListeners();
         popupText.text = string.Empty;
 
         SoundManager.I?.PlayUIClick();
-
         popup.SetActive(false);
-
         currentPopupType = PopupType.None;
     }
 
     private void LoadTitleScene()
     {
         SoundManager.I?.PlayUIClick();
+        StartCoroutine(ReturnToTitleRoutine());
+    }
+
+    private IEnumerator ReturnToTitleRoutine()
+    {
+        Time.timeScale = 1f;
+        UIManager.Instance?.SetPaused(false);
+        popup.SetActive(false);
+        currentPopupType = PopupType.None;
+
+        var networkManager = NetworkManager.Singleton;
+        if (networkManager != null && networkManager.IsListening)
+        {
+            Debug.Log($"[GamePauseUI] Returning to title. Shutting down session. server={networkManager.IsServer} client={networkManager.IsClient}");
+            networkManager.Shutdown();
+
+            float timeout = 2f;
+            while (timeout > 0f && networkManager.ShutdownInProgress)
+            {
+                timeout -= Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            yield return null;
+        }
+
+        JoinCodeStore.Current = string.Empty;
+        GameStartContext.StartMode = GameStartContext.Mode.Debug;
         SceneManager.LoadScene("TitleScene");
     }
 
@@ -200,17 +226,16 @@ public class GamePauseUI : UIBase
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
-            Application.Quit();
+        Application.Quit();
 #endif
-
     }
 
     private void Escape()
     {
-        if (player == null) return;
+        if (player == null)
+            return;
 
         SoundManager.I?.PlayUIClick();
-
         player.TakeDamage(100);
     }
 }

@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class AMechNPCController : BaseNPCController
 {
+    private const int FxDetection = 1;
+
     [Header("Pastrol Settings")]
     public Transform[] patrolPoints;
 
@@ -30,12 +32,26 @@ public class AMechNPCController : BaseNPCController
     {
         base.Update();
 
+        if (!HasServerAuthority)
+            return;
+
         CheckVision();
 
         if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance + 0.1f)
         {
             MoveNext();
         }
+    }
+
+    protected override void HandleFxEvent(int fxEventId, Vector3 position, Vector3 direction, float value)
+    {
+        if (fxEventId == FxDetection)
+            sound?.PlayDetection();
+    }
+
+    public void PlayDetectionFx()
+    {
+        BroadcastFxEvent(FxDetection);
     }
 
     private void CheckVision()
@@ -53,7 +69,7 @@ public class AMechNPCController : BaseNPCController
         {
             if (hit.transform == player)
             {
-                sound.PlayDetection();
+                PlayDetectionFx();
                 OnPlayerDetected?.Invoke();
             }
         }

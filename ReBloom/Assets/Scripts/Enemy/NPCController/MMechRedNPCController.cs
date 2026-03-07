@@ -1,7 +1,10 @@
-﻿using UnityEngine;
+﻿using Unity.Netcode;
+using UnityEngine;
 
 public class MMechRedNPCController : BaseNPCController
 {
+    private const int FxHit = 1;
+
     [Header("Pastrol Settings")]
     public Transform[] patrolPoints;
 
@@ -23,6 +26,9 @@ public class MMechRedNPCController : BaseNPCController
     {
         base.Update();
 
+        if (!HasServerAuthority)
+            return;
+
         if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance + 0.1f)
         {
             MoveNext();
@@ -41,6 +47,12 @@ public class MMechRedNPCController : BaseNPCController
         }
     }
 
+    protected override void HandleFxEvent(int fxEventId, Vector3 position, Vector3 direction, float value)
+    {
+        if (fxEventId == FxHit)
+            sound?.PlayHit();
+    }
+
     private void MoveNext()
     {
         index = (index + 1) % patrolPoints.Length;
@@ -50,11 +62,17 @@ public class MMechRedNPCController : BaseNPCController
 
     private void OnCollisionEnter(Collision other)
     {
-        if (other.gameObject.layer == LayerMask.NameToLayer("Player"))
-        {
-            playerController.ApplyStun(stunTime);
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening && !NetworkManager.Singleton.IsServer)
+            return;
 
-            sound.PlayHit();
-        }
+        if (other.gameObject.layer != LayerMask.NameToLayer("Player"))
+            return;
+
+        NetworkPlayerOwnerGate gate = other.gameObject.GetComponent<NetworkPlayerOwnerGate>();
+        if (gate == null)
+            return;
+
+        gate.ApplyAuthoritativeStun(stunTime);
+        BroadcastFxEvent(FxHit);
     }
 }

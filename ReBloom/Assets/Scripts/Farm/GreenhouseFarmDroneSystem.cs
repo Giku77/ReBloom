@@ -1,4 +1,5 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class GreenhouseFarmDroneSystem : MonoBehaviour
@@ -24,6 +25,8 @@ public class GreenhouseFarmDroneSystem : MonoBehaviour
 
     private readonly List<(int itemId, int count)> _dropBuffer = new();
 
+    private bool HasServerAuthority => NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening || NetworkManager.Singleton.IsServer;
+
     private void BuildActualDrops(FarmCropRowData row, List<(int itemId, int count)> outList)
     {
         outList.Clear();
@@ -36,7 +39,6 @@ public class GreenhouseFarmDroneSystem : MonoBehaviour
                 outList.Add((d.itemId, d.count));
         }
     }
-
 
     private void Awake()
     {
@@ -56,11 +58,8 @@ public class GreenhouseFarmDroneSystem : MonoBehaviour
         autoFertilize = on;
 
         if (autoFertilize)
-        {
-            _nextFertilizeTime = Time.time; 
-        }
+            _nextFertilizeTime = Time.time;
     }
-
 
     private bool CanStoreAllDrops(StorageData storage, List<(int itemId, int count)> drops)
     {
@@ -72,7 +71,6 @@ public class GreenhouseFarmDroneSystem : MonoBehaviour
         return true;
     }
 
-
     private void OnEnable()
     {
         _harvestTimer = 0f;
@@ -82,15 +80,15 @@ public class GreenhouseFarmDroneSystem : MonoBehaviour
 
     private void Update()
     {
-        // 1) 비료 자동 (강화 켜진 경우만)
+        if (!HasServerAuthority)
+            return;
+
         if (autoFertilize && Time.time >= _nextFertilizeTime)
         {
             bool applied = TryAutoFertilize();
-
             _nextFertilizeTime = Time.time + (applied ? fertilizerDuration : 2f);
         }
 
-        // 2) 자동 수확
         _harvestTimer += Time.deltaTime;
         if (_harvestTimer >= harvestIntervalSeconds)
         {
@@ -99,12 +97,11 @@ public class GreenhouseFarmDroneSystem : MonoBehaviour
         }
     }
 
-    private void StoreAllDrops(StorageData storage, List<(int itemId, int count)> drops)
+    private void StoreAllDrops(WorldStorage storage, List<(int itemId, int count)> drops)
     {
         for (int i = 0; i < drops.Count; i++)
-            storage.AddItem(drops[i].itemId, drops[i].count);
+            storage.AddItem(ItemDatabase.I.GetItem(drops[i].itemId), drops[i].count);
     }
-
 
     private int CountActiveBeds()
     {
@@ -125,11 +122,10 @@ public class GreenhouseFarmDroneSystem : MonoBehaviour
         if (activeBeds <= 0) return false;
 
         int need = activeBeds;
-
         int have = storage.GetItemCount(fertilizerItemId);
         if (have < need) return false;
 
-        if (!storage.TryRemoveItem(fertilizerItemId, need))
+        if (!targetStorage.RemoveItem(fertilizerItemId, need))
             return false;
 
         for (int b = 0; b < beds.Length; b++)
@@ -143,8 +139,6 @@ public class GreenhouseFarmDroneSystem : MonoBehaviour
 
         return true;
     }
-
-
 
     private void TryAutoHarvest()
     {
@@ -171,11 +165,10 @@ public class GreenhouseFarmDroneSystem : MonoBehaviour
                     if (!CanStoreAllDrops(storage, _dropBuffer))
                         continue;
 
-                    StoreAllDrops(storage, _dropBuffer);
+                    StoreAllDrops(targetStorage, _dropBuffer);
                 }
 
                 bed.TryHarvestInternal(s, out _);
-
                 done++;
             }
         }

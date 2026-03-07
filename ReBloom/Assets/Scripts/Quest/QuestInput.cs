@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Unity.Netcode;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
@@ -29,20 +30,24 @@ public class QuestInput : MonoBehaviour
 
     private void OnQuestComplete(InputAction.CallbackContext ctx)
     {
-        Debug.Log("Quest Complete Input Received");
-        //QuestManager.I?.CompleteCurrent();
-        QuestManager.I?.TryCompleteCurrent();
-        QuestManager.I?.TryAdvanceOrPlayEnding();
-        //QuestManager.I?.PlayQuestCompleteAnimation();
+        var nqm = NetworkQuestManager.I;
+        if (nqm == null) return;
+
+        if (!nqm.IsAwaitingHostAdvance) return;
+
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
+            nqm.RequestAdvanceFromHost();
     }
 
     public void OnQuestComplete()
     {
-        Debug.Log("Quest Complete Input Received");
-        //QuestManager.I?.CompleteCurrent();
-        QuestManager.I?.TryCompleteCurrent();
-        QuestManager.I?.TryAdvanceOrPlayEnding();
-        //QuestManager.I?.PlayQuestCompleteAnimation();
+        var nqm = NetworkQuestManager.I;
+        if (nqm == null) return;
+
+        if (!nqm.IsAwaitingHostAdvance) return;
+
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
+            nqm.RequestAdvanceFromHost();
     }
 
     private void Update()

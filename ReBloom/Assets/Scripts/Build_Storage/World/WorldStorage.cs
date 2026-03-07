@@ -1,9 +1,11 @@
-﻿using UnityEngine;
+﻿using Cysharp.Threading.Tasks;
+using UnityEngine;
 
 public class WorldStorage : WorldItemContainerBase
 {
     [Header("Storage References")]
     [SerializeField] private StorageData storageDataRef;
+    [SerializeField] private NetworkStorageContainer networkStorage;
 
     private StorageData storageData;
     private static StorageUI sharedStorageUI;
@@ -13,7 +15,7 @@ public class WorldStorage : WorldItemContainerBase
     protected override IItemContainer Container => storageData;
     public override bool CanInteract() => storageData != null;
 
-    [SerializeField] private string containerGuid; // 고정 키
+    [SerializeField] private string containerGuid;
 
     public string ContainerGuid => containerGuid;
 
@@ -26,46 +28,38 @@ public class WorldStorage : WorldItemContainerBase
     {
         base.Awake();
 
-        // data instantiate
         storageData = Instantiate(storageDataRef);
 
-        // guid 자동 세팅
+        if (networkStorage == null)
+            networkStorage = GetComponent<NetworkStorageContainer>();
+
+        if (networkStorage != null)
+            networkStorage.BindMirror(storageData);
+
         if (string.IsNullOrEmpty(containerGuid))
         {
             var id = GetComponent<SaveableEntity>();
             if (id != null && !string.IsNullOrEmpty(id.PersistentId))
-            {
                 containerGuid = $"container:{id.PersistentId}";
-            }
         }
 
-        // StorageUI 찾기 (싱글톤)
         if (sharedStorageUI == null)
         {
             sharedStorageUI = FindFirstObjectByType<StorageUI>();
 
             if (sharedStorageUI != null)
-            {
                 Debug.Log($"[WorldStorage] StorageUI 찾음: {sharedStorageUI.name}");
-            }
             else
-            {
                 Debug.LogError("[WorldStorage] StorageUI를 찾을 수 없습니다!");
-            }
         }
     }
 
     public override void Interact(PlayerController player)
     {
         if (storageData == null)
-        {
             return;
-        }
 
-        // 1. 플레이어에게 현재 창고 알림 (거리 체크용)
         player.SetCurrentStorage(this);
-
-        // 2. UI 열기
         OpenStorageUI();
     }
 
@@ -77,28 +71,15 @@ public class WorldStorage : WorldItemContainerBase
             return;
         }
 
-        // 1. 데이터 설정
         sharedStorageUI.Initialize(storageData, this);
-
-        // 2. DragDropManager에 등록
         DragDropManager.I.SetCurrentStorage(this);
-
-        // 3. UI 열기
-        Debug.Log($"[WorldStorage] IsOpen: {sharedStorageUI.IsOpen}, Type: {sharedStorageUI.Type}");
 
         if (!sharedStorageUI.IsOpen)
         {
-            // UIManager 확인
             if (UIManager.Instance != null)
-            {
-                Debug.Log("[WorldStorage] UIManager.ShowUI 호출");
                 UIManager.Instance.ShowUI(sharedStorageUI.Type);
-            }
             else
-            {
-                Debug.LogError("[WorldStorage] UIManager.Instance가 null!");
-                sharedStorageUI.Show();  // fallback
-            }
+                sharedStorageUI.Show();
         }
         else
         {
@@ -106,26 +87,133 @@ public class WorldStorage : WorldItemContainerBase
         }
     }
 
-    /// <summary>
-    /// 외부에서 UI 닫기 (PlayerController.CheckStorageDistance에서 호출)
-    /// </summary>
     public void CloseUI()
     {
         if (sharedStorageUI != null)
-        {
             sharedStorageUI.Toggle();
-        }
     }
 
     public void AddItem(ItemBase item, int quantity)
     {
-        if (storageData != null)
-        {
+        if (item == null || quantity <= 0)
+            return;
+
+        if (networkStorage != null)
+            networkStorage.ServerTryAddItem(item.itemID, quantity);
+        else if (storageData != null)
             storageData.AddItem(item.itemID, quantity);
-        }
+    }
+
+    public bool RemoveItem(int itemID, int quantity)
+    {
+        if (quantity <= 0)
+            return false;
+
+        if (networkStorage != null)
+            return networkStorage.ServerTryRemoveItem(itemID, quantity);
+
+        return storageData != null && storageData.TryRemoveItem(itemID, quantity);
+    }
+
+    public bool RequestDepositFromInventory(int itemID, int quantity)
+    {
+        if (quantity <= 0)
+            return false;
+
+        if (networkStorage != null)
+            return networkStorage.RequestDepositFromLocalPlayer(itemID, quantity);
+
+        if (playerInventory == null || storageData == null)
+            return false;
+
+        return playerInventory.TransferTo(storageData, itemID, quantity);
+    }
+
+    public bool RequestWithdrawToInventory(int itemID, int quantity)
+    {
+        if (quantity <= 0)
+            return false;
+
+        if (networkStorage != null)
+            return networkStorage.RequestWithdrawToLocalPlayer(itemID, quantity);
+
+        if (playerInventory == null || storageData == null)
+            return false;
+
+        return storageData.TransferTo(playerInventory.Container, itemID, quantity);
+    }
+
+    public bool RequestDepositAllFromInventory()
+    {
+        if (networkStorage != null)
+            return networkStorage.RequestDepositAllFromLocalPlayer();
+
+        if (playerInventory == null || storageData == null)
+            return false;
+
+        return playerInventory.DepositAllTo(storageData);
+    }
+
+    public bool RequestWithdrawAllToInventory()
+    {
+        if (networkStorage != null)
+            return networkStorage.RequestWithdrawAllToLocalPlayer();
+
+        if (playerInventory == null || storageData == null)
+            return false;
+
+        return playerInventory.WithdrawAllFrom(storageData);
+    }
+
+    public bool RequestDropToWorld(ItemBase item, int quantity)
+    {
+        if (item == null || quantity <= 0)
+            return false;
+
+        if (networkStorage != null)
+            return networkStorage.RequestDropToWorldFromLocalPlayer(item.itemID, quantity);
+
+        if (storageData == null || !storageData.TryRemoveItem(item.itemID, quantity))
+            return false;
+
+        DropToWorldLocal(item, quantity).Forget();
+        return true;
     }
 
     public StorageData GetStorageData() => storageData;
 
     public string GetStorageUID() => storageID;
+
+    public void LoadFromSnapshot(ContainerSaveDTO dto)
+    {
+        if (storageData == null || dto == null)
+            return;
+
+        if (networkStorage != null)
+            networkStorage.ServerClear();
+        else
+            storageData.Clear();
+
+        foreach (var item in dto.items)
+        {
+            if (item == null || item.itemId <= 0 || item.amount <= 0)
+                continue;
+
+            if (networkStorage != null)
+                networkStorage.ServerTryAddItem(item.itemId, item.amount);
+            else
+                storageData.TryAddItem(item.itemId, item.amount);
+        }
+    }
+
+    private async UniTaskVoid DropToWorldLocal(ItemBase item, int quantity)
+    {
+        var itemSpawner = FindFirstObjectByType<ItemSpawner>();
+        if (itemSpawner == null || playerTransform == null)
+            return;
+
+        Vector3 dropPosition = playerTransform.position + playerTransform.forward * 1.25f + Vector3.up * 0.75f;
+        await itemSpawner.DropItemWithQuantity(item, dropPosition, quantity);
+        storageData.NotifyStorageChanged();
+    }
 }

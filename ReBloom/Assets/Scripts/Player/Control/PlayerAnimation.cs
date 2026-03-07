@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using UnityEngine.InputSystem;
+using UnityEngine;
 
 public class PlayerAnimation : MonoBehaviour
 {
@@ -22,25 +21,31 @@ public class PlayerAnimation : MonoBehaviour
 
     [Header("Layer Blending")]
     [SerializeField] private float layerBlendSpeed = 5f;
+    [SerializeField] private ServerAuthoritativeAnimBridge networkBridge;
+
     private int toolLayerIndex = 1;
-    private float targetLayerWeight = 0f;
-    private bool isBlending = false;
+    private float targetLayerWeight;
+    private bool isBlending;
 
     public Animator Animator => animator;
 
     private void Awake()
     {
         animator = GetComponentInChildren<Animator>();
+        if (!networkBridge)
+            networkBridge = GetComponent<ServerAuthoritativeAnimBridge>();
     }
 
     private void Start()
     {
-        animator.SetLayerWeight(toolLayerIndex, 0f);
+        if (animator != null)
+            animator.SetLayerWeight(toolLayerIndex, 0f);
     }
 
     private void Update()
     {
-        if (!isBlending) return;
+        if (!isBlending || animator == null)
+            return;
 
         float currentWeight = animator.GetLayerWeight(toolLayerIndex);
 
@@ -51,91 +56,104 @@ public class PlayerAnimation : MonoBehaviour
             return;
         }
 
-        float newWeight = Mathf.Lerp(
-            currentWeight,
-            targetLayerWeight,
-            Time.deltaTime * layerBlendSpeed
-        );
+        float newWeight = Mathf.Lerp(currentWeight, targetLayerWeight, Time.deltaTime * layerBlendSpeed);
         animator.SetLayerWeight(toolLayerIndex, newWeight);
     }
 
     public void SetSpeed(float speed)
     {
-        animator.SetFloat(Speed, speed);
+        ApplyFloatLocal(Speed, speed);
     }
 
     public void SetSlow(bool value)
     {
-        animator.SetBool(Slow, value);
+        ApplyBoolLocal(Slow, value);
+        networkBridge?.ReportBoolParam(Slow, value);
     }
 
     public void SetJumping(bool value)
     {
-        animator.SetBool(Jump, value);
+        ApplyBoolLocal(Jump, value);
+        networkBridge?.ReportBoolParam(Jump, value);
     }
 
     public void SetStun(bool value)
     {
-        animator.SetBool(Stun, value);
+        ApplyBoolLocal(Stun, value);
+        networkBridge?.ReportBoolParam(Stun, value);
     }
 
     public void PlayDeath()
     {
-        animator.SetTrigger(Death);
+        ApplyTriggerLocal(Death);
+        networkBridge?.ReportTriggerParam(Death);
     }
 
     public void PlayWatering()
     {
-        animator.SetTrigger(Watering);
+        ApplyTriggerLocal(Watering);
+        networkBridge?.ReportTriggerParam(Watering);
     }
 
     public void SetRootMotion(bool value)
     {
-        animator.applyRootMotion = value;
+        if (animator != null)
+            animator.applyRootMotion = value;
     }
 
     public void PlayPickUp()
     {
-        animator.SetTrigger(PickUp);
+        ApplyTriggerLocal(PickUp);
+        networkBridge?.ReportTriggerParam(PickUp);
     }
 
     public void PlaySleep()
     {
-        animator.SetTrigger(Sleep);
+        ApplyTriggerLocal(Sleep);
+        networkBridge?.ReportTriggerParam(Sleep);
     }
 
     public void PlayStandUp()
     {
-        animator.SetTrigger(StandUp);
+        ApplyTriggerLocal(StandUp);
+        networkBridge?.ReportTriggerParam(StandUp);
     }
 
     public void SetGathering(bool value)
     {
-        animator.SetBool(Gather, value);
+        ApplyBoolLocal(Gather, value);
+        networkBridge?.ReportBoolParam(Gather, value);
     }
 
     public void SetToolType(int toolType)
     {
-        animator.SetInteger(ToolType, toolType);
+        ApplyIntLocal(ToolType, toolType);
+        networkBridge?.ReportIntParam(ToolType, toolType);
     }
 
     public void SetHitAnim()
     {
-        animator.SetTrigger(HitUpperBody);
+        ApplyTriggerLocal(HitUpperBody);
+        networkBridge?.ReportTriggerParam(HitUpperBody);
     }
 
     public void SetJammingAnim()
     {
-        animator.SetTrigger(Jamming);
+        ApplyTriggerLocal(Jamming);
+        networkBridge?.ReportTriggerParam(Jamming);
     }
 
     public void PlayerWakeUp()
     {
-        animator.SetTrigger(WakeUp);
+        ApplyTriggerLocal(WakeUp);
+        networkBridge?.ReportTriggerParam(WakeUp);
     }
 
     public void AnimatorRePosition()
     {
+        if (animator == null)
+            return;
+
         animator.transform.localPosition = Vector3.zero;
         animator.transform.localRotation = Quaternion.identity;
     }
@@ -150,5 +168,28 @@ public class PlayerAnimation : MonoBehaviour
     {
         targetLayerWeight = 0f;
         isBlending = true;
+    }
+
+    public void ApplyFloatLocal(int hash, float value)
+    {
+        animator?.SetFloat(hash, value);
+    }
+
+    public void ApplyBoolLocal(int hash, bool value)
+    {
+        animator?.SetBool(hash, value);
+    }
+
+    public void ApplyIntLocal(int hash, int value)
+    {
+        animator?.SetInteger(hash, value);
+    }
+
+    public void ApplyTriggerLocal(int hash)
+    {
+        if (animator == null)
+            return;
+
+        animator.SetTrigger(hash);
     }
 }

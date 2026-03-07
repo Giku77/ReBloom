@@ -12,7 +12,7 @@ public class DroneChaseState : NPCState
 
     public override void Enter()
     {
-        drone.sound.PlayDetection();
+        drone.PlayDetectionFx();
 
         chaseStart = Time.time;
         controller.agent.isStopped = false;
@@ -51,6 +51,7 @@ public class DroneChaseState : NPCState
             controller.ChangeState(new DroneReturnState(controller));
         }
     }
+
     public override void Exit()
     {
         EnemyChaseTracker.I?.OnEnemyStopChase();

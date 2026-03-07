@@ -1,9 +1,9 @@
-using System.Linq;
+﻿using System.Linq;
 using UnityEngine;
 
 public class ContainerSaveable : MonoBehaviour, ISaveable
 {
-    [SerializeField] private WorldStorage storage;   // 또는 컨테이너 참조
+    [SerializeField] private WorldStorage storage;
 
     public string EntityGuid => storage != null ? storage.ContainerGuid : "";
 
@@ -12,7 +12,7 @@ public class ContainerSaveable : MonoBehaviour, ISaveable
         if (save?.world == null || storage == null) return;
         if (string.IsNullOrEmpty(storage.ContainerGuid)) return;
 
-        var container = storage.GetStorageData(); 
+        var container = storage.GetStorageData();
         if (container == null) return;
 
         save.world.containers.RemoveAll(c => c.guid == storage.ContainerGuid);
@@ -48,12 +48,7 @@ public class ContainerSaveable : MonoBehaviour, ISaveable
         var dto = save?.world?.containers?.FirstOrDefault(c => c.guid == storage.ContainerGuid);
         if (dto == null) return;
 
-        var container = storage.GetStorageData();
-        if (container == null) return;
-        Debug.Log($"[ContainerSaveable.Restore] guid={storage?.ContainerGuid} obj={gameObject.name}");
-
-        container.Clear();
-        foreach (var it in dto.items)
-            container.TryAddItem(it.itemId, it.amount);
+        Debug.Log($"[ContainerSaveable.Restore] guid={storage.ContainerGuid} obj={gameObject.name}");
+        storage.LoadFromSnapshot(dto);
     }
 }

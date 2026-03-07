@@ -1,4 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
+using Unity.Netcode;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.AI;
@@ -41,6 +42,9 @@ public class FMechNPCController : BaseNPCController
 
     private FMechNPCSound sound;
 
+    private const int FxLaugh = 1;
+    private const int FxLocalJumpscare = 2;
+
     protected override void Start()
     {
         base.Start();
@@ -61,7 +65,6 @@ public class FMechNPCController : BaseNPCController
         
         initialPosition = transform.position;
         initialRotation = transform.rotation;
-        ChangeState(new FMechNPCIdleState(this));
         
         Collider myCollider = GetComponent<Collider>();
         if (myCollider != null)
@@ -89,13 +92,17 @@ public class FMechNPCController : BaseNPCController
     protected override void Update()
     {
         base.Update();
+
+        if (!HasServerAuthority)
+            return;
+
         CheckKillDistance();
         
         // 플레이어 스테이지 변경 감지
-        if (playerStageDetector != null && playerStageDetector.CurrentStage != null)
+        if (GetObservedTargetStageId() > 0)
         {
-            int currentStageID = playerStageDetector.CurrentStage.StageID;
-            
+            int currentStageID = GetObservedTargetStageId();
+
             // 새 스테이지로 진입했고, F-Mech가 활동하는 스테이지면
             if (currentStageID != lastDetectedStageID && 
                 (currentStageID == 401 || currentStageID == 402 || currentStageID == 403))
@@ -107,6 +114,15 @@ public class FMechNPCController : BaseNPCController
                 ChangeState(new FMechNPCIdleState(this));
             }
         }
+    }
+
+
+    protected override void RefreshTargetPlayer(bool force = false)
+    {
+        if (isPlayingJumpscare && playerController != null)
+            return;
+
+        base.RefreshTargetPlayer(force);
     }
 
     protected override void UpdateAnimation()
@@ -121,34 +137,44 @@ public class FMechNPCController : BaseNPCController
         }
     }
 
+    protected override void HandleFxEvent(int fxEventId, Vector3 position, Vector3 direction, float value)
+    {
+        switch (fxEventId)
+        {
+            case FxLaugh:
+                sound?.PlayLaugh();
+                break;
+            case FxLocalJumpscare:
+                PlayJumpscareAsync(this.GetCancellationTokenOnDestroy()).Forget();
+                break;
+        }
+    }
+
     public bool IsPlayerLookingAt()
     {
-        if (player == null || playerCamera == null) return false;
-        
+        if (player == null) return false;
+        if (!TryGetObservedCameraPose(out Vector3 cameraPosition, out Vector3 cameraForward)) return false;
+
         float distance = Vector3.Distance(transform.position, player.position);
         if (distance > maxDetectionDistance) return false;
-
         if (distance < 2f) return false;
 
-        Vector3 directionToNPC = (transform.position - playerCamera.transform.position).normalized;
-        
-        float angle = Vector3.Angle(playerCamera.transform.forward, directionToNPC);
-        
+        Vector3 directionToNPC = (transform.position - cameraPosition).normalized;
+        float angle = Vector3.Angle(cameraForward, directionToNPC);
+
         if (angle <= detectionAngle)
         {
-            Debug.Log($"[F-Mech] 플레이어 카메라 NPC 룩");
+            Debug.Log("[F-Mech] 플레이어 카메라 NPC 룩");
             return true;
         }
-        
+
         return false;
     }
 
     public bool IsPlayerInMyStage()
     {
-        if (playerStageDetector == null || playerStageDetector.CurrentStage == null)
-            return false;
-
-        return playerStageDetector.CurrentStage.StageID == myStageID;
+        int stageId = GetObservedTargetStageId();
+        return stageId > 0 && stageId == myStageID;
     }
 
     private void CheckKillDistance()
@@ -167,31 +193,64 @@ public class FMechNPCController : BaseNPCController
 
     private void KillPlayer()
     {
-        if (playerController == null) return;
         if (isPlayingJumpscare) return;
 
-        PlayJumpscareAsync(this.GetCancellationTokenOnDestroy()).Forget();
+        if (!IsNetworkedSession)
+        {
+            if (playerController == null) return;
+            PlayJumpscareAsync(this.GetCancellationTokenOnDestroy()).Forget();
+            return;
+        }
+
+        if (!TryGetTargetClientId(out ulong clientId))
+            return;
+
+        isPlayingJumpscare = true;
+        BroadcastFxEvent(FxLaugh);
+        BroadcastFxEventToClient(clientId, FxLocalJumpscare);
+        PlayNetworkedJumpscareServerAsync(this.GetCancellationTokenOnDestroy()).Forget();
+    }
+
+    private async UniTaskVoid PlayNetworkedJumpscareServerAsync(CancellationToken ct)
+    {
+        try
+        {
+            await UniTask.Delay(System.TimeSpan.FromSeconds(jumpscareDuration), cancellationToken: ct);
+        }
+        catch (System.OperationCanceledException)
+        {
+            isPlayingJumpscare = false;
+            return;
+        }
+
+        NetworkPlayerOwnerGate targetGate = GetTargetGate();
+        if (targetGate != null)
+            targetGate.ApplyAuthoritativeDamage(100f);
+
+        isPlayingJumpscare = false;
+
+        if (HasServerAuthority)
+            ChangeState(new FMechNPCReturnState(this));
     }
 
     private async UniTask PlayJumpscareAsync(CancellationToken ct)
     {
+        PlayerController effectPlayer = ResolveJumpscarePlayerController();
+        if (effectPlayer == null) return;
+        if (isPlayingJumpscare) return;
+
         isPlayingJumpscare = true;
 
-        if (playerController?.playerStats != null)
+        if (effectPlayer.playerStats != null)
         {
-            playerController.playerStats.SetInvincible(true);
+            effectPlayer.playerStats.SetInvincible(true);
         }
 
         SoundManager.I?.PlaySurprise();
-        sound.PlayLaugh();
+        effectPlayer.SetBlocked(true);
 
-        playerController.SetBlocked(true);
-        
-        // F-Mech 위치 고정
         Vector3 frozenPosition = transform.position;
-        //Quaternion frozenRotation = transform.rotation;
-        
-        // NavMeshAgent 완전히 끄기
+
         bool wasAgentEnabled = false;
         if (agent != null)
         {
@@ -214,8 +273,7 @@ public class FMechNPCController : BaseNPCController
             if (agent != null && wasAgentEnabled) agent.enabled = true;
             return;
         }
-        
-        // ThirdPersonCamera 비활성화
+
         ThirdPersonCamera tpCam = mainCamera.GetComponentInParent<ThirdPersonCamera>();
         bool wasTPCamEnabled = false;
         if (tpCam != null)
@@ -223,39 +281,35 @@ public class FMechNPCController : BaseNPCController
             wasTPCamEnabled = tpCam.enabled;
             tpCam.enabled = false;
         }
-        
+
         Vector3 originalPosition = mainCamera.transform.position;
         Quaternion originalRotation = mainCamera.transform.rotation;
         Transform originalParent = mainCamera.transform.parent;
-        
+
         if (jumpscarePosition != null)
         {
-            // 부모 해제하고 위치 이동
             mainCamera.transform.SetParent(null);
             mainCamera.transform.position = jumpscarePosition.position;
             mainCamera.transform.rotation = jumpscarePosition.rotation;
-            
+
             Debug.Log("[F-Mech] Jumpscare 시작!");
         }
-        
+
         try
         {
             await UniTask.Delay(System.TimeSpan.FromSeconds(jumpscareDuration), cancellationToken: ct);
-            
-            // 카메라 복구
+
             mainCamera.transform.SetParent(originalParent);
             mainCamera.transform.position = originalPosition;
             mainCamera.transform.rotation = originalRotation;
-            
+
             if (tpCam != null && wasTPCamEnabled)
             {
                 tpCam.enabled = true;
             }
-            
-            // F-Mech 위치 복원 및 Agent 재활성화
+
             transform.position = frozenPosition;
-            //transform.rotation = frozenRotation;
-            
+
             if (agent != null && wasAgentEnabled)
             {
                 agent.enabled = true;
@@ -267,15 +321,13 @@ public class FMechNPCController : BaseNPCController
             }
 
             Debug.Log("[F-Mech] Jumpscare 종료");
-
-            if (playerController?.playerStats != null)
+            if (effectPlayer.playerStats != null)
             {
-                playerController.playerStats.SetInvincible(false);
-                playerController.playerStats.TakeDamage(100);
+                effectPlayer.playerStats.SetInvincible(false);
             }
 
-            // Return 상태로 전환
-            ChangeState(new FMechNPCReturnState(this));
+            if (!IsNetworkedSession && HasServerAuthority)
+                ChangeState(new FMechNPCReturnState(this));
         }
         catch (System.OperationCanceledException)
         {
@@ -284,53 +336,120 @@ public class FMechNPCController : BaseNPCController
                 mainCamera.transform.SetParent(originalParent);
                 mainCamera.transform.position = originalPosition;
                 mainCamera.transform.rotation = originalRotation;
-                
+
                 if (tpCam != null && wasTPCamEnabled)
                 {
                     tpCam.enabled = true;
                 }
             }
-            
+
             transform.position = frozenPosition;
-            //transform.rotation = frozenRotation;
 
             if (agent != null && wasAgentEnabled)
             {
                 agent.enabled = true;
 
-                // NavMesh 위로 다시 Warp
                 if (agent.isOnNavMesh)
                 {
                     agent.Warp(frozenPosition);
                 }
                 else
                 {
-                    // NavMesh 위에 없으면 가장 가까운 NavMesh 위치로
                     UnityEngine.AI.NavMeshHit hit;
                     if (UnityEngine.AI.NavMesh.SamplePosition(frozenPosition, out hit, 5f, UnityEngine.AI.NavMesh.AllAreas))
                     {
                         transform.position = hit.position;
                         agent.Warp(hit.position);
 
-
                         Debug.Log("[F-Mech] Jumpscare 취소됨");
                     }
                 }
-
-                if (animator != null && wasAnimatorEnabled)
-                {
-                    animator.enabled = true;
-                }
             }
+
+            if (animator != null && wasAnimatorEnabled)
+            {
+                animator.enabled = true;
+            }
+
+            if (effectPlayer.playerStats != null)
+                effectPlayer.playerStats.SetInvincible(false);
+
+            effectPlayer.SetBlocked(false);
         }
         finally
         {
+            if (!effectPlayer.isDead)
+                effectPlayer.SetBlocked(false);
+
             isPlayingJumpscare = false;
         }
     }
 
+    private PlayerController ResolveJumpscarePlayerController()
+    {
+        if (!IsNetworkedSession)
+            return playerController;
+
+        NetworkPlayerOwnerGate[] gates = FindObjectsByType<NetworkPlayerOwnerGate>(FindObjectsSortMode.None);
+        foreach (NetworkPlayerOwnerGate gate in gates)
+        {
+            if (gate != null && gate.IsOwner)
+                return gate.GetComponent<PlayerController>();
+        }
+
+        return null;
+    }
+
+    private NetworkPlayerOwnerGate GetTargetGate()
+    {
+        return playerController != null ? playerController.GetComponent<NetworkPlayerOwnerGate>() : null;
+    }
+
+    private int GetObservedTargetStageId()
+    {
+        if (!IsNetworkedSession)
+            return playerStageDetector != null && playerStageDetector.CurrentStage != null
+                ? playerStageDetector.CurrentStage.StageID
+                : -1;
+
+        NetworkPlayerOwnerGate gate = GetTargetGate();
+        return gate != null ? gate.CurrentStageId.Value : -1;
+    }
+
+    private bool TryGetObservedCameraPose(out Vector3 cameraPosition, out Vector3 cameraForward)
+    {
+        if (!IsNetworkedSession)
+        {
+            if (playerCamera == null)
+            {
+                cameraPosition = default;
+                cameraForward = default;
+                return false;
+            }
+
+            cameraPosition = playerCamera.transform.position;
+            cameraForward = playerCamera.transform.forward;
+            return true;
+        }
+
+        NetworkPlayerOwnerGate gate = GetTargetGate();
+        if (gate == null)
+        {
+            cameraPosition = default;
+            cameraForward = default;
+            return false;
+        }
+
+        cameraPosition = gate.CameraPosition.Value;
+        cameraForward = gate.CameraForward.Value;
+        return cameraForward.sqrMagnitude > 0.01f;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening && !NetworkManager.Singleton.IsServer)
+            return;
+
         if (other.CompareTag("Player"))
         {
             if (currentState is FMechNPCChaseState || currentState is FMechNPCFrozenState)
@@ -394,3 +513,15 @@ public class FMechNPCController : BaseNPCController
         return dayNightCycle.IsNightTime();
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

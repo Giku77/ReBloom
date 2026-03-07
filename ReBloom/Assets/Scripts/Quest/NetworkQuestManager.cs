@@ -4,6 +4,12 @@ using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
+public enum QuestFlowState : byte
+{
+    Active = 0,
+    CompletedAwaitingHost = 1
+}
+
 public class NetworkQuestManager : NetworkBehaviour
 {
     public static NetworkQuestManager I { get; private set; }
@@ -14,6 +20,20 @@ public class NetworkQuestManager : NetworkBehaviour
         0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     public NetworkList<QuestGoalProgressState> goalStates;
+
+    private NetworkVariable<QuestFlowState> flowState = new(
+    QuestFlowState.Active,
+    NetworkVariableReadPermission.Everyone,
+    NetworkVariableWritePermission.Server);
+
+    private NetworkVariable<int> pendingNextQuestId = new(
+    0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    public bool IsAwaitingHostAdvance =>
+    flowState.Value == QuestFlowState.CompletedAwaitingHost;
+
+    private int _firstQuestId;
+    private NetworkVariable<bool> firstQuestCompleted = new(
+        false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     public QuestDB QuestDB => questDB;
 
@@ -38,14 +58,35 @@ public class NetworkQuestManager : NetworkBehaviour
         base.OnDestroy();
     }
 
+    private void OnFlowStateChanged(QuestFlowState oldV, QuestFlowState newV)
+    {
+        OnQuestUpdated?.Invoke();
+    }
+    private void OnPendingNextChanged(int oldV, int newV)
+    {
+        OnQuestUpdated?.Invoke();
+    }
+
+    private void OnFirstQuestCompletedChanged(bool oldV, bool newV)
+    {
+        if (newV)
+            FirstQuestCompletedClientRpc();
+    }
+
     public override void OnNetworkSpawn()
     {
         Debug.Log($"[NQM] OnNetworkSpawn IsServer={IsServer} IsClient={IsClient} IsSpawned={IsSpawned} questDB={(questDB != null)} currentQuestId={currentQuestId.Value}");
         currentQuestId.OnValueChanged += OnQuestIdChanged;
+        flowState.OnValueChanged += OnFlowStateChanged;
+        pendingNextQuestId.OnValueChanged += OnPendingNextChanged;
         goalStates.OnListChanged += OnGoalStatesChanged;
+        firstQuestCompleted.OnValueChanged += OnFirstQuestCompletedChanged;
 
         if (IsServer && currentQuestId.Value == 0)
             InitServerDeferred().Forget();
+
+        if (!IsServer && firstQuestCompleted.Value)
+            FirstQuestCompletedClientRpc();
 
         OnQuestUpdated?.Invoke();
     }
@@ -63,7 +104,10 @@ public class NetworkQuestManager : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         currentQuestId.OnValueChanged -= OnQuestIdChanged;
+        flowState.OnValueChanged -= OnFlowStateChanged;
+        pendingNextQuestId.OnValueChanged -= OnPendingNextChanged;
         goalStates.OnListChanged -= OnGoalStatesChanged;
+        firstQuestCompleted.OnValueChanged -= OnFirstQuestCompletedChanged;
     }
 
     private void OnQuestIdChanged(int oldValue, int newValue)
@@ -149,6 +193,7 @@ public class NetworkQuestManager : NetworkBehaviour
 
             if (q.formerQuestId == 0)
             {
+                _firstQuestId = q.questId;
                 SetCurrentQuestServer(q.questId);
                 return;
             }
@@ -165,6 +210,8 @@ public class NetworkQuestManager : NetworkBehaviour
             return;
 
         currentQuestId.Value = questId;
+        flowState.Value = QuestFlowState.Active;
+        pendingNextQuestId.Value = 0;
         goalStates.Clear();
 
         if (quest.goals == null) return;
@@ -182,6 +229,8 @@ public class NetworkQuestManager : NetworkBehaviour
                 targetCount = g.amount
             });
         }
+
+        RefreshCollectProgressServer();
     }
 
     public int CurrentQuestId => currentQuestId.Value;
@@ -205,6 +254,16 @@ public class NetworkQuestManager : NetworkBehaviour
 
     public void AddCollectProgressServer(int objectId, int amount)
     {
+        RefreshCollectProgressServer(objectId);
+    }
+
+    public void RefreshCollectProgressServer()
+    {
+        RefreshCollectProgressServer(-1);
+    }
+
+    public void RefreshCollectProgressServer(int objectId)
+    {
         if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer) return;
         var quest = GetCurrentQuest();
         if (quest == null || quest.goals == null) return;
@@ -216,14 +275,20 @@ public class NetworkQuestManager : NetworkBehaviour
             var g = quest.goals[i];
             if (g == null) continue;
             if (g.type != QuestGoalType.Collect) continue;
-            if (g.objectId != objectId) continue;
+            if (objectId > 0 && g.objectId != objectId) continue;
+
+            int currentCount = GetSharedInventoryCount(g.objectId);
 
             for (int j = 0; j < goalStates.Count; j++)
             {
                 if (goalStates[j].goalIndex != i) continue;
 
                 var state = goalStates[j];
-                state.currentCount = Mathf.Clamp(state.currentCount + amount, 0, state.targetCount);
+                int nextCount = Mathf.Clamp(currentCount, 0, state.targetCount);
+                if (state.currentCount == nextCount)
+                    break;
+
+                state.currentCount = nextCount;
                 goalStates[j] = state;
                 changed = true;
                 break;
@@ -232,6 +297,28 @@ public class NetworkQuestManager : NetworkBehaviour
 
         if (changed)
             TryCompleteCurrentQuestServer();
+    }
+
+    private int GetSharedInventoryCount(int itemId)
+    {
+        if (NetworkManager.Singleton == null)
+            return 0;
+
+        int total = 0;
+        foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+        {
+            var playerObject = client.PlayerObject;
+            if (playerObject == null)
+                continue;
+
+            var inventory = playerObject.GetComponent<PlayerInventoryRuntime>();
+            if (inventory == null)
+                continue;
+
+            total += inventory.GetItemCount(itemId);
+        }
+
+        return total;
     }
 
     public void AddInteractProgressServer(int objectId, int amount = 1)
@@ -299,6 +386,8 @@ public class NetworkQuestManager : NetworkBehaviour
     private void TryCompleteCurrentQuestServer()
     {
         if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer) return;
+        if (flowState.Value != QuestFlowState.Active) return;
+
         for (int i = 0; i < goalStates.Count; i++)
         {
             if (goalStates[i].currentCount < goalStates[i].targetCount)
@@ -306,10 +395,11 @@ public class NetworkQuestManager : NetworkBehaviour
         }
 
         int nextId = FindNextByFormer(currentQuestId.Value);
-        if (nextId == 0)
-            return;
+        pendingNextQuestId.Value = nextId; 
 
-        SetCurrentQuestServer(nextId);
+        flowState.Value = QuestFlowState.CompletedAwaitingHost;
+
+        PlayQuestCompleteFxClientRpc();
     }
 
     private int FindNextByFormer(int formerId)
@@ -320,5 +410,85 @@ public class NetworkQuestManager : NetworkBehaviour
                 return q.Value.questId;
         }
         return 0;
+    }
+
+    // 호스트/서버만 다음 퀘스트로 진행
+    public void RequestAdvanceFromHost()
+    {
+        if (NetworkManager.Singleton == null) return;
+
+        if (NetworkManager.Singleton.IsServer)
+        {
+            AdvanceServerInternal();
+            return;
+        }
+
+        RequestAdvanceFromHostRpc();
+    }
+
+    [Rpc(SendTo.Server)]
+    private void RequestAdvanceFromHostRpc(RpcParams rpcParams = default)
+    {
+        if (NetworkManager.Singleton == null) return;
+
+        if (rpcParams.Receive.SenderClientId != NetworkManager.ServerClientId)
+            return;
+
+        AdvanceServerInternal();
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void PlayQuestCompleteFxClientRpc()
+    {
+        PlayQuestCompleteFxDeferred().Forget();
+    }
+
+    private async UniTaskVoid PlayQuestCompleteFxDeferred()
+    {
+        await UniTask.WaitUntil(() => QuestManager.I != null);
+        QuestManager.I.PlayQuestCompleteAnimationForced();
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void HideQuestCompleteFxClientRpc()
+    {
+        HideQuestCompleteFxDeferred().Forget();
+    }
+
+    private async UniTaskVoid HideQuestCompleteFxDeferred()
+    {
+        await UniTask.WaitUntil(() => QuestManager.I != null);
+        QuestManager.I.HideQuestCompleteAnimation();
+    }
+
+    private void AdvanceServerInternal()
+    {
+        if (!IsServer) return;
+        if (flowState.Value != QuestFlowState.CompletedAwaitingHost) return;
+
+        int prevQuestId = currentQuestId.Value;      
+        int nextId = pendingNextQuestId.Value;
+        if (nextId == 0) return;
+
+        if (!firstQuestCompleted.Value && prevQuestId == _firstQuestId)
+        {
+            firstQuestCompleted.Value = true;
+            FirstQuestCompletedClientRpc();         
+        }
+
+        HideQuestCompleteFxClientRpc();
+        SetCurrentQuestServer(nextId);
+    }
+
+    [Rpc(SendTo.Everyone)]
+    private void FirstQuestCompletedClientRpc()
+    {
+        FirstQuestCompletedDeferred().Forget();
+    }
+
+    private async UniTaskVoid FirstQuestCompletedDeferred()
+    {
+        await UniTask.WaitUntil(() => QuestManager.I != null);
+        QuestManager.I.SetFirstQuest(true);
     }
 }

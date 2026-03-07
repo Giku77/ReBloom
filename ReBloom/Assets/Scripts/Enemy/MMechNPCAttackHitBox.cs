@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Unity.Netcode;
+using UnityEngine;
 
 public class MMechNPCAttackHitBox : MonoBehaviour
 {
@@ -11,11 +12,13 @@ public class MMechNPCAttackHitBox : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        PlayerController playerController = other.GetComponent<PlayerController>();
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening && !NetworkManager.Singleton.IsServer)
+            return;
 
-        if (playerController != null)
-        {
-            playerController.ApplyStun(controller.stunTime);
-        }
+        NetworkPlayerOwnerGate gate = other.GetComponentInParent<NetworkPlayerOwnerGate>();
+        if (gate == null)
+            return;
+
+        gate.ApplyAuthoritativeStun(controller.stunTime);
     }
 }

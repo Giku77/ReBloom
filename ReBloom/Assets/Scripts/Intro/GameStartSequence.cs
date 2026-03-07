@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -19,11 +20,29 @@ public class GameStartSequence : MonoBehaviour
     [Header("AudioMixer")]
     [SerializeField] private AudioMixer weatherAudio;
     private float originalVolume;
+    private bool hasLocalPlayerBinding;
+
+    private bool IsNetworkedSession => NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
 
     private void Awake()
     {
         if (tutorialManager != null)
             tutorialManager.enabled = false;
+
+        TryBindSceneReferences();
+    }
+
+    private void OnEnable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned += HandleLocalPlayerSpawned;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned += HandleLocalPlayerDespawned;
+        TryBindExistingLocalPlayer();
+    }
+
+    private void OnDisable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned -= HandleLocalPlayerSpawned;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned -= HandleLocalPlayerDespawned;
     }
 
     private async void Start()
@@ -31,8 +50,20 @@ public class GameStartSequence : MonoBehaviour
         if (weatherAudio != null)
             weatherAudio.GetFloat("WeatherVolume", out originalVolume);
 
-        // 1) 이어하기
-        if (GameStartContext.StartMode == GameStartContext.Mode.Continue)
+        await EnsureRuntimeBindingsAsync();
+
+        if (IsNetworkedSession && GameStartContext.StartMode == GameStartContext.Mode.Continue)
+        {
+            await UniTask.WaitUntil(() => MultiplayerSaveCoordinator.IsLoadFlowComplete);
+
+            if (SaveManager.I != null && SaveManager.I.HasLoadedOnce)
+            {
+                AfterContinueLoaded();
+                return;
+            }
+        }
+
+        if (!IsNetworkedSession && GameStartContext.StartMode == GameStartContext.Mode.Continue)
         {
             bool loaded = false;
             if (SaveManager.I != null)
@@ -40,7 +71,7 @@ public class GameStartSequence : MonoBehaviour
 
             if (loaded)
             {
-                AfterContinueLoaded();  
+                AfterContinueLoaded();
                 return;
             }
         }
@@ -51,25 +82,33 @@ public class GameStartSequence : MonoBehaviour
             return;
         }
 
+        if (IsNetworkedSession)
+        {
+            cutSceneManager?.SetIntroCutsceneSeen(true);
+            tutorialManager?.SetTutorialState(0, true);
+            if (tutorialManager != null)
+                tutorialManager.enabled = false;
+
+            SkipAllAndStartGameplay();
+            return;
+        }
+
         await PlayNewGameFlow();
     }
 
     private async UniTask PlayNewGameFlow()
     {
-        if (cutSceneManager != null && cutSceneManager.IntroCutsceneSeen) 
+        if (cutSceneManager != null && cutSceneManager.IntroCutsceneSeen)
         {
             SkipAllAndStartGameplay();
             StartTutorialIfNeeded();
             return;
         }
 
-        await PlaySequence();         
-        StartTutorialIfNeeded();     
+        await PlaySequence();
+        StartTutorialIfNeeded();
     }
 
-    /// <summary>
-    /// 이어하기 로드 직후: 연출 관련 상태 다 풀고, 튜토리얼은 필요한 경우만 켠다
-    /// </summary>
     private void AfterContinueLoaded()
     {
         cutSceneManager?.isDebugModeSkipCutScene();
@@ -84,7 +123,6 @@ public class GameStartSequence : MonoBehaviour
         }
 
         robotPet?.StopOrbitingPlayer();
-
         StartTutorialIfNeeded();
     }
 
@@ -117,15 +155,21 @@ public class GameStartSequence : MonoBehaviour
         tutorialManager.enabled = true;
     }
 
-
     public async UniTask PlaySequence()
     {
+        if (playerController == null)
+        {
+            Debug.LogWarning("[GameStartSequence] Local PlayerController was not found. Intro sequence is skipped.");
+            SkipAllAndStartGameplay();
+            StartTutorialIfNeeded();
+            return;
+        }
+
         playerController.Anim.PlaySleep();
         playerController.Anim.SetRootMotion(true);
 
         weatherAudio?.SetFloat("WeatherVolume", -80f);
-
-        playerController?.SetBlocked(true);
+        playerController.SetBlocked(true);
 
         if (thirdPersonCamera != null)
         {
@@ -138,7 +182,6 @@ public class GameStartSequence : MonoBehaviour
             await cutSceneManager.PlayCutSceneSequenceAsync(1301001);
 
         weatherAudio?.SetFloat("WeatherVolume", originalVolume);
-
         robotPet?.StartOrbitingPlayer(radius: 1.2f, speed: 80f);
 
         await UniTask.Delay((int)(initialDelay * 1000));
@@ -158,8 +201,7 @@ public class GameStartSequence : MonoBehaviour
             thirdPersonCamera.isSequenceLocked = false;
 
         robotPet?.StopOrbitingPlayer();
-
-        playerController?.SetBlocked(false);
+        playerController.SetBlocked(false);
     }
 
     private async UniTask ZoomInCamera()
@@ -171,10 +213,8 @@ public class GameStartSequence : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             float t = Mathf.SmoothStep(0, 1, elapsed / zoomDuration);
-
             float currentDistance = Mathf.Lerp(startDistance, targetZoomDistance, t);
             SetCameraDistance(currentDistance);
-
             await UniTask.Yield();
         }
 
@@ -194,13 +234,90 @@ public class GameStartSequence : MonoBehaviour
         {
             elapsed += Time.deltaTime;
             float t = Mathf.SmoothStep(0, 1, elapsed / duration);
-
             float currentPitch = Mathf.Lerp(startPitch, targetPitch, t);
             thirdPersonCamera?.SetCameraAngle(180f, currentPitch);
-
             await UniTask.Yield();
         }
 
         thirdPersonCamera?.SetCameraAngle(180f, targetPitch);
+    }
+
+    private async UniTask EnsureRuntimeBindingsAsync()
+    {
+        TryBindSceneReferences();
+
+        if (!IsNetworkedSession)
+            return;
+
+        if (playerController != null)
+        {
+            hasLocalPlayerBinding = true;
+            return;
+        }
+
+        await UniTask.WaitUntil(() => hasLocalPlayerBinding || playerController != null, cancellationToken: this.GetCancellationTokenOnDestroy());
+        TryBindSceneReferences();
+    }
+
+    private void TryBindSceneReferences()
+    {
+        if (thirdPersonCamera == null)
+            thirdPersonCamera = CameraRig.I != null ? CameraRig.I.ThirdPersonCamera : FindFirstObjectByType<ThirdPersonCamera>();
+
+        if (cutSceneManager == null)
+            cutSceneManager = FindFirstObjectByType<CutSceneManager>();
+
+        if (!IsNetworkedSession)
+        {
+            if (playerController == null)
+                playerController = FindFirstObjectByType<PlayerController>();
+        }
+        else
+        {
+            TryBindExistingLocalPlayer();
+        }
+
+        if (playerController != null)
+        {
+            hasLocalPlayerBinding = true;
+
+            if (robotPet == null)
+                robotPet = playerController.RobotPet;
+        }
+    }
+
+    private void TryBindExistingLocalPlayer()
+    {
+        var nm = NetworkManager.Singleton;
+        if (nm == null || nm.SpawnManager == null)
+            return;
+
+        var localPlayerObject = nm.SpawnManager.GetLocalPlayerObject();
+        if (localPlayerObject == null)
+            return;
+
+        HandleLocalPlayerSpawned(localPlayerObject.gameObject);
+    }
+
+    private void HandleLocalPlayerSpawned(GameObject playerObject)
+    {
+        if (playerObject == null)
+            return;
+
+        playerController = playerObject.GetComponent<PlayerController>();
+        if (playerController == null)
+            return;
+
+        hasLocalPlayerBinding = true;
+
+        if (robotPet == null)
+            robotPet = playerController.RobotPet;
+    }
+
+    private void HandleLocalPlayerDespawned()
+    {
+        hasLocalPlayerBinding = false;
+        playerController = null;
+        robotPet = null;
     }
 }

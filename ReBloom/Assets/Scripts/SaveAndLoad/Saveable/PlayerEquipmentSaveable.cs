@@ -1,9 +1,11 @@
-﻿using UnityEngine;
+﻿using Unity.Netcode;
+using UnityEngine;
 
 public class PlayerEquipmentSaveable : MonoBehaviour, ISaveable
 {
     [SerializeField] private PlayerEquipManager equipManager;
-    [SerializeField] private PlayerEquipData equipData; // currentClothEquip / currentShoesEquip / currentToolEquip 들고있는 컴포넌트
+    [SerializeField] private PlayerEquipData equipData;
+    [SerializeField] private NetworkObject networkObject;
 
     public string EntityGuid => "player_equipment";
 
@@ -11,11 +13,20 @@ public class PlayerEquipmentSaveable : MonoBehaviour, ISaveable
     {
         if (equipManager == null) equipManager = GetComponent<PlayerEquipManager>();
         if (equipData == null) equipData = GetComponent<PlayerEquipData>();
+        if (networkObject == null) networkObject = GetComponent<NetworkObject>();
+    }
+
+    private bool ShouldHandleSave()
+    {
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening)
+            return true;
+
+        return networkObject != null && networkObject.IsOwner && NetworkManager.Singleton.IsServer;
     }
 
     public void Capture(SaveGameDTO save)
     {
-        if (save == null || equipData == null) return;
+        if (save == null || equipData == null || !ShouldHandleSave()) return;
 
         save.player.equipment.clothItemId = equipData.currentClothEquip ? equipData.currentClothEquip.itemID : 0;
         save.player.equipment.shoesItemId = equipData.currentShoesEquip ? equipData.currentShoesEquip.itemID : 0;
@@ -24,7 +35,7 @@ public class PlayerEquipmentSaveable : MonoBehaviour, ISaveable
 
     public void Restore(SaveGameDTO save)
     {
-        if (save == null || equipManager == null) return;
+        if (save == null || equipManager == null || !ShouldHandleSave()) return;
 
         var dto = save.player.equipment;
         if (dto == null) return;

@@ -10,16 +10,21 @@ public class StageBase : MonoBehaviour
     
     public int StageID => stageID;
     public StageData Data => stageData;
-    
+
     public WeatherType CurrentWeather
     {
         get
         {
+            if (NetworkStageWeatherManager.I != null &&
+                NetworkStageWeatherManager.I.TryGet(stageID, out var s))
+                return s.weather;
+
+            // 오프라인/싱글 fallback
             WeatherInfo info = stageManager?.GetWeatherInfo(stageID);
             return info?.currentWeather ?? WeatherType.Sunny;
         }
     }
-    
+
     public float CurrentPollution
     {
         get
@@ -37,16 +42,21 @@ public class StageBase : MonoBehaviour
             return info?.currentThirst ?? 0f;
         }
     }
-    
+
     public float CurrentWeatherTemp
     {
         get
         {
+            if (NetworkStageWeatherManager.I != null &&
+                NetworkStageWeatherManager.I.TryGet(stageID, out var s))
+                return s.temp;
+
             WeatherInfo info = stageManager?.GetWeatherInfo(stageID);
             return info?.currentTemp ?? 0f;
         }
     }
-    
+
+
     public float WeatherDuration
     {
         get

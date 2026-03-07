@@ -1,7 +1,8 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
+using Unity.Netcode;
+using UnityEngine;
 
-public class PlayerFootstep : MonoBehaviour
+public class PlayerFootstep : NetworkBehaviour
 {
     public static event Action<Vector3, float> OnFootstep;
     [SerializeField] private float stepInterval = 0.5f;
@@ -9,6 +10,8 @@ public class PlayerFootstep : MonoBehaviour
 
     private PlayerController playerController;
     private StageDetector stageDetector;
+
+    private bool IsNetworkedSession => NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
 
     private void Awake()
     {
@@ -23,21 +26,53 @@ public class PlayerFootstep : MonoBehaviour
 
     private void Update()
     {
-        if (playerController.currentSpeed > 0.1f) // 움직일 때만
+        if (!ShouldEmitFootsteps())
+            return;
+
+        if (playerController.currentSpeed > 0.1f)
         {
             stepTimer += Time.deltaTime;
             if (stepTimer >= stepInterval && stageDetector.CurrentStage.stageID != 400)
             {
                 stepTimer = 0f;
                 float loudness = playerController.isSlow ? 0.3f : 1.0f;
-                OnFootstep?.Invoke(transform.position, loudness);
-                //Debug.Log("발소리 발생: " + transform.position);
+                EmitFootstep(transform.position, loudness);
             }
         }
         else
         {
-            stepTimer = 0f; // 멈추면 타이머 초기화
+            stepTimer = 0f;
         }
     }
-}
 
+    private bool ShouldEmitFootsteps()
+    {
+        if (!IsNetworkedSession)
+            return true;
+
+        return IsSpawned && IsOwner;
+    }
+
+    private void EmitFootstep(Vector3 position, float loudness)
+    {
+        if (!IsNetworkedSession)
+        {
+            OnFootstep?.Invoke(position, loudness);
+            return;
+        }
+
+        if (IsServer)
+        {
+            OnFootstep?.Invoke(position, loudness);
+            return;
+        }
+
+        ReportFootstepServerRpc(position, loudness);
+    }
+
+    [Rpc(SendTo.Server, Delivery = RpcDelivery.Unreliable, InvokePermission = RpcInvokePermission.Everyone)]
+    private void ReportFootstepServerRpc(Vector3 position, float loudness)
+    {
+        OnFootstep?.Invoke(position, loudness);
+    }
+}

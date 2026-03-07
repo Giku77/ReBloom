@@ -23,6 +23,9 @@ public class MMechBlueNPCController : BaseNPCController
     {
         base.Update();
 
+        if (!HasServerAuthority)
+            return;
+
         UpdateAnimation();
 
         if (currentState is MMechBlueNPCPatrolState || currentState is MMechBlueNPCChaseState)
@@ -58,24 +61,6 @@ public class MMechBlueNPCController : BaseNPCController
 
         return false;
     }
-
-    //private void CheckVision()
-    //{
-    //    if (player == null) return;
-
-    //    float dist = Vector3.Distance(transform.position, player.position);
-    //    if (dist > detectionRange) return;
-
-    //    Vector3 dir = (player.position - transform.position).normalized;
-    //    float angle = Vector3.Angle(transform.forward, dir);
-    //    if (angle > detectionAngle * 0.5f) return;
-
-    //    if (Physics.Raycast(transform.position, dir, out RaycastHit hit, detectionRange))
-    //    {
-    //        if (hit.transform == player)
-    //            OnPlayerDetected();
-    //    }
-    //}
 
     public void OnPlayerDetected()
     {

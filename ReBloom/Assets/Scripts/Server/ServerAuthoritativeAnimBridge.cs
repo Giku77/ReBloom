@@ -1,4 +1,5 @@
-﻿using Unity.Netcode;
+using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class ServerAuthoritativeAnimBridge : NetworkBehaviour
@@ -6,20 +7,19 @@ public class ServerAuthoritativeAnimBridge : NetworkBehaviour
     [SerializeField] private PlayerAnimation anim;
     [SerializeField] private Rigidbody rb;
 
-    [SerializeField] private float sendInterval = 0.05f; // 20Hz
-    [SerializeField] private float clientSmooth = 18f;   // 클라에서 보간 강하게
+    [SerializeField] private float sendInterval = 0.05f;
+    [SerializeField] private float clientSmooth = 18f;
     [SerializeField] private float minDeltaToSend = 0.005f;
 
-    private float _nextSendTime;
-    private float _lastSent;
+    private readonly Dictionary<int, bool> lastSentBools = new();
+    private readonly Dictionary<int, int> lastSentInts = new();
 
-    // 서버가 쓰고 모두가 읽는 목표 speed
-    private NetworkVariable<float> _serverTargetSpeed =
-        new NetworkVariable<float>(0f,
-            NetworkVariableReadPermission.Everyone,
-            NetworkVariableWritePermission.Server);
+    private float nextSendTime;
+    private float lastSentSpeed;
+    private float displaySpeed;
 
-    private float _displaySpeed; // 각 클라가 최종 표시할 보간 값
+    private readonly NetworkVariable<float> serverTargetSpeed =
+        new(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     private void Awake()
     {
@@ -29,47 +29,99 @@ public class ServerAuthoritativeAnimBridge : NetworkBehaviour
 
     private void Update()
     {
-        // 오너: 로컬 즉시 반영(예측) + 서버에 주기적으로 제출
         if (IsOwner)
         {
             float speed = 0f;
             if (rb != null)
             {
-                var v = rb.linearVelocity;
-                v.y = 0f;
-                speed = v.magnitude;
+                var velocity = rb.linearVelocity;
+                velocity.y = 0f;
+                speed = velocity.magnitude;
             }
 
-            // 로컬 즉시 적용(체감 부드러움 ↑)
-            // (오너는 서버값을 기다리지 말고 바로 애니 돌려도 됨)
-            anim?.SetSpeed(speed);
+            anim?.ApplyFloatLocal(PlayerAnimation.Speed, speed);
 
-            if (Time.unscaledTime >= _nextSendTime)
+            if (Time.unscaledTime >= nextSendTime)
             {
-                _nextSendTime = Time.unscaledTime + sendInterval;
+                nextSendTime = Time.unscaledTime + sendInterval;
 
-                if (Mathf.Abs(speed - _lastSent) >= minDeltaToSend)
+                if (Mathf.Abs(speed - lastSentSpeed) >= minDeltaToSend)
                 {
-                    _lastSent = speed;
+                    lastSentSpeed = speed;
 
-                    if (IsServer) _serverTargetSpeed.Value = speed;
-                    else SubmitSpeedServerRpc(speed);
+                    if (IsServer)
+                        serverTargetSpeed.Value = speed;
+                    else
+                        SubmitSpeedServerRpc(speed);
                 }
             }
         }
 
-        // 비오너(원격 프록시 포함): 서버 목표값을 로컬에서 매 프레임 스무딩
         if (!IsOwner)
         {
-            _displaySpeed = Mathf.Lerp(_displaySpeed, _serverTargetSpeed.Value, Time.deltaTime * clientSmooth);
-            anim?.SetSpeed(_displaySpeed);
+            displaySpeed = Mathf.Lerp(displaySpeed, serverTargetSpeed.Value, Time.deltaTime * clientSmooth);
+            anim?.ApplyFloatLocal(PlayerAnimation.Speed, displaySpeed);
         }
     }
 
-    // 여기서는 "서버 목표값만 갱신"
+    public void ReportBoolParam(int hash, bool value)
+    {
+        if (!ShouldForwardClientOwnedAnimation())
+            return;
+
+        if (lastSentBools.TryGetValue(hash, out var prev) && prev == value)
+            return;
+
+        lastSentBools[hash] = value;
+        SubmitBoolParamServerRpc(hash, value);
+    }
+
+    public void ReportIntParam(int hash, int value)
+    {
+        if (!ShouldForwardClientOwnedAnimation())
+            return;
+
+        if (lastSentInts.TryGetValue(hash, out var prev) && prev == value)
+            return;
+
+        lastSentInts[hash] = value;
+        SubmitIntParamServerRpc(hash, value);
+    }
+
+    public void ReportTriggerParam(int hash)
+    {
+        if (!ShouldForwardClientOwnedAnimation())
+            return;
+
+        SubmitTriggerParamServerRpc(hash);
+    }
+
+    private bool ShouldForwardClientOwnedAnimation()
+    {
+        return IsSpawned && IsOwner && !IsServer;
+    }
+
     [ServerRpc(Delivery = RpcDelivery.Unreliable)]
     private void SubmitSpeedServerRpc(float speed)
     {
-        _serverTargetSpeed.Value = speed;
+        serverTargetSpeed.Value = speed;
+    }
+
+    [ServerRpc(Delivery = RpcDelivery.Reliable)]
+    private void SubmitBoolParamServerRpc(int hash, bool value)
+    {
+        anim?.ApplyBoolLocal(hash, value);
+    }
+
+    [ServerRpc(Delivery = RpcDelivery.Reliable)]
+    private void SubmitIntParamServerRpc(int hash, int value)
+    {
+        anim?.ApplyIntLocal(hash, value);
+    }
+
+    [ServerRpc(Delivery = RpcDelivery.Reliable)]
+    private void SubmitTriggerParamServerRpc(int hash)
+    {
+        anim?.ApplyTriggerLocal(hash);
     }
 }

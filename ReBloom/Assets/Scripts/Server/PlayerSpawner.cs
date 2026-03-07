@@ -1,38 +1,60 @@
+﻿using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using System.Linq;
 
 public class PlayerSpawner : MonoBehaviour
 {
-    [SerializeField] private NetworkObject playerPrefab; // NetworkObject가 붙은 프리팹(에셋)
+    [SerializeField] private NetworkObject playerPrefab;
 
     private void OnEnable()
     {
         var nm = NetworkManager.Singleton;
+        if (nm == null || nm.SceneManager == null)
+            return;
+
         nm.SceneManager.OnLoadEventCompleted += OnLoadEventCompleted;
     }
 
     private void OnDisable()
     {
-        if (NetworkManager.Singleton == null) return;
-        NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= OnLoadEventCompleted;
+        var nm = NetworkManager.Singleton;
+        if (nm == null || nm.SceneManager == null)
+            return;
+
+        nm.SceneManager.OnLoadEventCompleted -= OnLoadEventCompleted;
     }
 
-    private void OnLoadEventCompleted(string sceneName, LoadSceneMode mode,
-        System.Collections.Generic.List<ulong> clientsCompleted,
-        System.Collections.Generic.List<ulong> clientsTimedOut)
+    private void OnLoadEventCompleted(
+        string sceneName,
+        LoadSceneMode mode,
+        List<ulong> clientsCompleted,
+        List<ulong> clientsTimedOut)
     {
-        if (!NetworkManager.Singleton.IsServer) return;
-        if (sceneName != "MainScene") return;
+        var nm = NetworkManager.Singleton;
+        if (nm == null || !nm.IsServer)
+            return;
 
-        foreach (var clientId in NetworkManager.Singleton.ConnectedClientsIds)
+        if (sceneName != "MainScene")
+            return;
+
+        if (FindFirstObjectByType<PlayerSpawnService>() != null)
         {
-            if (NetworkManager.Singleton.ConnectedClients[clientId].PlayerObject != null)
+            Debug.Log("[PlayerSpawner] PlayerSpawnService가 존재하므로 fallback 스폰을 건너뜁니다.");
+            return;
+        }
+
+        foreach (var clientId in nm.ConnectedClientsIds)
+        {
+            if (!nm.ConnectedClients.TryGetValue(clientId, out var client))
+                continue;
+
+            if (client.PlayerObject != null)
                 continue;
 
             var player = Instantiate(playerPrefab);
             player.SpawnAsPlayerObject(clientId, true);
+            Debug.LogWarning($"[PlayerSpawner] PlayerSpawnService가 없어 fallback 위치에서 플레이어를 생성했습니다. clientId={clientId}");
         }
     }
 }

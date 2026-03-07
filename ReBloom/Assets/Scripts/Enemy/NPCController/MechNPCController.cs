@@ -16,6 +16,9 @@ public class MechNPCController : BaseNPCController
     {
         base.Update();
 
+        if (!HasServerAuthority)
+            return;
+
         if (isStunned && Time.time >= stunEndTime)
         {
             isStunned = false;
@@ -33,13 +36,4 @@ public class MechNPCController : BaseNPCController
             animator.SetFloat("Speed", speed);
         }
     }
-
-    //public void ApplyStun(float duration)
-    //{
-    //    isStunned = true;
-    //    stunEndTime = Time.time + duration;
-    //    if (agent != null)
-    //        agent.isStopped = true;
-    //    animator.SetTrigger("Stunned");
-    //}
 }

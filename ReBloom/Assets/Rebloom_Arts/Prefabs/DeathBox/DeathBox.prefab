@@ -17,6 +17,8 @@ GameObject:
   - component: {fileID: 5214395534153529274}
   - component: {fileID: 4595347137967441198}
   - component: {fileID: -5472782865215820786}
+  - component: {fileID: -2967556912158851719}
+  - component: {fileID: 1157991531415603267}
   m_Layer: 11
   m_Name: DeathBox
   m_TagString: Untagged
@@ -108,7 +110,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerInventory: {fileID: 0}
-  deathBoxDataRef: {fileID: 11400000, guid: 1be75d495fab89e42ad93ee9644d57de, type: 2}
 --- !u!114 &479672197458770854
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -206,3 +207,44 @@ MonoBehaviour:
   outline: {fileID: 4011610321156874807, guid: 97aac55f4d7b4f3489999c7128acef97, type: 2}
   outlined: 0
   outlineLayerMask: 256
+--- !u!114 &-2967556912158851719
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 731978083580188806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 0
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!114 &1157991531415603267
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 731978083580188806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24eb1ca58d213ee48ac80c92e7ae5a92, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  itemSpawner: {fileID: 0}
+  dropForwardOffset: 1.25
+  dropUpOffset: 0.75

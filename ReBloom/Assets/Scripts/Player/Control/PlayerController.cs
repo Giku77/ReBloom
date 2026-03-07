@@ -222,6 +222,8 @@ public class PlayerController : MonoBehaviour
 
         if (inventory == null)
             inventory = GetComponent<PlayerInventoryRuntime>();
+        if (thirdPersonCamera == null)
+            thirdPersonCamera = Camera.main.GetComponent<ThirdPersonCamera>();
     }
 
     private void Start()
@@ -877,7 +879,13 @@ public class PlayerController : MonoBehaviour
             float damage = Mathf.Pow(effectiveHeight, 1.8f) * shoeResist;
 
             if (playerStats != null)
-                playerStats.TakeDamage(damage);
+            {
+                NetworkPlayerOwnerGate gate = GetComponent<NetworkPlayerOwnerGate>();
+                if (gate != null)
+                    gate.RequestAuthoritativeSelfDamage(damage);
+                else
+                    playerStats.TakeDamage(damage);
+            }
 
             ApplyLandingSlow().Forget();
             Debug.Log($"낙하 높이: {fallHeight:F2}m, 데미지: {damage:F2}");
@@ -1013,3 +1021,5 @@ public class PlayerController : MonoBehaviour
         }
     }
 }
+
+

@@ -11,10 +11,22 @@ public class PlayerSpawnService : MonoBehaviour
     private void Start()
     {
         var nm = NetworkManager.Singleton;
-        if (!nm.IsServer) return;
+        if (nm == null || !nm.IsServer)
+            return;
 
         nm.OnClientConnectedCallback += OnClientConnected;
+        nm.OnClientDisconnectCallback += OnClientDisconnected;
         StartCoroutine(SpawnAllNextFrame());
+    }
+
+    private void OnDestroy()
+    {
+        var nm = NetworkManager.Singleton;
+        if (nm == null || !nm.IsServer)
+            return;
+
+        nm.OnClientConnectedCallback -= OnClientConnected;
+        nm.OnClientDisconnectCallback -= OnClientDisconnected;
     }
 
     private IEnumerator SpawnAllNextFrame()
@@ -24,8 +36,7 @@ public class PlayerSpawnService : MonoBehaviour
         float timeout = 2f;
         float t = 0f;
 
-        // client 1이 들어올 때까지(또는 timeout) 잠깐 기다림
-        while (t < timeout && nm.ConnectedClientsIds.Count < 2) // host(0)+client(1)
+        while (t < timeout && nm.ConnectedClientsIds.Count < 2)
         {
             t += Time.unscaledDeltaTime;
             yield return null;
@@ -37,11 +48,22 @@ public class PlayerSpawnService : MonoBehaviour
             EnsureSpawn(id);
     }
 
-
     private void OnClientConnected(ulong clientId)
     {
-        if (!NetworkManager.Singleton.IsServer) return;
+        var nm = NetworkManager.Singleton;
+        if (nm == null || !nm.IsServer)
+            return;
+
         StartCoroutine(SpawnLate(clientId));
+    }
+
+    private void OnClientDisconnected(ulong clientId)
+    {
+        var nm = NetworkManager.Singleton;
+        if (nm == null || !nm.IsServer || nm.ShutdownInProgress || clientId == NetworkManager.ServerClientId)
+            return;
+
+        StartCoroutine(CleanupDisconnectedPlayerNextFrame(clientId));
     }
 
     private IEnumerator SpawnLate(ulong clientId)
@@ -50,21 +72,27 @@ public class PlayerSpawnService : MonoBehaviour
         EnsureSpawn(clientId);
     }
 
+    private IEnumerator CleanupDisconnectedPlayerNextFrame(ulong clientId)
+    {
+        yield return null;
+        CleanupDisconnectedPlayer(clientId);
+    }
+
     private void EnsureSpawn(ulong clientId)
     {
         var nm = NetworkManager.Singleton;
 
-        Debug.Log($"[Spawn] Ensure clientId={clientId} spawnPoints={(spawnPoints==null?-1:spawnPoints.Length)}");
+        Debug.Log($"[Spawn] Ensure clientId={clientId} spawnPoints={(spawnPoints == null ? -1 : spawnPoints.Length)}");
 
         if (spawnPoints == null || spawnPoints.Length == 0)
         {
-            Debug.LogError("[Spawn] spawnPoints 비었음. PlayerSpawnService를 MainScene에 두고 spawnPoints를 MainScene 오브젝트로 연결해야 함.");
+            Debug.LogError("[Spawn] spawnPoints is empty. Place PlayerSpawnService in MainScene and assign scene spawn points.");
             return;
         }
 
         if (!nm.ConnectedClients.TryGetValue(clientId, out var client))
         {
-            Debug.LogWarning($"[Spawn] ConnectedClients에 {clientId} 없음");
+            Debug.LogWarning($"[Spawn] ConnectedClients missing clientId={clientId}");
             return;
         }
 
@@ -77,9 +105,41 @@ public class PlayerSpawnService : MonoBehaviour
         var sp = spawnPoints[spawnIndex % spawnPoints.Length];
         spawnIndex++;
 
-        var p = Instantiate(playerPrefab, sp.position, sp.rotation);
-        p.SpawnAsPlayerObject(clientId, true);
+        var playerObject = Instantiate(playerPrefab, sp.position, sp.rotation);
+        playerObject.SpawnAsPlayerObject(clientId, true);
 
-        Debug.Log($"[Spawn] spawned clientId={clientId} owner={p.OwnerClientId} netId={p.NetworkObjectId} pos={sp.position}");
+        Debug.Log($"[Spawn] spawned clientId={clientId} owner={playerObject.OwnerClientId} netId={playerObject.NetworkObjectId} pos={sp.position}");
+    }
+
+    private void CleanupDisconnectedPlayer(ulong clientId)
+    {
+        bool removedAny = false;
+        var gates = FindObjectsByType<NetworkPlayerOwnerGate>(FindObjectsSortMode.None);
+
+        foreach (var gate in gates)
+        {
+            if (gate == null || gate.OwnerClientId != clientId)
+                continue;
+
+            var networkObject = gate.GetComponent<NetworkObject>();
+            if (networkObject == null)
+                continue;
+
+            removedAny = true;
+
+            if (networkObject.IsSpawned)
+            {
+                Debug.Log($"[Spawn] Despawning disconnected player clientId={clientId} netId={networkObject.NetworkObjectId}");
+                networkObject.Despawn(true);
+            }
+            else
+            {
+                Debug.Log($"[Spawn] Destroying stale disconnected player clientId={clientId}");
+                Destroy(networkObject.gameObject);
+            }
+        }
+
+        if (!removedAny)
+            Debug.Log($"[Spawn] No lingering player object found for disconnected clientId={clientId}");
     }
 }

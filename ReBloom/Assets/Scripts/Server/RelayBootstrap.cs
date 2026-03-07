@@ -1,4 +1,7 @@
-Ôªøusing TMPro;
+using System;
+using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
+using TMPro;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using Unity.Services.Authentication;
@@ -16,28 +19,45 @@ public class RelayBootstrap : MonoBehaviour
 
     [SerializeField] private Button HostButton;
     [SerializeField] private Button ClientButton;
+    [SerializeField] private HostRoomPopupUI hostRoomPopup;
     [SerializeField] private GameObject JoinPanel;
-    [SerializeField] private TMPro.TMP_InputField JoinCodeInput;
-    [SerializeField] private TMPro.TMP_InputField NameTagInput;
+    [SerializeField] private TMP_InputField JoinCodeInput;
+    [SerializeField] private TMP_InputField NameTagInput;
+    [SerializeField] private TMP_InputField PasswordInput;
+    [SerializeField] private TextMeshProUGUI NameGuideText;
+    [SerializeField] private TextMeshProUGUI PasswordGuideText;
+    [SerializeField] private string defaultNameGuideText = "¬¸ø©«“ ¥–≥◊¿”¿ª ¿‘∑¬«ÿ¡÷ººø‰.";
+    [SerializeField] private string defaultPasswordGuideText = "¡¢º”«“ ∞Ë¡§ ∫Òπ–π¯»£∏¶ ¿‘∑¬«ÿ¡÷ººø‰.";
+    [SerializeField] private string invalidNameGuideText = "¥–≥◊¿”¿∫ 2¿⁄ ¿ÃªÛ ¿‘∑¬«ÿ¡÷ººø‰.";
+    [SerializeField] private string invalidPasswordGuideText = "∫Òπ–π¯»£∏¶ ¿‘∑¬«ÿ¡÷ººø‰.";
     [SerializeField] private Button JoinConfirmButton;
     [SerializeField] private Button JoinCancelButton;
-    [SerializeField] private float connectTimeout = 10f;
+    [SerializeField] private float connectTimeout = 30f;
 
-    private async void Awake()
+    private Task servicesInitializationTask;
+    private bool waitingForLocalClientConnection;
+    private bool localClientConnected;
+    private bool localClientDisconnected;
+    private string lastDisconnectReason;
+
+    private void Awake()
     {
-        if (!nm) nm = NetworkManager.Singleton;
-        if (!utp) utp = nm.GetComponent<UnityTransport>();
+        PrepareNetworkManagerForStart();
+        BindUiEvents();
+        servicesInitializationTask = InitializeServicesAsync();
+        SetJoinGuideTexts(defaultNameGuideText, defaultPasswordGuideText);
+    }
 
-        await UnityServices.InitializeAsync();
-        if (!AuthenticationService.Instance.IsSignedIn)
-            await AuthenticationService.Instance.SignInAnonymouslyAsync();
-        SetupApproval();
+    private void BindUiEvents()
+    {
         if (HostButton)
         {
             HostButton.onClick.AddListener(() =>
             {
-                NicknameStore.CurrentName = "Î∞©Ïû•";
-                StartHostRelay();
+                if (hostRoomPopup != null)
+                    hostRoomPopup.Open();
+                else
+                    FailJoin("»£Ω∫∆Æ ∆Àæ˜¿Ã ø¨∞·µ«¡ˆ æ æ“Ω¿¥œ¥Ÿ.");
             });
         }
 
@@ -45,122 +65,340 @@ public class RelayBootstrap : MonoBehaviour
         {
             JoinCodeInput.onValueChanged.AddListener(v =>
             {
-                var up = v.ToUpperInvariant();
-                if (up != v)
-                    JoinCodeInput.SetTextWithoutNotify(up);
+                var upper = v.ToUpperInvariant();
+                if (upper != v)
+                    JoinCodeInput.SetTextWithoutNotify(upper);
             });
         }
+
         if (ClientButton)
         {
             ClientButton.onClick.AddListener(() =>
             {
                 if (JoinPanel) JoinPanel.SetActive(true);
-                else return;
+                SetJoinGuideTexts(defaultNameGuideText, defaultPasswordGuideText);
             });
         }
+
         if (JoinCancelButton)
-            JoinCancelButton.onClick.AddListener(() => {
+        {
+            JoinCancelButton.onClick.AddListener(() =>
+            {
                 if (JoinPanel) JoinPanel.SetActive(false);
             });
+        }
+
         if (JoinConfirmButton)
-            JoinConfirmButton.onClick.AddListener(() => {
-                NicknameStore.CurrentName = NameTagInput ? NameTagInput.text : "Player";
-                string joinCode = JoinCodeInput ? JoinCodeInput.text : "";
-                StartClientRelay(joinCode);
-                if (JoinPanel) JoinPanel.SetActive(false);
-                if (ToastService.I != null) ToastService.I.Show("ÏÑúÎ≤ÑÏóê Ï†ëÏÜç Ï§ëÏûÖÎãàÎã§...", 30000);
-            });
+            JoinConfirmButton.onClick.AddListener(() => OnJoinConfirmClicked().Forget());
     }
 
-    public async void StartHostRelay(int maxConnections = 10, string connectionType = "dtls")
+    private async UniTaskVoid OnJoinConfirmClicked()
     {
-        var alloc = await RelayService.Instance.CreateAllocationAsync(maxConnections);
-        var joinCode = await RelayService.Instance.GetJoinCodeAsync(alloc.AllocationId);
+        if (!TryGetJoinCredential(out var displayName, out var password))
+        {
+            FocusInvalidJoinField();
+            return;
+        }
 
-        utp.SetRelayServerData(AllocationUtils.ToRelayServerData(alloc, connectionType));
-
-        nm.StartHost();
-        Debug.Log($"[Relay] Join Code: {joinCode}");
-        JoinCodeStore.Current = joinCode;
-        nm.SceneManager.LoadScene("LoadingScene", LoadSceneMode.Single);
+        NicknameStore.CurrentName = displayName;
+        string joinCode = JoinCodeInput ? JoinCodeInput.text : string.Empty;
+        StartClientRelay(joinCode, displayName, password);
+        if (JoinPanel) JoinPanel.SetActive(false);
+        if (ToastService.I != null) ToastService.I.Show("º≠πˆø° ¡¢º” ¡ﬂ¿‘¥œ¥Ÿ...", 30000);
     }
 
+    private async Task InitializeServicesAsync()
+    {
+        await UnityServices.InitializeAsync();
+        if (!AuthenticationService.Instance.IsSignedIn)
+            await AuthenticationService.Instance.SignInAnonymouslyAsync();
+    }
 
-    public async void StartClientRelay(string joinCode, string connectionType = "dtls")
+    private async Task EnsureServicesReadyAsync()
+    {
+        if (servicesInitializationTask == null)
+            servicesInitializationTask = InitializeServicesAsync();
+
+        await servicesInitializationTask;
+    }
+
+    public void StartHostRelayWithCredential(string displayName, string password, int maxConnections = 10, string connectionType = "dtls")
+    {
+        if (!PlayFabAuth.TryValidateCredentials(displayName, password, out var normalizedDisplayName, out var normalizedPassword))
+        {
+            FailJoin("¥–≥◊¿”∞˙ ∫Òπ–π¯»£∏¶ ∏µŒ ¿‘∑¬«ÿ¡÷ººø‰.");
+            return;
+        }
+
+        NicknameStore.CurrentName = normalizedDisplayName;
+        StartHostRelay(normalizedDisplayName, normalizedPassword, maxConnections, connectionType);
+    }
+
+    public async void StartHostRelay(string displayName, string password, int maxConnections = 10, string connectionType = "dtls")
     {
         try
         {
-            var joinAlloc = await RelayService.Instance.JoinAllocationAsync(joinCode);
-            utp.SetRelayServerData(AllocationUtils.ToRelayServerData(joinAlloc, connectionType));
+            await EnsureServicesReadyAsync();
+            PrepareNetworkManagerForStart();
+            if (!await EnsurePlayFabAccountReadyAsync(displayName, password))
+                return;
 
-            if (!nm.StartClient())
+            var alloc = await RelayService.Instance.CreateAllocationAsync(maxConnections);
+            var joinCode = await RelayService.Instance.GetJoinCodeAsync(alloc.AllocationId);
+
+            utp.SetRelayServerData(AllocationUtils.ToRelayServerData(alloc, connectionType));
+
+            Debug.Log($"[Relay] Starting host. timeout={nm.NetworkConfig.ClientConnectionBufferTimeout}s sceneTimeout={nm.NetworkConfig.LoadSceneTimeOut}s autoSpawn={nm.NetworkConfig.AutoSpawnPlayerPrefabClientSide}");
+
+            if (!nm.StartHost())
             {
-                FailJoin("ÌÅ¥ÎùºÏù¥Ïñ∏Ìä∏ ÏãúÏûë Ïã§Ìå®");
+                FailJoin("»£Ω∫∆Æ Ω√¿€ Ω«∆–");
                 return;
             }
 
-            nm.StartClient();
+            Debug.Log($"[Relay] Join Code: {joinCode}");
+            JoinCodeStore.Current = joinCode;
+            hostRoomPopup?.CloseImmediate();
+            nm.SceneManager.LoadScene("LoadingScene", LoadSceneMode.Single);
+        }
+        catch (Exception e)
+        {
+            FailJoin($"πÊ ª˝º∫ Ω«∆–: {e.Message}");
+        }
+    }
 
-            float end = Time.unscaledTime + connectTimeout;
-            while (Time.unscaledTime < end && !nm.IsConnectedClient)
-                await System.Threading.Tasks.Task.Yield();
+    public async void StartClientRelay(string joinCode, string displayName, string password, string connectionType = "dtls")
+    {
+        try
+        {
+            await EnsureServicesReadyAsync();
+            PrepareNetworkManagerForStart();
+            if (!await EnsurePlayFabAccountReadyAsync(displayName, password))
+                return;
 
-            if (!nm.IsConnectedClient)
+            var joinAlloc = await RelayService.Instance.JoinAllocationAsync(joinCode);
+            utp.SetRelayServerData(AllocationUtils.ToRelayServerData(joinAlloc, connectionType));
+
+            ResetClientConnectState();
+
+            Debug.Log($"[Relay] Starting client joinCode={joinCode} timeout={connectTimeout:F1}s");
+
+            if (!nm.StartClient())
             {
-                FailJoin("ÏÑúÎ≤Ñ Ï†ëÏÜç ÏãúÍ∞Ñ Ï¥àÍ≥º");
-                nm.Shutdown();
+                FailJoin("≈¨∂Û¿Ãæ∆Æ Ω√¿€ Ω«∆–");
+                return;
             }
+
+            waitingForLocalClientConnection = true;
+            float end = Time.unscaledTime + Mathf.Max(5f, connectTimeout);
+
+            while (Time.unscaledTime < end)
+            {
+                if (nm.IsConnectedClient || localClientConnected)
+                {
+                    waitingForLocalClientConnection = false;
+                    return;
+                }
+
+                if (localClientDisconnected)
+                {
+                    waitingForLocalClientConnection = false;
+                    string reason = string.IsNullOrWhiteSpace(lastDisconnectReason) ? "º≠πˆøÕ ø¨∞·«“ ºˆ æ¯Ω¿¥œ¥Ÿ." : lastDisconnectReason;
+                    FailJoin($"º≠πˆ ¡¢º” Ω«∆–: {reason}");
+                    if (nm.IsListening)
+                        nm.Shutdown();
+                    return;
+                }
+
+                await Task.Yield();
+            }
+
+            waitingForLocalClientConnection = false;
+            FailJoin("º≠πˆ ¡¢º” Ω√∞£ √ ∞˙");
+            if (nm.IsListening)
+                nm.Shutdown();
         }
         catch (RelayServiceException e)
         {
-            // Ï°∞Ïù∏ÏΩîÎìú ÏûòÎ™ªÎê® / Î¶¥Î†àÏù¥ Ïò§Î•ò Îì±
-            FailJoin($"Ï∞∏Ïó¨ Ïã§Ìå®: {e.Reason}");
+            FailJoin($"¬¸ø© Ω«∆–: {e.Reason}");
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
-            FailJoin($"Ï∞∏Ïó¨ Ïã§Ìå®: {e.Message}");
+            FailJoin($"¬¸ø© Ω«∆–: {e.Message}");
         }
     }
 
+    private async UniTask<bool> EnsurePlayFabAccountReadyAsync(string displayName, string password)
+    {
+        if (!PlayFabAuth.TryValidateCredentials(displayName, password, out var normalizedDisplayName, out var normalizedPassword))
+        {
+            FailJoin("¥–≥◊¿”∞˙ ∫Òπ–π¯»£∏¶ ∏µŒ ¿‘∑¬«ÿ¡÷ººø‰.");
+            return false;
+        }
+
+        NicknameStore.CurrentName = normalizedDisplayName;
+
+        try
+        {
+            if (SaveManager.I != null)
+                return await SaveManager.I.EnsureRemoteReadyAsync(normalizedDisplayName, normalizedPassword);
+
+            await PlayFabAuth.LoginAsync(normalizedDisplayName, normalizedPassword);
+            return true;
+        }
+        catch (Exception e)
+        {
+            FailJoin($"∞Ë¡§ ∑Œ±◊¿Œ Ω«∆–: {e.Message}");
+            return false;
+        }
+    }
+
+    private bool TryGetJoinCredential(out string displayName, out string password)
+    {
+        string rawDisplayName = NameTagInput ? NameTagInput.text : string.Empty;
+        string rawPassword = PasswordInput ? PasswordInput.text : string.Empty;
+        bool valid = PlayFabAuth.TryValidateCredentials(rawDisplayName, rawPassword, out displayName, out password);
+
+        if (valid)
+        {
+            SetJoinGuideTexts(defaultNameGuideText, defaultPasswordGuideText);
+            return true;
+        }
+
+        string normalizedDisplayName = PlayFabAuth.NormalizeDisplayName(rawDisplayName);
+        if (normalizedDisplayName.Length < 2)
+            SetJoinGuideTexts(invalidNameGuideText, defaultPasswordGuideText);
+        else
+            SetJoinGuideTexts(defaultNameGuideText, invalidPasswordGuideText);
+
+        return false;
+    }
+
+    private void FocusInvalidJoinField()
+    {
+        string normalizedDisplayName = PlayFabAuth.NormalizeDisplayName(NameTagInput ? NameTagInput.text : string.Empty);
+        if (normalizedDisplayName.Length < 2)
+            NameTagInput?.ActivateInputField();
+        else
+            PasswordInput?.ActivateInputField();
+    }
+
+    private void SetJoinGuideTexts(string nameMessage, string passwordMessage)
+    {
+        if (NameGuideText != null)
+            NameGuideText.text = nameMessage;
+
+        if (PasswordGuideText != null)
+            PasswordGuideText.text = passwordMessage;
+    }
+
+    private void ConfigureNetworkTimeouts()
+    {
+        if (nm == null)
+            return;
+
+        nm.NetworkConfig.ClientConnectionBufferTimeout = Mathf.Max(nm.NetworkConfig.ClientConnectionBufferTimeout, 60);
+        nm.NetworkConfig.LoadSceneTimeOut = Mathf.Max(nm.NetworkConfig.LoadSceneTimeOut, 180);
+    }
+
+    private void DisableAutomaticPlayerPrefabSpawn()
+    {
+        if (nm == null)
+            return;
+
+        if (nm.NetworkConfig.AutoSpawnPlayerPrefabClientSide)
+        {
+            Debug.Log("[RelayBootstrap] PlayerSpawnService∏¶ ªÁøÎ«œπ«∑Œ AutoSpawnPlayerPrefabClientSide∏¶ ∫Ò»∞º∫»≠«’¥œ¥Ÿ.");
+            nm.NetworkConfig.AutoSpawnPlayerPrefabClientSide = false;
+        }
+
+        if (nm.NetworkConfig.PlayerPrefab != null)
+        {
+            Debug.Log("[RelayBootstrap] PlayerSpawnService∏¶ ªÁøÎ«œπ«∑Œ NetworkManager ±‚∫ª PlayerPrefab ¿⁄µø Ω∫∆˘¿ª ∫Ò»∞º∫»≠«’¥œ¥Ÿ.");
+            nm.NetworkConfig.PlayerPrefab = null;
+        }
+    }
 
     private void SetupApproval()
     {
-        var nm = NetworkManager.Singleton;
-        nm.NetworkConfig.ConnectionApproval = true;
-        nm.ConnectionApprovalCallback = Approval;
+        if (NetworkManager.Singleton == null)
+            return;
+
+        var manager = NetworkManager.Singleton;
+        manager.NetworkConfig.ConnectionApproval = true;
+        manager.ConnectionApprovalCallback = StaticApproval;
     }
 
-    private void Approval(NetworkManager.ConnectionApprovalRequest req,
-                        NetworkManager.ConnectionApprovalResponse res)
+    private void PrepareNetworkManagerForStart()
+    {
+        if (!nm) nm = NetworkManager.Singleton;
+        if (!utp && nm != null) utp = nm.GetComponent<UnityTransport>();
+
+        SetupApproval();
+        DisableAutomaticPlayerPrefabSpawn();
+        ConfigureNetworkTimeouts();
+    }
+
+    private static void StaticApproval(
+        NetworkManager.ConnectionApprovalRequest req,
+        NetworkManager.ConnectionApprovalResponse res)
     {
         res.Approved = true;
-        res.CreatePlayerObject = false; 
+        res.CreatePlayerObject = false;
         res.Pending = false;
     }
 
     private void OnEnable()
     {
-        var nm = NetworkManager.Singleton;
-        nm.OnClientConnectedCallback += OnClientConnected;
-        nm.OnClientDisconnectCallback += OnClientDisconnected;
+        if (NetworkManager.Singleton == null)
+            return;
+
+        var manager = NetworkManager.Singleton;
+        manager.OnClientConnectedCallback += OnClientConnected;
+        manager.OnClientDisconnectCallback += OnClientDisconnected;
     }
 
     private void OnDisable()
     {
-        if (NetworkManager.Singleton == null) return;
-        var nm = NetworkManager.Singleton;
-        nm.OnClientConnectedCallback -= OnClientConnected;
-        nm.OnClientDisconnectCallback -= OnClientDisconnected;
+        if (NetworkManager.Singleton == null)
+            return;
+
+        var manager = NetworkManager.Singleton;
+        manager.OnClientConnectedCallback -= OnClientConnected;
+        manager.OnClientDisconnectCallback -= OnClientDisconnected;
     }
 
     private void OnClientConnected(ulong clientId)
     {
-        Debug.Log($"[Net] ClientConnected: {clientId}");
+        Debug.Log($"[Net] ClientConnected: {clientId} server={nm != null && nm.IsServer} client={nm != null && nm.IsClient}");
+
+        if (nm != null && nm.IsClient && !nm.IsServer && clientId == nm.LocalClientId)
+        {
+            localClientConnected = true;
+            localClientDisconnected = false;
+            lastDisconnectReason = string.Empty;
+        }
     }
 
     private void OnClientDisconnected(ulong clientId)
     {
-        Debug.LogWarning($"[Net] ClientDisconnected: {clientId}");
+        string disconnectReason = nm != null ? nm.DisconnectReason : string.Empty;
+        Debug.LogWarning($"[Net] ClientDisconnected: {clientId} server={nm != null && nm.IsServer} client={nm != null && nm.IsClient} reason={disconnectReason}");
+
+        if (nm != null && nm.IsClient && !nm.IsServer)
+        {
+            localClientDisconnected = true;
+            localClientConnected = false;
+            lastDisconnectReason = disconnectReason;
+        }
+    }
+
+    private void ResetClientConnectState()
+    {
+        waitingForLocalClientConnection = false;
+        localClientConnected = false;
+        localClientDisconnected = false;
+        lastDisconnectReason = string.Empty;
     }
 
     private void FailJoin(string msg)
@@ -170,7 +408,4 @@ public class RelayBootstrap : MonoBehaviour
 
         Debug.LogError($"[Net] {msg}");
     }
-
-
-
 }

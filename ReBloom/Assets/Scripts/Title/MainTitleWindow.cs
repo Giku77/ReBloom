@@ -1,4 +1,5 @@
-﻿using Cysharp.Threading.Tasks;
+using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
 using TMPro;
@@ -55,27 +56,56 @@ public class MainTitleWindow : Window
     {
         cts?.Cancel();
         cts?.Dispose();
-
-        //newGameButton.onClick?.RemoveAllListeners();
-        //continueGameButton.onClick?.RemoveAllListeners();
-        //settingButton.onClick?.RemoveAllListeners();
-        //quitGameButton.onClick?.RemoveAllListeners();
     }
 
     private void Start()
     {
-
         SoundManager.I.PlayTitleBGM();
-
         RefreshContinueButtonStateAsync().Forget();
+    }
+
+    public async UniTask<IReadOnlyList<WorldSlotMetaDTO>> GetAvailableWorldSlotsAsync()
+    {
+        if (SaveManager.I == null)
+            return Array.Empty<WorldSlotMetaDTO>();
+
+        return await SaveManager.I.ListWorldSlotsAsync();
+    }
+
+    public async UniTask<string> GetSuggestedNewSlotIdAsync(int maxSlots = 8)
+    {
+        if (SaveManager.I == null)
+            return GameStartContext.SlotId;
+
+        return await SaveManager.I.SuggestNextSlotIdAsync(maxSlots);
+    }
+
+    public void SelectWorldSlot(string slotId, string displayName = null)
+    {
+        if (SaveManager.I != null)
+        {
+            SaveManager.I.SetActiveSlot(slotId, displayName);
+            return;
+        }
+
+        GameStartContext.SlotId = string.IsNullOrWhiteSpace(slotId) ? GameStartContext.SlotId : slotId.Trim();
+        GameStartContext.SlotDisplayName = string.IsNullOrWhiteSpace(displayName)
+            ? GameStartContext.SlotId
+            : displayName.Trim();
     }
 
     private async UniTaskVoid RefreshContinueButtonStateAsync()
     {
-        hasSave = await SaveManager.I.HasSaveAsync("slot1");
+        var slots = await GetAvailableWorldSlotsAsync();
+        hasSave = slots.Count > 0;
 
-        continueGameButton.interactable = hasSave; 
-                                                   
+        if (hasSave && SaveManager.I != null)
+        {
+            var selected = slots[0];
+            SaveManager.I.SetActiveSlot(selected.slotId, selected.displayName);
+        }
+
+        continueGameButton.interactable = hasSave;
     }
 
     private void Update()
@@ -104,9 +134,7 @@ public class MainTitleWindow : Window
             initialized = true;
 
             if (EventSystem.current.currentSelectedGameObject == null)
-            {
                 EventSystem.current.SetSelectedGameObject(newGameButton.gameObject);
-            }
         }
     }
 
@@ -114,27 +142,64 @@ public class MainTitleWindow : Window
     {
         if (!hasSave)
         {
-            GameStartContext.StartMode = GameStartContext.Mode.NewGame;
-            SaveManager.I?.ResetSlotAsync("slot1", saveDefaultImmediately: false).Forget();
-            SceneManager.LoadScene("LoadingScene");
-        }
-        else
-        {
-            OpenPopup();
+            StartSelectedNewGameAsync().Forget();
+            return;
         }
 
+        OpenPopup();
     }
 
-    private async UniTaskVoid StartNewGameAsync()
+    public async UniTask<bool> StartNewGameWithSlotAsync(string slotId, string displayName = null)
     {
-        await SaveManager.I.ResetSlotAsync("slot1", saveDefaultImmediately: false);
+        SelectWorldSlot(slotId, displayName);
+
+        string resolvedSlotId = SaveManager.I != null ? SaveManager.I.ActiveSlotId : GameStartContext.SlotId;
+        GameStartContext.StartMode = GameStartContext.Mode.NewGame;
+        GameStartContext.SlotId = resolvedSlotId;
+
+        if (SaveManager.I != null)
+            await SaveManager.I.ResetSlotAsync(resolvedSlotId, saveDefaultImmediately: false);
+
         SceneManager.LoadScene("LoadingScene");
+        return true;
+    }
+
+    public async UniTask<bool> ContinueWithSlotAsync(string slotId, string displayName = null)
+    {
+        SelectWorldSlot(slotId, displayName);
+
+        string resolvedSlotId = SaveManager.I != null ? SaveManager.I.ActiveSlotId : GameStartContext.SlotId;
+        if (SaveManager.I != null)
+        {
+            bool slotHasSave = await SaveManager.I.HasSaveAsync(resolvedSlotId);
+            if (!slotHasSave)
+            {
+                await OnNotImplementedButtonClickeddAsync();
+                return false;
+            }
+        }
+
+        GameStartContext.StartMode = GameStartContext.Mode.Continue;
+        GameStartContext.SlotId = resolvedSlotId;
+        SceneManager.LoadScene("LoadingScene");
+        return true;
     }
 
     public void OnContinueButtonClicekd()
     {
-        GameStartContext.StartMode = GameStartContext.Mode.Continue;
-        SceneManager.LoadScene("LoadingScene");
+        ContinueWithSelectedSlotAsync().Forget();
+    }
+
+    private async UniTaskVoid StartSelectedNewGameAsync()
+    {
+        string slotId = SaveManager.I != null ? SaveManager.I.ActiveSlotId : GameStartContext.SlotId;
+        await StartNewGameWithSlotAsync(slotId, GameStartContext.SlotDisplayName);
+    }
+
+    private async UniTaskVoid ContinueWithSelectedSlotAsync()
+    {
+        string slotId = SaveManager.I != null ? SaveManager.I.ActiveSlotId : GameStartContext.SlotId;
+        await ContinueWithSlotAsync(slotId, GameStartContext.SlotDisplayName);
     }
 
     public void OnSettingButtonClicked()
@@ -144,14 +209,8 @@ public class MainTitleWindow : Window
 
     private async UniTaskVoid LoadContinueAsync()
     {
-        bool hasSave = await SaveManager.I.HasSaveAsync("slot1");
-        if (!hasSave)
-        {
-            await OnNotImplementedButtonClickeddAsync();
-            return;
-        }
-
-        SceneManager.LoadScene("LoadingScene");
+        string slotId = SaveManager.I != null ? SaveManager.I.ActiveSlotId : GameStartContext.SlotId;
+        await ContinueWithSlotAsync(slotId, GameStartContext.SlotDisplayName);
     }
 
     private async UniTask OnNotImplementedButtonClickeddAsync()
@@ -160,15 +219,16 @@ public class MainTitleWindow : Window
         cts = new CancellationTokenSource();
 
         if (ToastService.I != null) ToastService.I.Show("저장 데이터가 없습니다.");
+        await UniTask.CompletedTask;
     }
 
     public void OnQuitButtonClicked()
     {
-        #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-        #else
-            Application.Quit();
-        #endif
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 
     private void OpenPopup()
@@ -177,24 +237,22 @@ public class MainTitleWindow : Window
 
         popup.SetActive(true);
         if (PlatformManager.Instance == null || !PlatformManager.Instance.IsMobile)
-        {
             EventSystem.current.SetSelectedGameObject(executeButton.gameObject);
-        }
     }
 
     private void ClosePopup()
     {
         popup.SetActive(false);
         if (PlatformManager.Instance == null || !PlatformManager.Instance.IsMobile)
-        {
             EventSystem.current.SetSelectedGameObject(newGameButton.gameObject);
-        }
     }
 
     private async void OnExecuteButtonClicked()
     {
+        string slotId = SaveManager.I != null ? SaveManager.I.ActiveSlotId : GameStartContext.SlotId;
         GameStartContext.StartMode = GameStartContext.Mode.NewGame;
-        await SaveManager.I.ResetSlotAsync("slot1", saveDefaultImmediately:false);
+        GameStartContext.SlotId = slotId;
+        await SaveManager.I.ResetSlotAsync(slotId, saveDefaultImmediately: false);
         SceneManager.LoadScene("LoadingScene");
     }
 
@@ -203,3 +261,4 @@ public class MainTitleWindow : Window
         ClosePopup();
     }
 }
+

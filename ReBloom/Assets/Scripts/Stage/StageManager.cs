@@ -46,23 +46,6 @@ public class StageManager : MonoBehaviour
     }
 
 
-    private void Update()
-    {
-        // 각 스테이지별 날씨 타이머 업데이트
-        foreach (var kvp in weatherByStageID)
-        {
-            int stageID = kvp.Key;
-            WeatherInfo info = kvp.Value;
-            
-            info.weatherTimer += Time.deltaTime;
-            
-            if (info.weatherTimer >= info.weatherDuration)
-            {
-                SetRandomWeather(stageID);
-            }
-        }
-    }
-
     public void SetWeatherRaw(
     int stageID,
     WeatherType weather,
