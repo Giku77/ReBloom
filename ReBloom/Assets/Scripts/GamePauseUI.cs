@@ -1,4 +1,4 @@
-using System.Collections;
+using Cysharp.Threading.Tasks;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
@@ -187,38 +187,60 @@ public class GamePauseUI : UIBase
         currentPopupType = PopupType.None;
     }
 
-    private void LoadTitleScene()
+    private async void LoadTitleScene()
     {
         SoundManager.I?.PlayUIClick();
-        StartCoroutine(ReturnToTitleRoutine());
+        await ReturnToTitleAsync();
     }
 
-    private IEnumerator ReturnToTitleRoutine()
+    private async UniTask ReturnToTitleAsync()
     {
         Time.timeScale = 1f;
         UIManager.Instance?.SetPaused(false);
         popup.SetActive(false);
         currentPopupType = PopupType.None;
 
+        if (AutoSaveService.I != null)
+        {
+            bool flushed = await AutoSaveService.I.FlushAsync();
+            Debug.Log($"[GamePauseUI] AutoSave flush before title: {flushed}");
+        }
+
         var networkManager = NetworkManager.Singleton;
-        if (networkManager != null && networkManager.IsListening)
+        if (networkManager != null && (networkManager.IsListening || networkManager.ShutdownInProgress))
         {
             Debug.Log($"[GamePauseUI] Returning to title. Shutting down session. server={networkManager.IsServer} client={networkManager.IsClient}");
-            networkManager.Shutdown();
 
-            float timeout = 2f;
-            while (timeout > 0f && networkManager.ShutdownInProgress)
-            {
-                timeout -= Time.unscaledDeltaTime;
-                yield return null;
-            }
+            if (networkManager.IsListening)
+                networkManager.Shutdown();
 
-            yield return null;
+            await WaitForNetworkShutdownAsync(networkManager);
         }
 
         JoinCodeStore.Current = string.Empty;
         GameStartContext.StartMode = GameStartContext.Mode.Debug;
         SceneManager.LoadScene("TitleScene");
+    }
+
+    private static async UniTask WaitForNetworkShutdownAsync(NetworkManager networkManager)
+    {
+        const float timeoutSeconds = 10f;
+        float elapsed = 0f;
+
+        while (elapsed < timeoutSeconds)
+        {
+            bool isStillShuttingDown = networkManager != null && networkManager.ShutdownInProgress;
+            bool isStillListening = networkManager != null && networkManager.IsListening;
+
+            if (!isStillShuttingDown && !isStillListening)
+                break;
+
+            elapsed += Time.unscaledDeltaTime;
+            await UniTask.Yield();
+        }
+
+        Debug.Log($"[GamePauseUI] Shutdown wait finished. listening={networkManager != null && networkManager.IsListening} shutdownInProgress={networkManager != null && networkManager.ShutdownInProgress}");
+        await UniTask.DelayFrame(2);
     }
 
     private void QuitGame()

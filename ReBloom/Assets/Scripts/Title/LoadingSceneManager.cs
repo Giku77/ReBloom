@@ -12,6 +12,7 @@ public class LoadingSceneManager : MonoBehaviour
 
     private void Awake()
     {
+        Time.timeScale = 1f;
         saveCoordinator = MultiplayerSaveCoordinator.EnsureInstance();
     }
 
@@ -23,8 +24,14 @@ public class LoadingSceneManager : MonoBehaviour
     private async UniTaskVoid LoadFlow()
     {
         var nm = NetworkManager.Singleton;
-        if (nm == null || !nm.IsServer)
+        if (nm == null)
             return;
+
+        if (!nm.IsServer)
+        {
+            await WaitForClientSceneSyncAsync();
+            return;
+        }
 
         float wait = 0f;
         const float minWait = 1.0f;
@@ -32,7 +39,7 @@ public class LoadingSceneManager : MonoBehaviour
 
         while (wait < maxWaitForClients)
         {
-            wait += Time.deltaTime;
+            wait += Time.unscaledDeltaTime;
 
             int connected = nm.ConnectedClientsList.Count;
             if (connected >= 1 && wait >= minWait)
@@ -81,7 +88,7 @@ public class LoadingSceneManager : MonoBehaviour
 
         while (!done || elapsed < minShowTime)
         {
-            elapsed += Time.deltaTime;
+            elapsed += Time.unscaledDeltaTime;
             float time01 = Mathf.Clamp01(elapsed / minShowTime);
 
             if (loadingBar != null)
@@ -97,5 +104,20 @@ public class LoadingSceneManager : MonoBehaviour
             loadingBar.value = 1f;
 
         Debug.Log($"[LoadingSceneManager] Netcode scene load done: {sceneName}");
+    }
+
+    private async UniTask WaitForClientSceneSyncAsync()
+    {
+        float elapsed = 0f;
+
+        while (SceneManager.GetActiveScene().name == "LoadingScene")
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            if (loadingBar != null)
+                loadingBar.value = 0.15f + Mathf.PingPong(elapsed * 0.35f, 0.7f);
+
+            await UniTask.Yield();
+        }
     }
 }

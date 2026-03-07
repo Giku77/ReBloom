@@ -1,4 +1,4 @@
-ï»¿using Unity.Netcode;
+using Unity.Netcode;
 using UnityEngine;
 
 public class NetworkBuildManager : NetworkBehaviour
@@ -18,8 +18,21 @@ public class NetworkBuildManager : NetworkBehaviour
         base.OnDestroy();
     }
 
+    private bool CanUseDebugBuildBypass(ulong senderClientId)
+    {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        return buildManager != null
+            && buildManager.debugMode
+            && NetworkManager.Singleton != null
+            && NetworkManager.Singleton.IsServer
+            && senderClientId == NetworkManager.ServerClientId;
+#else
+        return false;
+#endif
+    }
+
     // =========================
-    // í´ë¼ -> ì„œë²„ ê±´ì¶• ìš”ì²­
+    // Å¬¶ó -> ¼­¹ö °ÇÃà ¿äÃ»
     // =========================
     public void RequestBuild(int arcId, Vector3 pos, Quaternion rot)
     {
@@ -39,7 +52,7 @@ public class NetworkBuildManager : NetworkBehaviour
     }
 
     // =========================
-    // ì„œë²„ ì‹¤ì œ ê±´ì¶•
+    // ¼­¹ö ½ÇÁ¦ °ÇÃà
     // =========================
     private void BuildServer(int arcId, Vector3 pos, Quaternion rot, ulong senderClientId)
     {
@@ -50,7 +63,7 @@ public class NetworkBuildManager : NetworkBehaviour
             return;
         }
 
-        // (1) í”Œë ˆì´ì–´ íŠ¸ëœìŠ¤í¼ ê°€ì ¸ì˜¤ê¸° (ì„œë²„ ê²€ì¦ìš©)
+        // (1) ÇÃ·¹ÀÌ¾î Æ®·£½ºÆû °¡Á®¿À±â (¼­¹ö °ËÁõ¿ë)
         Transform builder = GetPlayerTransform(senderClientId);
         if (builder == null)
         {
@@ -65,21 +78,21 @@ public class NetworkBuildManager : NetworkBehaviour
             return;
         }
 
-        // (3) ì„œë²„ì—ì„œ êµ¬ì—­ ì œí•œë„ ì¬í™•ì¸ (ì¹˜íŠ¸ ë°©ì§€)
+        // (3) ¼­¹ö¿¡¼­ ±¸¿ª Á¦ÇÑµµ ÀçÈ®ÀÎ (Ä¡Æ® ¹æÁö)
         if (!buildManager.IsInBuildableZone_Server(builder))
         {
             Debug.LogWarning($"[NetworkBuildManager] Not buildable zone. clientId={senderClientId}");
             return;
         }
 
-        // (4) ì„œë²„ì—ì„œ ë‹¤ì‹œ ë°°ì¹˜ ê²€ì¦ + ë°”ë‹¥ ë³´ì •
+        // (4) ¼­¹ö¿¡¼­ ´Ù½Ã ¹èÄ¡ °ËÁõ + ¹Ù´Ú º¸Á¤
         if (!buildManager.CanBuildAt_Server(arc, pos, rot, builder, out string errorCode, out Vector3 adjustedPos))
         {
             Debug.LogWarning($"[NetworkBuildManager] Build denied: {errorCode}");
             return;
         }
 
-        // (5) ì¬ë£Œ ê²€ì‚¬/ì°¨ê°(ì„œë²„ ê¶Œìœ„)
+        // (5) Àç·á °Ë»ç/Â÷°¨(¼­¹ö ±ÇÀ§)
         var inv = ResolvePlayerInventory(senderClientId);
         if (inv == null)
         {
@@ -87,7 +100,8 @@ public class NetworkBuildManager : NetworkBehaviour
             return;
         }
 
-        if (buildManager.TryGetRecipe(arcId, out var recipe))
+        bool useDebugBuildBypass = CanUseDebugBuildBypass(senderClientId);
+        if (!useDebugBuildBypass && buildManager.TryGetRecipe(arcId, out var recipe))
         {
             if (!buildManager.HasMaterials(inv, recipe))
             {
@@ -98,7 +112,7 @@ public class NetworkBuildManager : NetworkBehaviour
             buildManager.Remove(inv, recipe);
         }
 
-        // (6) ì„œë²„ì—ì„œ ë„¤íŠ¸ì›Œí¬ ìŠ¤í°
+        // (6) ¼­¹ö¿¡¼­ ³×Æ®¿öÅ© ½ºÆù
         var prefab = arc.buildPrefab != null ? arc.buildPrefab : buildManager.prefab;
         if (prefab == null)
         {
@@ -107,12 +121,13 @@ public class NetworkBuildManager : NetworkBehaviour
         }
 
         var go = Instantiate(prefab, adjustedPos, rot);
+        go.SetActive(false);
 
-        // arcId ì„¸íŒ…
+        // arcId ¼¼ÆÃ
         var bInst = go.GetComponent<BuildingInstance>();
         if (bInst != null) bInst.arcId = arc.arcId;
 
-        // SaveableEntity GUIDëŠ” "ì„œë²„ì—ì„œë§Œ" ë§Œë“œëŠ” ê²Œ ì •ì„ (ì¤‘ë³µ ë°©ì§€)
+        // SaveableEntity GUID´Â "¼­¹ö¿¡¼­¸¸" ¸¸µå´Â °Ô Á¤¼® (Áßº¹ ¹æÁö)
         var id = go.GetComponent<SaveableEntity>();
         if (id != null) id.AssignNewId();
 
@@ -120,6 +135,8 @@ public class NetworkBuildManager : NetworkBehaviour
         if (ws != null && id != null)
             ws.SetContainerGuid($"container:{id.PersistentId}");
 
+
+        go.SetActive(true);
         var netObj = go.GetComponent<NetworkObject>();
         if (netObj == null)
         {
@@ -130,13 +147,13 @@ public class NetworkBuildManager : NetworkBehaviour
 
         netObj.Spawn(true);
 
-        // ì„œë²„ ê¸°ì¤€ í€˜ìŠ¤íŠ¸/ì €ì¥
+        // ¼­¹ö ±âÁØ Äù½ºÆ®/ÀúÀå
         NetworkQuestManager.I?.ReportCraft(arc.arcId);
         AutoSaveService.I?.RequestSave("Build");
     }
 
     // =========================
-    // ì‚­ì œ ìš”ì²­/ì„œë²„ ì‚­ì œ
+    // »èÁ¦ ¿äÃ»/¼­¹ö »èÁ¦
     // =========================
     public void RequestRemove(ulong buildingNetworkObjectId)
     {
@@ -164,14 +181,14 @@ public class NetworkBuildManager : NetworkBehaviour
         var inst = netObj.GetComponent<BuildingInstance>();
         if (inst == null) return;
 
-        // TODO: ê¶Œí•œ ì²´í¬ (ëˆ„ê°€ ì§€ì€ ê±´ë¬¼ì¸ì§€, ì œê±° ê°€ëŠ¥ ì—¬ë¶€ ë“±)
+        // TODO: ±ÇÇÑ Ã¼Å© (´©°¡ ÁöÀº °Ç¹°ÀÎÁö, Á¦°Å °¡´É ¿©ºÎ µî)
         netObj.Despawn(true);
 
         AutoSaveService.I?.RequestSave("RemoveBuilding");
     }
 
     // =========================
-    // í—¬í¼
+    // ÇïÆÛ
     // =========================
     private Transform GetPlayerTransform(ulong clientId)
     {

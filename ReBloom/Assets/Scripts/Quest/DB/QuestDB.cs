@@ -1,6 +1,7 @@
 
 using BansheeGz.BGDatabase;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class QuestDB
 {
@@ -39,7 +40,15 @@ public class QuestDB
     public bool TryGetString(int stringId, out QuestStringData data)
         => _strings.TryGetValue(stringId, out data);
     public string GetTextKR(int stringId)
-        => _strings.TryGetValue(stringId, out var d) ? d.TextKR : $"#{stringId}";
+    {
+        if (!_strings.TryGetValue(stringId, out var data) || string.IsNullOrWhiteSpace(data.TextKR))
+        {
+            Debug.LogWarning($"[QuestDB] Missing or empty Quest_String row. stringId={stringId}");
+            return $"#{stringId}";
+        }
+
+        return data.TextKR;
+    }
 
 
     private QuestData ParseQuest(BGEntity entity)

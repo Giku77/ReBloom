@@ -22,7 +22,10 @@ public class PlayerStageSensor : NetworkBehaviour
         if (!enabled) return;
 
         if (other.TryGetComponent<StageBase>(out var stage))
+        {
             stageService?.SetStage(stage);
+            NetworkQuestManager.I?.ReportEnter(stage.StageID);
+        }
 
         int layer = other.gameObject.layer;
 

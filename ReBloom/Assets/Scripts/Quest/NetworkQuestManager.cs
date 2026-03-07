@@ -1,4 +1,4 @@
-Ôªøusing Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using System;
 using Unity.Collections;
 using Unity.Netcode;
@@ -36,6 +36,7 @@ public class NetworkQuestManager : NetworkBehaviour
         false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     public QuestDB QuestDB => questDB;
+    public bool FirstQuestCompleted => firstQuestCompleted.Value;
 
     public event Action OnQuestUpdated;
 
@@ -48,7 +49,7 @@ public class NetworkQuestManager : NetworkBehaviour
         {
             questDB = new QuestDB();
             questDB.LoadFromBG();
-            Debug.Log("[NQM] QuestDB ÏßÅÏ†ë Î°úÎìú ÏôÑÎ£å");
+            Debug.Log("[NQM] QuestDB ¡˜¡¢ ∑ŒµÂ øœ∑·");
         }
     }
 
@@ -150,6 +151,16 @@ public class NetworkQuestManager : NetworkBehaviour
         }
     }
 
+    public void ReportEnter(int stageId)
+    {
+        if (NetworkManager.Singleton == null) return;
+
+        if (NetworkManager.Singleton.IsServer)
+            RefreshEnterProgressServer(stageId);
+        else
+            ReportEnterRpc(stageId);
+    }
+
     [Rpc(SendTo.Server)]
     private void ReportInteractRpc(int objectId, int amount, RpcParams rpcParams = default)
     {
@@ -169,6 +180,12 @@ public class NetworkQuestManager : NetworkBehaviour
         SetCraftProgressServer(objectId, count);
     }
 
+    [Rpc(SendTo.Server)]
+    private void ReportEnterRpc(int stageId, RpcParams rpcParams = default)
+    {
+        RefreshEnterProgressServer(stageId);
+    }
+
     private void OnGoalStatesChanged(NetworkListEvent<QuestGoalProgressState> changeEvent)
     {
         OnQuestUpdated?.Invoke();
@@ -178,7 +195,7 @@ public class NetworkQuestManager : NetworkBehaviour
     {
         if (questDB == null)
         {
-            Debug.LogError("[NetworkQuestManager] questDBÍ∞Ä null");
+            Debug.LogError("[NetworkQuestManager] questDB∞° null");
             return;
         }
 
@@ -187,7 +204,7 @@ public class NetworkQuestManager : NetworkBehaviour
             var q = kv.Value;
             if (q == null)
             {
-                Debug.LogWarning($"[NetworkQuestManager] questDBÏóê null QuestData ÏóîÌä∏Î¶¨ ÏûàÏùå. key={kv.Key}");
+                Debug.LogWarning($"[NetworkQuestManager] questDBø° null QuestData ø£∆Æ∏Æ ¿÷¿Ω. key={kv.Key}");
                 continue;
             }
 
@@ -199,7 +216,7 @@ public class NetworkQuestManager : NetworkBehaviour
             }
         }
 
-        Debug.LogError("[NetworkQuestManager] formerQuestId==0 Ïù∏ Ï≤´ ÌÄòÏä§Ìä∏Î•º Ï∞æÏßÄ Î™ªÌï®");
+        Debug.LogError("[NetworkQuestManager] formerQuestId==0 ¿Œ √π ƒ˘Ω∫∆Æ∏¶ √£¡ˆ ∏¯«‘");
     }
 
     public void SetCurrentQuestServer(int questId)
@@ -231,6 +248,21 @@ public class NetworkQuestManager : NetworkBehaviour
         }
 
         RefreshCollectProgressServer();
+        RefreshEnterProgressServer();
+        AutoSaveService.I?.RequestSave("QuestStateChanged");
+    }
+
+    public void RestoreStateFromSave(QuestSaveDTO saveState)
+    {
+        if (saveState == null) return;
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer) return;
+
+        firstQuestCompleted.Value = saveState.firstQuestCompleted;
+
+        if (saveState.currentQuestId > 0)
+            SetCurrentQuestServer(saveState.currentQuestId);
+        else if (currentQuestId.Value == 0)
+            InitializeFirstQuestServer();
     }
 
     public int CurrentQuestId => currentQuestId.Value;
@@ -299,6 +331,70 @@ public class NetworkQuestManager : NetworkBehaviour
             TryCompleteCurrentQuestServer();
     }
 
+    public void RefreshEnterProgressServer()
+    {
+        RefreshEnterProgressServer(-1);
+    }
+
+    public void RefreshEnterProgressServer(int stageId)
+    {
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer) return;
+        var quest = GetCurrentQuest();
+        if (quest == null || quest.goals == null) return;
+
+        bool changed = false;
+
+        for (int i = 0; i < quest.goals.Count; i++)
+        {
+            var g = quest.goals[i];
+            if (g == null) continue;
+            if (g.type != QuestGoalType.Enter) continue;
+            if (stageId > 0 && g.objectId != stageId) continue;
+
+            int currentCount = stageId > 0 ? g.amount : (IsAnyConnectedPlayerInStage(g.objectId) ? g.amount : 0);
+
+            for (int j = 0; j < goalStates.Count; j++)
+            {
+                if (goalStates[j].goalIndex != i) continue;
+
+                var state = goalStates[j];
+                int nextCount = Mathf.Clamp(currentCount, 0, state.targetCount);
+                if (state.currentCount == nextCount)
+                    break;
+
+                state.currentCount = nextCount;
+                goalStates[j] = state;
+                changed = true;
+                break;
+            }
+        }
+
+        if (changed)
+            TryCompleteCurrentQuestServer();
+    }
+
+    private bool IsAnyConnectedPlayerInStage(int stageId)
+    {
+        if (NetworkManager.Singleton == null)
+            return false;
+
+        foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+        {
+            var playerObject = client.PlayerObject;
+            if (playerObject == null)
+                continue;
+
+            var gate = playerObject.GetComponent<NetworkPlayerOwnerGate>();
+            if (gate == null)
+                continue;
+
+            if (gate.CurrentStageId.Value == stageId)
+                return true;
+        }
+
+        return false;
+    }
+
     private int GetSharedInventoryCount(int itemId)
     {
         if (NetworkManager.Singleton == null)
@@ -359,6 +455,7 @@ public class NetworkQuestManager : NetworkBehaviour
         if (quest == null || quest.goals == null) return;
 
         bool changed = false;
+        bool matchedGoal = false;
 
         for (int i = 0; i < quest.goals.Count; i++)
         {
@@ -366,6 +463,8 @@ public class NetworkQuestManager : NetworkBehaviour
             if (g == null) continue;
             if (g.type != QuestGoalType.Craft) continue;
             if (g.objectId != objectId) continue;
+
+            matchedGoal = true;
 
             for (int j = 0; j < goalStates.Count; j++)
             {
@@ -375,9 +474,13 @@ public class NetworkQuestManager : NetworkBehaviour
                 state.currentCount = Mathf.Clamp(currentCount, 0, state.targetCount);
                 goalStates[j] = state;
                 changed = true;
+                Debug.Log($"[NQM] Craft progress updated. questId={quest.questId} objectId={objectId} currentCount={state.currentCount}/{state.targetCount}");
                 break;
             }
         }
+
+        if (!matchedGoal)
+            Debug.LogWarning($"[NQM] Craft reported objectId={objectId}, but current quest {quest.questId} has no matching craft goal.");
 
         if (changed)
             TryCompleteCurrentQuestServer();
@@ -412,7 +515,7 @@ public class NetworkQuestManager : NetworkBehaviour
         return 0;
     }
 
-    // Ìò∏Ïä§Ìä∏/ÏÑúÎ≤ÑÎßå Îã§Ïùå ÌÄòÏä§Ìä∏Î°ú ÏßÑÌñâ
+    // »£Ω∫∆Æ/º≠πˆ∏∏ ¥Ÿ¿Ω ƒ˘Ω∫∆Æ∑Œ ¡¯«‡
     public void RequestAdvanceFromHost()
     {
         if (NetworkManager.Singleton == null) return;

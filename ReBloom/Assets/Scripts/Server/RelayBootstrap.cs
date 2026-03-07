@@ -1,6 +1,6 @@
 using System;
-using Cysharp.Threading.Tasks;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using TMPro;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
@@ -46,6 +46,25 @@ public class RelayBootstrap : MonoBehaviour
         BindUiEvents();
         servicesInitializationTask = InitializeServicesAsync();
         SetJoinGuideTexts(defaultNameGuideText, defaultPasswordGuideText);
+    }
+
+    private void OnEnable()
+    {
+        PrepareNetworkManagerForStart();
+        if (nm == null)
+            return;
+
+        nm.OnClientConnectedCallback += OnClientConnected;
+        nm.OnClientDisconnectCallback += OnClientDisconnected;
+    }
+
+    private void OnDisable()
+    {
+        if (nm == null)
+            return;
+
+        nm.OnClientConnectedCallback -= OnClientConnected;
+        nm.OnClientDisconnectCallback -= OnClientDisconnected;
     }
 
     private void BindUiEvents()
@@ -139,6 +158,12 @@ public class RelayBootstrap : MonoBehaviour
         try
         {
             await EnsureServicesReadyAsync();
+            if (!await EnsureNetworkManagerStoppedAsync())
+            {
+                FailJoin("이전 세션 정리 중입니다. 잠시 후 다시 시도해주세요.");
+                return;
+            }
+
             PrepareNetworkManagerForStart();
             if (!await EnsurePlayFabAccountReadyAsync(displayName, password))
                 return;
@@ -148,7 +173,8 @@ public class RelayBootstrap : MonoBehaviour
 
             utp.SetRelayServerData(AllocationUtils.ToRelayServerData(alloc, connectionType));
 
-            Debug.Log($"[Relay] Starting host. timeout={nm.NetworkConfig.ClientConnectionBufferTimeout}s sceneTimeout={nm.NetworkConfig.LoadSceneTimeOut}s autoSpawn={nm.NetworkConfig.AutoSpawnPlayerPrefabClientSide}");
+            SetupApproval();
+            Debug.Log($"[Relay] Starting host. timeout={nm.NetworkConfig.ClientConnectionBufferTimeout}s sceneTimeout={nm.NetworkConfig.LoadSceneTimeOut}s autoSpawn={nm.NetworkConfig.AutoSpawnPlayerPrefabClientSide} approvalEnabled={nm.NetworkConfig.ConnectionApproval}");
 
             if (!nm.StartHost())
             {
@@ -172,6 +198,12 @@ public class RelayBootstrap : MonoBehaviour
         try
         {
             await EnsureServicesReadyAsync();
+            if (!await EnsureNetworkManagerStoppedAsync())
+            {
+                FailJoin("이전 세션 정리 중입니다. 잠시 후 다시 시도해주세요.");
+                return;
+            }
+
             PrepareNetworkManagerForStart();
             if (!await EnsurePlayFabAccountReadyAsync(displayName, password))
                 return;
@@ -180,8 +212,8 @@ public class RelayBootstrap : MonoBehaviour
             utp.SetRelayServerData(AllocationUtils.ToRelayServerData(joinAlloc, connectionType));
 
             ResetClientConnectState();
-
-            Debug.Log($"[Relay] Starting client joinCode={joinCode} timeout={connectTimeout:F1}s");
+            SetupApproval();
+            Debug.Log($"[Relay] Starting client joinCode={joinCode} timeout={connectTimeout:F1}s approvalEnabled={nm.NetworkConfig.ConnectionApproval}");
 
             if (!nm.StartClient())
             {
@@ -189,6 +221,7 @@ public class RelayBootstrap : MonoBehaviour
                 return;
             }
 
+            LoadClientLoadingSceneIfNeeded();
             waitingForLocalClientConnection = true;
             float end = Time.unscaledTime + Mathf.Max(5f, connectTimeout);
 
@@ -206,7 +239,7 @@ public class RelayBootstrap : MonoBehaviour
                     string reason = string.IsNullOrWhiteSpace(lastDisconnectReason) ? "서버와 연결할 수 없습니다." : lastDisconnectReason;
                     FailJoin($"서버 접속 실패: {reason}");
                     if (nm.IsListening)
-                        nm.Shutdown();
+                        ShutdownAndReturnClientToTitle();
                     return;
                 }
 
@@ -216,7 +249,7 @@ public class RelayBootstrap : MonoBehaviour
             waitingForLocalClientConnection = false;
             FailJoin("서버 접속 시간 초과");
             if (nm.IsListening)
-                nm.Shutdown();
+                ShutdownAndReturnClientToTitle();
         }
         catch (RelayServiceException e)
         {
@@ -226,6 +259,35 @@ public class RelayBootstrap : MonoBehaviour
         {
             FailJoin($"참여 실패: {e.Message}");
         }
+    }
+
+    private async UniTask<bool> EnsureNetworkManagerStoppedAsync()
+    {
+        PrepareNetworkManagerForStart();
+
+        if (nm == null)
+            return false;
+
+        if (nm.IsListening)
+        {
+            Debug.LogWarning("[Relay] Previous session is still listening. Shutting down before restart.");
+            nm.Shutdown();
+        }
+
+        const float timeoutSeconds = 10f;
+        float elapsed = 0f;
+
+        while (elapsed < timeoutSeconds)
+        {
+            if (!nm.IsListening && !nm.ShutdownInProgress)
+                return true;
+
+            elapsed += Time.unscaledDeltaTime;
+            await UniTask.Yield();
+        }
+
+        Debug.LogWarning($"[Relay] Network cleanup wait timed out. listening={nm.IsListening} shutdownInProgress={nm.ShutdownInProgress}");
+        return !nm.IsListening && !nm.ShutdownInProgress;
     }
 
     private async UniTask<bool> EnsurePlayFabAccountReadyAsync(string displayName, string password)
@@ -321,18 +383,24 @@ public class RelayBootstrap : MonoBehaviour
 
     private void SetupApproval()
     {
-        if (NetworkManager.Singleton == null)
+        if (nm == null)
             return;
 
-        var manager = NetworkManager.Singleton;
-        manager.NetworkConfig.ConnectionApproval = true;
-        manager.ConnectionApprovalCallback = StaticApproval;
+        nm.NetworkConfig.ConnectionApproval = true;
+        nm.ConnectionApprovalCallback = StaticApproval;
+        Debug.Log($"[Relay] Connection approval configured on NetworkManager instance={nm.GetInstanceID()}");
     }
 
     private void PrepareNetworkManagerForStart()
     {
-        if (!nm) nm = NetworkManager.Singleton;
-        if (!utp && nm != null) utp = nm.GetComponent<UnityTransport>();
+        if (NetworkManager.Singleton != null)
+            nm = NetworkManager.Singleton;
+
+        if (!nm)
+            return;
+
+        if (!utp || utp.gameObject != nm.gameObject)
+            utp = nm.GetComponent<UnityTransport>();
 
         SetupApproval();
         DisableAutomaticPlayerPrefabSpawn();
@@ -346,26 +414,6 @@ public class RelayBootstrap : MonoBehaviour
         res.Approved = true;
         res.CreatePlayerObject = false;
         res.Pending = false;
-    }
-
-    private void OnEnable()
-    {
-        if (NetworkManager.Singleton == null)
-            return;
-
-        var manager = NetworkManager.Singleton;
-        manager.OnClientConnectedCallback += OnClientConnected;
-        manager.OnClientDisconnectCallback += OnClientDisconnected;
-    }
-
-    private void OnDisable()
-    {
-        if (NetworkManager.Singleton == null)
-            return;
-
-        var manager = NetworkManager.Singleton;
-        manager.OnClientConnectedCallback -= OnClientConnected;
-        manager.OnClientDisconnectCallback -= OnClientDisconnected;
     }
 
     private void OnClientConnected(ulong clientId)
@@ -399,6 +447,23 @@ public class RelayBootstrap : MonoBehaviour
         localClientConnected = false;
         localClientDisconnected = false;
         lastDisconnectReason = string.Empty;
+    }
+
+    private void LoadClientLoadingSceneIfNeeded()
+    {
+        if (SceneManager.GetActiveScene().name == "LoadingScene")
+            return;
+
+        SceneManager.LoadScene("LoadingScene");
+    }
+
+    private void ShutdownAndReturnClientToTitle()
+    {
+        if (nm != null && nm.IsListening)
+            nm.Shutdown();
+
+        if (SceneManager.GetActiveScene().name == "LoadingScene")
+            SceneManager.LoadScene("TitleScene");
     }
 
     private void FailJoin(string msg)
