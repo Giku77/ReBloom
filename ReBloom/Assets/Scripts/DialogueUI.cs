@@ -1,28 +1,31 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using System.Threading;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class DialogueUI : UIBase  
+public class DialogueUI : UIBase
 {
     [SerializeField] private TextMeshProUGUI messageText;
     [SerializeField] private Image characterImage;
     [SerializeField] private Image poppiImage;
     [SerializeField] private Image backgroundImage;
-    [SerializeField] private float typeSpeed = 40f; // 글자/초
+    [SerializeField] private float typeSpeed = 40f;
 
     [Header("Fade Settings")]
-    [SerializeField] private float fadeDuration = 0.25f; // 페이드 인/아웃 시간(초)
+    [SerializeField] private float fadeDuration = 0.25f;
+
+    [Header("Spawn Cover")]
+    [SerializeField] private int spawnCoverHideDelayFrames = 2;
 
     private bool nextRequested;
     private CanvasGroup canvasGroup;
-
     private CancellationTokenSource visibilityCts;
-
-
     private Color originalBgColor;
+    private bool isSpawnCoverVisible;
 
     protected override void Awake()
     {
@@ -31,7 +34,100 @@ public class DialogueUI : UIBase
         if (backgroundImage != null)
         {
             originalBgColor = backgroundImage.color;
+            backgroundImage.gameObject.SetActive(false);
         }
+    }
+
+    private void Start()
+    {
+        UpdateSpawnCoverState();
+    }
+
+    private void OnEnable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned += HandleLocalPlayerSpawned;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned += HandleLocalPlayerDespawned;
+    }
+
+    private void OnDisable()
+    {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned -= HandleLocalPlayerSpawned;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned -= HandleLocalPlayerDespawned;
+    }
+
+    private void HandleLocalPlayerSpawned(GameObject _)
+    {
+        HideSpawnCoverAfterFrames().Forget();
+    }
+
+    private void HandleLocalPlayerDespawned()
+    {
+        UpdateSpawnCoverState();
+    }
+
+    private void UpdateSpawnCoverState()
+    {
+        if (!ShouldShowSpawnCover())
+        {
+            HideSpawnCoverImmediate();
+            return;
+        }
+
+        var nm = NetworkManager.Singleton;
+        bool hasLocalPlayer = nm != null && nm.SpawnManager != null && nm.SpawnManager.GetLocalPlayerObject() != null;
+        if (hasLocalPlayer)
+        {
+            HideSpawnCoverImmediate();
+            return;
+        }
+
+        ShowSpawnCover();
+    }
+
+    private bool ShouldShowSpawnCover()
+    {
+        var nm = NetworkManager.Singleton;
+        if (nm == null || !nm.IsListening)
+            return false;
+
+        if (!nm.IsClient || nm.IsServer)
+            return false;
+
+        return SceneManager.GetActiveScene().name == "MainScene";
+    }
+
+    private void ShowSpawnCover()
+    {
+        if (backgroundImage == null)
+            return;
+
+        isSpawnCoverVisible = true;
+        backgroundImage.gameObject.SetActive(true);
+        backgroundImage.color = Color.black;
+    }
+
+    private void HideSpawnCoverImmediate()
+    {
+        isSpawnCoverVisible = false;
+
+        if (backgroundImage == null)
+            return;
+
+        backgroundImage.color = originalBgColor;
+        if (!IsOpen)
+            backgroundImage.gameObject.SetActive(false);
+    }
+
+    private async UniTaskVoid HideSpawnCoverAfterFrames()
+    {
+        if (!isSpawnCoverVisible)
+            return;
+
+        var token = this.GetCancellationTokenOnDestroy();
+        for (int i = 0; i < spawnCoverHideDelayFrames; i++)
+            await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate, token);
+
+        HideSpawnCoverImmediate();
     }
 
     private void CancelVisibilityJob()
@@ -100,11 +196,8 @@ public class DialogueUI : UIBase
         canvasGroup.alpha = to;
     }
 
-
     public void OnNextInput(InputAction.CallbackContext ctx)
     {
-        //if (!ctx.started) return;
-        //Debug.Log("DialogueUI: OnNextInput received");
         nextRequested = true;
     }
 
@@ -133,27 +226,22 @@ public class DialogueUI : UIBase
     public override void Show()
     {
         CancelVisibilityJob();
-
         base.Show();
 
+        if (backgroundImage != null)
+            backgroundImage.gameObject.SetActive(true);
+
         if (canvasGroup != null)
-        {
             canvasGroup.alpha = 1f;
-        }
-        // if (canvasGroup != null) {
-        //     canvasGroup.alpha = 0f;
-        //     FadeAsync(0f, 1f, fadeDuration).Forget();
-        // }
     }
 
     private string GetNextHintTag()
     {
-      if (PlatformManager.Instance != null && PlatformManager.Instance.IsMobile)
-            return " <color=#FFA500>[터치]</color>";
-      else
+        if (PlatformManager.Instance != null && PlatformManager.Instance.IsMobile)
+            return " <color=#FFA500>[��ġ]</color>";
+        else
             return " <color=#FFA500>[ENTER]</color>";
     }
-
 
     public void HideInstant()
     {
@@ -168,6 +256,9 @@ public class DialogueUI : UIBase
 
         if (canvasGroup != null)
             canvasGroup.alpha = 0f;
+
+        if (backgroundImage != null && !isSpawnCoverVisible)
+            backgroundImage.gameObject.SetActive(false);
 
         base.Hide();
     }
@@ -188,9 +279,11 @@ public class DialogueUI : UIBase
 
         if (backgroundImage != null)
         {
+            backgroundImage.gameObject.SetActive(true);
             var c = originalBgColor;
             c.a = Mathf.Clamp01(alpha / 255f);
             backgroundImage.color = c;
+            isSpawnCoverVisible = false;
         }
 
         messageText.text = "";
@@ -214,7 +307,7 @@ public class DialogueUI : UIBase
 
         nextRequested = false;
 
-        bool useTextBlip = (varcoId == 0);
+        bool useTextBlip = varcoId == 0;
 
         foreach (char ch in localizedText)
         {
@@ -223,20 +316,15 @@ public class DialogueUI : UIBase
             messageText.text += ch;
 
             if (useTextBlip)
-            {
                 SoundManager.I?.PlayTextBlip();
-            }
 
             if (nextRequested)
                 break;
 
-            await UniTask.Delay(
-                (int)(1000f / typeSpeed),
-                cancellationToken: token);
+            await UniTask.Delay((int)(1000f / typeSpeed), cancellationToken: token);
         }
 
         token.ThrowIfCancellationRequested();
-
         messageText.text = localizedText;
 
         if (!waitForNextInput)
@@ -246,12 +334,20 @@ public class DialogueUI : UIBase
         }
 
         if (showNextHint)
-        {
             messageText.text = localizedText + GetNextHintTag();
-        }
 
         nextRequested = false;
         await UniTask.WaitUntil(() => nextRequested, cancellationToken: token);
         nextRequested = false;
     }
+
+    protected override void OnHide()
+    {
+        if (backgroundImage != null && !isSpawnCoverVisible)
+        {
+            backgroundImage.color = originalBgColor;
+            backgroundImage.gameObject.SetActive(false);
+        }
+    }
 }
+

@@ -1,4 +1,4 @@
-ï»¿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -21,29 +21,31 @@ public class GatherObject : MonoBehaviour, IInteractable
     private int objectNameID;
     private string gatherName;
 
-    private string gatherAvailableText = "ì¡°ì‚¬ ì‹œì‘ [E]";
-    private string gatherNotAvailableText = "ì¡°ì‚¬ ë¶ˆê°€";
+    private string gatherAvailableText = "Á¶»ç ½ÃÀÛ [E]";
+    private string gatherNotAvailableText = "Á¶»ç ºÒ°¡";
 
     private NetworkGatherObject netGather;
 
-    [Header("ì±„ì§‘ í›„ íŒŒê´´ ì„¤ì •")]
+    private const int PowerBoxesGatherObjectId = 910020;
+    private const string PowerBoxesOpenedMessage = "±º¼ö°øÀåÀÇ ¹®ÀÌ ¿­·È½À´Ï´Ù.";
+
+    [Header("Ã¤Áı ÈÄ ÆÄ±« ¼³Á¤")]
     public bool isDestroyObject = false;
 
-    [Header("íŠœí† ë¦¬ì–¼ í›„ ì‚­ì œ")]
+    [Header("Æ©Åä¸®¾ó ÈÄ »èÁ¦")]
     public bool isTutorialObject = false;
 
-    [Header("ë§ì¹˜ í•„ìš” ì—¬ë¶€")]
+    [Header("¸ÁÄ¡ ÇÊ¿ä ¿©ºÎ")]
     public bool requireHammer = false;
 
-    [Header("êµ°ìˆ˜ê³µì¥ íœìŠ¤")]
+    [Header("±º¼ö°øÀå Ææ½º")]
     [SerializeField] private GameObject fence;
-    [SerializeField] private Transform fenceCamPos;  
+    [SerializeField] private Transform fenceCamPos;
     [SerializeField] private Transform fenceLookAt;
 
-    [Header("Save Key (ê³ ì •)")]
-    [SerializeField] private string persistentId; // ì˜ˆ: bridge_bus_1, fence_gate_1
+    [Header("Save Key (°íÁ¤)")]
+    [SerializeField] private string persistentId;
     public string SaveKey => $"gather_destroyed:{persistentId}";
-
 
     public float HoldTime
     {
@@ -51,13 +53,15 @@ public class GatherObject : MonoBehaviour, IInteractable
         {
             if (gatherObjectData == null) return 1f;
 
-            int searchType = GetCurrentSearchType();
+            var localPlayer = GetLocalPlayerController();
+            int searchType = GetCurrentSearchType(localPlayer);
+            var equipManager = GetCurrentEquipManager(localPlayer);
 
             if (searchType == 0) return float.MaxValue;
             if (searchType == 1) return gatherObjectData.searchTime;
             if (searchType == 2)
             {
-                return gatherObjectData.searchTime * playerEquipManager.GetToolPerform();
+                return gatherObjectData.searchTime * (equipManager != null ? equipManager.GetToolPerform() : 1f);
             }
 
             return gatherObjectData.searchTime;
@@ -67,10 +71,90 @@ public class GatherObject : MonoBehaviour, IInteractable
     private void Awake()
     {
         highlight = GetComponent<InteractionHighlight>();
-        playerEquipManager = FindFirstObjectByType<PlayerEquipManager>();
         inventoryItemData = FindFirstObjectByType<GameInventory>();
         dayNightCycle = FindFirstObjectByType<DayNightCycle>();
         netGather = GetComponent<NetworkGatherObject>();
+        TryBindLocalPlayer();
+    }
+
+    private void TryBindLocalPlayer()
+    {
+        GameObject localPlayer = null;
+        var nm = NetworkManager.Singleton;
+
+        if (nm != null && nm.IsListening && nm.SpawnManager != null)
+        {
+            var localPlayerObject = nm.SpawnManager.GetLocalPlayerObject();
+            if (localPlayerObject != null)
+                localPlayer = localPlayerObject.gameObject;
+        }
+
+        if (localPlayer == null)
+        {
+            var taggedPlayer = GameObject.FindWithTag("Player");
+            if (taggedPlayer != null)
+                localPlayer = taggedPlayer;
+        }
+
+        if (localPlayer != null)
+            BindLocalPlayer(localPlayer);
+
+        if (inventoryItemData == null)
+            inventoryItemData = FindFirstObjectByType<GameInventory>();
+
+        if (playerEquipManager == null)
+            playerEquipManager = FindFirstObjectByType<PlayerEquipManager>();
+    }
+
+    private void BindLocalPlayer(GameObject playerObject)
+    {
+        if (playerObject == null)
+            return;
+
+        playerEquipManager = playerObject.GetComponent<PlayerEquipManager>();
+
+        if (inventoryItemData == null)
+            inventoryItemData = FindFirstObjectByType<GameInventory>();
+    }
+
+    private PlayerController GetLocalPlayerController()
+    {
+        var nm = NetworkManager.Singleton;
+        if (nm != null && nm.IsListening && nm.SpawnManager != null)
+        {
+            var localPlayerObject = nm.SpawnManager.GetLocalPlayerObject();
+            if (localPlayerObject != null)
+                return localPlayerObject.GetComponent<PlayerController>();
+        }
+        if (playerEquipManager != null)
+        {
+            var boundController = playerEquipManager.GetComponent<PlayerController>();
+            if (boundController != null)
+                return boundController;
+        }
+        var taggedPlayer = GameObject.FindWithTag("Player");
+        return taggedPlayer != null ? taggedPlayer.GetComponent<PlayerController>() : null;
+    }
+
+    private PlayerEquipManager GetCurrentEquipManager(PlayerController player = null)
+    {
+        if (player != null)
+            return player.GetComponent<PlayerEquipManager>();
+        if (playerEquipManager != null)
+            return playerEquipManager;
+        var localPlayer = GetLocalPlayerController();
+        return localPlayer != null ? localPlayer.GetComponent<PlayerEquipManager>() : null;
+    }
+
+    private PlayerEquipData GetCurrentEquipData(PlayerController player = null)
+    {
+        if (player != null)
+            return player.GetComponent<PlayerEquipData>();
+        var equipManager = GetCurrentEquipManager();
+        if (equipManager != null)
+            return equipManager.GetComponent<PlayerEquipData>();
+        var localPlayer = GetLocalPlayerController();
+        return localPlayer != null ? localPlayer.GetComponent<PlayerEquipData>() : null;
     }
 
     private void Update()
@@ -90,7 +174,6 @@ public class GatherObject : MonoBehaviour, IInteractable
 
                 if (highlight != null)
                 {
-                    //highlight.ShowHighlightOnly();
                     UpdatePromptText();
                 }
             }
@@ -99,6 +182,9 @@ public class GatherObject : MonoBehaviour, IInteractable
 
     private void OnEnable()
     {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned += BindLocalPlayer;
+        TryBindLocalPlayer();
+
         if (isDestroyObject)
             CheckDestroyedDeferred().Forget();
 
@@ -112,6 +198,7 @@ public class GatherObject : MonoBehaviour, IInteractable
 
     private void OnDisable()
     {
+        NetworkPlayerOwnerGate.OnLocalPlayerSpawned -= BindLocalPlayer;
         QuestManager.OnFirstQuestCompleted -= DestroyAfterTutorialClear;
     }
 
@@ -151,11 +238,11 @@ public class GatherObject : MonoBehaviour, IInteractable
         {
             if (!netGather.IsAvailableNow())
             {
-                ToastMessageUI.Instance?.Show("ì•„ì§ ì¬ìƒì„± ì¤‘ì…ë‹ˆë‹¤.");
+                ToastMessageUI.Instance?.Show("¾ÆÁ÷ Àç»ı¼º ÁßÀÔ´Ï´Ù.");
                 return;
             }
 
-            string failReason = GetInteractionFailReason();
+            string failReason = GetInteractionFailReason(player);
             if (!string.IsNullOrEmpty(failReason))
             {
                 ToastMessageUI.Instance?.Show(failReason);
@@ -168,14 +255,7 @@ public class GatherObject : MonoBehaviour, IInteractable
 
         if (!isAvailable) return;
 
-        //if (requireHammer && !HasHammerEquipped())
-        //{
-        //    ToastMessageUI.Instance?.Show("ë§ì¹˜ê°€ í•„ìš”í•©ë‹ˆë‹¤.");
-        //    Debug.Log("[GatherObject] ë§ì¹˜ê°€ ì¥ì°©ë˜ì§€ ì•ŠìŒ");
-        //    return;
-        //}
-
-        string failReason2 = GetInteractionFailReason();
+        string failReason2 = GetInteractionFailReason(player);
         if (!string.IsNullOrEmpty(failReason2))
         {
             ToastMessageUI.Instance?.Show(failReason2);
@@ -183,26 +263,20 @@ public class GatherObject : MonoBehaviour, IInteractable
             return;
         }
 
-        Debug.Log($"[GatherObject] ìƒí˜¸ì‘ìš© ì‹œì‘ - gatherObjectID: {gatherObjectID}");
+        Debug.Log($"[GatherObject] »óÈ£ÀÛ¿ë ½ÃÀÛ - gatherObjectID: {gatherObjectID}");
 
         bool isNight = dayNightCycle != null && dayNightCycle.IsNightTime();
-
-        //var drops = gatherManager.GetDropResult(gatherObjectID);
-
         var drops = gatherManager.GetDropResult(gatherObjectID, isNight);
 
         if (drops != null && drops.item != null)
         {
             if (inventoryItemData.TryAddItemFromWorld(drops.item.itemID, drops.amount))
             {
-                Debug.Log($"[GatherObject] {drops.item.itemName} {drops.amount}ê°œ íšë“");
+                Debug.Log($"[GatherObject] {drops.item.itemName} {drops.amount}°³ È¹µæ");
                 isAvailable = false;
                 timer = 0f;
 
-                // 1) ìƒí˜¸ì‘ìš© í€˜ìŠ¤íŠ¸ ì§„í–‰
                 NetworkQuestManager.I?.ReportInteract(gatherObjectID, 1);
-
-                // 2) ìˆ˜ì§‘ í€˜ìŠ¤íŠ¸ë„ ê³µìš©ìœ¼ë¡œ ì˜¬ë¦¬ê³  ì‹¶ìœ¼ë©´ ê°™ì´
                 NetworkQuestManager.I?.ReportCollect(drops.item.itemID, drops.amount);
             }
             else
@@ -212,56 +286,22 @@ public class GatherObject : MonoBehaviour, IInteractable
         }
         else
         {
-            Debug.Log("[GatherObject] ë³´ê´€ ì•„ì´í…œì´ nullì…ë‹ˆë‹¤.");
+            Debug.Log("[GatherObject] º¸°ü ¾ÆÀÌÅÛÀÌ nullÀÔ´Ï´Ù.");
         }
-
-        //isAvailable = false;
-        //timer = 0f;
-
-        //QuestManager.I?.NotifyInteracted(gatherObjectID);
 
         if (isDestroyObject)
         {
-            Debug.Log($"[GatherObject] ì˜¤ë¸Œì íŠ¸ ì œê±°: {gatherName}");
+            Debug.Log($"[GatherObject] ¿ÀºêÁ§Æ® Á¦°Å: {gatherName}");
             DestroyedObjectRegistry.I?.MarkDestroyed(SaveKey);
 
             if (gatherObjectID == 910019)
             {
-                ToastMessageUI.Instance?.Show("ë‹¤ë¦¬ë¥¼ ë§‰ëŠ” ë²„ìŠ¤ë¥¼ ë¶€ì‰ˆìŠµë‹ˆë‹¤.");
+                ToastMessageUI.Instance?.Show("´Ù¸®¸¦ ¸·´Â ¹ö½º¸¦ ºÎ½¥½À´Ï´Ù.");
             }
 
-           if (gatherObjectID == 910020 && fence != null)
+            if (IsPowerBoxFenceConfigured)
             {
-                //QuestManager.I?.NotifyInteracted(gatherObjectID);
-                ToastMessageUI.Instance?.Show("êµ°ìˆ˜ê³µì¥ì˜ ë¬¸ì´ ì—´ë ¸ìŠµë‹ˆë‹¤.");
-
-                var cam = Camera.main ? Camera.main.GetComponent<ThirdPersonCamera>() : null;
-
-                if (cam != null && fenceCamPos != null)
-                {
-                    Vector3 lookAt = fenceLookAt != null
-                        ? fenceLookAt.position
-                        : (fence.transform.position + Vector3.up * 1.2f);
-
-                    Vector3 camPos = fenceCamPos.position;
-
-                    cam.PlayFocusSequenceUniTask(
-                        focusLookAtWorld: lookAt,
-                        cameraPosWorld: camPos,
-                        blendIn: 0.35f,
-                        hold: 0.7f,
-                        blendOut: 0.35f,
-                        onMidAction: () =>
-                        {
-                            fence.SetActive(false);   
-                        }
-                    );
-                }
-                else
-                {
-                    // í¬ì¸íŠ¸/ì¹´ë©”ë¼ ì—†ìœ¼ë©´ ê·¸ëƒ¥ ì œê±°
-                    fence.SetActive(false);
-                }
+                PlayPowerBoxFenceSequenceLocal();
             }
 
             if (highlight != null)
@@ -277,11 +317,49 @@ public class GatherObject : MonoBehaviour, IInteractable
             if (highlight != null)
             {
                 highlight.isPermanent = false;
-               // highlight.Hide();
                 highlight.promptFormat = gatherNotAvailableText;
                 highlight.ShowPrompt();
             }
         }
+    }
+
+    public bool IsPowerBoxFenceConfigured => gatherObjectID == PowerBoxesGatherObjectId && fence != null;
+
+    public void DisableLinkedFenceLocal()
+    {
+        if (fence != null)
+            fence.SetActive(false);
+    }
+
+    public void PlayPowerBoxFenceSequenceLocal(bool showToast = true)
+    {
+        if (!IsPowerBoxFenceConfigured)
+            return;
+
+        if (showToast)
+            ToastMessageUI.Instance?.Show(PowerBoxesOpenedMessage);
+
+        var cam = Camera.main ? Camera.main.GetComponent<ThirdPersonCamera>() : null;
+        if (cam != null && fenceCamPos != null)
+        {
+            Vector3 lookAt = fenceLookAt != null
+                ? fenceLookAt.position
+                : (fence.transform.position + Vector3.up * 1.2f);
+
+            Vector3 camPos = fenceCamPos.position;
+
+            cam.PlayFocusSequenceUniTask(
+                focusLookAtWorld: lookAt,
+                cameraPosWorld: camPos,
+                blendIn: 0.35f,
+                hold: 0.7f,
+                blendOut: 0.35f,
+                onMidAction: DisableLinkedFenceLocal
+            );
+            return;
+        }
+
+        DisableLinkedFenceLocal();
     }
 
     public void Initialize(GatherObjectDB db)
@@ -300,7 +378,6 @@ public class GatherObject : MonoBehaviour, IInteractable
 
             if (highlight != null)
             {
-                //highlight.ShowHighlightOnly();
                 highlight.promptFormat = gatherAvailableText;
             }
         }
@@ -308,32 +385,30 @@ public class GatherObject : MonoBehaviour, IInteractable
 
     private void UpdatePromptText()
     {
-        gatherAvailableText = $"{gatherName} ì¡°ì‚¬ [E]";
-        gatherNotAvailableText = $"{gatherName} ì¡°ì‚¬ ì™„ë£Œ";
+        gatherAvailableText = $"{gatherName} Á¶»ç [E]";
+        gatherNotAvailableText = $"{gatherName} Á¶»ç ¿Ï·á";
     }
-
-    //private bool HasHammerEquipped()
-    //{
-    //    var equipData = playerEquipManager.GetComponent<PlayerEquipData>();
-
-    //    if (equipData == null || equipData.currentToolEquip == null)
-    //        return false;
-
-    //    return equipData.currentToolEquip.toolCategory == ToolCategory.Hammer;
-    //}
 
     public bool CanInteract()
     {
+        var localPlayer = GetLocalPlayerController();
+        return CanInteract(localPlayer);
+    }
+
+    public bool CanInteract(PlayerController player)
+    {
+        if (player == null)
+            return false;
+
         if (netGather != null && netGather.IsSpawned)
         {
             if (!netGather.IsAvailableNow()) return false;
-            return string.IsNullOrEmpty(GetInteractionFailReason());
+            return string.IsNullOrEmpty(GetInteractionFailReason(player));
         }
 
         if (!isAvailable) return false;
-        return string.IsNullOrEmpty(GetInteractionFailReason());
+        return string.IsNullOrEmpty(GetInteractionFailReason(player));
     }
-
 
     public void DestroyAfterTutorialClear()
     {
@@ -365,18 +440,26 @@ public class GatherObject : MonoBehaviour, IInteractable
 
             int sec = Mathf.CeilToInt(netGather.GetCooldownRemaining());
             return sec > 0
-                ? $"{gatherName} ì¡°ì‚¬ ì™„ë£Œ ({sec}s)"
-                : $"{gatherName} ì¡°ì‚¬ ì™„ë£Œ";
+                ? $"{gatherName} Á¶»ç ¿Ï·á ({sec}s)"
+                : $"{gatherName} Á¶»ç ¿Ï·á";
         }
 
         return isAvailable ? gatherAvailableText : gatherNotAvailableText;
     }
 
-    private int GetCurrentSearchType()
+    private int GetCurrentSearchType(PlayerController player = null)
     {
         if (gatherObjectData == null) return 0;
 
-        var equipData = playerEquipManager?.GetComponent<PlayerEquipData>();
+        var equipData = GetCurrentEquipData(player);
+
+        if (requireHammer)
+        {
+            if (equipData == null || equipData.currentToolEquip == null || equipData.currentToolEquip.toolCategory != ToolCategory.Hammer)
+                return 0;
+
+            return gatherObjectData.hammerSearchType > 0 ? gatherObjectData.hammerSearchType : 1;
+        }
 
         if (equipData == null || equipData.currentToolEquip == null)
         {
@@ -398,46 +481,34 @@ public class GatherObject : MonoBehaviour, IInteractable
         }
     }
 
-    //private string GetRequiredToolText()
-    //{
-    //    if (gatherObjectData == null) return "";
-
-    //    bool handOk = gatherObjectData.handSearchType > 0;
-    //    bool shovelOk = gatherObjectData.shovelSearchType > 0;
-    //    bool hammerOk = gatherObjectData.hammerSearchType > 0;
-
-    //    if (handOk && !shovelOk && !hammerOk)
-    //        return "(ë§¨ì†)";
-    //    else if (!handOk && shovelOk && !hammerOk)
-    //        return "(ì‚½ í•„ìš”)";
-    //    else if (!handOk && !shovelOk && hammerOk)
-    //        return "(ë§ì¹˜ í•„ìš”)";
-    //    else if ((handOk ? 1 : 0) + (shovelOk ? 1 : 0) + (hammerOk ? 1 : 0) > 1)
-    //        return "";
-
-    //    return "";
-    //}
-
-    private string GetInteractionFailReason()
+    private string GetInteractionFailReason(PlayerController player = null)
     {
-        if (gatherObjectData == null) return "ë°ì´í„° ì—†ìŒ";
+        if (gatherObjectData == null) return "µ¥ÀÌÅÍ ¾øÀ½";
 
         if (gatherObjectData.nightOnly == 1)
         {
             if (dayNightCycle == null || !dayNightCycle.IsNightTime())
             {
-                return "ë°¤ì—ë§Œ ì±„ì§‘í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.";
+                return "¹ã¿¡¸¸ Ã¤ÁıÇÒ ¼ö ÀÖ½À´Ï´Ù.";
             }
         }
 
-        var equipData = playerEquipManager?.GetComponent<PlayerEquipData>();
+        var equipData = GetCurrentEquipData(player);
 
-        Debug.Log($"[GatherObject] í˜„ì¬ ì¥ë¹„ í™•ì¸ - equipData null: {equipData == null}, tool null: {equipData?.currentToolEquip == null}");
+        Debug.Log($"[GatherObject] ÇöÀç Àåºñ È®ÀÎ - equipData null: {equipData == null}, tool null: {equipData?.currentToolEquip == null}");
 
+        if (requireHammer)
+        {
+            if (equipData == null || equipData.currentToolEquip == null || equipData.currentToolEquip.toolCategory != ToolCategory.Hammer)
+                return "¸ÁÄ¡°¡ ÇÊ¿äÇÕ´Ï´Ù.";
+
+            if (gatherObjectData.hammerSearchType == 0)
+                return null;
+        }
 
         if (equipData == null || equipData.currentToolEquip == null)
         {
-            Debug.Log($"[GatherObject] ë§¨ì† ì²´í¬ - handSearchType: {gatherObjectData.handSearchType}");
+            Debug.Log($"[GatherObject] ¸Ç¼Õ Ã¼Å© - handSearchType: {gatherObjectData.handSearchType}");
 
             if (gatherObjectData.handSearchType == 0)
             {
@@ -461,7 +532,7 @@ public class GatherObject : MonoBehaviour, IInteractable
                 break;
 
             case ToolCategory.Hammer:
-                if (gatherObjectData.hammerSearchType == 0)
+                if (!requireHammer && gatherObjectData.hammerSearchType == 0)
                     return GetToolRequirementMessage();
                 break;
         }
@@ -471,37 +542,37 @@ public class GatherObject : MonoBehaviour, IInteractable
 
     private string GetToolRequirementMessage()
     {
-        if (gatherObjectData == null) return "ë„êµ¬ê°€ í•„ìš”í•©ë‹ˆë‹¤.";
+        if (gatherObjectData == null) return "µµ±¸°¡ ÇÊ¿äÇÕ´Ï´Ù.";
 
         bool handOk = gatherObjectData.handSearchType > 0;
         bool shovelOk = gatherObjectData.shovelSearchType > 0;
         bool hammerOk = gatherObjectData.hammerSearchType > 0;
 
         if (handOk && !shovelOk && !hammerOk)
-            return "ë§¨ì†ìœ¼ë¡œë§Œ ì±„ì§‘í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.";
+            return "¸Ç¼ÕÀ¸·Î¸¸ Ã¤ÁıÇÒ ¼ö ÀÖ½À´Ï´Ù.";
 
         if (shovelOk && hammerOk)
-            return "ë„êµ¬ê°€ í•„ìš”í•©ë‹ˆë‹¤.";
+            return "µµ±¸°¡ ÇÊ¿äÇÕ´Ï´Ù.";
         else if (shovelOk)
-            return "ì‚½ì´ í•„ìš”í•©ë‹ˆë‹¤.";
+            return "»ğÀÌ ÇÊ¿äÇÕ´Ï´Ù.";
         else if (hammerOk)
-            return "ë§ì¹˜ê°€ í•„ìš”í•©ë‹ˆë‹¤.";
+            return "¸ÁÄ¡°¡ ÇÊ¿äÇÕ´Ï´Ù.";
         else if (handOk)
             return null;
 
-        return "ì±„ì§‘í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.";
+        return "Ã¤ÁıÇÒ ¼ö ¾ø½À´Ï´Ù.";
     }
 
     public string GetCannotInteractMessage()
     {
+        var localPlayer = GetLocalPlayerController();
         if (netGather != null && netGather.IsSpawned)
         {
             if (!netGather.IsAvailableNow())
-                return "ì•„ì§ ì¬ìƒì„± ì¤‘ì…ë‹ˆë‹¤.";
-            return GetInteractionFailReason();
+                return "¾ÆÁ÷ Àç»ı¼º ÁßÀÔ´Ï´Ù.";
+            return GetInteractionFailReason(localPlayer);
         }
-
-        if (!isAvailable) return "ì•„ì§ ì¬ìƒì„± ì¤‘ì…ë‹ˆë‹¤.";
-        return GetInteractionFailReason();
+        if (!isAvailable) return "¾ÆÁ÷ Àç»ı¼º ÁßÀÔ´Ï´Ù.";
+        return GetInteractionFailReason(localPlayer);
     }
 }

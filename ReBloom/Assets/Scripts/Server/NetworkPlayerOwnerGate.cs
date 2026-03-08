@@ -161,6 +161,25 @@ public class NetworkPlayerOwnerGate : NetworkBehaviour
         else
             ApplyStunClientRpc(stunDuration, RpcTarget.Single(OwnerClientId, RpcTargetUse.Temp));
     }
+    public void RequestAuthoritativeResurrection(float health, float hunger, float thirst, float pollution, float temperature)
+    {
+        if (playerStats == null)
+            return;
+
+        if (!IsNetworkedSession)
+        {
+            ApplyResurrectionStateLocal(health, hunger, thirst, pollution, temperature);
+            return;
+        }
+
+        if (IsServer)
+        {
+            ApplyAuthoritativeResurrection(health, hunger, thirst, pollution, temperature);
+            return;
+        }
+
+        RequestResurrectionRpc(health, hunger, thirst, pollution, temperature);
+    }
 
     public void ApplyRestoredOwnerState(Vector3 position, Vector3 rotationEuler, float health, float hunger, float thirst, float pollution, float temperature, bool isDead, EquipmentSaveDTO equipment)
     {
@@ -181,6 +200,26 @@ public class NetworkPlayerOwnerGate : NetworkBehaviour
     private void RequestSelfDamageRpc(float damage)
     {
         ApplyAuthoritativeDamage(damage);
+    }
+    private void ApplyAuthoritativeResurrection(float health, float hunger, float thirst, float pollution, float temperature)
+    {
+        if (playerStats == null || !IsServer)
+            return;
+
+        float clampedHealth = Mathf.Clamp(health, 0f, playerStats.Health.MaxValue);
+        ServerHealth.Value = clampedHealth;
+        IsDeadState.Value = false;
+
+        ApplyResurrectionStateLocal(clampedHealth, hunger, thirst, pollution, temperature);
+
+        if (!IsOwner)
+            ApplyResurrectionStateClientRpc(clampedHealth, hunger, thirst, pollution, temperature, RpcTarget.Single(OwnerClientId, RpcTargetUse.Temp));
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
+    private void RequestResurrectionRpc(float health, float hunger, float thirst, float pollution, float temperature)
+    {
+        ApplyAuthoritativeResurrection(health, hunger, thirst, pollution, temperature);
     }
 
     [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Owner)]
@@ -213,6 +252,14 @@ public class NetworkPlayerOwnerGate : NetworkBehaviour
             return;
 
         playerController?.ApplyStun(stunDuration);
+    }
+    [Rpc(SendTo.SpecifiedInParams)]
+    private void ApplyResurrectionStateClientRpc(float health, float hunger, float thirst, float pollution, float temperature, RpcParams rpcParams = default)
+    {
+        if (IsServer && IsOwner)
+            return;
+
+        ApplyResurrectionStateLocal(health, hunger, thirst, pollution, temperature);
     }
 
     [Rpc(SendTo.SpecifiedInParams)]
@@ -373,6 +420,16 @@ public class NetworkPlayerOwnerGate : NetworkBehaviour
         ApplyEquipmentLocal(equipment);
         CameraRig.I?.Follow(transform);
     }
+    private void ApplyResurrectionStateLocal(float health, float hunger, float thirst, float pollution, float temperature)
+    {
+        playerStats?.ApplyResurrectionState(health, hunger, thirst, pollution, temperature);
+
+        if (playerController != null)
+        {
+            playerController.isDead = false;
+            playerController.SetBlocked(false);
+        }
+    }
 
     private void ApplyEquipmentLocal(EquipmentSaveDTO equipment)
     {
@@ -406,3 +463,9 @@ public class NetworkPlayerOwnerGate : NetworkBehaviour
         }
     }
 }
+
+
+
+
+
+

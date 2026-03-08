@@ -2,9 +2,15 @@ using System;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Unity.Netcode;
 
 public class PlayerStats : MonoBehaviour
 {
+    private const float ResurrectionHealthRatio = 0.5f;
+    private const float ResurrectionSafeStatusThreshold = 99f;
+    private const float ResurrectionSafeHighTemperature = 40.9f;
+    private const float ResurrectionSafeLowTemperature = 31.1f;
+
     public StatsData data;
 
     private PlayerAnimation anim;
@@ -16,7 +22,6 @@ public class PlayerStats : MonoBehaviour
     public StatBase Temperature { get; private set; }
 
     public event Action<StatBase, float, float> OnStatChanged;
-
     public event Action OnDeath;
 
     private bool isDead = false;
@@ -36,7 +41,6 @@ public class PlayerStats : MonoBehaviour
         anim = GetComponent<PlayerAnimation>();
 
         Health = new HealthStat(this, data.maxHealth);
-        
         Hunger = new HungerStat(this, data.hungerMax, data.hungerIncreaseRate);
         Thirst = new ThirstStat(this, data.thurstMax, data.thirstIncreaseRate);
         Pollution = new PollutionStat(this, data.pollutionMax, data.pollutionIncreaseRate);
@@ -71,39 +75,100 @@ public class PlayerStats : MonoBehaviour
 
     private void PrintStats()
     {
-        Debug.Log("========== 플레이어 상태 ==========");
+        Debug.Log("========== Player Stats ==========");
         Debug.Log($"Health: {Health.Value:F2} / {Health.MaxValue}");
         Debug.Log($"Hunger: {Hunger.Value:F2} / {Hunger.MaxValue}");
         Debug.Log($"Thirst: {Thirst.Value:F2} / {Thirst.MaxValue}");
         Debug.Log($"Pollution: {Pollution.Value:F2} / {Pollution.MaxValue}");
         Debug.Log($"Temperature: {Temperature.Value:F2} / {Temperature.MaxValue}");
-        
+
         var debuffManager = GetComponent<DebuffManager>();
         if (debuffManager != null)
         {
             var activeDebuffs = debuffManager.GetActiveDebuffs();
             if (activeDebuffs.Count > 0)
             {
-                Debug.Log($"\n[활성 디버프] {activeDebuffs.Count}개");
+                Debug.Log($"\n[Active Debuffs] {activeDebuffs.Count}");
                 foreach (var debuff in activeDebuffs)
-                {
                     Debug.Log($"  - [{debuff.ID}] {debuff.Name}");
-                }
             }
             else
             {
-                Debug.Log("\n[활성 디버프] 없음");
+                Debug.Log("\n[Active Debuffs] none");
             }
         }
+
         Debug.Log("================================\n");
     }
 
     public void GetResurrection()
     {
-        Health.Set(50f);
-        Temperature.Set(36.5f);
+        float resurrectionHealth = Mathf.Clamp(Health.MaxValue * ResurrectionHealthRatio, 0f, Health.MaxValue);
+        float nextHunger = GetSafeResurrectionStatusValue(Hunger.Value);
+        float nextThirst = GetSafeResurrectionStatusValue(Thirst.Value);
+        float nextPollution = GetSafeResurrectionStatusValue(Pollution.Value);
+        float nextTemperature = GetSafeResurrectionTemperature(Temperature.Value);
+
+        var ownerGate = GetComponent<NetworkPlayerOwnerGate>();
+        bool isNetworkedSession = NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
+
+        if (isNetworkedSession && ownerGate != null)
+        {
+            ownerGate.RequestAuthoritativeResurrection(resurrectionHealth, nextHunger, nextThirst, nextPollution, nextTemperature);
+            return;
+        }
+
+        ApplyResurrectionState(resurrectionHealth, nextHunger, nextThirst, nextPollution, nextTemperature);
+    }
+
+    public void ApplyResurrectionState(float health, float hunger, float thirst, float pollution, float temperature)
+    {
+        Health.Set(Mathf.Clamp(health, 0f, Health.MaxValue));
+        Hunger.Set(Mathf.Clamp(hunger, 0f, Hunger.MaxValue));
+        Thirst.Set(Mathf.Clamp(thirst, 0f, Thirst.MaxValue));
+        Pollution.Set(Mathf.Clamp(pollution, 0f, Pollution.MaxValue));
+        Temperature.Set(Mathf.Clamp(temperature, data.minTemperature, Temperature.MaxValue));
+
         isDead = false;
+        RemoveResurrectionLethalDebuffs();
         AutoSaveService.I?.RequestSave("PlayerStats");
+    }
+
+    private float GetSafeResurrectionStatusValue(float currentValue)
+    {
+        if (currentValue >= 100f)
+            return Mathf.Min(ResurrectionSafeStatusThreshold, currentValue);
+
+        return currentValue;
+    }
+
+    private float GetSafeResurrectionTemperature(float currentTemperature)
+    {
+        if (currentTemperature >= 41f)
+            return ResurrectionSafeHighTemperature;
+
+        if (currentTemperature <= 31f)
+            return ResurrectionSafeLowTemperature;
+
+        return currentTemperature;
+    }
+
+    private void RemoveResurrectionLethalDebuffs()
+    {
+        var debuffManager = GetComponent<DebuffManager>();
+        if (debuffManager == null)
+            return;
+
+        int[] resurrectionResetDebuffs =
+        {
+            210,
+            220, 221, 222,
+            230, 231, 232,
+            240, 250, 260, 270
+        };
+
+        foreach (int debuffId in resurrectionResetDebuffs)
+            debuffManager.RemoveDebuffByID(debuffId);
     }
 
     public void TakeDamage(float damage)
@@ -153,12 +218,11 @@ public class PlayerStats : MonoBehaviour
         {
             OnDeath -= handler.OnCreateDeathBox;
             OnDeath += handler.OnCreateDeathBox;
-
-            Debug.Log("[PlayerStats] DeathBoxHandler 이벤트 등록 완료");
+            Debug.Log("[PlayerStats] DeathBoxHandler �̺�Ʈ ��� �Ϸ�");
         }
         else
         {
-            Debug.LogWarning("[PlayerStats] DeathBoxHandler를 찾을 수 없습니다!");
+            Debug.LogWarning("[PlayerStats] DeathBoxHandler�� ã�� �� �����ϴ�!");
         }
     }
 
@@ -174,28 +238,20 @@ public class PlayerStats : MonoBehaviour
     private void AssignmentDebugKeys()
     {
 #if !UNITY_EDITOR && !DEVELOPMENT_BUILD
-    return;
+        return;
 #endif
 
         if (Keyboard.current.kKey.wasPressedThisFrame)
-        {
             PrintStats();
-        }
 
         if (Keyboard.current.f4Key.wasPressedThisFrame)
-        {
             Health.Modify(-10f);
-        }
 
         if (Keyboard.current.f5Key.wasPressedThisFrame)
-        {
             StatDebugMode = !StatDebugMode;
-        }
 
         if (Keyboard.current.f6Key.wasPressedThisFrame)
-        {
             RevertStats();
-        }
     }
 
     public void SetInvincible(bool invincible)

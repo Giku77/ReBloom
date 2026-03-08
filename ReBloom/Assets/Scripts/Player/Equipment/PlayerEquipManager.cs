@@ -5,7 +5,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerEquipManager : MonoBehaviour
+public class PlayerEquipManager : NetworkBehaviour
 {
     [SerializeField] private GameObject equipInventory;
     [SerializeField] private EquipmentUI equipmentUI;
@@ -31,6 +31,17 @@ public class PlayerEquipManager : MonoBehaviour
     private PlayerAnimation anim;
 
     public static event Action<int> OnToolTypeChange;
+
+    private readonly NetworkVariable<int> syncedClothItemId =
+        new(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+    private readonly NetworkVariable<int> syncedShoesItemId =
+        new(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+    private readonly NetworkVariable<int> syncedToolItemId =
+        new(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+    private bool suppressEquipmentSync;
 
     private void Awake()
     {
@@ -70,6 +81,106 @@ public class PlayerEquipManager : MonoBehaviour
         }
     }
 
+
+    public override void OnNetworkSpawn()
+    {
+        syncedClothItemId.OnValueChanged += OnSyncedEquipmentChanged;
+        syncedShoesItemId.OnValueChanged += OnSyncedEquipmentChanged;
+        syncedToolItemId.OnValueChanged += OnSyncedEquipmentChanged;
+
+        if (IsOwner)
+            MarkEquipmentStateDirty();
+        else
+            ApplySyncedEquipmentState();
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        syncedClothItemId.OnValueChanged -= OnSyncedEquipmentChanged;
+        syncedShoesItemId.OnValueChanged -= OnSyncedEquipmentChanged;
+        syncedToolItemId.OnValueChanged -= OnSyncedEquipmentChanged;
+    }
+
+    private void OnSyncedEquipmentChanged(int previousValue, int newValue)
+    {
+        if (IsOwner)
+            return;
+
+        ApplySyncedEquipmentState();
+    }
+
+    private void ApplySyncedEquipmentState()
+    {
+        suppressEquipmentSync = true;
+
+        try
+        {
+            player.currentClothEquip = syncedClothItemId.Value > 0
+                ? ItemDatabase.I?.GetItem(syncedClothItemId.Value) as ProtectiveItemData
+                : null;
+
+            player.currentShoesEquip = syncedShoesItemId.Value > 0
+                ? ItemDatabase.I?.GetItem(syncedShoesItemId.Value) as ProtectiveItemData
+                : null;
+
+            player.currentToolEquip = syncedToolItemId.Value > 0
+                ? ItemDatabase.I?.GetItem(syncedToolItemId.Value) as ToolItemData
+                : null;
+
+            toolEquipManager?.UnequipTool();
+
+            if (player.currentToolEquip != null)
+            {
+                toolEquipManager?.EquipTool(player.currentToolEquip);
+                anim?.EquipToolLayerChange();
+                anim?.SetToolType((int)player.currentToolEquip.toolCategory);
+            }
+            else
+            {
+                anim?.SetToolType(0);
+                anim?.HandLayerChange();
+            }
+        }
+        finally
+        {
+            suppressEquipmentSync = false;
+        }
+    }
+
+    private void MarkEquipmentStateDirty()
+    {
+        if (suppressEquipmentSync)
+            return;
+
+        if (!IsOwner)
+            return;
+
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening || !IsSpawned)
+            return;
+
+        int clothItemId = player.currentClothEquip ? player.currentClothEquip.itemID : 0;
+        int shoesItemId = player.currentShoesEquip ? player.currentShoesEquip.itemID : 0;
+        int toolItemId = player.currentToolEquip ? player.currentToolEquip.itemID : 0;
+
+        if (IsServer)
+        {
+            syncedClothItemId.Value = clothItemId;
+            syncedShoesItemId.Value = shoesItemId;
+            syncedToolItemId.Value = toolItemId;
+        }
+        else
+        {
+            SubmitEquipmentStateServerRpc(clothItemId, shoesItemId, toolItemId);
+        }
+    }
+
+    [ServerRpc]
+    private void SubmitEquipmentStateServerRpc(int clothItemId, int shoesItemId, int toolItemId)
+    {
+        syncedClothItemId.Value = clothItemId;
+        syncedShoesItemId.Value = shoesItemId;
+        syncedToolItemId.Value = toolItemId;
+    }
     private bool IsLocalOwner()
     {
         var no = GetComponent<NetworkObject>();
@@ -128,6 +239,7 @@ public class PlayerEquipManager : MonoBehaviour
             Debug.LogWarning("[EquipManager] equipmentUI가 null입니다!");
         }
         AutoSaveService.I?.RequestSave("EquipChanged");
+        MarkEquipmentStateDirty();
     }
 
     public void Apply(ToolItemData item)
@@ -168,6 +280,7 @@ public class PlayerEquipManager : MonoBehaviour
            //Debug.LogWarning("[EquipManager] equipmentUI가 null입니다!");
         }
         AutoSaveService.I?.RequestSave("EquipChanged");
+        MarkEquipmentStateDirty();
     }
     public bool ToggleEquip(int itemId)
     {
@@ -305,6 +418,7 @@ public class PlayerEquipManager : MonoBehaviour
             currentEquipmentUI.UpdateResistText();
         }
         AutoSaveService.I?.RequestSave("EquipChanged");
+        MarkEquipmentStateDirty();
     }
 
     // 장착 여부 확인 헬퍼 메서드
@@ -435,6 +549,7 @@ public class PlayerEquipManager : MonoBehaviour
         if (player.currentToolEquip != null)
         {
             player.currentToolEquip = null;
+            anim.SetToolType(0);
             anim.HandLayerChange();
 
             if (toolEquipManager != null)
@@ -468,6 +583,7 @@ public class PlayerEquipManager : MonoBehaviour
         }
 
         OnToolTypeChange?.Invoke(0);
+        MarkEquipmentStateDirty();
     }
     public void BindUI(EquipmentUI pcUI, EquipmentUI mobileUI, GameObject equipInventoryRoot, GameInventory inv)
     {

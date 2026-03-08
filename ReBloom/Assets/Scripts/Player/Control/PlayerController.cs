@@ -1,4 +1,4 @@
-ï»¿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using Unity.Cinemachine;
@@ -19,13 +19,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float changeSpeedRadius = 4;
 
     [Header("Step Climb Settings")]
-    [SerializeField] private float stepHeight = 0.4f;      // ì˜¬ë¼ê°ˆ ìˆ˜ ìˆëŠ” ìµœëŒ€ í„± ë†’ì´
-    [SerializeField] private float stepRayLength = 0.5f;   // ì•ìª½ ê°ì§€ ê±°ë¦¬
-    [SerializeField] private LayerMask stepLayerMask;      // ë¶€ë”ªí ì§€ë©´/ì¥ì• ë¬¼ ë ˆì´ì–´ (groundLayerë‘ ê°™ê²Œ ì¨ë„ ë¨)
-    [SerializeField] private float stepSmooth = 0.1f;      // í•œ í”„ë ˆì„ì— ì–¼ë§ˆë‚˜ ì˜¬ë¦´ì§€
+    [SerializeField] private float stepHeight = 0.4f;      // ¿Ã¶ó°¥ ¼ö ÀÖ´Â ÃÖ´ë ÅÎ ³ôÀÌ
+    [SerializeField] private float stepRayLength = 0.5f;   // ¾ÕÂÊ °¨Áö °Å¸®
+    [SerializeField] private LayerMask stepLayerMask;      // ºÎµúÈú Áö¸é/Àå¾Ö¹° ·¹ÀÌ¾î (groundLayer¶û °°°Ô ½áµµ µÊ)
+    [SerializeField] private float stepSmooth = 0.1f;      // ÇÑ ÇÁ·¹ÀÓ¿¡ ¾ó¸¶³ª ¿Ã¸±Áö
 
-    [SerializeField] private CapsuleCollider capsule; // ìˆìœ¼ë©´ ì—°ê²°
-    [SerializeField] private float stepUpSpeed = 2.5f; // ì´ˆë‹¹ ì˜¬ë¼ê°€ëŠ” ëŠë‚Œ
+    [SerializeField] private CapsuleCollider capsule; // ÀÖÀ¸¸é ¿¬°á
+    [SerializeField] private float stepUpSpeed = 2.5f; // ÃÊ´ç ¿Ã¶ó°¡´Â ´À³¦
 
     [Header("References")]
     [SerializeField] private EquipmentUI equipmentUI;
@@ -86,7 +86,7 @@ public class PlayerController : MonoBehaviour
     [Header("Camera")]
     [SerializeField] private Transform cameraTransform;
 
-    //ì„ì‹œ ì¥ì°© í™•ì¸ìš© 
+    //ÀÓ½Ã ÀåÂø È®ÀÎ¿ë 
     [Header("Equipment")]
     // [SerializeField] private InventoryItemData inventory;
     public PlayerEquipManager playerEquip;
@@ -138,16 +138,42 @@ public class PlayerController : MonoBehaviour
     private Vector2 mobileInput;
     private bool mobileIsSprinting;
 
-    public void OpenCraftingUI()
+    private void EnsureRuntimeUIReferences()
     {
-        if (craftingUI != null)
-            craftingUI.Toggle();
+        if (craftingUI == null)
+            craftingUI = UnityEngine.Object.FindFirstObjectByType<CraftingUI>(FindObjectsInactive.Include);
+
+        if (waterTankUI == null)
+            waterTankUI = UnityEngine.Object.FindFirstObjectByType<WaterTankUI>(FindObjectsInactive.Include);
+
+        if (storageUI == null)
+            storageUI = UnityEngine.Object.FindFirstObjectByType<StorageUI>(FindObjectsInactive.Include);
     }
 
-    public void OpenWaterTankUI()
+    public void OpenCraftingUI()
     {
-        if (waterTankUI != null)
-            waterTankUI.Toggle();
+        EnsureRuntimeUIReferences();
+
+        if (craftingUI == null)
+        {
+            Debug.LogError("[PlayerController] CraftingUI¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+            return;
+        }
+
+        craftingUI.Toggle();
+    }
+
+    public void OpenWaterTankUI(WaterTankInteractable tank)
+    {
+        EnsureRuntimeUIReferences();
+
+        if (waterTankUI == null)
+        {
+            Debug.LogError("[PlayerController] WaterTankUI¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+            return;
+        }
+
+        waterTankUI.ShowForTank(tank);
     }
 
     public void OnLook(InputAction.CallbackContext context)
@@ -162,7 +188,7 @@ public class PlayerController : MonoBehaviour
     public WorldStorage CurrentOpenedStorage { get; private set; }
 
     /// <summary>
-    /// ì°½ê³  ì°¸ì¡° ì„¤ì • (WorldStorage.Interactì—ì„œ í˜¸ì¶œ)
+    /// Ã¢°í ÂüÁ¶ ¼³Á¤ (WorldStorage.Interact¿¡¼­ È£Ãâ)
     /// </summary>
     public void SetCurrentStorage(WorldStorage storage)
     {
@@ -170,16 +196,16 @@ public class PlayerController : MonoBehaviour
 
         if (storage != null)
         {
-            Debug.Log($"[PlayerController] ì°½ê³  ì„¤ì •: {storage.name}");
+            Debug.Log($"[PlayerController] Ã¢°í ¼³Á¤: {storage.name}");
         }
         else
         {
-            Debug.Log("[PlayerController] ì°½ê³  ì°¸ì¡° ì œê±°");
+            Debug.Log("[PlayerController] Ã¢°í ÂüÁ¶ Á¦°Å");
         }
     }
 
     /// <summary>
-    /// ì°½ê³ ì™€ì˜ ê±°ë¦¬ ì²´í¬ (Updateì—ì„œ í˜¸ì¶œ)
+    /// Ã¢°í¿ÍÀÇ °Å¸® Ã¼Å© (Update¿¡¼­ È£Ãâ)
     /// </summary>
     private void CheckStorageDistance()
     {
@@ -190,14 +216,15 @@ public class PlayerController : MonoBehaviour
             CurrentOpenedStorage.transform.position
         );
 
-        //Debug.Log($"[PlayerController] ì°½ê³  ê±°ë¦¬: {dist:F2}m");
+        //Debug.Log($"[PlayerController] Ã¢°í °Å¸®: {dist:F2}m");
 
         if (dist > storageCloseDistance)
         {
-            //Debug.Log($"[PlayerController] ì°½ê³ ê°€ ë„ˆë¬´ ë©€ì–´ì§! UI ë‹«ê¸°");
+            //Debug.Log($"[PlayerController] Ã¢°í°¡ ³Ê¹« ¸Ö¾îÁü! UI ´İ±â");
 
-            // WorldStorageì—ê²Œ ë‹«ìœ¼ë¼ê³  ìš”ì²­
+            // WorldStorage¿¡°Ô ´İÀ¸¶ó°í ¿äÃ»
             CurrentOpenedStorage.CloseUI();
+
             CurrentOpenedStorage = null;
         }
     }
@@ -224,6 +251,8 @@ public class PlayerController : MonoBehaviour
             inventory = GetComponent<PlayerInventoryRuntime>();
         if (thirdPersonCamera == null)
             thirdPersonCamera = Camera.main.GetComponent<ThirdPersonCamera>();
+
+        EnsureRuntimeUIReferences();
     }
 
     private void Start()
@@ -244,16 +273,16 @@ public class PlayerController : MonoBehaviour
     }
 
     /// <summary>
-    /// ì¸ë²¤í† ë¦¬ í™•ì¥ (í™•ì¥ì¹©ìš©)
+    /// ÀÎº¥Åä¸® È®Àå (È®ÀåÄ¨¿ë)
     /// </summary>
-    /// <param name="slotType">í™•ì¥í•  ì¸ë²¤í† ë¦¬ íƒ€ì…</param>
-    /// <param name="targetTier">ëª©í‘œ Tier (1, 2, 3)</param>
+    /// <param name="slotType">È®ÀåÇÒ ÀÎº¥Åä¸® Å¸ÀÔ</param>
+    /// <param name="targetTier">¸ñÇ¥ Tier (1, 2, 3)</param>
     /// 
     //public bool TryExpandInventoryWithChip(int tier)
     //{
     //    if (Inventory == null)
     //    {
-    //        Debug.LogError("[PlayerController] Inventory ì—†ìŒ");
+    //        Debug.LogError("[PlayerController] Inventory ¾øÀ½");
     //        return false;
     //    }
 
@@ -263,7 +292,7 @@ public class PlayerController : MonoBehaviour
     //{
     //    if (Inventory == null)
     //    {
-    //        Debug.LogError($"[PlayerController] ì¡´ì¬í•˜ì§€ ì•ŠëŠ” ì¸ë²¤í† ë¦¬: {Inventory}");
+    //        Debug.LogError($"[PlayerController] Á¸ÀçÇÏÁö ¾Ê´Â ÀÎº¥Åä¸®: {Inventory}");
     //        return false;
     //    }
 
@@ -272,23 +301,23 @@ public class PlayerController : MonoBehaviour
     //    if (success)
     //    {
     //        int newSlots = inventoryItemData.SlotCount;
-    //        //Debug.Log($"[PlayerController] {inventory} ì¸ë²¤í† ë¦¬ Tier {targetTier}ë¡œ í™•ì¥ ì™„ë£Œ! (í˜„ì¬ {newSlots}ì¹¸)");
+    //        //Debug.Log($"[PlayerController] {inventory} ÀÎº¥Åä¸® Tier {targetTier}·Î È®Àå ¿Ï·á! (ÇöÀç {newSlots}Ä­)");
 
-    //        // TODO: í† ìŠ¤íŠ¸ ë©”ì‹œì§€ í‘œì‹œ
-    //        // ToastManager.I?.Show($"{slotType} ì¸ë²¤í† ë¦¬ Tier {targetTier} í™•ì¥!");
+    //        // TODO: Åä½ºÆ® ¸Ş½ÃÁö Ç¥½Ã
+    //        // ToastManager.I?.Show($"{slotType} ÀÎº¥Åä¸® Tier {targetTier} È®Àå!");
     //    }
 
     //    return success;
     //}
 
     ///// <summary>
-    ///// ë‹¤ìŒ Tierë¡œ ì—…ê·¸ë ˆì´ë“œ
+    ///// ´ÙÀ½ Tier·Î ¾÷±×·¹ÀÌµå
     ///// </summary>
     //public bool ExpandInventoryToNextTier(InventorySlotType slotType)
     //{
     //    if (inventoryItemData == null)
     //    {
-    //        Debug.LogError($"[PlayerController] ì¡´ì¬í•˜ì§€ ì•ŠëŠ” ì¸ë²¤í† ë¦¬: {inventoryItemData}");
+    //        Debug.LogError($"[PlayerController] Á¸ÀçÇÏÁö ¾Ê´Â ÀÎº¥Åä¸®: {inventoryItemData}");
     //        return false;
     //    }
 
@@ -334,9 +363,9 @@ public class PlayerController : MonoBehaviour
     //         Vector3 originHigh = transform.position + Vector3.up * (stepHeight + 0.1f);
     //         if (!Physics.Raycast(originHigh, transform.forward, stepRayLength, stepLayerMask))
     //         {
-    //             // ìœ„ìª½ì€ ë¹„ì–´ìˆë‹¤ = ì˜¬ë¼ê°ˆ ìˆ˜ ìˆëŠ” ì‘ì€ í„±
-    //             // ì‚´ì§ ìœ„ë¡œ ì˜¬ë ¤ì¤€ë‹¤
-    //             Debug.Log($"[StepClimb] ë°œë™ ìœ„ì¹˜={transform.position}, hit={hitLow.collider.name}");
+    //             // À§ÂÊÀº ºñ¾îÀÖ´Ù = ¿Ã¶ó°¥ ¼ö ÀÖ´Â ÀÛÀº ÅÎ
+    //             // »ìÂ¦ À§·Î ¿Ã·ÁÁØ´Ù
+    //             Debug.Log($"[StepClimb] ¹ßµ¿ À§Ä¡={transform.position}, hit={hitLow.collider.name}");
     //             rb.position += Vector3.up * stepSmooth;
     //         }
     //     }
@@ -400,7 +429,7 @@ public class PlayerController : MonoBehaviour
 
             if (playerStats != null)
                 playerStats.DebugMode = debugMode;
-            Debug.Log("ë””ë²„ê·¸ ëª¨ë“œ ì˜¨ì˜¤í”„");
+            Debug.Log("µğ¹ö±× ¸ğµå ¿Â¿ÀÇÁ");
         }
 #endif
         CheckStorageDistance();
@@ -417,21 +446,16 @@ public class PlayerController : MonoBehaviour
 
             Anim.SetStun(isStunned);
         }
-
-        if (WaterTankService.I?.Manager != null)
-        {
-            WaterTankService.I.Manager.Tick(Time.deltaTime);
-        }
     }
 
     private void FixedUpdate()
     {
         bool previousGround = isGround;
 
-        // 1. CheckSphereë¡œ ê¸°ë³¸ ì§€ë©´ ì²´í¬
+        // 1. CheckSphere·Î ±âº» Áö¸é Ã¼Å©
         isGround = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
 
-        // 2. ì í”„ ì¤‘ì´ê±°ë‚˜ í™•ì‹¤íˆ ë– ìˆì„ ë•Œë§Œ Raycast ê²€ì¦
+        // 2. Á¡ÇÁ ÁßÀÌ°Å³ª È®½ÇÈ÷ ¶°ÀÖÀ» ¶§¸¸ Raycast °ËÁõ
         if (isGround && (wasJumping || Mathf.Abs(rb.linearVelocity.y) > 0.5f))
         {
             bool hasGroundBelow = Physics.Raycast(
@@ -442,18 +466,18 @@ public class PlayerController : MonoBehaviour
                 groundLayer
             );
 
-            // â˜… ì—¬ê¸° ì¶”ê°€
+            // ¡Ú ¿©±â Ãß°¡
             bool isReallyGrounded = Physics.CheckSphere(
                 groundCheck.position,
-                groundCheckRadius * 0.5f,  // ë°˜ê²½ì„ ì ˆë°˜ìœ¼ë¡œ
+                groundCheckRadius * 0.5f,  // ¹İ°æÀ» Àı¹İÀ¸·Î
                 groundLayer
             );
 
-            // â˜… ì¡°ê±´ ìˆ˜ì •
+            // ¡Ú Á¶°Ç ¼öÁ¤
             if (!isReallyGrounded && !hasGroundBelow)
             {
                 isGround = false;
-                //Debug.Log("[ë²½ ì°©ì§€ ë°©ì§€] ë²½ì— ê±¸ë¦¼");
+                //Debug.Log("[º® ÂøÁö ¹æÁö] º®¿¡ °É¸²");
             }
             else if (hasGroundBelow)
             {
@@ -462,7 +486,7 @@ public class PlayerController : MonoBehaviour
                 if (angle > 55f)
                 {
                     isGround = false;
-                    //Debug.Log($"[ë²½ ì°©ì§€ ë°©ì§€] ê°€íŒŒë¥¸ ê²½ì‚¬ {angle:F1}ë„");
+                    //Debug.Log($"[º® ÂøÁö ¹æÁö] °¡ÆÄ¸¥ °æ»ç {angle:F1}µµ");
                 }
             }
         }
@@ -474,7 +498,7 @@ public class PlayerController : MonoBehaviour
 
         if (wasJumping && isGround)
         {
-            //Debug.Log("ì°©ì§€! Jump = false");
+            //Debug.Log("ÂøÁö! Jump = false");
             if (Anim != null)
             {
                 Anim.SetSlow(false);
@@ -515,7 +539,7 @@ public class PlayerController : MonoBehaviour
 
     //    if (wasJumping && isGround)
     //    {
-    //        Debug.Log("ì°©ì§€! Jump = false");
+    //        Debug.Log("ÂøÁö! Jump = false");
     //        if (Anim != null)
     //        {
     //            Anim.SetSlow(false);
@@ -713,7 +737,7 @@ public class PlayerController : MonoBehaviour
         velocity.y = jumpForce;
         rb.linearVelocity = velocity;
 
-        //Debug.Log("ì í”„ ì‹¤í–‰! Jump = true");
+        //Debug.Log("Á¡ÇÁ ½ÇÇà! Jump = true");
         Anim.SetJumping(true);
         //SoundManager.I?.StopBreathingHeavy();
         SoundManager.I?.PlayJump();
@@ -773,7 +797,7 @@ public class PlayerController : MonoBehaviour
         Anim.PlayDeath();
         Anim.SetRootMotion(true);
 
-        Debug.Log("[PlayerController] í”Œë ˆì´ì–´ ê¸°ì ˆ!");
+        Debug.Log("[PlayerController] ÇÃ·¹ÀÌ¾î ±âÀı!");
 
         await UniTask.Delay(4383);
 
@@ -782,7 +806,7 @@ public class PlayerController : MonoBehaviour
         if (thirdPersonCamera != null)
         {
             originalZoomDistance = thirdPersonCamera.distance;
-            Debug.Log($"[Death] í˜„ì¬ distance ì €ì¥: {originalZoomDistance}");
+            Debug.Log($"[Death] ÇöÀç distance ÀúÀå: {originalZoomDistance}");
             thirdPersonCamera.enabled = false;
         }
 
@@ -796,7 +820,7 @@ public class PlayerController : MonoBehaviour
 
         if (thirdPersonCamera != null)
         {
-            Debug.Log($"[Death] distance ë³µì› ì‹œë„: {originalZoomDistance}");
+            Debug.Log($"[Death] distance º¹¿ø ½Ãµµ: {originalZoomDistance}");
             thirdPersonCamera.distance = originalZoomDistance;
             thirdPersonCamera.enabled = true;
         }
@@ -813,7 +837,7 @@ public class PlayerController : MonoBehaviour
 
         //if (robotPet != null)
         //{
-        //    robotPet.PlayPoppyVoice(80051);  // "ì•„í”„ì§€ë§ˆ.."
+        //    robotPet.PlayPoppyVoice(80051);  // "¾ÆÇÁÁö¸¶.."
         //}
 
         VoiceManager.I?.PlayVoice(80051);
@@ -846,13 +870,13 @@ public class PlayerController : MonoBehaviour
         //{
         //    if (playerStats != null)
         //        playerStats.TakeDamage(9999f);
-        //    Debug.Log("ë¬¼ì† ë°”ë‹¥ì— ë–¨ì–´ì ¸ ì¦‰ì‚¬!");
+        //    Debug.Log("¹°¼Ó ¹Ù´Ú¿¡ ¶³¾îÁ® Áï»ç!");
         //}
     }
 
     private bool CheckWaterGround()
     {
-        // ë¬¼ ë ˆì´ì–´ë§Œ ì²´í¬
+        // ¹° ·¹ÀÌ¾î¸¸ Ã¼Å©
         int waterLayer = LayerMask.GetMask("Water");
         return Physics.CheckSphere(groundCheck.position, groundCheckRadius, waterLayer);
     }
@@ -863,7 +887,7 @@ public class PlayerController : MonoBehaviour
         //{
         //    if (playerStats != null)
         //        playerStats.TakeDamage(9999f);
-        //    Debug.Log("ë¬¼ì— ë¹ ì ¸ ì¦‰ì‚¬!");
+        //    Debug.Log("¹°¿¡ ºüÁ® Áï»ç!");
         //    return;
         //}
 
@@ -888,7 +912,7 @@ public class PlayerController : MonoBehaviour
             }
 
             ApplyLandingSlow().Forget();
-            Debug.Log($"ë‚™í•˜ ë†’ì´: {fallHeight:F2}m, ë°ë¯¸ì§€: {damage:F2}");
+            Debug.Log($"³«ÇÏ ³ôÀÌ: {fallHeight:F2}m, µ¥¹ÌÁö: {damage:F2}");
         }
     }
 
@@ -900,7 +924,7 @@ public class PlayerController : MonoBehaviour
 
         if (blocked)
         {
-            // ì…ë ¥/ì†ë„ ì´ˆê¸°í™”
+            // ÀÔ·Â/¼Óµµ ÃÊ±âÈ­
             //moveInput = Vector2.zero;
             targetSpeed = 0f;
             currentSpeed = 0f;
@@ -911,7 +935,7 @@ public class PlayerController : MonoBehaviour
             if (rb != null)
             {
                 var v = rb.linearVelocity;
-                rb.linearVelocity = new Vector3(0f, v.y, 0f); // ìˆ˜í‰ ì†ë„ë§Œ ë©ˆì¶¤
+                rb.linearVelocity = new Vector3(0f, v.y, 0f); // ¼öÆò ¼Óµµ¸¸ ¸ØÃã
             }
 
             Anim?.SetSpeed(0f);
@@ -967,7 +991,7 @@ public class PlayerController : MonoBehaviour
 
         isStunned = true;
 
-        Debug.Log("[PlayerController] í”Œë ˆì´ì–´ ìŠ¤í„´");
+        Debug.Log("[PlayerController] ÇÃ·¹ÀÌ¾î ½ºÅÏ");
 
         stunDuration = stunTime;
         this.stunTime = 0f;
@@ -1021,5 +1045,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 }
+
+
 
 

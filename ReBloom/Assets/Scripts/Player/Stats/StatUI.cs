@@ -1,9 +1,10 @@
-﻿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Unity.Netcode;
 
 public class StatUI : UIBase
 {
@@ -30,7 +31,7 @@ public class StatUI : UIBase
     [SerializeField] private TextMeshProUGUI hungerText;
     [SerializeField] private TextMeshProUGUI thirstText;
 
-    [Header("플레이어 데미지")]
+    [Header("Player Damage")]
     [SerializeField] private Image damageImage;
     [SerializeField] private float flashDuration = 0.1f;
     [SerializeField] private float flashSpeed = 1.0f;
@@ -43,26 +44,16 @@ public class StatUI : UIBase
     private void OnEnable()
     {
         NetworkPlayerOwnerGate.OnLocalPlayerSpawned += BindLocalPlayer;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned += HandleLocalPlayerDespawned;
 
+        ClearUI();
         TryBindExistingOwner();
-    }
-
-    private void TryBindExistingOwner()
-    {
-        var all = FindObjectsByType<Unity.Netcode.NetworkObject>(FindObjectsSortMode.None);
-        foreach (var no in all)
-        {
-            if (no != null && no.IsOwner)
-            {
-                BindLocalPlayer(no.gameObject);
-                return;
-            }
-        }
     }
 
     private void OnDisable()
     {
         NetworkPlayerOwnerGate.OnLocalPlayerSpawned -= BindLocalPlayer;
+        NetworkPlayerOwnerGate.OnLocalPlayerDespawned -= HandleLocalPlayerDespawned;
         Unbind();
     }
 
@@ -71,27 +62,57 @@ public class StatUI : UIBase
         Unbind();
     }
 
+    private void TryBindExistingOwner()
+    {
+        GameObject playerObject = ResolveExistingLocalPlayerObject();
+        if (playerObject != null)
+            BindLocalPlayer(playerObject);
+    }
+
+    private GameObject ResolveExistingLocalPlayerObject()
+    {
+        var nm = NetworkManager.Singleton;
+        if (nm != null)
+        {
+            var localPlayerObject = nm.SpawnManager != null ? nm.SpawnManager.GetLocalPlayerObject() : null;
+            if (localPlayerObject != null)
+                return localPlayerObject.gameObject;
+
+            if (nm.LocalClient != null && nm.LocalClient.PlayerObject != null)
+                return nm.LocalClient.PlayerObject.gameObject;
+        }
+
+        var ownerGates = FindObjectsByType<NetworkPlayerOwnerGate>(FindObjectsSortMode.None);
+        foreach (var gate in ownerGates)
+        {
+            if (gate != null && gate.IsOwner)
+                return gate.gameObject;
+        }
+
+        return null;
+    }
+
     private void BindLocalPlayer(GameObject playerObj)
     {
-        if (playerObj == null) return;
+        if (playerObj == null)
+            return;
 
-        // 같은 플레이어에 이미 바인딩이면 중복 방지
         if (isBound && playerController != null && playerController.gameObject == playerObj)
+            return;
+
+        var nextController = playerObj.GetComponent<PlayerController>();
+        var nextStats = playerObj.GetComponent<PlayerStats>();
+        var nextDebuffManager = playerObj.GetComponent<DebuffManager>();
+
+        if (nextController == null || nextStats == null)
             return;
 
         Unbind();
 
-        playerController = playerObj.GetComponent<PlayerController>();
-        playerStats = playerObj.GetComponent<PlayerStats>();
-        debuffManager = playerObj.GetComponent<DebuffManager>();
+        playerController = nextController;
+        playerStats = nextStats;
+        debuffManager = nextDebuffManager;
 
-        if (playerStats == null)
-        {
-            //Debug.LogError("[StatUI] PlayerStats 없음");
-            return;
-        }
-
-        // 이벤트 구독은 바인딩 이후
         playerStats.OnStatChanged += HandleStatChanged;
 
         if (debuffManager != null)
@@ -101,9 +122,13 @@ public class StatUI : UIBase
         }
 
         isBound = true;
-
         InitializeUI();
-        Debug.Log("[StatUI] Local player bound.");
+        Debug.Log($"[StatUI] Local player bound. hp={playerStats.Health.Value:F1}/{playerStats.Health.MaxValue:F1}");
+    }
+
+    private void HandleLocalPlayerDespawned()
+    {
+        Unbind();
     }
 
     private void Unbind()
@@ -122,21 +147,23 @@ public class StatUI : UIBase
         lowHealthCTS = null;
 
         isBound = false;
-
         playerController = null;
         playerStats = null;
         debuffManager = null;
+
+        ClearUI();
     }
 
     private void InitializeUI()
     {
-        if (playerStats == null) return;
+        if (playerStats == null)
+            return;
 
         UpdateHealthUI(playerStats.Health.Value, playerStats.Health.MaxValue);
         UpdatePollutionUI(playerStats.Pollution.Value, playerStats.Pollution.MaxValue);
         UpdateHungerUI(playerStats.Hunger.Value, playerStats.Hunger.MaxValue);
         UpdateThirstUI(playerStats.Thirst.Value, playerStats.Thirst.MaxValue);
-        UpdateTemperatureUI(playerStats.Temperature.Value, playerStats.Temperature.MaxValue);
+        UpdateTemperatureUI(playerStats.Temperature.Value);
 
         UpdateHungerBarColor();
         UpdateThirstBarColor();
@@ -146,18 +173,40 @@ public class StatUI : UIBase
             damageImage.canvasRenderer.SetAlpha(0f);
     }
 
+    private void ClearUI()
+    {
+        SetSliderValue(hpBar, 0f, 0f, 100f);
+        SetSliderValue(pollutionBar, 0f, 0f, 100f);
+        SetSliderValue(hungerBar, 0f, 0f, 100f);
+        SetSliderValue(thirstBar, 0f, 0f, 100f);
+        SetSliderValue(tempBar, 0f, 0f, 1f);
+
+        SetGaugeFill(pollutionGauge, 0f, 100f);
+        SetGaugeFill(hungerGauge, 0f, 100f);
+        SetGaugeFill(thirstGauge, 0f, 100f);
+
+        if (hpText != null) hpText.text = "0%";
+        if (pollutionText != null) pollutionText.text = "0%";
+        if (hungerText != null) hungerText.text = "0%";
+        if (thirstText != null) thirstText.text = "0%";
+        if (tempText != null) tempText.text = "-";
+        if (bodyTemperatureImage != null) bodyTemperatureImage.color = Color.green;
+        if (damageImage != null) damageImage.canvasRenderer.SetAlpha(0f);
+    }
+
     private void HandleStatChanged(StatBase stat, float oldValue, float newValue)
     {
-        if (playerStats == null) return;
+        if (playerStats == null)
+            return;
 
         if (stat == playerStats.Health)
         {
             UpdateHealthUI(newValue, stat.MaxValue);
 
-            if (oldValue - newValue >= 50)
+            if (oldValue - newValue >= 50f)
                 PlayHitEffect().Forget();
 
-            if (newValue / stat.MaxValue <= 0.2f)
+            if (newValue / Mathf.Max(stat.MaxValue, 0.0001f) <= 0.2f)
                 StartLowHealthPulse().Forget();
             else
                 lowHealthCTS?.Cancel();
@@ -176,7 +225,7 @@ public class StatUI : UIBase
         }
         else if (stat == playerStats.Temperature)
         {
-            UpdateTemperatureUI(newValue, stat.MaxValue);
+            UpdateTemperatureUI(newValue);
         }
     }
 
@@ -194,13 +243,11 @@ public class StatUI : UIBase
     private void UpdateThirstBarColor()
     {
         if (thirstBar == null || debuffManager == null) return;
-        // 기존 로직 유지 (주석 해제 가능)
     }
 
     private void UpdateHungerBarColor()
     {
         if (hungerBar == null || debuffManager == null) return;
-        // 기존 로직 유지 (주석 해제 가능)
     }
 
     private void UpdateTemperatureBarColor()
@@ -220,45 +267,80 @@ public class StatUI : UIBase
 
     private void UpdateHealthUI(float value, float maxValue)
     {
-        if (hpBar != null) hpBar.value = value / maxValue;
-        if (hpText != null) hpText.text = $"{((value / maxValue) * 100):F0}%";
+        SetSliderValue(hpBar, value, 0f, maxValue);
+        if (hpText != null) hpText.text = $"{GetPercent(value, maxValue):F0}%";
     }
 
     private void UpdatePollutionUI(float value, float maxValue)
     {
-        if (pollutionBar != null) pollutionBar.value = value / maxValue;
-        if (pollutionGauge != null) pollutionGauge.fillAmount = value / 100;
-        if (pollutionText != null) pollutionText.text = $"{((value / maxValue) * 100):F0}%";
+        SetSliderValue(pollutionBar, value, 0f, maxValue);
+        SetGaugeFill(pollutionGauge, value, maxValue);
+        if (pollutionText != null) pollutionText.text = $"{GetPercent(value, maxValue):F0}%";
     }
 
     private void UpdateHungerUI(float value, float maxValue)
     {
-        if (hungerBar != null) hungerBar.value = value / maxValue;
-        if (hungerGauge != null) hungerGauge.fillAmount = value / 100;
-        if (hungerText != null) hungerText.text = $"{((value / maxValue) * 100):F0}%";
+        SetSliderValue(hungerBar, value, 0f, maxValue);
+        SetGaugeFill(hungerGauge, value, maxValue);
+        if (hungerText != null) hungerText.text = $"{GetPercent(value, maxValue):F0}%";
     }
 
     private void UpdateThirstUI(float value, float maxValue)
     {
-        if (thirstBar != null) thirstBar.value = value / maxValue;
-        if (thirstGauge != null) thirstGauge.fillAmount = value / 100;
-        if (thirstText != null) thirstText.text = $"{((value / maxValue) * 100):F0}%";
+        SetSliderValue(thirstBar, value, 0f, maxValue);
+        SetGaugeFill(thirstGauge, value, maxValue);
+        if (thirstText != null) thirstText.text = $"{GetPercent(value, maxValue):F0}%";
     }
 
-    private void UpdateTemperatureUI(float value, float maxValue)
+    private void UpdateTemperatureUI(float value)
     {
-        if (tempBar != null)
-        {
-            float minTemp = 31f;
-            float maxTemp = playerStats.Temperature.MaxValue;
+        float minTemp = GetMinTemperature();
+        float maxTemp = GetMaxTemperature();
 
-            tempBar.minValue = minTemp;
-            tempBar.maxValue = maxTemp;
-            tempBar.value = value;
-        }
+        SetSliderValue(tempBar, value, minTemp, maxTemp);
 
         if (tempText != null) tempText.text = $"{value:F1}";
         if (bodyTemperatureImage != null) bodyTemperatureImage.color = GetTempColor(value);
+    }
+
+    private float GetMinTemperature()
+    {
+        if (playerStats != null && playerStats.data != null)
+            return playerStats.data.minTemperature;
+
+        return 31f;
+    }
+
+    private float GetMaxTemperature()
+    {
+        if (playerStats != null && playerStats.Temperature != null)
+            return playerStats.Temperature.MaxValue;
+
+        return 43f;
+    }
+
+    private static void SetSliderValue(Slider slider, float value, float minValue, float maxValue)
+    {
+        if (slider == null)
+            return;
+
+        float safeMax = Mathf.Max(maxValue, minValue + 0.0001f);
+        slider.minValue = minValue;
+        slider.maxValue = safeMax;
+        slider.SetValueWithoutNotify(Mathf.Clamp(value, minValue, safeMax));
+    }
+
+    private static void SetGaugeFill(Image image, float value, float maxValue)
+    {
+        if (image == null)
+            return;
+
+        image.fillAmount = Mathf.Clamp01(value / Mathf.Max(maxValue, 0.0001f));
+    }
+
+    private static float GetPercent(float value, float maxValue)
+    {
+        return Mathf.Clamp01(value / Mathf.Max(maxValue, 0.0001f)) * 100f;
     }
 
     public async UniTask PlayHitEffect()
@@ -274,7 +356,8 @@ public class StatUI : UIBase
 
     private async UniTask StartLowHealthPulse()
     {
-        if (playerStats == null) return;
+        if (playerStats == null)
+            return;
 
         lowHealthCTS?.Cancel();
         lowHealthCTS = new CancellationTokenSource();
@@ -282,7 +365,7 @@ public class StatUI : UIBase
 
         try
         {
-            while (playerStats.Health.Value / playerStats.Health.MaxValue <= 0.2f)
+            while (playerStats.Health.Value / Mathf.Max(playerStats.Health.MaxValue, 0.0001f) <= 0.2f)
             {
                 float alpha = Mathf.Lerp(lowHealthAlphaMin, lowHealthAlphaMax,
                     (Mathf.Sin(Time.time * flashSpeed) + 1f) / 2f);

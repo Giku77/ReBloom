@@ -1,4 +1,4 @@
-ï»¿using TMPro;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
@@ -36,7 +36,7 @@ public class ChatUI : MonoBehaviour
 
     private void OnEnable()
     {
-        Debug.Log("[ChatUI] OnEnable ì‹œì‘");
+        Debug.Log("[ChatUI] OnEnable ½ÃÀÛ");
 
         if (ChatManager.I != null)
         {
@@ -81,7 +81,7 @@ public class ChatUI : MonoBehaviour
             inputField.onSubmit.AddListener(OnInputSubmit);
         }
 
-        // ì‹œì‘ ì‹œ ì±„íŒ… ëª¨ë“œ ë¹„í™œì„±í™”
+        // ½ÃÀÛ ½Ã Ã¤ÆÃ ¸ğµå ºñÈ°¼ºÈ­
         SetChatMode(false);
     }
 
@@ -117,10 +117,10 @@ public class ChatUI : MonoBehaviour
         if (inputField == null) return;
         if (EventSystem.current == null) return;
 
-        // í˜„ì¬ ì„ íƒëœ ì˜¤ë¸Œì íŠ¸ê°€ inputFieldê°€ ì•„ë‹ˆë©´ í¬ì»¤ìŠ¤ ë³µêµ¬
+        // ÇöÀç ¼±ÅÃµÈ ¿ÀºêÁ§Æ®°¡ inputField°¡ ¾Æ´Ï¸é Æ÷Ä¿½º º¹±¸
         if (EventSystem.current.currentSelectedGameObject != inputField.gameObject)
         {
-            // ì„¤ì • UIê°€ ì—´ë ¤ìˆëŠ” ì¤‘ì—ëŠ” ë³µêµ¬í•˜ë©´ ì•ˆ ë  ìˆ˜ ìˆìœ¼ë‹ˆ ì¡°ê±´ ì¶”ê°€ ê°€ëŠ¥
+            // ¼³Á¤ UI°¡ ¿­·ÁÀÖ´Â Áß¿¡´Â º¹±¸ÇÏ¸é ¾È µÉ ¼ö ÀÖÀ¸´Ï Á¶°Ç Ãß°¡ °¡´É
             inputField.ActivateInputField();
             inputField.Select();
         }
@@ -131,7 +131,7 @@ public class ChatUI : MonoBehaviour
     private void OnChatToggle(InputAction.CallbackContext context)
     {
         if (isChatMode) return;
-        Debug.Log($"[ChatUI] OnChatToggle í˜¸ì¶œë¨! Phase: {context.phase}, Value: {context.ReadValueAsButton()}");
+        Debug.Log($"[ChatUI] OnChatToggle È£ÃâµÊ! Phase: {context.phase}, Value: {context.ReadValueAsButton()}");
         ToggleChatMode();
     }
 
@@ -154,7 +154,7 @@ public class ChatUI : MonoBehaviour
 
         if (isChatMode)
         {
-            // ì±„íŒ… ëª¨ë“œ í™œì„±í™”
+            // Ã¤ÆÃ ¸ğµå È°¼ºÈ­
             if (hideCursorInGameMode)
             {
                 Cursor.lockState = CursorLockMode.None;
@@ -163,15 +163,15 @@ public class ChatUI : MonoBehaviour
 
             if (inputField != null)
             {
-                // ê°•ì œë¡œ í¬ì»¤ìŠ¤ ì„¤ì •
+                // °­Á¦·Î Æ÷Ä¿½º ¼³Á¤
                 focusCo = StartCoroutine(FocusInputField());
             }
 
-            Debug.Log("[ChatUI] ì±„íŒ… ëª¨ë“œ í™œì„±í™” - ë§ˆìš°ìŠ¤ í‘œì‹œ");
+            Debug.Log("[ChatUI] Ã¤ÆÃ ¸ğµå È°¼ºÈ­ - ¸¶¿ì½º Ç¥½Ã");
         }
         else
         {
-            // ê²Œì„ ëª¨ë“œë¡œ ë³µê·€
+            // °ÔÀÓ ¸ğµå·Î º¹±Í
             if (hideCursorInGameMode)
             {
                 Cursor.lockState = CursorLockMode.Locked;
@@ -186,20 +186,20 @@ public class ChatUI : MonoBehaviour
             if (EventSystem.current != null)
                 EventSystem.current.SetSelectedGameObject(null);
 
-            Debug.Log("[ChatUI] ê²Œì„ ëª¨ë“œë¡œ ë³µê·€ - ë§ˆìš°ìŠ¤ ìˆ¨ê¹€");
+            Debug.Log("[ChatUI] °ÔÀÓ ¸ğµå·Î º¹±Í - ¸¶¿ì½º ¼û±è");
         }
     }
 
     private System.Collections.IEnumerator FocusInputField()
     {
-        // í•œ í”„ë ˆì„ ëŒ€ê¸° í›„ í¬ì»¤ìŠ¤
+        // ÇÑ ÇÁ·¹ÀÓ ´ë±â ÈÄ Æ÷Ä¿½º
         yield return null;
         
         if (inputField != null)
         {
             inputField.ActivateInputField();
             inputField.Select();
-            Debug.Log("[ChatUI] InputFieldì— í¬ì»¤ìŠ¤ ì„¤ì •ë¨");
+            Debug.Log("[ChatUI] InputField¿¡ Æ÷Ä¿½º ¼³Á¤µÊ");
         }
     }
 
@@ -250,7 +250,7 @@ public class ChatUI : MonoBehaviour
         {
             var m = ChatManager.I.Messages[i];
             
-            // ì‹œìŠ¤í…œ ë©”ì‹œì§€ì¸ì§€ ì²´í¬
+            // ½Ã½ºÅÛ ¸Ş½ÃÁöÀÎÁö Ã¼Å©
             if (m.SenderClientId == ulong.MaxValue)
             {
                 sb.Append($"<color=#{ColorUtility.ToHtmlStringRGB(systemMessageColor)}>");
@@ -259,9 +259,12 @@ public class ChatUI : MonoBehaviour
             }
             else
             {
-                string name = PlayerRegistry.I != null
-                    ? PlayerRegistry.I.GetName(m.SenderClientId)
-                    : $"Player#{m.SenderClientId}";
+                string serializedName = m.SenderName.ToString();
+                string name = !string.IsNullOrWhiteSpace(serializedName)
+                    ? serializedName
+                    : (PlayerRegistry.I != null
+                        ? PlayerRegistry.I.GetName(m.SenderClientId)
+                        : $"Player#{m.SenderClientId}");
 
                 sb.Append($"<color=#{ColorUtility.ToHtmlStringRGB(playerMessageColor)}>");
                 sb.Append($"{name}: {m.Text}");
@@ -276,7 +279,7 @@ public class ChatUI : MonoBehaviour
 
         logText.text = sb.ToString();
 
-        // ìë™ ìŠ¤í¬ë¡¤
+        // ÀÚµ¿ ½ºÅ©·Ñ
         if (autoScroll && scrollRect != null)
         {
             Canvas.ForceUpdateCanvases();

@@ -1,14 +1,10 @@
-ï»¿using TMPro;
-using Unity.VisualScripting;
+using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
-
 
 public class WaterTankUI : UIBase
 {
     [SerializeField] private Image backgroundImage;
-    [SerializeField] private GameInventory inventoryItemData;
 
     [Header("UI")]
     [SerializeField] private Button storeWaterButton;
@@ -16,7 +12,8 @@ public class WaterTankUI : UIBase
     [SerializeField] private Button storeContaminatedWaterButton;
     [SerializeField] private TextMeshProUGUI waterLevelText;
     [SerializeField] private Slider waterTankSlider;
-    //[SerializeField] private GameObject StoreRainTextBox;
+
+    private WaterTankInteractable currentTank;
 
     protected override void Awake()
     {
@@ -26,84 +23,110 @@ public class WaterTankUI : UIBase
         retrieveWaterButton.onClick.AddListener(OnRetrieveWaterButtonClicked);
         storeContaminatedWaterButton.onClick.AddListener(OnstoreContaminatedWaterButtonClicked);
 
-        waterTankSlider.value = 0f;
+        if (waterTankSlider != null)
+        {
+            waterTankSlider.minValue = 0f;
+            waterTankSlider.maxValue = 100f;
+            waterTankSlider.value = 0f;
+        }
 
-        //StoreRainTextBox?.SetActive(false);
-    }
-
-    private void OnEnable()
-    {
-        WaterTankManager.OnWaterLevelChange += ChangeWaterLevelUI;
+        ChangeWaterLevelUI(0);
     }
 
     private void OnDisable()
     {
-        WaterTankManager.OnWaterLevelChange -= ChangeWaterLevelUI;
+        UnbindCurrentTank();
     }
 
-    public void Toggle()
+    public void ShowForTank(WaterTankInteractable tank)
     {
         if (UIManager.Instance != null && UIManager.Instance.IsBlockedInput)
             return;
-        UIManager.Instance?.ToggleUI(Type);
-        Debug.Log("[WaterTank] ì›Œí„°íƒ±í¬ UI í† í´ í˜¸ì¶œ");
 
-        if (WaterTankService.I?.Manager != null)
-            ChangeWaterLevelUI(WaterTankService.I.Manager.WaterLevel);
+        BindTank(tank);
 
-        //if (waterTankManager.isRaining)
-            //StoreRainTextBox.SetActive(true);
+        if (UIManager.Instance != null)
+        {
+            if (!IsOpen)
+                UIManager.Instance.ShowUI(Type);
+            else
+                RefreshBoundTankUI();
+        }
+        else
+        {
+            Show();
+        }
+
+        Debug.Log("[WaterTank] ¿öÅÍÅÊÅ© UI Ç¥½Ã È£Ãâ");
+    }
+
+    private void BindTank(WaterTankInteractable tank)
+    {
+        if (currentTank == tank)
+        {
+            RefreshBoundTankUI();
+            return;
+        }
+
+        UnbindCurrentTank();
+        currentTank = tank;
+
+        if (currentTank != null)
+            currentTank.OnWaterLevelChanged += ChangeWaterLevelUI;
+
+        RefreshBoundTankUI();
+    }
+
+    private void UnbindCurrentTank()
+    {
+        if (currentTank != null)
+            currentTank.OnWaterLevelChanged -= ChangeWaterLevelUI;
+
+        currentTank = null;
+    }
+
+    private void RefreshBoundTankUI()
+    {
+        ChangeWaterLevelUI(currentTank != null ? currentTank.WaterLevel : 0);
     }
 
     protected override void OnShow()
     {
         backgroundImage.gameObject.SetActive(true);
-
-        if (WaterTankService.I?.Manager != null)
-            ChangeWaterLevelUI(WaterTankService.I.Manager.WaterLevel);
-
+        RefreshBoundTankUI();
         SoundManager.I?.PlayOpenBox();
-        //if (waterTankManager.isRaining)
-        //    StoreRainTextBox.SetActive(true);
     }
 
     protected override void OnHide()
     {
-        //if (waterTankManager.isRaining)
-        //    StoreRainTextBox.SetActive(false);
-
         SoundManager.I?.PlayCloseCraftingTable();
         backgroundImage.gameObject.SetActive(false);
     }
 
     private void OnStoreWaterButtonClicked()
     {
-        WaterTankService.I?.Manager.StoreWater();
+        currentTank?.RequestStoreWaterFromLocalPlayer();
         SoundManager.I?.PlayWater();
     }
 
     private void OnRetrieveWaterButtonClicked()
     {
-        Debug.Log("[WaterTankUI] ë¬¼ íšŒìˆ˜ ë²„íŠ¼ í´ë¦­");
-        WaterTankService.I?.Manager.RetrieveWater();
+        Debug.Log("[WaterTankUI] ¹° È¸¼ö ¹öÆ° Å¬¸¯");
+        currentTank?.RequestRetrieveWaterFromLocalPlayer();
         SoundManager.I?.PlayWater();
     }
 
     private void ChangeWaterLevelUI(int value)
     {
         if (waterLevelText != null)
-        {
             waterLevelText.text = $"{value}%";
-        }
 
         if (waterTankSlider != null)
-        { 
             waterTankSlider.value = value;
-        }
     }
 
     private void OnstoreContaminatedWaterButtonClicked()
     {
-        ToastMessageUI.Instance.Show("ì˜¨ì‹¤ ì—…ê·¸ë ˆì´ë“œ ì»¨í…ì¸  ì¶”ê°€ ì´í›„ ì‚¬ìš© ê°€ëŠ¥í•©ë‹ˆë‹¤.");
+        ToastMessageUI.Instance.Show("¿Â½Ç ¾÷±×·¹ÀÌµå ÄÁÅÙÃ÷ Ãß°¡ ÀÌÈÄ »ç¿ë °¡´ÉÇÕ´Ï´Ù.");
     }
 }
