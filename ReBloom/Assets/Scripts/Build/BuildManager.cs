@@ -1,4 +1,4 @@
-ï»¿using System;
+using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -99,7 +99,7 @@ public class BuildManager : MonoBehaviour
         {
             int rotIndex = CorridorGrid.GetRotIndex(inst.transform.rotation);
 
-            // baseCell: ê±´ë¬¼ pivot ìœ„ì¹˜ë¥¼ ê¸°ì¤€ ì…€ë¡œ ì“°ëŠ” ë°©ì‹(ê°€ì¥ ë‹¨ìˆœ)
+            // baseCell: °Ç¹° pivot À§Ä¡¸¦ ±âÁØ ¼¿·Î ¾²´Â ¹æ½Ä(°¡Àå ´Ü¼ø)
             Vector2Int baseCell = CorridorGrid.WorldToCell(inst.transform.position);
             CorridorSocketManager.I?.RegisterSockets(sp, baseCell, rotIndex);
         }
@@ -381,38 +381,38 @@ public class BuildManager : MonoBehaviour
     }
 
 
-    // ê¸°ì¡´ ë¡œì§ ê·¸ëŒ€ë¡œ ê²€ì‚¬/ì¬ë£Œì²˜ë¦¬ê¹Œì§€ëŠ” "í´ë¼ UXìš©"ìœ¼ë¡œ ë‘˜ ìˆ˜ ìˆëŠ”ë°,
-    // ë©€í‹°ì—ì„œëŠ” ì‹¤ì œ ì°¨ê°ì€ ì„œë²„ì—ì„œë§Œ í•´ì•¼ ì•ˆì „í•¨.
-    // ê·¸ë˜ì„œ ì—¬ê¸°ì„œëŠ” "í´ë¼ì—ì„œëŠ” í† ìŠ¤íŠ¸/ê²€ì‚¬ë§Œ", ì¬ë£Œ ì°¨ê°ì€ ì„œë²„ì—ì„œ ì²˜ë¦¬í•˜ëŠ” ê±¸ ì¶”ì²œ.
+    // ±âÁ¸ ·ÎÁ÷ ±×´ë·Î °Ë»ç/Àç·áÃ³¸®±îÁö´Â "Å¬¶ó UX¿ë"À¸·Î µÑ ¼ö ÀÖ´Âµ¥,
+    // ¸ÖÆ¼¿¡¼­´Â ½ÇÁ¦ Â÷°¨Àº ¼­¹ö¿¡¼­¸¸ ÇØ¾ß ¾ÈÀüÇÔ.
+    // ±×·¡¼­ ¿©±â¼­´Â "Å¬¶ó¿¡¼­´Â Åä½ºÆ®/°Ë»ç¸¸", Àç·á Â÷°¨Àº ¼­¹ö¿¡¼­ Ã³¸®ÇÏ´Â °É ÃßÃµ.
 
     public bool TryBuild(int arcId, Vector3 pos, Quaternion rot)
     {
         if (!arcDB.TryGet(arcId, out var arc))
         {
-            Debug.LogWarning($"ì—†ëŠ” ê±´ë¬¼: {arcId}");
+            Debug.LogWarning($"¾ø´Â °Ç¹°: {arcId}");
             return false;
         }
 
         if (!IsInBuildableZone())
         {
-            ToastMessageUI.Instance.Show("ì´ ì§€ì—­ì—ì„œëŠ” ê±´ë¬¼ì„ ì§€ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
+            ToastMessageUI.Instance.Show("ÀÌ Áö¿ª¿¡¼­´Â °Ç¹°À» ÁöÀ» ¼ö ¾ø½À´Ï´Ù.");
             return false;
         }
 
         if (!CanBuildAt(arc, pos, rot, out var errorCode))
         {
-            ToastMessageUI.Instance.Show($"ê±´ë¬¼ ì„¤ì¹˜ ë¶ˆê°€: {errorCode}");
+            ToastMessageUI.Instance.Show($"°Ç¹° ¼³Ä¡ ºÒ°¡: {errorCode}");
             return false;
         }
 
-        // ë©€í‹°ë©´ ì„œë²„ì— ìš”ì²­ë§Œ
+        // ¸ÖÆ¼¸é ¼­¹ö¿¡ ¿äÃ»¸¸
         if (NetworkBuildManager.I != null && NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
         {
             NetworkBuildManager.I.RequestBuild(arcId, pos, rot);
             return true;
         }
 
-        // ì˜¤í”„ë¼ì¸/ì‹±ê¸€ì´ë©´ ê¸°ì¡´ ë°©ì‹ ìœ ì§€
+        // ¿ÀÇÁ¶óÀÎ/½Ì±ÛÀÌ¸é ±âÁ¸ ¹æ½Ä À¯Áö
         return Spawn(arc, pos, rot);
     }
 
@@ -474,7 +474,7 @@ public class BuildManager : MonoBehaviour
             Rotation = rot,
             ArcPrefab = arc.buildPrefab,
             FootPrint = footprintProvider.GetFootprint(arc),
-            PlayerTransform = builder,     // âœ… ì„œë²„ì—ì„œë„ ì •í™•í•œ í”Œë ˆì´ì–´ ê¸°ì¤€
+            PlayerTransform = builder,     // ? ¼­¹ö¿¡¼­µµ Á¤È®ÇÑ ÇÃ·¹ÀÌ¾î ±âÁØ
             DepthOffset = depthOffset,
         };
 
@@ -487,10 +487,10 @@ public class BuildManager : MonoBehaviour
         return true;
     }
 
-    // ì„œë²„ì—ì„œ êµ¬ì—­ ì œí•œ ê²€ì¦ë„ í•˜ë ¤ë©´ (StageDetectorê°€ ì„œë²„ì—ë„ ì¡´ì¬í•œë‹¤ëŠ” ì „ì œ)
+    // ¼­¹ö¿¡¼­ ±¸¿ª Á¦ÇÑ °ËÁõµµ ÇÏ·Á¸é (StageDetector°¡ ¼­¹ö¿¡µµ Á¸ÀçÇÑ´Ù´Â ÀüÁ¦)
     public bool IsInBuildableZone_Server(Transform builder)
     {
-        // ì„œë²„ì—ì„œ stageDetectorê°€ ì˜ë¯¸ ìˆê²Œ ë™ì‘í•˜ë„ë¡ êµ¬ì„±ë˜ì–´ ìˆìœ¼ë©´ ê·¸ëŒ€ë¡œ ì‚¬ìš© ê°€ëŠ¥
+        // ¼­¹ö¿¡¼­ stageDetector°¡ ÀÇ¹Ì ÀÖ°Ô µ¿ÀÛÇÏµµ·Ï ±¸¼ºµÇ¾î ÀÖÀ¸¸é ±×´ë·Î »ç¿ë °¡´É
         return IsInBuildableZone();
     }
 
@@ -564,7 +564,7 @@ public class BuildManager : MonoBehaviour
         var buildprefab = arc.buildPrefab != null ? arc.buildPrefab : prefab;
         if (buildprefab == null)
         {
-            Debug.LogError($"í”„ë¦¬íŒ¹ ì—†ìŒ: {arc.arcId}");
+            Debug.LogError($"ÇÁ¸®ÆÕ ¾øÀ½: {arc.arcId}");
             return false;
         }
         var p = Instantiate(buildprefab, adjustedPos, rot);
@@ -594,7 +594,7 @@ public class BuildManager : MonoBehaviour
             CorridorConnectionManager.I.Register(corridorNode);
         }
         if (p.TryGetComponent<InteractionHighlight>(out var highlight))
-          highlight.promptFormat = $"ìƒí˜¸ì‘ìš© [E] : {arc.name}";
+          highlight.promptFormat = $"»óÈ£ÀÛ¿ë [E] : {arc.name}";
         SetupTemporaryPassThrough(p);
         NetworkQuestManager.I?.ReportCraft(arc.arcId);
         AutoSaveService.I?.RequestSave("Build");
@@ -628,7 +628,7 @@ public class BuildManager : MonoBehaviour
     {
         if (inst == null) return false;
 
-        // ë©€í‹°ë©´ ì„œë²„ ìš”ì²­
+        // ¸ÖÆ¼¸é ¼­¹ö ¿äÃ»
         var netObj = inst.GetComponent<NetworkObject>();
         if (netObj != null && netObj.IsSpawned && NetworkBuildManager.I != null && NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
         {
@@ -636,7 +636,7 @@ public class BuildManager : MonoBehaviour
             return true;
         }
 
-        // ì‹±ê¸€ fallback
+        // ½Ì±Û fallback
         if (inst.TryGetComponent<CorridorNode>(out var node))
             CorridorConnectionManager.I.Unregister(node);
 
@@ -658,7 +658,7 @@ public class BuildManager : MonoBehaviour
 
     public void MoveBuilding(BuildingInstance inst, Vector3 newPos, Quaternion newRot)
     {
-        // í•„ìš”í•˜ë©´ ë‹¤ì‹œ ë°”ë‹¥ ë§ì¶”ê¸° or ê·œì¹™ ì²´í¬
+        // ÇÊ¿äÇÏ¸é ´Ù½Ã ¹Ù´Ú ¸ÂÃß±â or ±ÔÄ¢ Ã¼Å©
         inst.transform.SetPositionAndRotation(newPos, newRot);
     }
 
@@ -695,7 +695,7 @@ public class BuildManager : MonoBehaviour
         if (!arcDB.TryGet(arcId, out var arc) || arc.buildPrefab == null)
             return null;
 
-        // ê¸°ì¡´ Spawnê³¼ ë™ì¼í•˜ê²Œ ë°”ë‹¥ ë§ì¶”ê¸°ê¹Œì§€ í•˜ê³  ì‹¶ìœ¼ë©´ TryAdjustToGround ë¡œì§ ì¬ì‚¬ìš©
+        // ±âÁ¸ Spawn°ú µ¿ÀÏÇÏ°Ô ¹Ù´Ú ¸ÂÃß±â±îÁö ÇÏ°í ½ÍÀ¸¸é TryAdjustToGround ·ÎÁ÷ Àç»ç¿ë
         var p = Instantiate(arc.buildPrefab, pos, rot);
 
         var bi = p.GetComponent<BuildingInstance>();
@@ -706,7 +706,7 @@ public class BuildManager : MonoBehaviour
 
         //RegisterBuilding(bi);
 
-        // corridor/íŒ¨ìŠ¤ìŠ¤ë£¨ ë“±ë„ Spawnê³¼ ë™ì¼ ì²˜ë¦¬
+        // corridor/ÆĞ½º½º·ç µîµµ Spawn°ú µ¿ÀÏ Ã³¸®
         if (p.TryGetComponent<CorridorNode>(out var corridorNode))
         {
             var cell = CorridorGrid.WorldToCell(p.transform.position);
@@ -719,6 +719,12 @@ public class BuildManager : MonoBehaviour
         {
             ws.SetContainerGuid(containerGuid);
         }
+
+        var nm = NetworkManager.Singleton;
+        var netObj = p.GetComponent<NetworkObject>();
+        if (netObj != null && nm != null && nm.IsListening && nm.IsServer && !netObj.IsSpawned)
+            netObj.Spawn(true);
+
         return bi;
     }
 

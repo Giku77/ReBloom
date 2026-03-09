@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 public static class GreenhouseUpgradeService
 {
-    // row가 "다음 단계"인지 체크
     public static bool IsUnlocked(GreenhouseUpgradeState state, GreenhouseUpgradeRowData row)
     {
         int done = state.GetCompletedGrade(row.sort);
@@ -29,7 +28,7 @@ public static class GreenhouseUpgradeService
         return true;
     }
 
-    public static bool Purchase(GreenhouseContext ctx, GreenhouseUpgradeState state, GreenhouseUpgradeRowData row, IItemContainer inv)
+    public static bool Purchase(GreenhouseContext ctx, GreenhouseUpgradeState state, GreenhouseUpgradeRowData row, IItemContainer inv, bool playFeedback = true)
     {
         if (!CanPurchase(state, row, inv))
             return false;
@@ -42,12 +41,8 @@ public static class GreenhouseUpgradeService
 
             if (!inv.TryRemoveItem(itemId, count))
             {
-                // 롤백
                 for (int i = 0; i < removed.Count; i++)
-                {
-                    // TryAddItem이 없으면 AddItem으로 대체
                     inv.TryAddItem(removed[i].itemId, removed[i].count);
-                }
                 return false;
             }
 
@@ -55,50 +50,47 @@ public static class GreenhouseUpgradeService
         }
 
         state.SetCompletedGrade(row.sort, row.grade);
-        Apply(ctx, row);
+        Apply(ctx, row, playFeedback);
         return true;
     }
 
-
-    public static void Apply(GreenhouseContext ctx, GreenhouseUpgradeRowData row)
+    public static void Apply(GreenhouseContext ctx, GreenhouseUpgradeRowData row, bool playFeedback = true)
     {
-        // 1) 오브젝트 활성화(테이블의 Active_Prefab1~3)
         foreach (var key in row.ActiveKeys())
             ctx.TryActivate(key);
 
-        // 2) 추가 효과(옵션)
-        // function / isApplyNewArc가 필요하면 여기서 확장
         switch (row.function)
         {
-            case 1: // 재배 구역 추가
-                // 필요하면 FarmBed에 "유효 구역 확장" 같은 로직 연결
-                SoundManager.I?.PlayBuild();
+            case 1:
+                if (playFeedback) SoundManager.I?.PlayBuild();
                 break;
-            case 2: // 스프링클러 설치
-                SoundManager.I?.PlayBuild();
+            case 2:
+                if (playFeedback) SoundManager.I?.PlayBuild();
                 ctx.GetComponentInChildren<GreenhouseSprinklerSystem>(true)?.gameObject.SetActive(true);
                 break;
-            case 3: // 물 탱크 정화기 설치
+            case 3:
                 break;
-            case 4: // 농사용 드론 설치
-                SoundManager.I?.PlayUIClick();
+            case 4:
+                if (playFeedback) SoundManager.I?.PlayUIClick();
                 ctx.GetComponentInChildren<GreenhouseFarmDroneSystem>(true)?.gameObject.SetActive(true);
                 break;
-            case 5: // 농사용 드론 강화
-                SoundManager.I?.PlayUIClick();
-                ctx.GetComponentInChildren<GreenhouseFarmDroneSystem>(true)?.SetAutoFertilize(true);    
+            case 5:
+                if (playFeedback) SoundManager.I?.PlayUIClick();
+                var drone = ctx.GetComponentInChildren<GreenhouseFarmDroneSystem>(true);
+                if (drone != null)
+                {
+                    drone.gameObject.SetActive(true);
+                    drone.SetAutoFertilize(true);
+                }
                 break;
-        }
-
-        if (row.isApplyNewArc)
-        {
-            // TODO: “기능 해금/새 Arc 적용” 같은 시스템이 있으면 호출
         }
     }
 
-    public static void ApplyAllSaved(GreenhouseContext ctx, GreenhouseUpgradeState state, GreenhouseUpgradeDB db)
+    public static void ApplyAllSaved(GreenhouseContext ctx, GreenhouseUpgradeState state, GreenhouseUpgradeDB db, bool playFeedback = false)
     {
-        // 저장된 진행도만큼 누적 적용(비용 차감 X)
+        if (ctx == null || state == null || db == null)
+            return;
+
         foreach (var sort in db.GetAllSorts())
         {
             int savedGrade = state.GetCompletedGrade(sort);
@@ -109,7 +101,7 @@ public static class GreenhouseUpgradeService
             {
                 var row = rows[i];
                 if (row.grade <= savedGrade)
-                    Apply(ctx, row);
+                    Apply(ctx, row, playFeedback);
             }
         }
     }

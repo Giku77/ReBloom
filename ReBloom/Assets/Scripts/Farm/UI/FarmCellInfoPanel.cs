@@ -1,5 +1,6 @@
-Ôªøusing System;
+using System;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -7,56 +8,26 @@ using UnityEngine.UI;
 public class FarmCellInfoPanel : MonoBehaviour
 {
     [SerializeField] private Image cropIcon;
-
     [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private TextMeshProUGUI stateText;
     [SerializeField] private TextMeshProUGUI remainText;
     [SerializeField] private TextMeshProUGUI fertilizerText;
     [SerializeField] private TextMeshProUGUI waterText;
-
     [SerializeField] private Button waterBtn;
     [SerializeField] private Button harvestBtn;
-    [SerializeField] private Button uprootBtn; // ‚ÄúÌååÏ¢Ö(ÎΩëÍ∏∞)‚Äù Í∞ôÏùÄ ÏùòÎØ∏Î°ú Ïì∞Î©¥ Îê®
+    [SerializeField] private Button uprootBtn;
     [SerializeField] private Button fertilizeBtn;
     [SerializeField] private Button closeBtn;
 
     private int currentIndex = -1;
     private FarmBed plot;
+    private InventoryItemData inventory;
+    private float nextRefreshTime;
 
     public event Action<int> OnWaterClicked;
     public event Action<int> OnHarvestClicked;
     public event Action<int> OnUprootClicked;
     public event Action<int> OnFertilizeClicked;
-
-    private float _nextRefreshTime;
-    private void Update()
-    {
-        if (!gameObject.activeInHierarchy) return;
-        if (Time.time >= _nextRefreshTime)
-        {
-            _nextRefreshTime = Time.time + 1f; 
-            Refresh();
-        }
-        if (Keyboard.current == null) return;
-
-        if (Keyboard.current.rKey.wasPressedThisFrame)
-        {
-            if (plot == null || currentIndex < 0) return;
-
-            var cell = plot.Slots[currentIndex];
-            if (cell == null || cell.state != CropSlotState.Growing) return;
-
-            if (!plot.FarmDB.TryGet(cell.cropId, out var cropData)) return;
-
-            var stage = cropData.stages[cell.stageIndex];
-
-            cell.stageTimer = stage.needTime;
-
-            cell.wateredCount = stage.needWater;
-
-            Refresh();
-        }
-    }
 
     private void Awake()
     {
@@ -67,7 +38,38 @@ public class FarmCellInfoPanel : MonoBehaviour
         if (closeBtn) closeBtn.onClick.AddListener(Hide);
     }
 
-    private InventoryItemData inventory;
+    private void Update()
+    {
+        if (!gameObject.activeInHierarchy) return;
+
+        if (Time.time >= nextRefreshTime)
+        {
+            nextRefreshTime = Time.time + 1f;
+            Refresh();
+        }
+
+        if (Keyboard.current == null || !Keyboard.current.rKey.wasPressedThisFrame)
+            return;
+
+        bool isNetworkSession = NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening;
+        if (isNetworkSession)
+            return;
+
+        if (plot == null || currentIndex < 0)
+            return;
+
+        var cell = plot.Slots[currentIndex];
+        if (cell == null || cell.state != CropSlotState.Growing)
+            return;
+
+        if (!plot.FarmDB.TryGet(cell.cropId, out var cropData))
+            return;
+
+        var stage = cropData.stages[cell.stageIndex];
+        cell.stageTimer = stage.needTime;
+        cell.wateredCount = stage.needWater;
+        Refresh();
+    }
 
     public void BindInventory(InventoryItemData inv)
     {
@@ -76,7 +78,7 @@ public class FarmCellInfoPanel : MonoBehaviour
 
     public void Show(int cellIndex, FarmBed plot)
     {
-        this.currentIndex = cellIndex;
+        currentIndex = cellIndex;
         this.plot = plot;
         gameObject.SetActive(true);
         Refresh();
@@ -91,89 +93,84 @@ public class FarmCellInfoPanel : MonoBehaviour
 
     public void Refresh()
     {
-        if (plot == null || currentIndex < 0) return;
+        if (plot == null || currentIndex < 0)
+            return;
 
         var cell = plot.Slots[currentIndex];
+        if (cell == null)
+            return;
+
         if (plot.FarmDB.TryGet(cell.cropId, out var cropData))
         {
-            // ÏàòÌôïÎ¨º ÏïÑÏù¥ÏΩò ÏÑ§Ï†ï (Ï≤´ Î≤àÏß∏ ÎìúÎûç ÏïÑÏù¥ÌÖú)
-            if (cropIcon != null)
+            if (cropIcon != null && cropData.drops != null && cropData.drops.Length > 0)
             {
-                if (cropData.drops != null && cropData.drops.Length > 0)
-                {
-                    var harvestItem = ItemDatabase.I.GetItem(cropData.drops[0].itemId);
-                    if (harvestItem != null && harvestItem.icon != null)
-                        cropIcon.sprite = harvestItem.icon;
-                }
+                var harvestItem = ItemDatabase.I.GetItem(cropData.drops[0].itemId);
+                if (harvestItem != null && harvestItem.icon != null)
+                    cropIcon.sprite = harvestItem.icon;
             }
 
             if (titleText)
-                titleText.text = $"{cropData.cropName}";
+                titleText.text = cropData.cropName;
+
             switch (cell.state)
             {
                 case CropSlotState.Empty:
-                    if (stateText)
-                        stateText.text = "Îπà Ïπ∏";
+                    if (stateText) stateText.text = "∫Û ƒ≠";
                     break;
                 case CropSlotState.Growing:
-                    if (stateText)
-                        stateText.text = $"ÏÑ±Ïû• Ï§ë (Îã®Í≥Ñ {cell.stageIndex + 1})";
+                    if (stateText) stateText.text = $"º∫¿Â ¡ﬂ (¥‹∞Ë {cell.stageIndex + 1})";
                     break;
                 case CropSlotState.Mature:
-                    if (stateText)
-                        stateText.text = "ÏàòÌôï Í∞ÄÎä•";
+                    if (stateText) stateText.text = "ºˆ»Æ ∞°¥…";
                     break;
                 case CropSlotState.Withered:
-                    if (stateText)
-                        stateText.text = "ÏãúÎì¶";
+                    if (stateText) stateText.text = "Ω√µÍ";
                     break;
             }
+
             if (remainText)
             {
                 if (cell.state == CropSlotState.Growing)
                 {
                     var stage = cropData.stages[cell.stageIndex];
-                    float remainTime = stage.needTime - cell.stageTimer;
-                    remainText.text = $"ÎÇ®ÏùÄ ÏãúÍ∞Ñ : {Mathf.CeilToInt(remainTime)}Ï¥à";
+                    float remainTime = Mathf.Max(0f, stage.needTime - cell.stageTimer);
+                    remainText.text = $"≥≤¿∫ Ω√∞£ : {Mathf.CeilToInt(remainTime)}√ ";
                 }
                 else
                 {
-                    remainText.text = $"ÎÇ®ÏùÄ ÏãúÍ∞Ñ : -";
+                    remainText.text = "≥≤¿∫ Ω√∞£ : -";
                 }
             }
+
             if (waterText)
             {
                 if (cell.state == CropSlotState.Growing)
                 {
                     var stage = cropData.stages[cell.stageIndex];
-                    waterText.text = $"Î¨º ÌïÑÏöîÎüâ : {cell.wateredCount} / {stage.needWater}";
+                    waterText.text = $"π∞ « ø‰∑Æ : {cell.wateredCount} / {stage.needWater}";
                 }
                 else
                 {
-                    waterText.text = $"Î¨º ÌïÑÏöîÎüâ : -";
+                    waterText.text = "π∞ « ø‰∑Æ : -";
                 }
             }
+
             if (fertilizerText)
             {
                 if (cell.state == CropSlotState.Growing)
-                {
-                    fertilizerText.text = $"ÎπÑÎ£å ÏãúÍ∞Ñ : {Mathf.CeilToInt(cell.fertilizerRemain)}Ï¥à";
-                }
+                    fertilizerText.text = $"∫Ò∑· Ω√∞£ : {Mathf.CeilToInt(cell.fertilizerRemain)}√ ";
                 else
-                {
-                    fertilizerText.text = $"ÎπÑÎ£å ÏãúÍ∞Ñ : -";
-                }
+                    fertilizerText.text = "∫Ò∑· Ω√∞£ : -";
             }
         }
+
         if (waterBtn) waterBtn.gameObject.SetActive(cell.state == CropSlotState.Growing);
         if (harvestBtn) harvestBtn.gameObject.SetActive(cell.state == CropSlotState.Mature);
         if (uprootBtn) uprootBtn.gameObject.SetActive(cell.state != CropSlotState.Empty);
+
         bool hasFertilizer = inventory != null && inventory.GetItemCount(FarmConst.FertilizerItemId) > 0;
         bool canFertilize = cell.state == CropSlotState.Growing;
-
         if (fertilizeBtn)
-        {
             fertilizeBtn.gameObject.SetActive(canFertilize && hasFertilizer);
-        }
     }
 }

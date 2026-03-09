@@ -1,4 +1,4 @@
-ï»¿using Unity.Netcode;
+using Unity.Netcode;
 using Cysharp.Threading.Tasks;
 using System;
 using System.Threading;
@@ -77,10 +77,10 @@ public class PlayerInteractable : MonoBehaviour
 
         if (currentHighlight != null)
         {
-            // í”„ë¡¬í”„íŠ¸ë§Œ í‘œì‹œ (ë¶ˆë¹› X)
+            // ÇÁ·ÒÇÁÆ®¸¸ Ç¥½Ã (ºÒºû X)
             currentHighlight.ShowPrompt();
 
-            // ì™¸ê³½ì„ ë§Œ ì¼œê¸°
+            // ¿Ü°û¼±¸¸ ÄÑ±â
             if (currentHighlight.TryGetComponent<OutlineToggle>(out var outline))
                 outline.SetOutlined(true);
         }
@@ -130,13 +130,13 @@ public class PlayerInteractable : MonoBehaviour
             Vector3 closestPoint = col.ClosestPoint(transform.position);
             float dist = Vector3.Distance(transform.position, closestPoint);
 
-            // ë²½ ë„ˆë¨¸ ì˜¤ë¸Œì íŠ¸ ì²´í¬
+            // º® ³Ê¸Ó ¿ÀºêÁ§Æ® Ã¼Å©
             Vector3 dir = (closestPoint - transform.position).normalized;
             if (Physics.Raycast(transform.position + Vector3.up * 1f, dir, out RaycastHit hit, dist, ~0))
             {
                 if (hit.collider != col)
                 {
-                    continue; // ì¤‘ê°„ì— ë²½ì´ ìˆìœ¼ë©´ ìŠ¤í‚µ
+                    continue; // Áß°£¿¡ º®ÀÌ ÀÖÀ¸¸é ½ºÅµ
                 }
             }
 
@@ -190,7 +190,7 @@ public class PlayerInteractable : MonoBehaviour
             }
             //else
             //{
-            //    ToastMessageUI.Instance?.Show("ì•„ì§ ì¬ìƒì„± ì¤‘ì…ë‹ˆë‹¤.");
+            //    ToastMessageUI.Instance?.Show("¾ÆÁ÷ Àç»ı¼º ÁßÀÔ´Ï´Ù.");
             //}
             return;
         }
@@ -202,7 +202,7 @@ public class PlayerInteractable : MonoBehaviour
         {
             float holdTime = interactable.HoldTime;
 
-            // ì›”ë“œ ì•„ì´í…œ (ì¦‰ì‹œ ìŠµë“)
+            // ¿ùµå ¾ÆÀÌÅÛ (Áï½Ã ½Àµæ)
             if (interactable is WorldItem)
             {
                 if (!isPlayingPickupAnim)
@@ -235,7 +235,7 @@ public class PlayerInteractable : MonoBehaviour
 
                 if (hilight)
                 {
-                    hilight.promptFormat = $"{msg} ì¤‘...";
+                    hilight.promptFormat = $"{msg} Áß...";
                     hilight.ShowPrompt();
                 }
 
@@ -286,12 +286,12 @@ public class PlayerInteractable : MonoBehaviour
         {
             anim.SetGathering(true);
             //SoundManager.I?.PlayGather(toolType);
-            return "ì¡°ì‚¬";
+            return "Á¶»ç";
         }
-        if (interactable is BuildingInteractableBase) return "ìƒí˜¸ì‘ìš©";
-        if (interactable is WorldDeathBox) return "íšŒìˆ˜";
-        if (interactable is WaterSource) return "ë¬¼ ëœ¨ëŠ”";
-        return "ì‘ì—…";
+        if (interactable is BuildingInteractableBase || interactable is StatusPanelInteractable) return "»óÈ£ÀÛ¿ë";
+        if (interactable is WorldDeathBox) return "È¸¼ö";
+        if (interactable is WaterSource) return "¹° ¶ß´Â";
+        return "ÀÛ¾÷";
     }
 
     public void TriggerInteract()

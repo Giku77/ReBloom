@@ -9,71 +9,86 @@ public class UpgradeNodeUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private TextMeshProUGUI costText;
     [SerializeField] private Button actionButton;
+    [SerializeField] private CanvasGroup canvasGroup;
 
     [Header("Overlays")]
-    [SerializeField] private GameObject lockOverlay;      // 잠금 패널
-    [SerializeField] private GameObject completedOverlay; // (옵션)
-    [SerializeField] private GameObject lackOverlay;      // (옵션)
+    [SerializeField] private GameObject lockOverlay;
+    [SerializeField] private GameObject completedOverlay;
+    [SerializeField] private GameObject lackOverlay;
 
-    private GreenhouseUpgradeRowData _row;
-    private Action<int> _onClick;
+    private GreenhouseUpgradeRowData row;
+    private Action<int> onClick;
 
     private void Awake()
     {
+        if (canvasGroup == null)
+            canvasGroup = GetComponent<CanvasGroup>();
+
         if (actionButton != null)
+        {
             actionButton.onClick.AddListener(() =>
             {
-                if (_row != null) _onClick?.Invoke(_row.upgradeId);
+                if (row != null)
+                    onClick?.Invoke(row.upgradeId);
             });
+        }
     }
 
-    public void Bind(GreenhouseUpgradeRowData row, Action<int> onClick)
+    public void Bind(GreenhouseUpgradeRowData upgradeRow, Action<int> clickHandler)
     {
-        _row = row;
-        _onClick = onClick;
+        row = upgradeRow;
+        onClick = clickHandler;
 
         if (titleText != null)
-            titleText.text = row.upgradeName;
+            titleText.text = upgradeRow.upgradeName;
 
         if (costText != null)
-            costText.text = BuildCostText(row);
+            costText.text = BuildCostText(upgradeRow);
     }
 
     public void RefreshState(
         GreenhouseUpgradeState state,
-        GreenhouseUpgradeRowData row,
+        GreenhouseUpgradeRowData upgradeRow,
         bool completed,
         bool unlocked,
         bool affordable)
     {
-        // 잠금: 아직 해금 안 됨
         if (lockOverlay != null)
             lockOverlay.SetActive(!completed && !unlocked);
 
-        // 완료
         if (completedOverlay != null)
             completedOverlay.SetActive(completed);
 
-        // 재료 부족
         if (lackOverlay != null)
             lackOverlay.SetActive(!completed && unlocked && !affordable);
 
-        // 버튼 활성
         if (actionButton != null)
-            actionButton.interactable = (!completed && unlocked && affordable);
+            actionButton.interactable = !completed && unlocked;
+
+        if (canvasGroup != null)
+        {
+            if (completed)
+                canvasGroup.alpha = 1f;
+            else if (!unlocked)
+                canvasGroup.alpha = 0.45f;
+            else if (!affordable)
+                canvasGroup.alpha = 0.85f;
+            else
+                canvasGroup.alpha = 1f;
+        }
     }
 
-    private string BuildCostText(GreenhouseUpgradeRowData row)
+    private string BuildCostText(GreenhouseUpgradeRowData upgradeRow)
     {
         var parts = new System.Collections.Generic.List<string>();
-        var itemName1 = ItemDatabase.I.GetItem(row.needItem1)?.itemName ?? "???";
-        var itemName2 = ItemDatabase.I.GetItem(row.needItem2)?.itemName ?? "???";
+        var itemName1 = ItemDatabase.I.GetItem(upgradeRow.needItem1)?.itemName ?? "???";
+        var itemName2 = ItemDatabase.I.GetItem(upgradeRow.needItem2)?.itemName ?? "???";
 
-        if (row.needItem1 != 0 && row.needCount1 > 0)
-            parts.Add($"{itemName1} x{row.needCount1}");
-        if (row.needItem2 != 0 && row.needCount2 > 0)
-            parts.Add($"{itemName2} x{row.needCount2}");
+        if (upgradeRow.needItem1 != 0 && upgradeRow.needCount1 > 0)
+            parts.Add($"{itemName1} x{upgradeRow.needCount1}");
+        if (upgradeRow.needItem2 != 0 && upgradeRow.needCount2 > 0)
+            parts.Add($"{itemName2} x{upgradeRow.needCount2}");
 
-        return parts.Count > 0 ? string.Join("  ", parts) : "";
+        return parts.Count > 0 ? string.Join("  ", parts) : string.Empty;
     }
 }

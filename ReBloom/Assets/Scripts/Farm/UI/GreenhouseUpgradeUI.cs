@@ -1,104 +1,160 @@
-Ôªøusing System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GreenhouseUpgradeUI : UIBase
 {
     [Header("Grid")]
-    [SerializeField] private Transform slotRoot;          // GridLayoutGroup Î∂ôÏùÄ Î∂ÄÎ™®
+    [SerializeField] private Transform slotRoot;
     [SerializeField] private UpgradeNodeUI slotPrefab;
 
-    private IItemContainer _inventory;
+    private InventoryItemData inventoryItemData;
+    private GreenhouseContext greenhouseContext;
+    private GreenhouseUpgradeDB upgradeDB;
 
-    private GreenhouseContext _ctx;
-    private GreenhouseUpgradeState _state;
-    private GreenhouseUpgradeDB _db;
+    private readonly List<UpgradeNodeUI> slots = new();
+    private readonly List<GreenhouseUpgradeRowData> rows = new();
 
-    private readonly List<UpgradeNodeUI> _slots = new();
-    private readonly List<GreenhouseUpgradeRowData> _rows = new();
-
-    public void Open(GreenhouseContext ctx, GreenhouseUpgradeState state, GreenhouseUpgradeDB db, IItemContainer inventory)
+    public void Open(GreenhouseContext ctx, GreenhouseUpgradeDB db, InventoryItemData inventory)
     {
-        _ctx = ctx;
-        _state = state;
-        _db = db;
-        _inventory = inventory;
-        BuildFromDB();   // Ïä¨Î°Ø ÏÉùÏÑ±/Î∞∞Ïπò
-        RefreshAll();    // Ïû†Í∏à/Î≤ÑÌäº/ÎπÑÏö© ÌëúÏãú Í∞±Ïã†
+        bool wasOpen = IsOpen;
+
+        Unbind();
+
+        greenhouseContext = ctx;
+        upgradeDB = db;
+        inventoryItemData = inventory;
+
+        if (greenhouseContext != null)
+            greenhouseContext.OnUpgradeStateChanged += RefreshAll;
+
+        if (inventoryItemData != null)
+            inventoryItemData.OnContainerChanged += RefreshAll;
+
+        BuildFromDB();
+        RefreshAll();
         UIManager.Instance.ShowUI(UIType.FarmUpgrade);
+
+        if (!wasOpen)
+            SoundManager.I?.PlayTvOn();
+    }
+
+    public override void Hide()
+    {
+        bool wasOpen = IsOpen;
+
+        Unbind();
+        base.Hide();
+        UIManager.Instance.HideUI(UIType.FarmUpgrade);
+
+        if (wasOpen)
+            SoundManager.I?.PlayTvOff();
+    }
+
+    private void OnDisable()
+    {
+        Unbind();
+    }
+
+    private void Unbind()
+    {
+        if (greenhouseContext != null)
+            greenhouseContext.OnUpgradeStateChanged -= RefreshAll;
+
+        if (inventoryItemData != null)
+            inventoryItemData.OnContainerChanged -= RefreshAll;
+
+        greenhouseContext = null;
+        inventoryItemData = null;
+        upgradeDB = null;
     }
 
     private void BuildFromDB()
     {
-        _rows.Clear();
+        rows.Clear();
+        if (upgradeDB == null)
+            return;
 
         AddSortRows(1);
         AddSortRows(2);
         AddSortRows(3);
 
+        EnsureSlotCount(rows.Count);
+
+        for (int i = 0; i < rows.Count; i++)
+            slots[i].Bind(rows[i], OnClickUpgrade);
+
         void AddSortRows(int sort)
         {
-            var list = _db.GetRowsBySort(sort);
+            var list = upgradeDB.GetRowsBySort(sort);
             for (int i = 0; i < list.Count; i++)
-                _rows.Add(list[i]);
+                rows.Add(list[i]);
         }
-
-        // 2) Ïä¨Î°Ø Ïàò ÎßûÏ∂îÍ∏∞
-        EnsureSlotCount(_rows.Count);
-
-        // 3) Í∞Å Ïä¨Î°ØÏóê row Î∞îÏù∏Îî©
-        for (int i = 0; i < _rows.Count; i++)
-            _slots[i].Bind(_rows[i], OnClickUpgrade);
     }
 
     private void EnsureSlotCount(int count)
     {
-        while (_slots.Count < count)
+        while (slots.Count < count)
         {
             var inst = Instantiate(slotPrefab, slotRoot);
-            _slots.Add(inst);
+            slots.Add(inst);
         }
 
-        for (int i = _slots.Count - 1; i >= count; i--)
+        for (int i = slots.Count - 1; i >= count; i--)
         {
-            Destroy(_slots[i].gameObject);
-            _slots.RemoveAt(i);
+            Destroy(slots[i].gameObject);
+            slots.RemoveAt(i);
         }
     }
 
     public void RefreshAll()
     {
-        for (int i = 0; i < _rows.Count; i++)
+        if (greenhouseContext == null || upgradeDB == null)
+            return;
+
+        var state = greenhouseContext.GetRuntimeStateSnapshot();
+
+        for (int i = 0; i < rows.Count; i++)
         {
-            var row = _rows[i];
-
-            bool completed = GreenhouseUpgradeService.IsCompleted(_state, row);
-            bool unlocked  = GreenhouseUpgradeService.IsUnlocked(_state, row);
-            bool affordable = unlocked && CanAfford(row); // TODO Ïù∏Î≤§ Ï≤¥ÌÅ¨
-
-            _slots[i].RefreshState(_state, row, completed, unlocked, affordable);
+            var row = rows[i];
+            bool completed = GreenhouseUpgradeService.IsCompleted(state, row);
+            bool unlocked = GreenhouseUpgradeService.IsUnlocked(state, row);
+            bool affordable = unlocked && CanAfford(state, row);
+            slots[i].RefreshState(state, row, completed, unlocked, affordable);
         }
     }
 
-    private bool CanAfford(GreenhouseUpgradeRowData row)
+    private bool CanAfford(GreenhouseUpgradeState state, GreenhouseUpgradeRowData row)
     {
-        // TODO: Ïù∏Î≤§ÏóêÏÑú Ïû¨Î£å Ï∂©Î∂ÑÌïúÏßÄ Ï≤¥ÌÅ¨
-        return true;
+        return inventoryItemData != null && GreenhouseUpgradeService.CanPurchase(state, row, inventoryItemData);
     }
 
     private void OnClickUpgrade(int upgradeId)
     {
-        if (!_db.TryGet(upgradeId, out var row)) return;
+        if (greenhouseContext == null || upgradeDB == null || !upgradeDB.TryGet(upgradeId, out var row))
+            return;
 
-
-        if (GreenhouseUpgradeService.Purchase(_ctx, _state, row, _inventory))
-        {
-            RefreshAll();
-        }
-        else
+        var state = greenhouseContext.GetRuntimeStateSnapshot();
+        if (!GreenhouseUpgradeService.IsUnlocked(state, row))
         {
             SoundManager.I?.PlayError();
-            ToastMessageUI.Instance?.Show("Ïû¨Î£åÍ∞Ä Î∂ÄÏ°±Ìï©ÎãàÎã§.");
+            ToastMessageUI.Instance?.Show("º±«‡ æ˜±◊∑π¿ÃµÂ∏¶ ∏’¿˙ «ÿ±›«œººø‰.");
+            return;
         }
-    }
 
+        if (!GreenhouseUpgradeService.CanPurchase(state, row, inventoryItemData))
+        {
+            SoundManager.I?.PlayError();
+            ToastMessageUI.Instance?.Show("¿Á∑·∞° ∫Œ¡∑«’¥œ¥Ÿ.");
+            return;
+        }
+
+        if (greenhouseContext.RequestPurchaseFromLocalPlayer(upgradeId))
+        {
+            RefreshAll();
+            return;
+        }
+
+        SoundManager.I?.PlayError();
+        ToastMessageUI.Instance?.Show("¿Á∑·∞° ∫Œ¡∑«’¥œ¥Ÿ.");
+    }
 }

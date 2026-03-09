@@ -1,4 +1,5 @@
-Ôªøusing UnityEngine;
+using Cysharp.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using Unity.Netcode;
@@ -26,7 +27,7 @@ public class DayNightCycle : NetworkBehaviour
     public Light moon;
 
     [Header("Time Settings")]
-    public float dayLengthInSeconds = 2160f; // 36Î∂Ñ = Í≤åÏûÑ ÌïòÎ£®
+    public float dayLengthInSeconds = 2160f; // 36∫– = ∞‘¿” «œ∑Á
     [Range(0f, 2160f)]
     [SerializeField] private float initialCurrentTime = 0f;
     [SerializeField] private int initialDay = 1;
@@ -76,7 +77,7 @@ public class DayNightCycle : NetworkBehaviour
 
     public int CurrentDay { get; private set; } = 1;
     public DayCycle CurrentDayCycle { get; private set; } = DayCycle.Day;
-    public string CurrentDayName { get; private set; } = "ÎÇÆ";
+    public string CurrentDayName { get; private set; } = "≥∑";
 
     private Color originalEmissionColor;
 
@@ -88,21 +89,21 @@ public class DayNightCycle : NetworkBehaviour
     private float _snapshotSyncTimer;
 
     // -------------------------
-    // ÏÑúÎ≤Ñ Í∂åÏúÑ ÏõêÎ≥∏ ÏÉÅÌÉú
+    // º≠πˆ ±«¿ß ø¯∫ª ªÛ≈¬
     // -------------------------
     private float _serverCurrentTime;
     private int _serverCurrentDay = 1;
 
     // -------------------------
-    // ÌÅ¥Îùº/Í≥µÏö© Îü∞ÌÉÄÏûÑ Ï∫êÏãú
-    // Ïù¥ Í∞íÏùÑ Í∏∞Ï§ÄÏúºÎ°ú Î†åÎçîÎßÅ/UI Í≥ÑÏÇ∞
+    // ≈¨∂Û/∞¯øÎ ∑±≈∏¿” ƒ≥Ω√
+    // ¿Ã ∞™¿ª ±‚¡ÿ¿∏∑Œ ∑ª¥ı∏µ/UI ∞ËªÍ
     // -------------------------
     private float _runtimeCurrentTime;
     private int _runtimeCurrentDay = 1;
 
     // -------------------------
-    // ÎÑ§Ìä∏ÏõåÌÅ¨ Ïä§ÎÉÖÏÉ∑
-    // Îß§ ÌîÑÎ†àÏûÑ Ï†ÑÏÜ° Ïïà ÌïòÍ≥† Ïä§ÎÉÖÏÉ∑Îßå ÎèôÍ∏∞Ìôî
+    // ≥◊∆Æøˆ≈© Ω∫≥¿º¶
+    // ∏≈ «¡∑π¿” ¿¸º€ æ» «œ∞Ì Ω∫≥¿º¶∏∏ µø±‚»≠
     // -------------------------
     private readonly NetworkVariable<float> syncedCurrentTime = new(
         0f,
@@ -119,6 +120,18 @@ public class DayNightCycle : NetworkBehaviour
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Server);
 
+    private NetworkList<SleepingPlayerEntry> sleepingPlayers;
+    private bool localSleepPending;
+    private bool localSleepFullyDark;
+    private bool localWakeRequested;
+    private bool localWakeInProgress;
+    private bool localSleepCancelRequested;
+    private string localSleepSuccessMessage;
+
+    private const float SleepFadeDuration = 1.5f;
+    private const string DefaultSleepSuccessMessage = "∏µÁ «√∑π¿ÃæÓ∞° ¿·µÈæÓ æ∆ƒß¿Ã µ«æ˙Ω¿¥œ¥Ÿ.";
+    private const string WaitingForOthersSleepMessage = "¥Ÿ∏• «√∑π¿ÃæÓ∞° ¿·µÈ±‚∏¶ ±‚¥Ÿ∏Æ¥¬ ¡ﬂ¿‘¥œ¥Ÿ.";
+
     private bool HasNetworkSession =>
         NetworkManager.Singleton != null &&
         NetworkManager.Singleton.IsListening &&
@@ -132,6 +145,8 @@ public class DayNightCycle : NetworkBehaviour
             Destroy(gameObject);
             return;
         }
+
+        sleepingPlayers = new NetworkList<SleepingPlayerEntry>();
     }
 
     private void Start()
@@ -145,7 +160,7 @@ public class DayNightCycle : NetworkBehaviour
         if (cloudRenderer != null)
             originalEmissionColor = cloudRenderer.material.GetColor("_EmissionColor");
 
-        // Ïò§ÌîÑÎùºÏù∏/Ïã±Í∏Ä ÌîåÎ†àÏù¥ fallback Ï¥àÍ∏∞Í∞í
+        // ø¿«¡∂Û¿Œ/ΩÃ±€ «√∑π¿Ã fallback √ ±‚∞™
         _serverCurrentTime = Mathf.Clamp(initialCurrentTime, 0f, dayLengthInSeconds - 0.001f);
         _serverCurrentDay = Mathf.Max(1, initialDay);
 
@@ -166,8 +181,13 @@ public class DayNightCycle : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
+        if (sleepingPlayers == null)
+            sleepingPlayers = new NetworkList<SleepingPlayerEntry>();
+
         if (IsServer)
         {
+            sleepingPlayers.Clear();
+            NetworkManager.OnClientDisconnectCallback += HandleSleepClientDisconnected;
             _serverCurrentTime = Mathf.Clamp(initialCurrentTime, 0f, dayLengthInSeconds - 0.001f);
             _serverCurrentDay = Mathf.Max(1, initialDay);
             PushSnapshot(force: true);
@@ -179,6 +199,9 @@ public class DayNightCycle : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
+        if (IsServer && NetworkManager != null)
+            NetworkManager.OnClientDisconnectCallback -= HandleSleepClientDisconnected;
+
         base.OnNetworkDespawn();
     }
 
@@ -208,7 +231,7 @@ public class DayNightCycle : NetworkBehaviour
         }
         else
         {
-            // Ïã±Í∏Ä/Ïò§ÌîÑÎùºÏù∏ fallback
+            // ΩÃ±€/ø¿«¡∂Û¿Œ fallback
             TickOfflineTime();
             _runtimeCurrentTime = _serverCurrentTime;
             _runtimeCurrentDay = _serverCurrentDay;
@@ -223,12 +246,15 @@ public class DayNightCycle : NetworkBehaviour
         UpdateCloudAlpha();
         ApplyEnvironment();
 
+        if (localSleepPending && !localWakeRequested && ShouldCancelLocalSleepInput())
+            RequestCancelCollectiveSleep();
+
         if (Keyboard.current != null && Keyboard.current.kKey.wasPressedThisFrame)
             PrintDebugInfo();
     }
 
     // =========================================================
-    // ÏÑúÎ≤Ñ / Ïò§ÌîÑÎùºÏù∏ ÏãúÍ∞Ñ ÏßÑÌñâ
+    // º≠πˆ / ø¿«¡∂Û¿Œ Ω√∞£ ¡¯«‡
     // =========================================================
 
     private void TickServerTime()
@@ -248,7 +274,7 @@ public class DayNightCycle : NetworkBehaviour
 
         if (lastHour != currentHour && currentHour == 0)
         {
-            // ÏûêÏ†ï ÏßÑÏûÖ Ïãú Ï†ÄÏû•
+            // ¿⁄¡§ ¡¯¿‘ Ω√ ¿˙¿Â
             AutoSaveService.I?.RequestSave("DayChanged");
         }
 
@@ -346,7 +372,7 @@ public class DayNightCycle : NetworkBehaviour
     }
 
     // =========================================================
-    // Í≥µÍ∞ú API (ÏÑúÎ≤Ñ Í∂åÏúÑ)
+    // ∞¯∞≥ API (º≠πˆ ±«¿ß)
     // =========================================================
 
     public void SetTime(int day, int hour, int minute)
@@ -391,6 +417,88 @@ public class DayNightCycle : NetworkBehaviour
         else hoursToAdvance = 24 - currentHour + 7;
 
         AdvanceHours(hoursToAdvance);
+    }
+
+    public bool RequestCollectiveSleep(PlayerController player, string successMessage = null)
+    {
+        if (player == null)
+            return false;
+
+        if (!HasNetworkSession)
+            return false;
+
+        if (localSleepPending)
+        {
+            ToastMessageUI.Instance?.Show(WaitingForOthersSleepMessage);
+            return true;
+        }
+
+        localSleepSuccessMessage = string.IsNullOrWhiteSpace(successMessage)
+            ? DefaultSleepSuccessMessage
+            : successMessage;
+
+        if (IsServer)
+            RegisterSleepingClientServer(NetworkManager.Singleton.LocalClientId, localSleepSuccessMessage);
+        else
+            RequestEnterSleepRpc(localSleepSuccessMessage);
+
+        return true;
+    }
+
+    public void RequestCancelCollectiveSleep()
+    {
+        if (!HasNetworkSession || !localSleepPending || localWakeRequested)
+            return;
+
+        localSleepCancelRequested = true;
+
+        if (IsServer)
+            RemoveSleepingClientServer(NetworkManager.Singleton.LocalClientId);
+        else
+            RequestCancelSleepRpc();
+
+        if (localSleepFullyDark)
+            CompleteLocalSleepCancel().Forget();
+    }
+
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void RequestEnterSleepRpc(string successMessage, RpcParams rpcParams = default)
+    {
+        RegisterSleepingClientServer(rpcParams.Receive.SenderClientId, successMessage);
+    }
+
+    [Rpc(SendTo.SpecifiedInParams)]
+    private void BeginSleepClientRpc(string successMessage, RpcParams rpcParams = default)
+    {
+        BeginLocalSleepWaiting(successMessage).Forget();
+    }
+
+    [Rpc(SendTo.SpecifiedInParams)]
+    private void CompleteSleepClientRpc(string successMessage, RpcParams rpcParams = default)
+    {
+        localWakeRequested = true;
+        if (!string.IsNullOrWhiteSpace(successMessage))
+            localSleepSuccessMessage = successMessage;
+
+        if (localSleepFullyDark)
+            CompleteLocalSleepWake().Forget();
+    }
+
+    [Rpc(SendTo.SpecifiedInParams)]
+    private void SleepDeniedClientRpc(string message, RpcParams rpcParams = default)
+    {
+        if (!string.IsNullOrWhiteSpace(message))
+            ToastMessageUI.Instance?.Show(message);
+    }
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void RequestCancelSleepRpc(RpcParams rpcParams = default)
+    {
+        if (!IsServer)
+            return;
+
+        RemoveSleepingClientServer(rpcParams.Receive.SenderClientId);
     }
 
     [Rpc(SendTo.Server)]
@@ -490,7 +598,7 @@ public class DayNightCycle : NetworkBehaviour
     }
 
     // =========================================================
-    // ÏãúÍ∞Ñ Í≥ÑÏÇ∞
+    // Ω√∞£ ∞ËªÍ
     // =========================================================
 
     public int GetCurrentHour()
@@ -531,7 +639,7 @@ public class DayNightCycle : NetworkBehaviour
     }
 
     // =========================================================
-    // ÎπÑÏ£ºÏñº / ÌôòÍ≤Ω Ï†ÅÏö©
+    // ∫Ò¡÷æÛ / »Ø∞Ê ¿˚øÎ
     // =========================================================
 
     private void UpdateDayCycle()
@@ -541,27 +649,27 @@ public class DayNightCycle : NetworkBehaviour
         if (hour >= 5 && hour < 7)
         {
             CurrentDayCycle = DayCycle.Dawn;
-            CurrentDayName = "ÏùºÏ∂ú";
+            CurrentDayName = "¿œ√‚";
         }
         else if (hour >= 7 && hour < 11)
         {
             CurrentDayCycle = DayCycle.Morning;
-            CurrentDayName = "ÏïÑÏπ®";
+            CurrentDayName = "æ∆ƒß";
         }
         else if (hour >= 11 && hour < 17)
         {
             CurrentDayCycle = DayCycle.Day;
-            CurrentDayName = "ÎÇÆ";
+            CurrentDayName = "≥∑";
         }
         else if (hour >= 17 && hour < 19)
         {
             CurrentDayCycle = DayCycle.Dusk;
-            CurrentDayName = "ÏùºÎ™∞";
+            CurrentDayName = "¿œ∏Ù";
         }
         else
         {
             CurrentDayCycle = DayCycle.Night;
-            CurrentDayName = "Î∞§";
+            CurrentDayName = "π„";
         }
     }
 
@@ -690,9 +798,9 @@ public class DayNightCycle : NetworkBehaviour
         Debug.Log($"========== Day {CurrentDay} - {GetCurrentHour():D2}:{GetCurrentMinute():D2} ({CurrentDayName}) ==========");
         Debug.Log($"Runtime Time (seconds): {_runtimeCurrentTime:F1}s");
         Debug.Log($"Server Time (seconds): {_serverCurrentTime:F1}s");
-        Debug.Log($"Time Temp Delta: {TimeTempDelta:F1}¬∞C");
-        Debug.Log($"Sun Angle (X): {SunAngle:F1}¬∞");
-        Debug.Log($"Sun Y Rotation: {SunYRotation:F1}¬∞");
+        Debug.Log($"Time Temp Delta: {TimeTempDelta:F1}°∆C");
+        Debug.Log($"Sun Angle (X): {SunAngle:F1}°∆");
+        Debug.Log($"Sun Y Rotation: {SunYRotation:F1}°∆");
         Debug.Log($"Sun Intensity: {(sun != null ? sun.intensity : 0f):F2}");
         Debug.Log($"Sun Enabled: {(sun != null && sun.enabled)}");
         Debug.Log($"IsServer={IsServer}, IsClient={IsClient}, IsSpawned={IsSpawned}");
@@ -729,6 +837,278 @@ public class DayNightCycle : NetworkBehaviour
             sunAngleCurve.SmoothTangents(i, 0.5f);
     }
 
+    private bool ShouldCancelLocalSleepInput()
+    {
+        if (Keyboard.current != null)
+        {
+            if (Keyboard.current.wKey.wasPressedThisFrame ||
+                Keyboard.current.aKey.wasPressedThisFrame ||
+                Keyboard.current.sKey.wasPressedThisFrame ||
+                Keyboard.current.dKey.wasPressedThisFrame ||
+                Keyboard.current.upArrowKey.wasPressedThisFrame ||
+                Keyboard.current.downArrowKey.wasPressedThisFrame ||
+                Keyboard.current.leftArrowKey.wasPressedThisFrame ||
+                Keyboard.current.rightArrowKey.wasPressedThisFrame)
+            {
+                return true;
+            }
+        }
+
+        if (Gamepad.current != null && Gamepad.current.leftStick.ReadValue().sqrMagnitude > 0.25f)
+            return true;
+
+        return false;
+    }
+
+    private void HandleSleepClientDisconnected(ulong clientId)
+    {
+        if (!IsServer)
+            return;
+
+        if (!RemoveSleepingClientServer(clientId))
+            return;
+
+        TryResolveCollectiveSleepServer();
+    }
+
+    private void RegisterSleepingClientServer(ulong clientId, string successMessage)
+    {
+        if (!IsServer)
+            return;
+
+        if (!IsNightTime())
+        {
+            SleepDeniedClientRpc("ºˆ∏È ƒ∏Ω∂¿∫ π„ø°∏∏ ªÁøÎ«“ ºˆ ¿÷Ω¿¥œ¥Ÿ.", RpcTarget.Single(clientId, RpcTargetUse.Temp));
+            return;
+        }
+
+        if (IsSleepingClientServer(clientId))
+            return;
+
+        sleepingPlayers.Add(new SleepingPlayerEntry { ClientId = clientId });
+
+        if (clientId == NetworkManager.Singleton.LocalClientId)
+            BeginLocalSleepWaiting(successMessage).Forget();
+        else
+            BeginSleepClientRpc(successMessage, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+
+        TryResolveCollectiveSleepServer();
+    }
+
+    private bool IsSleepingClientServer(ulong clientId)
+    {
+        if (sleepingPlayers == null)
+            return false;
+
+        for (int i = 0; i < sleepingPlayers.Count; i++)
+        {
+            if (sleepingPlayers[i].ClientId == clientId)
+                return true;
+        }
+
+        return false;
+    }
+
+    private bool RemoveSleepingClientServer(ulong clientId)
+    {
+        if (sleepingPlayers == null)
+            return false;
+
+        for (int i = sleepingPlayers.Count - 1; i >= 0; i--)
+        {
+            if (sleepingPlayers[i].ClientId != clientId)
+                continue;
+
+            sleepingPlayers.RemoveAt(i);
+            return true;
+        }
+
+        return false;
+    }
+
+    private void TryResolveCollectiveSleepServer()
+    {
+        if (!IsServer || sleepingPlayers == null || sleepingPlayers.Count == 0)
+            return;
+
+        if (!AreAllConnectedPlayersSleepingServer())
+            return;
+
+        string successMessage = DefaultSleepSuccessMessage;
+
+        for (int i = 0; i < sleepingPlayers.Count; i++)
+            RestoreSleepingPlayerHealthServer(sleepingPlayers[i].ClientId);
+
+        SleepUntilMorning();
+
+        for (int i = 0; i < sleepingPlayers.Count; i++)
+        {
+            ulong clientId = sleepingPlayers[i].ClientId;
+            if (clientId == NetworkManager.Singleton.LocalClientId)
+            {
+                localWakeRequested = true;
+                if (localSleepFullyDark)
+                    CompleteLocalSleepWake().Forget();
+            }
+            else
+            {
+                CompleteSleepClientRpc(successMessage, RpcTarget.Single(clientId, RpcTargetUse.Temp));
+            }
+        }
+
+        sleepingPlayers.Clear();
+    }
+
+    private bool AreAllConnectedPlayersSleepingServer()
+    {
+        if (!IsServer || NetworkManager == null)
+            return false;
+
+        if (NetworkManager.ConnectedClientsIds.Count == 0)
+            return false;
+
+        foreach (ulong clientId in NetworkManager.ConnectedClientsIds)
+        {
+            if (!IsSleepingClientServer(clientId))
+                return false;
+        }
+
+        return true;
+    }
+
+    private void RestoreSleepingPlayerHealthServer(ulong clientId)
+    {
+        if (!IsServer || NetworkManager == null)
+            return;
+
+        if (!NetworkManager.ConnectedClients.TryGetValue(clientId, out var client))
+            return;
+
+        var playerObject = client.PlayerObject;
+        if (playerObject == null)
+            return;
+
+        var gate = playerObject.GetComponent<NetworkPlayerOwnerGate>();
+        var stats = playerObject.GetComponent<PlayerStats>();
+        if (gate == null || stats == null)
+            return;
+
+        gate.RequestAuthoritativeResurrection(
+            stats.Health.MaxValue,
+            stats.Hunger.Value,
+            stats.Thirst.Value,
+            stats.Pollution.Value,
+            stats.Temperature.Value);
+    }
+
+    private async UniTaskVoid BeginLocalSleepWaiting(string successMessage)
+    {
+        if (localSleepPending || UIManager.Instance == null)
+            return;
+
+        var effectUI = UIManager.Instance.GetUI<PlayerEffectUI>(UIType.PlayerEffect);
+        var localPlayer = NetworkManager.Singleton?.LocalClient?.PlayerObject?.GetComponent<PlayerController>();
+        if (effectUI == null || localPlayer == null)
+            return;
+
+        localSleepPending = true;
+        localSleepFullyDark = false;
+        localWakeRequested = false;
+        localWakeInProgress = false;
+        localSleepCancelRequested = false;
+        localSleepSuccessMessage = string.IsNullOrWhiteSpace(successMessage) ? DefaultSleepSuccessMessage : successMessage;
+
+        localPlayer.SetBlocked(true);
+        UIManager.Instance.SetBlockingInput(true);
+
+        await effectUI.FadeToBlack(SleepFadeDuration);
+        SoundManager.I?.PlayYawn();
+
+        localSleepFullyDark = true;
+
+        if (localWakeRequested)
+        {
+            CompleteLocalSleepWake().Forget();
+            return;
+        }
+
+        if (localSleepCancelRequested)
+        {
+            CompleteLocalSleepCancel().Forget();
+            return;
+        }
+
+        ToastMessageUI.Instance?.Show(WaitingForOthersSleepMessage);
+    }
+
+    private async UniTaskVoid CompleteLocalSleepWake()
+    {
+        if (!localSleepPending || localWakeInProgress || UIManager.Instance == null)
+            return;
+
+        localWakeInProgress = true;
+
+        var effectUI = UIManager.Instance.GetUI<PlayerEffectUI>(UIType.PlayerEffect);
+        var localPlayer = NetworkManager.Singleton?.LocalClient?.PlayerObject?.GetComponent<PlayerController>();
+        var localStats = localPlayer != null ? localPlayer.GetComponent<PlayerStats>() : null;
+        var gate = localPlayer != null ? localPlayer.GetComponent<NetworkPlayerOwnerGate>() : null;
+
+        if (gate != null && localStats != null)
+        {
+            gate.RequestAuthoritativeResurrection(
+                localStats.Health.MaxValue,
+                localStats.Hunger.Value,
+                localStats.Thirst.Value,
+                localStats.Pollution.Value,
+                localStats.Temperature.Value);
+        }
+
+        if (effectUI != null)
+            await effectUI.FadeFromBlack(SleepFadeDuration);
+
+        if (!string.IsNullOrWhiteSpace(localSleepSuccessMessage))
+            ToastMessageUI.Instance?.Show(localSleepSuccessMessage);
+
+        if (localPlayer != null)
+            localPlayer.SetBlocked(false);
+
+        UIManager.Instance.SetBlockingInput(false);
+
+        localSleepPending = false;
+        localSleepFullyDark = false;
+        localWakeRequested = false;
+        localWakeInProgress = false;
+        localSleepCancelRequested = false;
+        localSleepSuccessMessage = null;
+    }
+
+    private async UniTaskVoid CompleteLocalSleepCancel()
+    {
+        if (!localSleepPending || localWakeInProgress || UIManager.Instance == null)
+            return;
+
+        localWakeInProgress = true;
+
+        var effectUI = UIManager.Instance.GetUI<PlayerEffectUI>(UIType.PlayerEffect);
+        var localPlayer = NetworkManager.Singleton?.LocalClient?.PlayerObject?.GetComponent<PlayerController>();
+
+        if (effectUI != null)
+            await effectUI.FadeFromBlack(SleepFadeDuration);
+
+        if (localPlayer != null)
+            localPlayer.SetBlocked(false);
+
+        UIManager.Instance.SetBlockingInput(false);
+        ToastMessageUI.Instance?.Show("ºˆ∏È ¥Î±‚∏¶ √Îº“«ﬂΩ¿¥œ¥Ÿ.");
+
+        localSleepPending = false;
+        localSleepFullyDark = false;
+        localWakeRequested = false;
+        localWakeInProgress = false;
+        localSleepCancelRequested = false;
+        localSleepSuccessMessage = null;
+    }
+
     public bool IsNightTime()
     {
         return CurrentDayCycle == DayCycle.Night;
@@ -748,3 +1128,15 @@ public class DayNightCycle : NetworkBehaviour
         _disableFogByGreening = false;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+

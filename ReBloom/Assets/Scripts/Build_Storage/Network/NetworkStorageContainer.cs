@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Unity.Netcode;
 using UnityEngine;
 
-[RequireComponent(typeof(NetworkObject))]
 public class NetworkStorageContainer : NetworkBehaviour
 {
     [Header("References")]
@@ -597,3 +596,5 @@ public class NetworkStorageContainer : NetworkBehaviour
         return itemSpawner;
     }
 }
+
+

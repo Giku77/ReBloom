@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Netcode;
@@ -10,6 +10,15 @@ public class PlayerRegistry : NetworkBehaviour, ISaveable
 
     public NetworkVariable<FixedString32Bytes> JoinCode =
         new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+    public readonly NetworkVariable<float> ResearchProgressState =
+        new(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+    public readonly NetworkVariable<float> ResearchEnergyState =
+        new(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+    public readonly NetworkVariable<float> ResearchGreeningState =
+        new(0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
     public NetworkList<PlayerEntry> Players;
 
@@ -64,6 +73,16 @@ public class PlayerRegistry : NetworkBehaviour, ISaveable
 
         var fixedName = Sanitize(name);
         Upsert(clientId, fixedName);
+    }
+
+    public void ApplyResearchState(float progress, float energy, float greening)
+    {
+        if (!IsServer)
+            return;
+
+        ResearchProgressState.Value = Mathf.Max(0f, progress);
+        ResearchEnergyState.Value = Mathf.Max(0f, energy);
+        ResearchGreeningState.Value = Mathf.Clamp(greening, 0f, 100f);
     }
 
     public void Capture(SaveGameDTO save)
@@ -439,3 +458,4 @@ public class PlayerRegistry : NetworkBehaviour, ISaveable
         return string.IsNullOrWhiteSpace(persistentId) ? string.Empty : persistentId.Trim();
     }
 }
+

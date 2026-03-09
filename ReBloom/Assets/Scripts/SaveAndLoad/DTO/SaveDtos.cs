@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,7 +7,6 @@ public static class SaveConstants
     public const int SAVE_VERSION = 1;
 }
 
-// ---- Root ----
 [Serializable]
 public class SaveGameDTO
 {
@@ -20,7 +19,6 @@ public class SaveGameDTO
     public TutorialSaveDTO tutorial = new TutorialSaveDTO();
     public CutSceneSaveDTO cutScene = new CutSceneSaveDTO();
     public List<MultiplayerPlayerSaveDTO> multiplayerPlayers = new List<MultiplayerPlayerSaveDTO>();
-
     public SettingsDTO settings = new SettingsDTO();
 }
 
@@ -30,15 +28,12 @@ public class SettingsDTO
     public float master = 1f;
     public float bgm = 0.5f;
     public float sfx = 1f;
-
     public bool fullscreen = true;
     public bool vsync = true;
     public float mouseSensitivity = 3f;
-
     public int graphicsQuality = 0;
     public int targetFrameRate = 120;
     public int poppyVoiceType = 1;
-
     public int resW;
     public int resH;
 }
@@ -163,8 +158,10 @@ public class WorldSaveDTO
 {
     public List<BuildingInstanceSaveDTO> placedBuildings = new List<BuildingInstanceSaveDTO>();
     public List<ContainerSaveDTO> containers = new List<ContainerSaveDTO>();
-    public List<int> visitedStages = new();
+    public List<int> visitedStages = new List<int>();
     public List<string> destroyedKeys = new List<string>();
+    public List<FarmBedSaveDTO> farmBeds = new List<FarmBedSaveDTO>();
+    public List<GreenhouseUpgradeSaveDTO> greenhouseUpgrades = new List<GreenhouseUpgradeSaveDTO>();
 }
 
 [Serializable]
@@ -182,6 +179,39 @@ public class ContainerSaveDTO
     public string guid;
     public int capacity;
     public List<ItemSlotDTO> items = new List<ItemSlotDTO>();
+}
+
+[Serializable]
+public class FarmBedSaveDTO
+{
+    public string guid;
+    public List<FarmSlotSaveDTO> slots = new List<FarmSlotSaveDTO>();
+}
+
+[Serializable]
+public class FarmSlotSaveDTO
+{
+    public int state;
+    public int cropId;
+    public int stageIndex;
+    public float stageTimer;
+    public int wateredCount;
+    public float fertilizerRemain;
+    public float growSpeedMultiplier;
+}
+
+[Serializable]
+public class GreenhouseUpgradeSaveDTO
+{
+    public string greenhouseId;
+    public List<GreenhouseUpgradeProgressDTO> progress = new List<GreenhouseUpgradeProgressDTO>();
+}
+
+[Serializable]
+public class GreenhouseUpgradeProgressDTO
+{
+    public int sort;
+    public int completedGrade;
 }
 
 [Serializable]

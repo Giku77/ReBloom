@@ -1,10 +1,10 @@
-ï»¿using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 public class SleepingPodInteractable : BuildingInteractableBase
 {
     private float holdTime;
-    public override float HoldTime => holdTime; 
+    public override float HoldTime => holdTime;
 
     private ArcData arcData;
 
@@ -16,45 +16,38 @@ public class SleepingPodInteractable : BuildingInteractableBase
 
     public override void Interact(PlayerController player)
     {
-        var dayNightCycle = player.GetComponent<DayNightCycle>();
-        if (dayNightCycle != null && !dayNightCycle.IsNightTime())
+        var dayNightCycle = DayNightCycle.Instance;
+        if (dayNightCycle == null)
         {
-            ToastMessageUI.Instance.Show("ìˆ˜ë©´ ìº¡ìŠì€ ë°¤ì—ë§Œ ì‚¬ìš©í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.");
+            Debug.LogWarning("[SleepingPod] DayNightCycle instance not found.");
             return;
         }
 
-        StartSleep(player, dayNightCycle).Forget();
+        if (!dayNightCycle.IsNightTime())
+        {
+            ToastMessageUI.Instance.Show("¼ö¸é Ä¸½¶Àº ¹ã¿¡¸¸ »ç¿ëÇÒ ¼ö ÀÖ½À´Ï´Ù.");
+            return;
+        }
 
+        string successMessage = arcData != null ? arcData.interactText : "ÇÃ·¹ÀÌ¾î°¡ Ã¼·ÂÀ» È¸º¹Çß½À´Ï´Ù.";
 
-        //var playerstats = player.GetComponent<PlayerStats>();
-        //if (playerstats != null)
-        //{
-        //    playerstats.Health.Set(100f);
-        //    playerstats.Hunger.Set(0f);
-        //    playerstats.Pollution.Set(0f);
-        //    playerstats.Thirst.Set(0f);
-        //    playerstats.Temperature.Set(36.5f);
-        //}
-        //ToastMessageUI.Instance.Show(arcData != null ? arcData.interactText : "í”Œë ˆì´ì–´ê°€ ì²´ë ¥ì„ íšŒë³µí–ˆìŠµë‹ˆë‹¤.");
-        //if (dayNightCycle != null)
-        //{
-        //    dayNightCycle.AdvanceHours(6f);
-        //}
+        if (dayNightCycle.RequestCollectiveSleep(player, successMessage))
+            return;
+
+        StartSleepOffline(player, dayNightCycle, successMessage).Forget();
     }
 
-    private async UniTask StartSleep(PlayerController player, DayNightCycle dayNightCycle)
+    private async UniTask StartSleepOffline(PlayerController player, DayNightCycle dayNightCycle, string successMessage)
     {
         var effectUI = UIManager.Instance.GetUI<PlayerEffectUI>(UIType.PlayerEffect);
         if (effectUI == null)
         {
-            Debug.LogError("[SleepingPod] PlayerEffectUIë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤!");
+            Debug.LogError("[SleepingPod] PlayerEffectUI¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù!");
             return;
         }
 
         player.SetBlocked(true);
         UIManager.Instance?.SetBlockingInput(true);
-
-        //player.Anim?.PlaySleep();
 
         await effectUI.FadeToBlack(1.5f);
 
@@ -64,27 +57,13 @@ public class SleepingPodInteractable : BuildingInteractableBase
 
         var playerStats = player.GetComponent<PlayerStats>();
         if (playerStats != null)
-        {
             playerStats.Health.Set(100f);
-            //playerStats.Hunger.Set(0f);
-            //playerStats.Pollution.Set(0f);
-            //playerStats.Thirst.Set(0f);
-            //playerStats.Temperature.Set(36.5f);
-        }
 
-        //player.Anim?.PlaySleep();
-
-        if (dayNightCycle != null)
-        {
-            //dayNightCycle.AdvanceHours(6f);
-            dayNightCycle.SleepUntilMorning();
-        }
+        dayNightCycle.SleepUntilMorning();
 
         await UniTask.Delay(1000);
 
-        ToastMessageUI.Instance.Show(arcData != null ? arcData.interactText : "í”Œë ˆì´ì–´ê°€ ì²´ë ¥ì„ íšŒë³µí–ˆìŠµë‹ˆë‹¤.");
-
-        //player.Anim?.PlayStandUp();
+        ToastMessageUI.Instance.Show(successMessage);
 
         await effectUI.FadeFromBlack(1.5f);
 

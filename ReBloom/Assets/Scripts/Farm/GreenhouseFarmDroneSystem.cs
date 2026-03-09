@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -17,6 +17,7 @@ public class GreenhouseFarmDroneSystem : MonoBehaviour
 
     [Header("Upgrade")]
     [SerializeField] private bool autoFertilize;
+    public bool AutoFertilize => autoFertilize;
     [SerializeField] private float fertilizerDuration = FarmConst.FertilizerDuration;
     [SerializeField] private float fertilizeIntervalSeconds = 10f;
 
@@ -174,3 +175,5 @@ public class GreenhouseFarmDroneSystem : MonoBehaviour
         }
     }
 }
+
+

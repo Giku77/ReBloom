@@ -1,4 +1,3 @@
-ï»¿using Unity.VisualScripting;
 using UnityEngine;
 
 public class FarmUI : UIBase
@@ -8,33 +7,35 @@ public class FarmUI : UIBase
     [SerializeField] private FarmGridPanel gridPanel;
     [SerializeField] private FarmCellInfoPanel infoPanel;
 
-    [SerializeField] private InventoryItemData inventoryItemData;
+    private InventoryItemData inventoryItemData;
     private FarmBed currentPlot;
     private PlayerController currentPlayer;
 
     private int currentCellIndex = -1;
-    private System.Action _plotChangedHandler;
+    private System.Action plotChangedHandler;
+    private int hoveredIndex = -1;
+    private bool infoPanelBound;
 
     public void Open(FarmBed plot, PlayerController player, int focusCellIndex = -1)
     {
-       if (UIManager.Instance != null && UIManager.Instance.IsBlockedInput)
+        if (UIManager.Instance != null && UIManager.Instance.IsBlockedInput)
             return;
 
         Unbind();
 
         currentPlot = plot;
         currentPlayer = player;
-
+        inventoryItemData = currentPlayer != null ? currentPlayer.Inventory?.Data : null;
 
         if (inventoryItemData != null)
             inventoryItemData.OnContainerChanged += RefreshSeeds;
 
         if (currentPlot != null)
         {
-            _plotChangedHandler = OnPlotChanged;
-            currentPlot.OnChanged += _plotChangedHandler;
+            plotChangedHandler = OnPlotChanged;
+            currentPlot.OnChanged += plotChangedHandler;
         }
-           
+
         BindInfoPanelEvents();
 
         if (infoPanel != null)
@@ -54,17 +55,16 @@ public class FarmUI : UIBase
 
     public override void Hide()
     {
-        Debug.Log("[FarmUI] Hide called.");
-        var tpsCam = Camera.main.GetComponent<ThirdPersonCamera>();
+        var tpsCam = Camera.main != null ? Camera.main.GetComponent<ThirdPersonCamera>() : null;
         tpsCam?.ExitTopDown();
 
-        if (currentPlot != null && _hoveredIndex != -1)
-            currentPlot.SetSlotHighlighted(_hoveredIndex, false);
+        if (currentPlot != null && hoveredIndex != -1)
+            currentPlot.SetSlotHighlighted(hoveredIndex, false);
 
         Unbind();
         infoPanel.Hide();
+        hoveredIndex = -1;
 
-        _hoveredIndex = -1;
         base.Hide();
         UIManager.Instance.HideUI(UIType.Farm);
     }
@@ -76,26 +76,25 @@ public class FarmUI : UIBase
             infoPanel.Refresh();
     }
 
-
     private void Unbind()
     {
         if (inventoryItemData != null)
             inventoryItemData.OnContainerChanged -= RefreshSeeds;
 
-        if (currentPlot != null && _plotChangedHandler != null)
-            currentPlot.OnChanged -= _plotChangedHandler;
+        if (currentPlot != null && plotChangedHandler != null)
+            currentPlot.OnChanged -= plotChangedHandler;
 
-        if (infoPanel != null && _infoPanelBound)
+        if (infoPanel != null && infoPanelBound)
         {
             infoPanel.OnWaterClicked -= HandleWaterClicked;
             infoPanel.OnHarvestClicked -= HandleHarvestClicked;
             infoPanel.OnUprootClicked -= HandleUprootClicked;
             infoPanel.OnFertilizeClicked -= HandleFertilizeClicked;
-            _infoPanelBound = false;
+            infoPanelBound = false;
         }
 
-        _plotChangedHandler = null;
-
+        plotChangedHandler = null;
+        inventoryItemData = null;
         currentPlot = null;
         currentPlayer = null;
         currentCellIndex = -1;
@@ -103,39 +102,39 @@ public class FarmUI : UIBase
 
     private void RefreshSeeds()
     {
-        if (inventoryItemData == null || currentPlot == null) return;
+        if (inventoryItemData == null || currentPlot == null)
+            return;
 
-        // ì”¨ì•— ìŠ¤íƒ ì§‘ê³„(Seed_ID ê¸°ì¤€)
         var stacks = SeedStackBuilder.Build(inventoryItemData, currentPlot.FarmDB);
-
-        seedListPanel.Bind(stacks, OnSeedClicked); 
+        seedListPanel.Bind(stacks, OnSeedClicked);
     }
 
-    private int _hoveredIndex = -1;
     private void RefreshGrid()
     {
-        if (currentPlot == null) return;
+        if (currentPlot == null)
+            return;
 
         gridPanel.Bind(currentPlot, OnCellClicked, OnSeedDroppedToCell, OnCellHoverChanged);
     }
 
-    
     private void OnCellHoverChanged(int idx, bool enter)
     {
-        if (currentPlot == null) return;
+        if (currentPlot == null)
+            return;
 
-        if (_hoveredIndex != -1 && _hoveredIndex != idx)
-            currentPlot.SetSlotHighlighted(_hoveredIndex, false);
+        if (hoveredIndex != -1 && hoveredIndex != idx)
+            currentPlot.SetSlotHighlighted(hoveredIndex, false);
 
         if (enter)
         {
             currentPlot.SetSlotHighlighted(idx, true);
-            _hoveredIndex = idx;
+            hoveredIndex = idx;
         }
         else
         {
             currentPlot.SetSlotHighlighted(idx, false);
-            if (_hoveredIndex == idx) _hoveredIndex = -1;
+            if (hoveredIndex == idx)
+                hoveredIndex = -1;
         }
     }
 
@@ -144,81 +143,78 @@ public class FarmUI : UIBase
         SetFocusCell(cellIndex);
     }
 
-    private bool _infoPanelBound;
     private void BindInfoPanelEvents()
     {
-        if (infoPanel == null) return;
-        if (_infoPanelBound) return;
+        if (infoPanel == null || infoPanelBound)
+            return;
 
         infoPanel.OnWaterClicked += HandleWaterClicked;
         infoPanel.OnHarvestClicked += HandleHarvestClicked;
         infoPanel.OnUprootClicked += HandleUprootClicked;
         infoPanel.OnFertilizeClicked += HandleFertilizeClicked;
-
-        _infoPanelBound = true;
+        infoPanelBound = true;
     }
 
     private void HandleWaterClicked(int cellIndex)
     {
-        if (currentPlot == null || inventoryItemData == null) return;
-
-        const int WaterItemId = 4002002;
+        if (currentPlot == null)
+            return;
 
         if (!currentPlot.CanWater(cellIndex))
         {
             SoundManager.I?.PlayError();
-            ToastMessageUI.Instance?.Show("ì§€ê¸ˆì€ ë¬¼ì„ ì¤„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
+            ToastMessageUI.Instance?.Show("Áö±İÀº ¹°À» ÁÙ ¼ö ¾ø½À´Ï´Ù.");
             return;
         }
 
-        if (!currentPlot.TryWaterByPlayer(cellIndex, inventoryItemData, WaterItemId, 1))
+        if (!currentPlot.RequestWaterFromLocalPlayer(cellIndex))
         {
             SoundManager.I?.PlayError();
-            ToastMessageUI.Instance?.Show("ë¬¼ì´ ë¶€ì¡±í•©ë‹ˆë‹¤.");
+            ToastMessageUI.Instance?.Show("¹°ÀÌ ºÎÁ·ÇÕ´Ï´Ù.");
             return;
         }
 
         SoundManager.I?.PlayWater();
-        RefreshGrid();
-        infoPanel.Refresh();
-        ToastMessageUI.Instance?.Show("ë¬¼ì„ ì£¼ì—ˆìŠµë‹ˆë‹¤.");
-
+        ToastMessageUI.Instance?.Show("¹°À» ÁÖ¾ú½À´Ï´Ù.");
     }
-
 
     private void HandleHarvestClicked(int cellIndex)
     {
-        if (currentPlot == null || currentPlayer == null) return;
+        if (currentPlot == null)
+            return;
 
         if (!currentPlot.CanHarvest(cellIndex))
         {
             SoundManager.I?.PlayError();
-            ToastMessageUI.Instance?.Show("ì•„ì§ ìˆ˜í™•í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
+            ToastMessageUI.Instance?.Show("¾ÆÁ÷ ¼öÈ®ÇÒ ¼ö ¾ø½À´Ï´Ù.");
             return;
         }
 
-        currentPlot.Harvest(cellIndex, currentPlayer);
+        if (!currentPlot.RequestHarvestFromLocalPlayer(cellIndex))
+        {
+            SoundManager.I?.PlayError();
+            ToastMessageUI.Instance?.Show("¼öÈ®ÇÒ ¼ö ¾ø½À´Ï´Ù.");
+            return;
+        }
 
-        RefreshGrid();
-        infoPanel.Hide();
         SoundManager.I?.PlayGetSeed();
-        ToastMessageUI.Instance?.Show("ìˆ˜í™• ì™„ë£Œ!");
+        ToastMessageUI.Instance?.Show("¼öÈ® ¿Ï·á!");
     }
 
     private void HandleUprootClicked(int cellIndex)
     {
-        if (currentPlot == null) return;
+        if (currentPlot == null)
+            return;
 
         var slot = currentPlot.GetSlot(cellIndex);
         if (slot == null || slot.state == CropSlotState.Empty)
             return;
 
-        currentPlot.Uproot(cellIndex);
+        if (!currentPlot.RequestUprootFromLocalPlayer(cellIndex))
+            return;
 
-        RefreshGrid();
-        infoPanel.Hide();
         SoundManager.I?.PlayGetSeed();
-        ToastMessageUI.Instance?.Show("ë½‘ì•˜ìŠµë‹ˆë‹¤.");
+        ToastMessageUI.Instance?.Show("»Ì¾Ò½À´Ï´Ù.");
     }
 
     private void SetFocusCell(int cellIndex)
@@ -232,14 +228,11 @@ public class FarmUI : UIBase
         {
             infoPanel.Hide();
             SoundManager.I?.PlayError();
-            ToastMessageUI.Instance?.Show("ìë¼ê³  ìˆëŠ” ì”¨ì•—ì´ ì—†ìŠµë‹ˆë‹¤.");
+            ToastMessageUI.Instance?.Show("ÀÚ¶ó°í ÀÖ´Â ¾¾¾ÑÀÌ ¾ø½À´Ï´Ù.");
             return;
         }
 
         infoPanel.Show(cellIndex, currentPlot);
-
-        // ì›í•˜ë©´ í•˜ì´ë¼ì´íŠ¸ë„ UIì—ì„œ ì œì–´ ê°€ëŠ¥
-        // gridPanel.SetSelected(cellIndex);
     }
 
     private void OnSeedClicked(int seedItemId)
@@ -247,64 +240,71 @@ public class FarmUI : UIBase
         if (currentCellIndex < 0)
         {
             SoundManager.I?.PlayError();
-            ToastMessageUI.Instance?.Show("ì‹¬ì„ ì¹¸ì„ ë¨¼ì € ì„ íƒí•´ ì£¼ì„¸ìš”.");
+            ToastMessageUI.Instance?.Show("½ÉÀ» Ä­À» ¸ÕÀú ¼±ÅÃÇØ ÁÖ¼¼¿ä.");
             return;
         }
 
         SoundManager.I?.PlayUIClick();
-
         OnSeedDroppedToCell(seedItemId, currentCellIndex);
     }
 
     public void OnSeedDroppedToCell(int seedItemId, int cellIndex)
     {
-        if (inventoryItemData == null || currentPlot == null) return;
+        if (inventoryItemData == null || currentPlot == null)
+            return;
 
         if (!currentPlot.FarmDB.TryGetBySeedId(seedItemId, out var cropRow))
         {
             SoundManager.I?.PlayError();
-            ToastMessageUI.Instance?.Show("ì´ ì”¨ì•—ì€ ì‹¬ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
+            ToastMessageUI.Instance?.Show("ÀÌ ¾¾¾ÑÀº ½ÉÀ» ¼ö ¾ø½À´Ï´Ù.");
             return;
         }
 
         if (!currentPlot.CanPlant(cellIndex, cropRow.cropId))
         {
             SoundManager.I?.PlayError();
-            ToastMessageUI.Instance?.Show("ì—¬ê¸°ì—ëŠ” ì‹¬ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
+            ToastMessageUI.Instance?.Show("¿©±â¿¡´Â ½ÉÀ» ¼ö ¾ø½À´Ï´Ù.");
             return;
         }
 
-        if (!inventoryItemData.TryRemoveItem(seedItemId, 1))
+        if (!inventoryItemData.HasItem(seedItemId, 1))
         {
             SoundManager.I?.PlayError();
-            ToastMessageUI.Instance?.Show("ì”¨ì•—ì´ ë¶€ì¡±í•©ë‹ˆë‹¤.");
+            ToastMessageUI.Instance?.Show("¾¾¾ÑÀÌ ºÎÁ·ÇÕ´Ï´Ù.");
             return;
         }
 
-        currentPlot.Plant(cellIndex, cropRow.cropId);
+        if (!currentPlot.RequestPlantFromLocalPlayer(cellIndex, seedItemId))
+        {
+            SoundManager.I?.PlayError();
+            ToastMessageUI.Instance?.Show("½ÉÀ» ¼ö ¾ø½À´Ï´Ù.");
+            return;
+        }
 
         SoundManager.I?.PlaySeed();
-
-        ToastMessageUI.Instance?.Show($"{cropRow.cropName} ì‹¬ê¸° ì™„ë£Œ!");
+        ToastMessageUI.Instance?.Show($"{cropRow.cropName} ½É±â ¿Ï·á!");
     }
 
     private void HandleFertilizeClicked(int cellIndex)
     {
-        if (currentPlot == null || inventoryItemData == null) return;
+        if (currentPlot == null || inventoryItemData == null)
+            return;
 
-        if (!currentPlot.TryFertilizeByPlayer(
-                cellIndex,
-                inventoryItemData,
-                FarmConst.FertilizerItemId,
-                FarmConst.FertilizerDuration))
+        if (inventoryItemData.GetItemCount(FarmConst.FertilizerItemId) <= 0)
         {
             SoundManager.I?.PlayError();
-            ToastMessageUI.Instance?.Show("ë¹„ë£Œë¥¼ ì‚¬ìš©í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤. (ë¹„ë£Œ ë¶€ì¡±/ëŒ€ìƒ ì•„ë‹˜)");
+            ToastMessageUI.Instance?.Show("ºñ·á°¡ ºÎÁ·ÇÕ´Ï´Ù.");
+            return;
+        }
+
+        if (!currentPlot.RequestFertilizeFromLocalPlayer(cellIndex))
+        {
+            SoundManager.I?.PlayError();
+            ToastMessageUI.Instance?.Show("ºñ·á¸¦ »ç¿ëÇÒ ¼ö ¾ø½À´Ï´Ù. (ºñ·á ºÎÁ·/´ë»ó ¾Æ´Ô)");
             return;
         }
 
         SoundManager.I?.PlayWater();
-        ToastMessageUI.Instance?.Show("ë¹„ë£Œë¥¼ ì‚¬ìš©í–ˆìŠµë‹ˆë‹¤!");
-        infoPanel.Refresh();
+        ToastMessageUI.Instance?.Show("ºñ·á¸¦ »ç¿ëÇß½À´Ï´Ù!");
     }
 }
