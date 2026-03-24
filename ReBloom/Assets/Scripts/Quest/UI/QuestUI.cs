@@ -6,20 +6,18 @@ public class QuestUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI title;
     [SerializeField] private TextMeshProUGUI description;
-
     [SerializeField] private QuestPathGuide pathGuide;
-
     [SerializeField] private InventoryItemData inventoryData;
 
-
     private bool _alive;
+
     private async void OnEnable()
     {
         _alive = true;
         while (QuestManager.I == null) await Cysharp.Threading.Tasks.UniTask.Yield();
         if (!_alive) return;
-        QuestManager.I.OnQuestStateChanged += Refresh;
 
+        QuestManager.I.OnQuestStateChanged += Refresh;
         Refresh();
     }
 
@@ -30,15 +28,12 @@ public class QuestUI : MonoBehaviour
             QuestManager.I.OnQuestStateChanged -= Refresh;
     }
 
-
     public int GetPathTransformCount()
     {
         return pathGuide.Target.Length;
     }
-    //[NonSerialized] public int TargetIndex = 0;
 
     private bool isShowPathGuide = false;
-
 
     public void SetShowPathGuide(bool show)
     {
@@ -55,45 +50,50 @@ public class QuestUI : MonoBehaviour
         var qm = QuestManager.I;
         if (qm == null || qm.Current == null)
         {
-            //title.text = "퀘스트 없음";
+            title.text = string.Empty;
             description.text = "-";
+            return;
         }
-        else
+
+        title.text = qm.DB.GetTextKR(qm.Current.questNameID);
+        description.text = qm.DB.GetTextKR(qm.Current.questTextID);
+
+        if (qm.Current.goals == null)
+            return;
+
+        foreach (var goal in qm.Current.goals)
         {
-            //title.text = $"퀘스트 {qm.Current.questId}";
-            title.text = qm.DB.GetTextKR(qm.Current.questNameID);
-            description.text = qm.DB.GetTextKR(qm.Current.questTextID);
-            if (qm.Current.goals != null)
+            if (goal.type == QuestGoalType.Collect)
             {
-                foreach (var goal in qm.Current.goals)
+                var currentAmt = qm.Inventory.GetItemCount(goal.objectId);
+                var itemName = ItemDatabase.I.GetItem(goal.objectId)?.itemName ?? "Unknown Item";
+                description.text += $"\n - {itemName} ({currentAmt}/{goal.amount})";
+            }
+            else if (goal.type == QuestGoalType.Craft && goal.objectId != 0)
+            {
+                var currentAmt = goal.currentCount;
+                BuildManager.I.ArcDB.TryGet(goal.objectId, out var bld);
+                BuildManager.I.RecipeDB.TryGetRecipe(bld.arcId, out var recipe);
+                foreach (var (itemId, amount) in recipe.materials)
                 {
-                    if (goal.type == QuestGoalType.Collect)
-                    {
-                        var currentAmt = qm.Inventory.GetItemCount(goal.objectId);
-                        var itemName = ItemDatabase.I.GetItem(goal.objectId)?.itemName ?? "Unknown Item";
-                        description.text += $"\n - {itemName} ({currentAmt}/{goal.amount})";
-                    }
-                    else if (goal.type == QuestGoalType.Craft && goal.objectId != 0)
-                    {
-                        var currentAmt = goal.currentCount;
-                        BuildManager.I.ArcDB.TryGet(goal.objectId, out var bld);
-                        BuildManager.I.RecipeDB.TryGetRecipe(bld.arcId, out var recipe);
-                        foreach (var (itemId, amount) in recipe.materials)
-                        {
-                            var itemName = ItemDatabase.I.GetItem(itemId)?.itemName ?? "Unknown Item";
-                            description.text += $"\n   - {itemName} x{amount}";
-                        }
-                        var craftName = bld != null ? bld.name : "Unknown Building";
-                        description.text += $"\n - {craftName} ({currentAmt} / {goal.amount})";
-                    }
-                    else if ((goal.type == QuestGoalType.Enter || goal.type == QuestGoalType.Interact) && !isShowPathGuide)
-                    {
-                        //description.text += $"\n - 위치에 도달하기";
-                        //pathGuide.SetTarget(pathGuide.Target[TargetIndex], TargetIndex);
-                        pathGuide.SetTarget(pathGuide.Target[FindEntranceIndex(goal.objectId)], FindEntranceIndex(goal.objectId));
-                        SetShowPathGuide(true);
-                    }
+                    var itemName = ItemDatabase.I.GetItem(itemId)?.itemName ?? "Unknown Item";
+                    description.text += $"\n   - {itemName} x{amount}";
                 }
+                var craftName = bld != null ? bld.name : "Unknown Building";
+                description.text += $"\n - {craftName} ({currentAmt}/{goal.amount})";
+            }
+            else if (goal.type == QuestGoalType.Interact)
+            {
+                description.text += $"\n - 상호작용 ({goal.currentCount}/{goal.amount})";
+            }
+            else if (goal.type == QuestGoalType.Ending)
+            {
+                description.text += $"\n - 그리닝 ({goal.currentCount}/{goal.amount})";
+            }
+            if ((goal.type == QuestGoalType.Enter || goal.type == QuestGoalType.Interact) && !isShowPathGuide)
+            {
+                pathGuide.SetTarget(pathGuide.Target[FindEntranceIndex(goal.objectId)], FindEntranceIndex(goal.objectId));
+                SetShowPathGuide(true);
             }
         }
     }
@@ -120,3 +120,4 @@ public class QuestUI : MonoBehaviour
         }
     }
 }
+

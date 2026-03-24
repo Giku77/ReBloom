@@ -5,6 +5,7 @@ using UnityEngine;
 public class BuildManager : MonoBehaviour
 {
     public static BuildManager I;
+    public static event Action<int> OnBuildingChanged;
     public bool IsInitialized { get; private set; } = false;
     private void Awake()
     {
@@ -504,7 +505,7 @@ public class BuildManager : MonoBehaviour
         if (p.TryGetComponent<InteractionHighlight>(out var highlight))
           highlight.promptFormat = $"상호작용 [E] : {arc.name}";
         SetupTemporaryPassThrough(p);
-        QuestManager.I?.NotifyBuildingBuilt(arc.arcId);
+        OnBuildingChanged?.Invoke(arc.arcId);
         AutoSaveService.I?.RequestSave("Build");
         return true;
     }
@@ -545,8 +546,8 @@ public class BuildManager : MonoBehaviour
         }
 
         GridOccupancyManager.I?.Release(inst);
-
         UnregisterBuilding(inst);
+        OnBuildingChanged?.Invoke(inst.ArcId);
         Destroy(inst.gameObject);
 
         AutoSaveService.I?.RequestSave("RemoveBuilding");
@@ -627,3 +628,4 @@ public class BuildManager : MonoBehaviour
     }
 
 }
+

@@ -67,6 +67,9 @@ public class StageDetector : MonoBehaviour
             previousStage = currentStage != null ? currentStage : stage;
             currentStage = stage;
 
+            if (changed)
+                OnStageChanged?.Invoke(stage.StageID);
+
             ApplyWeather(currentStage.CurrentWeather);
 
             if (stage.Data != null)
@@ -85,7 +88,6 @@ public class StageDetector : MonoBehaviour
                     ToastMessageUI.Instance.Show($"오염도 지역에 진입했습니다 : 1초마다 오염도({stage.Data.stagePollution}) 증가");
                      if (changed)
                     {
-                        OnStageChanged?.Invoke(stage.StageID);
                         AutoSaveService.I?.RequestSave($"StageChanged:{stage.StageID}");
                     }
                     SoundManager.I?.PlayAreaTransition();
@@ -248,3 +250,4 @@ public class StageDetector : MonoBehaviour
         }
     }
 }
+

@@ -1,5 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class QuestManager : MonoBehaviour
@@ -9,52 +10,102 @@ public class QuestManager : MonoBehaviour
     private QuestDB _db;
     private QuestData _current;
     private GameInventory _inventory;
-    public GameInventory Inventory => _inventory;
-
     private StageDetector _stageDetector;
+    private readonly List<IQuestGoal> _runtimeGoals = new();
+
+    public GameInventory Inventory => _inventory;
     public QuestData Current => _current;
     public QuestDB DB => _db;
+    public bool IsInitialized => _db != null && _inventory != null && _stageDetector != null;
 
-    //채집 오브젝트 첫번째 퀘스트 후 삭제 관련 필드
     public static event Action OnFirstQuestCompleted;
+
     private int _firstQuestId;
     private bool _firstQuestCompleted;
+    private bool _currentQuestSatisfied;
+
     public bool FirstQuestCompleted => _firstQuestCompleted;
     public int FirstQuestId => _firstQuestId;
-
+    public bool EndingPlayed => endingPlayed;
 
     [SerializeField] private CutSceneManager cutSceneManager;
     [SerializeField] private GreeningVisualController greeningVisualController;
-
-    [SerializeField] private int endingCutSceneStartId = 1301021; // CutScene10 시작
-    private bool endingPlayed;
-
-
-
-    private void Awake() => I = this;
-
+    [SerializeField] private int endingCutSceneStartId = 1301021;
     [SerializeField] private QuestTextSwitcher questTextSwitcher;
     [SerializeField] private QuestUI questUI;
 
+    private bool endingPlayed;
+
     public event Action OnQuestStateChanged;
 
-    private void RaiseQuestChanged()
+    private void Awake() => I = this;
+
+    public void Init(QuestDB db, GameInventory inventory, StageDetector stageDetector)
     {
-        OnQuestStateChanged?.Invoke();
-        PlayQuestCompleteAnimation();
+        UnsubscribeWorldEvents();
+
+        _db = db;
+        _inventory = inventory;
+        _stageDetector = stageDetector;
+
+        SubscribeWorldEvents();
+
+        _firstQuestId = FindFirstQuestId();
+        if (_current == null && _firstQuestId != 0)
+            SetCurrent(_firstQuestId, null, suppressCompleteFx: true);
+    }
+
+    public void SetFirstQuest(bool completed)
+    {
+        _firstQuestCompleted = completed;
+        if (completed)
+            OnFirstQuestCompleted?.Invoke();
+    }
+
+    public void RestoreFromSave(QuestSaveDTO questSave)
+    {
+        SetFirstQuest(questSave.firstQuestCompleted);
+        endingPlayed = questSave.endingPlayed;
+
+        if (questSave.currentQuestId > 0)
+        {
+            SetCurrent(questSave.currentQuestId, questSave.goalProgress, suppressCompleteFx: true);
+            return;
+        }
+
+        ClearCurrentQuest();
+    }
+
+    public List<QuestGoalProgressDTO> CaptureGoalProgress()
+    {
+        var result = new List<QuestGoalProgressDTO>();
+        foreach (var goal in _runtimeGoals)
+            result.Add(goal.CaptureProgress());
+        return result;
+    }
+
+    public void SetCurrent(int questId)
+    {
+        SetCurrent(questId, null, suppressCompleteFx: false);
     }
 
     public void TryAdvanceOrPlayEnding()
     {
-        if (endingPlayed) return;
+        if (endingPlayed)
+            return;
 
         bool isEndingReady = ResearchManager.I != null && ResearchManager.I.CurrentGreening >= 100f;
-        if (!isEndingReady) return;
+        if (!isEndingReady)
+            return;
 
         if (_current != null)
         {
+            if (!AreCurrentGoalsSatisfied())
+                return;
+
             int nextId = FindNextByFormer(_current.questId);
-            if (nextId != 0) return; 
+            if (nextId != 0)
+                return;
         }
 
         PlayEndingSequence().Forget();
@@ -73,216 +124,24 @@ public class QuestManager : MonoBehaviour
         AutoSaveService.I?.RequestSave("EndingCutScenePlayed");
     }
 
-    public void SetFirstQuest(bool completed)
-    {
-        _firstQuestCompleted = completed;
-        if (completed)
-        {
-            OnFirstQuestCompleted?.Invoke();
-        }
-    }
-
-
-    public void Init(QuestDB db, GameInventory inventory, StageDetector stageDetector)
-    {
-        if (_inventory != null && _inventory.Container != null)
-            _inventory.Container.OnContainerChanged -= HandleInventoryChanged;
-
-        _db = db;
-        _inventory = inventory;
-        _stageDetector = stageDetector;
-
-        if (_inventory != null)
-            _inventory.Container.OnContainerChanged += HandleInventoryChanged;
-
-        foreach (var kv in db.GetAll())   
-        {
-            if (kv.Value.formerQuestId == 0)
-            {
-                _firstQuestId = kv.Value.questId;
-                SetCurrent(kv.Value.questId);
-                break;
-            }
-        }
-
-        if (ResearchManager.I != null)
-            ResearchManager.I.OnGreeningChanged += HandleGreeningChanged;
-
-        SyncEndingGoalsWithWorld(_current);
-
-    }
-
-    private void HandleInventoryChanged()
-    {
-        RaiseQuestChanged();
-    }
-
-    private void HandleGreeningChanged(float value)
-    {
-        if (_current == null || _current.goals == null) return;
-
-        bool changed = SyncEndingGoalsWithWorld(_current);
-
-        if (changed)
-        {
-            RaiseQuestChanged();
-            if (IsQuestSatisfied(_current))
-                PlayQuestCompleteAnimation();
-        }
-    }
-
-    private bool SyncEndingGoalsWithWorld(QuestData quest)
-    {
-        if (quest == null || quest.goals == null) return false;
-        if (ResearchManager.I == null) return false;
-
-        bool changed = false;
-        int greeningInt = Mathf.FloorToInt(ResearchManager.I.CurrentGreening);
-
-        foreach (var g in quest.goals)
-        {
-            if (g == null) continue;
-            if (g.type != QuestGoalType.Ending) continue;
-
-            int prev = g.currentCount;
-            g.currentCount = greeningInt;  
-            if (prev != g.currentCount) changed = true;
-        }
-
-        return changed;
-    }
-
-
-    private void OnDestroy()
-    {
-        if (_inventory != null && _inventory.Container != null)
-            _inventory.Container.OnContainerChanged -= HandleInventoryChanged;
-
-        if (ResearchManager.I != null)
-            ResearchManager.I.OnGreeningChanged -= HandleGreeningChanged;
-
-        if (I == this) I = null;
-    }
-
-    public void SetCurrent(int questId)
-    {
-        if (!_db.TryGet(questId, out var data))
-        {
-            Debug.LogError($"퀘스트 DB에 ID {questId}가 없습니다.");
-            return;
-        }
-
-        _current = data;
-
-        SyncEndingGoalsWithWorld(_current);
-        SyncBuildGoalsWithWorld(_current);
-
-        questUI?.SetShowPathGuide(false);
-        questUI?.ClearPathGuide(); 
-        RaiseQuestChanged();
-        //questUI?.Refresh();
-    }
-
-    private void SyncBuildGoalsWithWorld(QuestData quest)
-    {
-        if (quest.goals == null) return;
-        if (BuildManager.I == null) return;
-
-        foreach (var g in quest.goals)
-        {
-            if (g == null) continue;
-
-            if (g.type == QuestGoalType.Craft) 
-            {
-                int count = BuildManager.I.GetCount(g.objectId);
-                g.currentCount = count; 
-            }
-        }
-    }
-
     public void NotifyBuildingBuilt(int buildingId)
     {
-        if (_current == null) return;
-        if (_current.goals == null) return;
-        if (BuildManager.I == null) return;
-
-        bool changed = false;
-
-        foreach (var g in _current.goals)
-        {
-            if (g == null) continue;
-
-            if (g.type == QuestGoalType.Craft && buildingId == g.objectId)
-            {
-                int count = BuildManager.I.GetCount(g.objectId);
-                g.currentCount = count;      
-                changed = true;
-            }
-        }
-
-        if (changed)
-        {
-            PlayQuestCompleteAnimation();
-        }
+        ProcessEvent(QuestEvent.BuildingChanged(buildingId));
     }
 
     public void NotifyInteracted(int interactedObjectId)
     {
-        if (_current == null || _current.goals == null) return;
-
-        bool changed = false;
-
-        foreach (var g in _current.goals)
-        {
-            if (g == null) continue;
-
-            if (g.type == QuestGoalType.Interact && g.objectId == interactedObjectId)
-            {
-                g.currentCount = Mathf.Clamp(g.currentCount + 1, 0, g.amount);
-                changed = true;
-            }
-        }
-
-        if (changed)
-        {
-            RaiseQuestChanged();
-
-            if (IsQuestSatisfied(_current))
-                PlayQuestCompleteAnimation();
-        }
+        ProcessEvent(QuestEvent.Interacted(interactedObjectId));
     }
 
     public void DebugForceCompleteAndGoNext()
     {
-        if (_current == null) return;
+        if (_current == null)
+            return;
 
-        int completedQuestId = _current.questId;
-
-        TutorialEventBus.RaiseTarget(completedQuestId);
-
-        if (completedQuestId == _firstQuestId)
-        {
-            _firstQuestCompleted = true;
-            OnFirstQuestCompleted?.Invoke();
-        }
-
-        var nextId = FindNextByFormer(completedQuestId);
-        if (nextId == 0)
-        {
-            _current = null;
-            Debug.Log("[Quest] Force complete: next quest 없음");
-        }
-        else
-        {
-            SetCurrent(nextId);
-            questTextSwitcher?.ResetQuestText();
-            Debug.Log($"[Quest] Force complete: {completedQuestId} -> {nextId}");
-        }
-
-        AutoSaveService.I?.RequestSave("QuestProgress");
+        AdvanceCurrentQuest(force: true, grantRewards: false);
+        Debug.Log("[Quest] Force complete current quest");
     }
-
-
 
     public void ClearPathGuide()
     {
@@ -291,13 +150,10 @@ public class QuestManager : MonoBehaviour
 
     public void PlayQuestCompleteAnimation()
     {
-        if (_current == null) return;
-
-        if (!IsQuestSatisfied(_current))
-        {
-            Debug.Log($"퀘스트 조건 미달성 : {_current.questName}");
+        if (_current == null)
             return;
-        }
+        if (!AreCurrentGoalsSatisfied())
+            return;
 
         SoundManager.I?.PlayMissionClear();
         questTextSwitcher?.PlayQuestComplete();
@@ -305,85 +161,280 @@ public class QuestManager : MonoBehaviour
 
     public void TryCompleteCurrent()
     {
-        if (questTextSwitcher != null && questTextSwitcher.IsAnimating()) return;
-
-        if (_current == null) return;
+        if (questTextSwitcher != null && questTextSwitcher.IsAnimating())
+            return;
+        if (_current == null)
+            return;
+        if (!AreCurrentGoalsSatisfied())
+        {
+            Debug.Log($"퀘스트 조건 미달성 : {_current.questName}");
+            return;
+        }
 
         SoundManager.I?.PlayNextMission();
-        //if (!IsQuestSatisfied(_current))
-        //{
-        //    Debug.Log($"퀘스트 조건 미달성 : {_current.questName}");
-        //    return;
-        //}
+        AdvanceCurrentQuest(force: false, grantRewards: true);
+    }
+
+    public void CompleteCurrent()
+    {
+        if (_current == null)
+            return;
+
+        AdvanceCurrentQuest(force: true, grantRewards: true);
+    }
+
+    private void SetCurrent(int questId, List<QuestGoalProgressDTO> savedProgress, bool suppressCompleteFx)
+    {
+        if (_db == null || !_db.TryGet(questId, out var data))
+        {
+            Debug.LogError($"퀘스트 DB에 ID {questId}가 없습니다.");
+            return;
+        }
+
+        _current = data;
+        RebuildRuntimeGoals(savedProgress);
+
+        questUI?.SetShowPathGuide(false);
+        questUI?.ClearPathGuide();
+        RaiseQuestChanged(!suppressCompleteFx);
+    }
+
+    private void RebuildRuntimeGoals(List<QuestGoalProgressDTO> savedProgress)
+    {
+        _runtimeGoals.Clear();
+        if (_current?.goals == null)
+        {
+            _currentQuestSatisfied = _current == null;
+            return;
+        }
+
+        _runtimeGoals.AddRange(QuestGoalFactory.CreateGoals(_current.goals));
+
+        foreach (var goal in _runtimeGoals)
+        {
+            var progress = FindSavedProgress(savedProgress, goal);
+            goal.RestoreProgress(progress);
+        }
+
+        SyncCurrentGoals();
+        _currentQuestSatisfied = AreCurrentGoalsSatisfied();
+    }
+
+    private QuestGoalProgressDTO FindSavedProgress(List<QuestGoalProgressDTO> savedProgress, IQuestGoal goal)
+    {
+        if (savedProgress == null)
+            return null;
+
+        foreach (var progress in savedProgress)
+        {
+            if (progress == null)
+                continue;
+            if (progress.goalIndex == goal.GoalIndex)
+                return progress;
+        }
+
+        return null;
+    }
+
+    private bool SyncCurrentGoals()
+    {
+        if (_runtimeGoals.Count == 0)
+            return false;
+
+        bool changed = false;
+        var context = BuildGoalContext();
+        foreach (var goal in _runtimeGoals)
+            changed |= goal.Sync(context);
+        return changed;
+    }
+
+    private QuestGoalContext BuildGoalContext()
+    {
+        return new QuestGoalContext(_inventory, _stageDetector);
+    }
+
+    private bool ProcessEvent(in QuestEvent questEvent)
+    {
+        if (_current == null || _runtimeGoals.Count == 0)
+            return false;
+
+        bool changed = false;
+        var context = BuildGoalContext();
+        foreach (var goal in _runtimeGoals)
+            changed |= goal.HandleEvent(questEvent, context);
+
+        if (changed)
+            RaiseQuestChanged();
+
+        return changed;
+    }
+
+    private void RaiseQuestChanged(bool allowCompleteAnimation = true)
+    {
+        bool satisfied = AreCurrentGoalsSatisfied();
+        OnQuestStateChanged?.Invoke();
+
+        if (allowCompleteAnimation && satisfied && !_currentQuestSatisfied)
+            PlayQuestCompleteAnimation();
+
+        _currentQuestSatisfied = satisfied;
+    }
+
+    private bool AreCurrentGoalsSatisfied()
+    {
+        if (_current == null)
+            return false;
+        if (_runtimeGoals.Count == 0)
+            return true;
+
+        foreach (var goal in _runtimeGoals)
+        {
+            if (goal == null)
+                continue;
+            if (!goal.IsSatisfied())
+                return false;
+        }
+
+        return true;
+    }
+
+    private void AdvanceCurrentQuest(bool force, bool grantRewards)
+    {
+        if (_current == null)
+            return;
+        if (!force && !AreCurrentGoalsSatisfied())
+            return;
 
         int completedQuestId = _current.questId;
+
+        if (grantRewards)
+            GrantRewards(_current);
+
         TutorialEventBus.RaiseTarget(completedQuestId);
 
         if (completedQuestId == _firstQuestId)
-        {
-            _firstQuestCompleted = true;
-            OnFirstQuestCompleted?.Invoke();
-        }
+            SetFirstQuest(true);
 
-        var nextId = FindNextByFormer(_current.questId);
+        int nextId = FindNextByFormer(completedQuestId);
         if (nextId == 0)
         {
-            _current = null;
+            ClearCurrentQuest();
             Debug.Log("퀘스트 완료, 다음 퀘스트 없음.");
         }
         else
         {
             SetCurrent(nextId);
             questTextSwitcher?.ResetQuestText();
-            if (IsQuestSatisfied(_current))
-            {
-                PlayQuestCompleteAnimation();
-            }
         }
+
         AutoSaveService.I?.RequestSave("QuestProgress");
         if (questUI != null && questUI.GetShowPathGuide())
-        {
-              //questUI.TargetIndex = Mathf.Clamp(questUI.TargetIndex + 1, 0, questUI.GetPathTransformCount() - 1);
-              questUI?.SetShowPathGuide(false);
-        }
-    }
-    
-    bool IsQuestSatisfied(QuestData data)
-    {
-        if (data.goals == null || data.goals.Count == 0)
-            return true;
-
-        foreach (var g in data.goals)
-        {
-            if (g == null) continue;
-            if (!g.IsSatisfied(_inventory, _stageDetector))
-                return false;
-        }
-        return true;
+            questUI.SetShowPathGuide(false);
     }
 
-    public void CompleteCurrent()
+    private void GrantRewards(QuestData quest)
     {
-        if (_current == null) return;
+        if (quest?.rewards == null || _inventory == null)
+            return;
 
-        var nextId = FindNextByFormer(_current.questId);
-        if (nextId == 0)
+        foreach (var reward in quest.rewards)
         {
-            _current = null;
+            if (reward == null || reward.itemId == 0 || reward.amount <= 0)
+                continue;
+
+            _inventory.AddItemFromWorld(reward.itemId, reward.amount, drop: true);
         }
-        else
+    }
+
+    private void ClearCurrentQuest()
+    {
+        _current = null;
+        _runtimeGoals.Clear();
+        _currentQuestSatisfied = false;
+        questUI?.SetShowPathGuide(false);
+        questUI?.ClearPathGuide();
+        OnQuestStateChanged?.Invoke();
+    }
+
+    private void SubscribeWorldEvents()
+    {
+        if (_inventory?.Container != null)
+            _inventory.Container.OnContainerChanged += HandleInventoryChanged;
+
+        if (ResearchManager.I != null)
+            ResearchManager.I.OnGreeningChanged += HandleGreeningChanged;
+
+        StageDetector.OnStageChanged += HandleStageChanged;
+        BuildManager.OnBuildingChanged += HandleBuildingChanged;
+    }
+
+    private void UnsubscribeWorldEvents()
+    {
+        if (_inventory?.Container != null)
+            _inventory.Container.OnContainerChanged -= HandleInventoryChanged;
+
+        if (ResearchManager.I != null)
+            ResearchManager.I.OnGreeningChanged -= HandleGreeningChanged;
+
+        StageDetector.OnStageChanged -= HandleStageChanged;
+        BuildManager.OnBuildingChanged -= HandleBuildingChanged;
+    }
+
+    private void HandleInventoryChanged()
+    {
+        ProcessEvent(QuestEvent.InventoryChanged());
+    }
+
+    private void HandleGreeningChanged(float value)
+    {
+        ProcessEvent(QuestEvent.GreeningChanged(value));
+        TryAdvanceOrPlayEnding();
+    }
+
+    private void HandleStageChanged(int stageId)
+    {
+        ProcessEvent(QuestEvent.StageChanged(stageId));
+    }
+
+    private void HandleBuildingChanged(int buildingId)
+    {
+        ProcessEvent(QuestEvent.BuildingChanged(buildingId));
+    }
+
+    private int FindFirstQuestId()
+    {
+        if (_db == null)
+            return 0;
+
+        foreach (var kv in _db.GetAll())
         {
-            SetCurrent(nextId);
+            if (kv.Value.formerQuestId == 0)
+                return kv.Value.questId;
         }
+
+        return 0;
     }
 
     private int FindNextByFormer(int formerId)
     {
+        if (_db == null)
+            return 0;
+
         foreach (var q in _db.GetAll())
         {
             if (q.Value.formerQuestId == formerId)
                 return q.Value.questId;
         }
+
         return 0;
     }
+
+    private void OnDestroy()
+    {
+        UnsubscribeWorldEvents();
+
+        if (I == this)
+            I = null;
+    }
 }
+

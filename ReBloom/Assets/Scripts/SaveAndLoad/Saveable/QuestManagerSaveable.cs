@@ -7,13 +7,17 @@ public class QuestManagerSaveable : MonoBehaviour, ISaveable
 
     public void Capture(SaveGameDTO save)
     {
-        save.quest.currentQuestId = QuestManager.I != null && QuestManager.I.Current != null
+        if (QuestManager.I == null)
+            return;
+
+        save.quest.currentQuestId = QuestManager.I.Current != null
             ? QuestManager.I.Current.questId
             : 0;
-        save.quest.firstQuestCompleted = QuestManager.I != null
-            ? QuestManager.I.FirstQuestCompleted
-            : false;
+        save.quest.firstQuestCompleted = QuestManager.I.FirstQuestCompleted;
+        save.quest.endingPlayed = QuestManager.I.EndingPlayed;
+        save.quest.goalProgress = QuestManager.I.CaptureGoalProgress();
     }
+
     public void Restore(SaveGameDTO save)
     {
         RestoreAsync(save).Forget();
@@ -21,13 +25,9 @@ public class QuestManagerSaveable : MonoBehaviour, ISaveable
 
     private async UniTaskVoid RestoreAsync(SaveGameDTO save)
     {
-        await UniTask.WaitUntil(() => BuildManager.I != null && BuildManager.I.ArcDB != null);
+        await UniTask.WaitUntil(() => QuestManager.I != null && QuestManager.I.IsInitialized);
         await UniTask.DelayFrame(1);
 
-        QuestManager.I.SetFirstQuest(save.quest.firstQuestCompleted);
-        int id = save.quest.currentQuestId;
-        if (id > 0) QuestManager.I.SetCurrent(id);
-        if (QuestManager.I.Current != null) QuestManager.I.PlayQuestCompleteAnimation();
-        
+        QuestManager.I.RestoreFromSave(save.quest);
     }
 }

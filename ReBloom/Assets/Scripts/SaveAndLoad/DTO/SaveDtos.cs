@@ -89,6 +89,17 @@ public class QuestSaveDTO
 {
     public int currentQuestId; // 0이면 없음
     public bool firstQuestCompleted;
+    public bool endingPlayed;
+    public List<QuestGoalProgressDTO> goalProgress = new List<QuestGoalProgressDTO>();
+}
+
+[Serializable]
+public class QuestGoalProgressDTO
+{
+    public int goalIndex;
+    public QuestGoalType type;
+    public int objectId;
+    public int currentCount;
 }
 
 [Serializable]
@@ -205,3 +216,4 @@ public class TransformDTO
         t.localScale = new Vector3(sx, sy, sz);
     }
 }
+
