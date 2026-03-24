@@ -13,6 +13,7 @@ public class SaveManager : MonoBehaviour
 
     [Header("Remote")]
     [SerializeField] private bool usePlayFab = true;
+    [SerializeField] private float pendingRetryIntervalSeconds = 10f;
 
     public bool IsLoading { get; private set; }
     public bool HasLoadedOnce { get; private set; }
@@ -23,8 +24,28 @@ public class SaveManager : MonoBehaviour
 
     private bool ready;
     private bool remoteReady;
+    private bool remoteInitInProgress;
+    private float nextPendingRetryTime;
 
     private const string PendingUploadKeyPrefix = "save_pending_upload_";
+    private const string DefaultSlotId = "slot1";
+
+    private enum SaveSource
+    {
+        None,
+        Local,
+        Remote
+    }
+
+    private sealed class LoadedSave
+    {
+        public SaveSource Source;
+        public SaveGameDTO Save;
+        public byte[] Bytes;
+
+        public bool HasBytes => Bytes != null && Bytes.Length > 0;
+        public bool IsValid => Save != null && HasBytes;
+    }
 
     private async void Awake()
     {
@@ -38,20 +59,7 @@ public class SaveManager : MonoBehaviour
         remoteStorage = null;
 
         if (usePlayFab)
-        {
-            try
-            {
-                await PlayFabAuth.LoginAsync();
-                remoteStorage = new PlayFabSaveStorage();
-                remoteReady = true;
-            }
-            catch (Exception e)
-            {
-                Debug.LogWarning($"[SaveManager] Remote init failed. Local only. {e}");
-                remoteReady = false;
-                remoteStorage = null;
-            }
-        }
+            await EnsureRemoteReadyAsync();
 
         ready = (localStorage != null);
     }
@@ -65,11 +73,14 @@ public class SaveManager : MonoBehaviour
     // Public API
     // ----------------------------
 
-    public async UniTask<bool> HasSaveAsync(string slotId = "slot1")
+    public async UniTask<bool> HasSaveAsync(string slotId = DefaultSlotId)
     {
         await WaitReadyAsync();
 
-        if (remoteReady && remoteStorage != null)
+        if (await localStorage.ExistsAsync(slotId))
+            return true;
+
+        if (await EnsureRemoteReadyAsync() && remoteStorage != null)
         {
             try
             {
@@ -78,10 +89,10 @@ public class SaveManager : MonoBehaviour
             catch { /* ignore */ }
         }
 
-        return await localStorage.ExistsAsync(slotId);
+        return false;
     }
 
-    public async UniTask<bool> SaveAsync(string slotId = "slot1")
+    public async UniTask<bool> SaveAsync(string slotId = DefaultSlotId)
     {
         await WaitReadyAsync();
 
@@ -104,19 +115,10 @@ public class SaveManager : MonoBehaviour
 
         await localStorage.SaveAsync(slotId, bytes);
 
-        if (remoteReady && remoteStorage != null)
+        if (await TryUploadRemoteAsync(slotId, bytes))
         {
-            try
-            {
-                await remoteStorage.SaveAsync(slotId, bytes);
-                SetPendingUpload(slotId, false);
-                Debug.Log($"[SaveAsync] Remote upload OK slot={slotId}");
-            }
-            catch (Exception e)
-            {
-                Debug.LogWarning($"[SaveAsync] Remote upload failed -> pending. {e}");
-                SetPendingUpload(slotId, true);
-            }
+            SetPendingUpload(slotId, false);
+            Debug.Log($"[SaveAsync] Remote upload OK slot={slotId}");
         }
         else
         {
@@ -127,66 +129,45 @@ public class SaveManager : MonoBehaviour
         return true;
     }
 
-    public async UniTask<bool> LoadAsync(string slotId = "slot1")
+    public async UniTask<bool> LoadAsync(string slotId = DefaultSlotId)
     {
         await WaitReadyAsync();
 
         IsLoading = true;
         try
         {
-            byte[] remoteBytes = null;
-            byte[] localBytes = null;
+            // Local-first: load the local cache first, then reconcile it with remote if available.
+            var local = await TryLoadSaveAsync(localStorage, slotId, SaveSource.Local);
 
-            if (remoteReady && remoteStorage != null)
-            {
-                try { remoteBytes = await remoteStorage.LoadAsync(slotId); }
-                catch (Exception e) { Debug.LogWarning($"[LoadAsync] Remote load failed. {e}"); }
-            }
+            LoadedSave remote = null;
+            if (await EnsureRemoteReadyAsync() && remoteStorage != null)
+                remote = await TryLoadSaveAsync(remoteStorage, slotId, SaveSource.Remote);
 
-            try { localBytes = await localStorage.LoadAsync(slotId); }
-            catch (Exception e) { Debug.LogWarning($"[LoadAsync] Local load failed. {e}"); }
-
-            if ((remoteBytes == null || remoteBytes.Length == 0) &&
-                (localBytes == null || localBytes.Length == 0))
+            if ((local == null || !local.HasBytes) &&
+                (remote == null || !remote.HasBytes))
             {
                 Debug.LogWarning($"[LoadAsync] No data slot={slotId} (remote & local empty)");
                 return false;
             }
 
-            SaveGameDTO remoteSave = null;
-            SaveGameDTO localSave = null;
-
-            if (remoteBytes != null && remoteBytes.Length > 0)
-            {
-                try { remoteSave = SaveSerializerNewtonsoft.FromBytes<SaveGameDTO>(remoteBytes, compressGzip); }
-                catch (Exception e) { Debug.LogWarning($"[LoadAsync] Remote deserialize failed. {e}"); }
-            }
-
-            if (localBytes != null && localBytes.Length > 0)
-            {
-                try { localSave = SaveSerializerNewtonsoft.FromBytes<SaveGameDTO>(localBytes, compressGzip); }
-                catch (Exception e) { Debug.LogWarning($"[LoadAsync] Local deserialize failed. {e}"); }
-            }
-
-            var chosen = ChooseNewer(remoteSave, localSave);
-            if (chosen == null)
+            var chosen = ChooseNewer(local, remote);
+            if (chosen == null || !chosen.IsValid)
             {
                 Debug.LogWarning($"[LoadAsync] Both saves invalid slot={slotId}");
                 return false;
             }
 
-            if (chosen == localSave && remoteReady && remoteStorage != null)
-            {
-                SetPendingUpload(slotId, true);
-            }
+            await SyncChosenSaveAsync(slotId, local, chosen);
 
-            if (SettingManager.I != null && chosen.settings != null)
-                SettingManager.I.Apply(chosen.settings);
+            var chosenSave = chosen.Save;
 
-            if (!string.IsNullOrEmpty(chosen.meta.sceneName) &&
-                SceneManager.GetActiveScene().name != chosen.meta.sceneName)
+            if (SettingManager.I != null && chosenSave.settings != null)
+                SettingManager.I.Apply(chosenSave.settings);
+
+            if (!string.IsNullOrEmpty(chosenSave.meta.sceneName) &&
+                SceneManager.GetActiveScene().name != chosenSave.meta.sceneName)
             {
-                await SceneManager.LoadSceneAsync(chosen.meta.sceneName);
+                await SceneManager.LoadSceneAsync(chosenSave.meta.sceneName);
             }
 
             await UniTask.WaitUntil(() => BuildManager.I != null && BuildManager.I.ArcDB != null);
@@ -194,20 +175,21 @@ public class SaveManager : MonoBehaviour
 
             var saveables = SaveRegistry.FindAllSaveablesInScene();
             foreach (var s in saveables)
-                s.Restore(chosen);
+                s.Restore(chosenSave);
 
             await UniTask.DelayFrame(1);
 
             var saveables2 = SaveRegistry.FindAllSaveablesInScene();
             foreach (var s in saveables2)
-                if (s is not WorldBuildingsSaveable) s.Restore(chosen);
+                if (s is not WorldBuildingsSaveable) s.Restore(chosenSave);
 
             HasLoadedOnce = true;
             AutoSaveService.I?.MarkClean();
 
-            Debug.Log($"[LoadAsync] slot={slotId} commit={chosen.meta.commitId} savedAt={chosen.meta.savedAtUtcTicks} (remoteReady={remoteReady})");
+            Debug.Log($"[LoadAsync] slot={slotId} source={chosen.Source} commit={chosenSave.meta.commitId} savedAt={chosenSave.meta.savedAtUtcTicks} (remoteReady={remoteReady})");
 
-            TryFlushPendingUpload(slotId).Forget();
+            if (IsPendingUpload(slotId))
+                TryFlushPendingUpload(slotId).Forget();
 
             return true;
         }
@@ -217,12 +199,12 @@ public class SaveManager : MonoBehaviour
         }
     }
 
-    public async UniTask<bool> ResetSlotAsync(string slotId = "slot1", bool saveDefaultImmediately = true)
+    public async UniTask<bool> ResetSlotAsync(string slotId = DefaultSlotId, bool saveDefaultImmediately = true)
     {
         await WaitReadyAsync();
 
         try { await localStorage.DeleteAsync(slotId); } catch { }
-        if (remoteReady && remoteStorage != null)
+        if (await EnsureRemoteReadyAsync() && remoteStorage != null)
         {
             try { await remoteStorage.DeleteAsync(slotId); } catch { }
         }
@@ -242,8 +224,8 @@ public class SaveManager : MonoBehaviour
 
     private async UniTaskVoid TryFlushPendingUpload(string slotId)
     {
-        if (!remoteReady || remoteStorage == null) return;
         if (!IsPendingUpload(slotId)) return;
+        if (!await EnsureRemoteReadyAsync() || remoteStorage == null) return;
 
         try
         {
@@ -257,6 +239,8 @@ public class SaveManager : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogWarning($"[SaveManager] Pending upload flush failed. {e}");
+            remoteReady = false;
+            remoteStorage = null;
         }
     }
 
@@ -274,22 +258,28 @@ public class SaveManager : MonoBehaviour
 #if UNITY_EDITOR
         return;
 #else
-        SaveAsync("slot1").Forget();
+        SaveAsync(DefaultSlotId).Forget();
 #endif
     }
 
     private void Update()
     {
+        if (Time.unscaledTime >= nextPendingRetryTime && IsPendingUpload(DefaultSlotId))
+        {
+            nextPendingRetryTime = Time.unscaledTime + Mathf.Max(1f, pendingRetryIntervalSeconds);
+            TryFlushPendingUpload(DefaultSlotId).Forget();
+        }
+
         if (Keyboard.current == null) return;
 
         if (Keyboard.current.homeKey.wasPressedThisFrame)
         {
-            ResetSlotAsync("slot1", saveDefaultImmediately: false).Forget();
+            ResetSlotAsync(DefaultSlotId, saveDefaultImmediately: false).Forget();
         }
 
         //if (Keyboard.current.pKey.wasPressedThisFrame)
         //{
-        //    TryFlushPendingUpload("slot1").Forget();
+        //    TryFlushPendingUpload(DefaultSlotId).Forget();
         //}
     }
 
@@ -317,15 +307,141 @@ public class SaveManager : MonoBehaviour
         return save;
     }
 
-    private SaveGameDTO ChooseNewer(SaveGameDTO a, SaveGameDTO b)
+    private LoadedSave ChooseNewer(LoadedSave local, LoadedSave remote)
     {
-        if (a == null) return b;
-        if (b == null) return a;
+        if (local == null || !local.IsValid) return remote;
+        if (remote == null || !remote.IsValid) return local;
 
-        if (a.meta.savedAtUtcTicks > b.meta.savedAtUtcTicks) return a;
-        if (b.meta.savedAtUtcTicks > a.meta.savedAtUtcTicks) return b;
+        if (local.Save.meta.savedAtUtcTicks >= remote.Save.meta.savedAtUtcTicks) return local;
+        return remote;
+    }
 
-        return a;
+    private async UniTask<bool> EnsureRemoteReadyAsync()
+    {
+        if (!usePlayFab) return false;
+        if (remoteReady && remoteStorage != null) return true;
+
+        if (remoteInitInProgress)
+        {
+            await UniTask.WaitUntil(() => !remoteInitInProgress);
+            return remoteReady && remoteStorage != null;
+        }
+
+        remoteInitInProgress = true;
+        try
+        {
+            await PlayFabAuth.LoginAsync();
+            remoteStorage ??= new PlayFabSaveStorage();
+            remoteReady = true;
+            return true;
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"[SaveManager] Remote init failed. Local only. {e}");
+            remoteReady = false;
+            remoteStorage = null;
+            return false;
+        }
+        finally
+        {
+            remoteInitInProgress = false;
+        }
+    }
+
+    private async UniTask<LoadedSave> TryLoadSaveAsync(ISaveStorage storage, string slotId, SaveSource source)
+    {
+        if (storage == null)
+            return null;
+
+        var loaded = new LoadedSave { Source = source };
+
+        try
+        {
+            loaded.Bytes = await storage.LoadAsync(slotId);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"[LoadAsync] {source} load failed. {e}");
+            return loaded;
+        }
+
+        if (!loaded.HasBytes)
+            return loaded;
+
+        try
+        {
+            loaded.Save = SaveSerializerNewtonsoft.FromBytes<SaveGameDTO>(loaded.Bytes, compressGzip);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"[LoadAsync] {source} deserialize failed. {e}");
+        }
+
+        return loaded;
+    }
+
+    private async UniTask SyncChosenSaveAsync(string slotId, LoadedSave local, LoadedSave chosen)
+    {
+        if (chosen == null || !chosen.IsValid)
+            return;
+
+        if (chosen.Source == SaveSource.Remote)
+        {
+            if (!HasSameCommit(local, chosen))
+            {
+                try
+                {
+                    await localStorage.SaveAsync(slotId, chosen.Bytes);
+                }
+                catch (Exception e)
+                {
+                    Debug.LogWarning($"[LoadAsync] Remote->Local sync failed. {e}");
+                }
+            }
+
+            SetPendingUpload(slotId, false);
+            return;
+        }
+
+        if (await TryUploadRemoteAsync(slotId, chosen.Bytes))
+        {
+            SetPendingUpload(slotId, false);
+        }
+        else
+        {
+            SetPendingUpload(slotId, true);
+        }
+    }
+
+    private async UniTask<bool> TryUploadRemoteAsync(string slotId, byte[] bytes)
+    {
+        if (bytes == null || bytes.Length == 0)
+            return false;
+
+        if (!await EnsureRemoteReadyAsync() || remoteStorage == null)
+            return false;
+
+        try
+        {
+            await remoteStorage.SaveAsync(slotId, bytes);
+            return true;
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"[SaveManager] Remote upload failed -> pending. {e}");
+            remoteReady = false;
+            remoteStorage = null;
+            return false;
+        }
+    }
+
+    private bool HasSameCommit(LoadedSave a, LoadedSave b)
+    {
+        if (a == null || b == null || a.Save == null || b.Save == null)
+            return false;
+
+        return a.Save.meta.commitId == b.Save.meta.commitId &&
+               a.Save.meta.savedAtUtcTicks == b.Save.meta.savedAtUtcTicks;
     }
 
     private void SetPendingUpload(string slotId, bool pending)
